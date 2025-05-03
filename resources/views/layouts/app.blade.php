@@ -29,13 +29,13 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    @notifyCss
-
     <!-- jQuery (Always load first) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <!-- Select2 CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
+    @notifyCss
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
     <style>
     .custom-hover:hover {
         color: white !important;
@@ -47,6 +47,11 @@
     background-color: #fde68a22; /* light transparent fill on hover */
     color: #000; /* or keep #FDE68A if you want */
 }
+.notify {
+    z-index: 9999 !important;
+    position: fixed !important;
+}
+
 
 /* .btn-outline-yellow:hover {
     color: #FDE68A;
@@ -108,7 +113,6 @@
     ***********************************-->
     <!-- Laravel Notify JS -->
     @stack('scripts')
-    @notifyJs
     <!-- Select2 JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <!-- Required vendors -->
@@ -151,6 +155,14 @@
 		});
 
 	</script>
+
+<!-- Alpine.js (for Notify to animate) -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<!-- Laravel Notify -->
+@notifyJs
+@notifyRender
+
 </body>
 
 </html>

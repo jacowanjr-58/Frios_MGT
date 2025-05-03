@@ -30,8 +30,20 @@ class EventController extends Controller
 
     public function eventCalender() {
         $events = Event::where('franchisee_id' , Auth::user()->franchisee_id)->get();
-        $badgeEvents = Event::where('franchisee_id' , Auth::user()->franchisee_id)->orderBy('created_at' , 'DESC')->get();
-        return view('franchise_admin.event.calender' , compact('events','badgeEvents'));
+        $badgeEvents = Event::where('franchisee_id', Auth::user()->franchisee_id)
+        ->orderBy('created_at', 'DESC')
+        ->get();
+
+    // Group by year and month
+    $distinctEvents = $badgeEvents->groupBy(function ($event) {
+        return Carbon::parse($event->created_at)->format('Y-m'); // Group by Year-Month (e.g., 2025-05)
+    });
+
+    // Take the first event of each group
+    $uniqueEvents = $distinctEvents->map(function ($group) {
+        return $group->first(); // Get the first event in each group
+    });
+        return view('franchise_admin.event.calender' , compact('events','uniqueEvents'));
     }
 
     public function updateStatus(Request $request)
@@ -47,6 +59,25 @@ class EventController extends Controller
         return response()->json(['success' => true , 'message' => 'Status updated successfully']);
     }
 
+    public function view($id) {
+        $event = Event::where('id' , $id)->firstorfail();
+        $eventItems = FranchiseEventItem::where('event_id' , $event->id)->get();
+        return view('franchise_admin.event.view' , compact('event','eventItems'));
+    }
+
+    public function report(Request $request) {
+        $monthYear = $request->input('month_year', Carbon::now()->format('Y-m'));
+
+        // Extract year and month from the provided monthYear
+        $year = Carbon::parse($monthYear)->year;
+        $month = Carbon::parse($monthYear)->month;
+
+        // Fetch the data based on the selected or default month/year
+        $eventItems = FranchiseEventItem::whereYear('created_at', $year)
+                                         ->whereMonth('created_at', $month)
+                                         ->get();
+        return view('franchise_admin.event.report', compact('eventItems'));
+    }
 
     public function create() {
         $currentMonth = strval(Carbon::now()->format('n'));
@@ -96,14 +127,14 @@ class EventController extends Controller
             'expected_sales' => 'nullable|numeric',
             'actual_sales' => 'nullable|numeric',
             'costs' => 'nullable|numeric',
-            'notes' => 'nullable|string',
+            'event_notes' => 'nullable|string',
             'resources_selection' => 'nullable|array',
             'event_type' => 'nullable|string|max:100',
             'planned_payment' => 'nullable|in:cash,check,inovice,credit-card',
-            'in_stock' => 'required|array',
+            'in_stock' => 'nullable|array',
             'orderable' => 'required|array',
             'quantity' => 'required|array',
-            'in_stock.*' => 'required|integer',
+            'in_stock.*' => 'nullable|integer',
             'orderable.*' => 'required|integer',
             'quantity.*' => 'required|numeric|min:0',
         ]);
@@ -120,18 +151,18 @@ class EventController extends Controller
                 'expected_sales' => $validated['expected_sales'] ?? null,
                 'actual_sales' => $validated['actual_sales'] ?? null,
                 'costs' => $validated['costs'] ?? null,
-                'event_notes' => $validated['notes'] ?? null,
+                'event_notes' => $validated['event_notes'] ?? null,
                 'resources_selection' => json_encode($validated['resources_selection'] ?? []),
                 'event_type' => $validated['event_type'] ?? null,
                 'planned_payment' => $validated['planned_payment'] ?? null,
             ]);
 
             // 3. Save Event Items
-            foreach ($validated['in_stock'] as $index => $inStockId) {
+            foreach ($validated['orderable'] as $index => $orderableId) {
                 FranchiseEventItem::create([
                     'event_id' => $event->id,
-                    'in_stock' => $inStockId,
-                    'orderable' => $validated['orderable'][$index],
+                    'in_stock' => $validated['in_stock'][$index] ?? null,
+                    'orderable' => $orderableId,
                     'quantity' => $validated['quantity'][$index],
                 ]);
             }
@@ -146,5 +177,61 @@ class EventController extends Controller
         $inventory = InventoryAllocation::get();
         return view('franchise_admin.event.compare', compact('event','inventory'));
         // dd($event);
+    }
+
+    public function date(Request $request){
+        $startDate = Carbon::parse($request->start_date);
+        $endDate = Carbon::parse($request->end_date);
+
+        // Calculate the difference between the start and end date
+        $diffInDays = $startDate->diffInDays($endDate);
+
+        // Check if the duration is less than 15 days and modify the $pops query accordingly
+        if ($diffInDays < 15) {
+            // If the duration is less than 15 days, set $pops to null and return a message
+            $pops = null;
+            $message = 'No Orderable pops will be available within the 15-day duration.';
+        } else {
+            // Fetch pops data if the duration is greater than or equal to 15 days
+            $pops = FpgItem::where('orderable', 1)
+                ->where('internal_inventory', '>', 0)
+                ->get();
+            $message = null;
+        }
+
+        // Fetch order details based on orders within the date range
+        $orders = DB::table('fpg_orders')
+            ->where('status', 'Delivered')
+            ->get();
+
+        $orderIds = $orders->pluck('fgp_ordersID');
+
+        $orderDetails = DB::table('fgp_order_details')
+            ->join('fpg_items', 'fgp_order_details.fgp_item_id', '=', 'fpg_items.fgp_item_id')
+            ->whereIn('fgp_order_details.fpg_order_id', $orderIds)
+            ->select(
+                'fgp_order_details.fgp_item_id',
+                'fpg_items.name as item_name',
+                DB::raw('SUM(fgp_order_details.unit_number) as total_units')
+            )
+            ->groupBy('fgp_order_details.fgp_item_id', 'fpg_items.name')
+            ->get();
+
+
+
+            $html = view('franchise_admin.event.flavor', [
+                'orderDetails' => $orderDetails,
+                'pops' => $pops,
+                'startDate' => $startDate->toDateString(),
+                'endDate' => $endDate->toDateString(),
+                'orderCount' => $orders->count(),
+            ])->render();
+
+            // Return JSON with rendered HTML
+            return response()->json([
+                'success' => true,
+                'html' => $html,
+                'message' => $message
+            ]);
     }
 }

@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         events: window.eventsData.map(function(event) {
     return {
+        id: event.id,
         title: event.event_type
             ? event.event_name + " - " + event.event_type
             : event.event_name,
@@ -63,7 +64,12 @@ document.addEventListener('DOMContentLoaded', function() {
         end: event.end_date,
         className: event.className || ""
     };
-})
+}),
+eventClick: function(info) {
+    // Redirect to the correct URL
+    window.location.href = '/franchise/events/' + info.event.id + '/view';
+}
+
 
     });
 
@@ -86,8 +92,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="">
                             <div id="external-events" class="my-3">
                                 <p>Click in the calendar to create events.</p>
-                                @foreach ($badgeEvents as $index=>$badgeEvent)
-                                <div class="p-3 mt-3
+                                @foreach ($uniqueEvents as $index=>$badgeEvent)
+                                <div onclick="window.location.href='{{ route('franchise.events.report', ['month_year' => \Carbon\Carbon::parse($badgeEvent->created_at)->format('Y-m')]) }}'" class="cursor-pointer p-3 mt-3
                                         {{ $badgeEvent->event_status == 'scheduled' ? 'btn-outline-yellow' :
                                         ($badgeEvent->event_status == 'tentative' ? 'bg-success' :
                                         ($badgeEvent->event_status == 'staffed' ? 'btn-danger' : '')) }} light">

@@ -148,9 +148,12 @@ Route::middleware(['auth', 'role:franchise_admin|franchise_manager'])->prefix('f
     Route::get('/events', [EventController::class, 'index'])->name('events.index');
     Route::get('/events/calender', [EventController::class, 'eventCalender'])->name('events.calender');
     Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
+    Route::get('/events/{id}/view', [EventController::class, 'view'])->name('events.view');
+    Route::get('/events/report', [EventController::class, 'report'])->name('events.report');
     Route::post('/events', [EventController::class, 'store'])->name('events.store');
     Route::post('/events/update-status', [EventController::class, 'updateStatus'])->name('updateStatus');
     Route::get('/events/{event}/compare', [EventController::class, 'compare'])->name('events.compare');
+    Route::post('/events/date', [EventController::class, 'date'])->name('events.date');
 
 });
 

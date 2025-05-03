@@ -139,6 +139,7 @@
 					<ul aria-expanded="false">
 							<li><a href="{{ route('franchise.events.index') }}">Events List</a></li>
 							<li><a href="{{ route('franchise.events.calender') }}">Calender</a></li>
+							<li><a href="{{ route('franchise.events.report') }}">Report</a></li>
 						</ul>
 					</li>
                 {{-- <li><a class="ai-icon" href="{{ route('franchise.events.index') }}" aria-expanded="false">
@@ -192,10 +193,17 @@
                         <i class="bi bi-person-fill-add"></i>
                         <span class="nav-text">Customers</span>
                     </a></li>
-                    <li><a class="ai-icon" href="{{ route('franchise.events.index') }}" aria-expanded="false">
-                        <i class="bi bi-calendar-week-fill"></i>
-                        <span class="nav-text">Events</span>
-                    </a></li>
+                    <li><a class="has-arrow ai-icon" href="javascript:void()" aria-expanded="false">
+						<!-- <i class="flaticon-033-feather"></i> -->
+						<i class="bi bi-calendar-week-fill"></i>
+						<span class="nav-text"><span>Event</span></span>
+					</a>
+					<ul aria-expanded="false">
+							<li><a href="{{ route('franchise.events.index') }}">Events List</a></li>
+							<li><a href="{{ route('franchise.events.calender') }}">Calender</a></li>
+							<li><a href="{{ route('franchise.events.report') }}">Report</a></li>
+						</ul>
+					</li>
             @endrole
             @role('franchise_staff')
                 <li><a class="ai-icon" href="pos.html" aria-expanded="false">

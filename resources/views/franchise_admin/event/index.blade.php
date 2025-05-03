@@ -4,16 +4,19 @@
 .status-wrapper.status-tentative {
     background-color: #f87171;
     color: white;
+    border-radius: 10px;
 }
 
 .status-wrapper.status-scheduled {
     background-color: #fde68a;
     color: black;
+    border-radius: 10px;
 }
 
 .status-wrapper.status-staffed {
     background-color: #4ade80;
     color: white;
+    border-radius: 10px;
 }
 
 .status-wrapper select {
@@ -36,7 +39,7 @@
                     Create Event
                 </a> --}}
             </div>
-            <table class="table customer-table display mb-4 fs-14 card-table dataTable no-footer" id="dynamicTable">
+            <table id="example5" class="table customer-table display mb-4 fs-14 card-table">
                 <thead>
                     <tr>
                         <th>Status</th>
@@ -72,7 +75,10 @@
 
 
                             <td>
-                                {{ $event->event_name }}
+                                <a href="{{ route('franchise.events.view',$event->id) }}" style="color: inherit; text-decoration: none;" onmouseover="this.style.color='blue'" onmouseout="this.style.color='inherit'">
+                                    {{ $event->event_name }}
+                                </a>
+
                             </td>
                             <td>
                                 {{ date('d M Y', strtotime($event->start_date)) }}
