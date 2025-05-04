@@ -234,4 +234,27 @@ class EventController extends Controller
                 'message' => $message
             ]);
     }
+
+    public function eventCalenderAdmin(){
+        $events = Event::get();
+        $badgeEvents = Event::orderBy('created_at', 'DESC')
+        ->get();
+
+        // Group by year and month
+        $distinctEvents = $badgeEvents->groupBy(function ($event) {
+            return Carbon::parse($event->created_at)->format('Y-m'); // Group by Year-Month (e.g., 2025-05)
+        });
+
+        // Take the first event of each group
+        $uniqueEvents = $distinctEvents->map(function ($group) {
+            return $group->first(); // Get the first event in each group
+        });
+            return view('corporate_admin.event.calender' , compact('events','uniqueEvents'));
+    }
+
+    public function viewAdmin($id){
+        $event = Event::where('id' , $id)->firstorfail();
+        $eventItems = FranchiseEventItem::where('event_id' , $event->id)->get();
+        return view('corporate_admin.event.view' , compact('event','eventItems'));
+    }
 }

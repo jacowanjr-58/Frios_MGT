@@ -83,7 +83,6 @@
                             <table id="example5" class="table customer-table display mb-4 fs-14 card-table">
                                 <thead>
                                     <tr>
-                                        <th>User Name</th>
                                         <th>Items Ordered</th>
                                         <th>Status</th>
                                         <th>Total Price</th>
@@ -99,7 +98,6 @@
                                             ->value('total');
                                     @endphp
                                     <tr style="text-wrap: no-wrap;">
-                                        <td>{{ $order->user->name ?? 'N/A' }}</td>
                                         <td>
                                             <span class="cursor-pointer text-primary order-detail-trigger" data-id="{{ $order->fgp_ordersID }}">
                                                 {{ \DB::table('fgp_order_details')->where('fpg_order_id', $order->fgp_ordersID)->count() }} items

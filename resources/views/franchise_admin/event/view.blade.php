@@ -29,7 +29,7 @@
                     Event View : {{ $event->event_name }}
                 </h1>
 
-                <a href="{{ route('franchise.events.index') }}" class="btn btn-primary " style="margin-right: 50px;">
+                <a href="javascript:history.back()" class="btn btn-primary" style="margin-right: 50px;">
                     Back
                 </a>
             </div>

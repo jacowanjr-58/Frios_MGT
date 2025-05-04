@@ -162,7 +162,10 @@
                                         ->value('total');
                                 @endphp
                                 <tr style="text-wrap: no-wrap;">
-                                    <td>{{ $order->user->name ?? 'N/A' }}</td>
+                                    @php
+                                        $franchisee = App\Models\user::where('franchisee_id' , $order->user_ID)->first();
+                                    @endphp
+                                    <td>{{ $franchisee->name ?? 'N/A' }}</td>
                                     <td>
                                         <span class="cursor-pointer text-primary order-detail-trigger" data-id="{{ $order->fgp_ordersID }}">
                                             {{ \DB::table('fgp_order_details')->where('fpg_order_id', $order->fgp_ordersID)->count() }} items

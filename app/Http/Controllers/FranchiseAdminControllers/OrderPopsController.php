@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\FpgItem;
 use App\Models\FpgOrder;
 use App\Models\FpgCategory;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Models\AdditionalCharge;
 use Illuminate\Support\Facades\Log;
@@ -127,10 +128,8 @@ public function store(Request $request)
 {
     $minCases = 12; // Can be made configurable via settings
     $factorCase = 3; // Can be made configurable via settings
-
     // Validate request
     $validated = $request->validate([
-
         'items' => 'required|array',
         'items.*.fgp_item_id' => 'required|exists:fpg_items,fgp_item_id',
         'items.*.user_ID' => 'required|exists:users,user_id',
@@ -152,7 +151,7 @@ public function store(Request $request)
     }
 
     $orders = FpgOrder::create([
-        'user_ID' => Auth::id(),
+        'user_ID' => Auth::user()->franchisee_id,
         'date_transaction' => now(),
         'status' => 'Pending',
     ]);
@@ -168,7 +167,7 @@ public function store(Request $request)
         ]);
     }
 
-    return redirect()->route('franchise.orderpops.index')->with('success', 'Order placed successfully!');
+    return redirect()->route('franchise.orderpops.view')->with('success', 'Order placed successfully!');
 }
 
 
@@ -191,7 +190,7 @@ public function viewOrders()
     //         return $order;
     //     });
 
-    $orders = FpgOrder::where('user_ID' , Auth::id())->get();
+    $orders = FpgOrder::where('user_ID' , Auth::user()->franchisee_id)->get();
 
     $totalOrders = $orders->count();
 
@@ -199,5 +198,13 @@ public function viewOrders()
 }
 
 
+public function customer($franchisee_id)
+{
+    $customers = Customer::where('franchisee_id', $franchisee_id)->get();
+
+    return response()->json([
+        'data' => $customers,
+    ]);
+}
 }
 

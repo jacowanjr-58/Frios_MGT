@@ -12,12 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('expense_categories', function (Blueprint $table) {
-            $table->id('expensecategory_ID');
-            $table->string('main_category'); // e.g., Inventory & Supplies, Vehicle Costs, etc.
-            $table->string('sub_category'); // Specific type under the main category
+            $table->id();
+            $table->string('category');
             $table->timestamps();
         });
-        
+
     }
 
     /**

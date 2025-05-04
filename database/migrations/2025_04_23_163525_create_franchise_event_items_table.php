@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('franchise_event_items', function (Blueprint $table) {
             $table->id();
             $table->integer('event_id');
-            $table->integer('in_stock');
+            $table->integer('in_stock')->nullable();
             $table->integer('orderable');
             $table->integer('quantity');
             $table->timestamps();

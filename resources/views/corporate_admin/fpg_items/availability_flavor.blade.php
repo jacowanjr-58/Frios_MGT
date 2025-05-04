@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('content')
-  
+
 <!-- Add CSS for the toggle switch -->
 <style>
     .toggle-switch {
@@ -55,12 +55,12 @@
         <div class="content-body default-height">
             <!-- row -->
 			<div class="container-fluid">
-				
+
 				<div class="form-head mb-4 d-flex flex-wrap align-items-center">
 					<div class="me-auto">
 						<h2 class="font-w600 mb-0">Dashboard \</h2>
 						<p>Flover Availability List</p>
-					</div>	
+					</div>
 					<div class="input-group search-area2 d-xl-inline-flex mb-2 me-lg-4 me-md-2">
 						<button class="input-group-text"><i class="flaticon-381-search-2 text-primary"></i></button>
 						<input type="text" class="form-control" placeholder="Search here...">
@@ -114,7 +114,7 @@
                                         <a href="javascript:void(0);" class="btn btn-outline-warning rounded ms-2">Edit</a>
                                         <a href="javascript:void(0);" class="btn btn-danger rounded ms-2">Delete</a>
                                     </div>
-                                </div>							
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -151,22 +151,22 @@
                                         @php $datesAvailable = json_decode($flavor->dates_available, true) ?? []; @endphp
                                         @foreach(range(1, 12) as $month)
                                             <td>
-                                                <input type="checkbox" class="month-checkbox" data-flavor-id="{{ $flavor->fgp_item_id }}" data-month="{{ $month }}" 
+                                                <input type="checkbox" class="month-checkbox" data-flavor-id="{{ $flavor->fgp_item_id }}" data-month="{{ $month }}"
                                                 {{ in_array($month, $datesAvailable) ? 'checked' : '' }}>
                                             </td>
                                         @endforeach
                                     </tr>
                                     @endforeach
-                                </tbody>                                
+                                </tbody>
                             </table>
-                            
+
 						</div>
 					</div>
 				</div>
             </div>
-			
+
         </div>
-      
+
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
             $(document).ready(function () {
@@ -217,6 +217,6 @@
                 });
             });
         </script>
-        
+
 
 @endsection

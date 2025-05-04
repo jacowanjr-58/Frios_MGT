@@ -17,17 +17,16 @@ return new class extends Migration
             $table->string('name');
             $table->string('address1')->nullable();
             $table->string('address2')->nullable();
-            $table->string('zip_code', 5)->nullable();
-            $table->string('state', 2)->nullable();
+            $table->string('zip_code')->nullable();
+            $table->string('state')->nullable();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
-            $table->text('address')->nullable();
             $table->timestamps();
-        
+
             // Foreign Key
             $table->foreign('franchisee_id')->references('franchisee_id')->on('franchisees')->onDelete('cascade');
         });
-        
+
     }
 
     /**

@@ -13,13 +13,12 @@ return new class extends Migration
     {
         Schema::create('fpg_orders', function (Blueprint $table) {
             $table->id('fgp_ordersID');
-            $table->unsignedBigInteger('user_ID');
+            $table->integer('user_ID');
+            $table->integer('customer_id')->nullable();
             $table->dateTime('date_transaction');
             $table->json('ACH_data')->nullable();
             $table->enum('status', ['Pending', 'Paid','Shipped','Delivered']);
             $table->timestamps();
-
-            $table->foreign('user_ID')->references('user_id')->on('users')->onDelete('cascade');
         });
 
     }
@@ -32,4 +31,3 @@ return new class extends Migration
         Schema::dropIfExists('fpg_orders');
     }
 };
-    

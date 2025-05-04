@@ -21,7 +21,7 @@ class InventoryController extends Controller
         $pendingOrders = FpgOrder::where('status', 'pending')->count();
 
 
-        // $orders = FpgOrder::where('user_ID', Auth::id())
+        // $orders = FpgOrder::where('user_ID', Auth::user()->franchisee_id)
         // ->select(
         //     'user_ID',
         //     'date_transaction',
@@ -38,7 +38,7 @@ class InventoryController extends Controller
         //     return $order;
         // });
 
-        $orders = FpgOrder::where('user_ID' , Auth::id())->get();
+        $orders = FpgOrder::where('user_ID' , Auth::user()->franchisee_id)->get();
 
     $totalOrders = $orders->count();
 
@@ -98,7 +98,7 @@ class InventoryController extends Controller
             dd('Error: ' . $e->getMessage());
         }
     }
-
+    
 
     public function allocateInventory(Request $request)
     {

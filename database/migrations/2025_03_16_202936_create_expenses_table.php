@@ -12,18 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('expenses', function (Blueprint $table) {
-            $table->id('expenses_id');
+            $table->id();
             $table->unsignedBigInteger('franchisee_id');
-            $table->unsignedBigInteger('expensecategory_ID');
+            $table->integer('category_id');
+            $table->integer('sub_category_id');
+            $table->string('name');
             $table->decimal('amount', 10, 2);
-            $table->dateTime('date');
-            $table->text('description')->nullable();
+            $table->date('date');
             $table->timestamps();
-        
+
             // Foreign Keys
-            $table->foreign('franchisee_id')->references('franchisee_id')->on('franchisees')->onDelete("cascade");
+            $table->foreign('franchisee_id')->references('user_id')->on('users')->onDelete('cascade');
         });
-        
+
     }
 
     /**

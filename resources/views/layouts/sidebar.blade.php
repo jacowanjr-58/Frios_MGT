@@ -45,7 +45,7 @@
                     </a>
                     <ul aria-expanded="false">
                         <li><a href="{{ route('corporate_admin.vieworders.index') }}">View Orders</a></li>
-                        <li><a href="edit_orders.html">Edit/Delete Orders</a></li>
+                        <li><a href="{{ route('corporate_admin.orderposps') }}">Edit/Delete Orders</a></li>
                         <li><a href="{{ route('corporate_admin.additionalcharges.index') }}">Edit Charges</a></li>
                     </ul>
                 </li>
@@ -63,8 +63,8 @@
                         <span class="nav-text">Expenses</span>
                     </a>
                     <ul aria-expanded="false">
-                        <li><a href="expenses_by_category.html">Expenses by Category</a></li>
-                        <li><a href="expenses_by_franchisee.html">Expenses by Franchisee</a></li>
+                        <li><a href="{{ route('corporate_admin.expense-category') }}">Expenses by Category</a></li>
+                        <li><a href="{{ route('corporate_admin.expense.franchisee') }}">Expenses by Franchisee</a></li>
                         <li><a href="edit_expense_categories.html">Edit Expense Categories</a></li>
                     </ul>
                 </li>
@@ -73,7 +73,7 @@
                         <span class="nav-text">Customers</span>
                     </a>
                     <ul aria-expanded="false">
-                        <li><a href="customers_by_franchisee.html">Customers by Franchisee</a></li>
+                        <li><a href="{{ route('corporate_admin.customer') }}">Customers by Franchisee</a></li>
                     </ul>
                 </li>
                 <li><a class="has-arrow ai-icon" href="javascript:void()" aria-expanded="false">
@@ -81,7 +81,7 @@
                         <span class="nav-text">Events</span>
                     </a>
                     <ul aria-expanded="false">
-                        <li><a href="events_by_franchisee.html">Events by Franchisee</a></li>
+                        <li><a href="{{ route('corporate_admin.events.calender') }}">Calender</a></li>
                     </ul>
                 </li>
             @endrole
@@ -123,11 +123,11 @@
                         <span class="nav-text">Expenses</span>
                     </a>
                     <ul aria-expanded="false">
-                        <li><a href="expenses_list.html">Expenses List</a></li>
+                        <li><a href="{{ route('franchise.expense') }}">Expenses List</a></li>
                         <li><a href="expense_categories.html">Expense Categories</a></li>
                     </ul>
                 </li>
-                <li><a class="ai-icon" href="customers.html" aria-expanded="false">
+                <li><a class="ai-icon" href="{{ route('franchise.customer') }}" aria-expanded="false">
                         <i class="bi bi-person-fill-add"></i>
                         <span class="nav-text">Customers</span>
                     </a></li>
@@ -185,11 +185,11 @@
                         <span class="nav-text">Expenses</span>
                     </a>
                     <ul aria-expanded="false">
-                        <li><a href="expenses_list.html">Expenses List</a></li>
+                        <li><a href="{{ route('franchise.expense') }}">Expenses List</a></li>
                         <li><a href="expense_categories.html">Expense Categories</a></li>
                     </ul>
                 </li>
-                <li><a class="ai-icon" href="customers.html" aria-expanded="false">
+                <li><a class="ai-icon" href="{{ route('franchise.customer') }}" aria-expanded="false">
                         <i class="bi bi-person-fill-add"></i>
                         <span class="nav-text">Customers</span>
                     </a></li>
@@ -210,7 +210,7 @@
                         <i class="bi bi-cart-check-fill"></i>
                         <span class="nav-text">POS</span>
                     </a></li>
-                <li><a class="ai-icon" href="flavors.html" aria-expanded="false">
+                <li><a class="ai-icon" href="{{ route('franchise_staff.flavors') }}" aria-expanded="false">
                         <i class="bi bi-basket3-fill"></i>
                         <span class="nav-text">Flavors</span>
                     </a></li>
@@ -219,8 +219,8 @@
                         <span class="nav-text">Customers</span>
                     </a>
                     <ul aria-expanded="false">
-                        <li><a href="viewcustomers.html">Customers List</a></li>
-                        <li><a href="addcustomer.html">Add Customer</a></li>
+                        <li><a href="{{ route('franchise_staff.customer') }}">Customers List</a></li>
+                        <li><a href="{{ route('franchise_staff.customer.create') }}">Add Customer</a></li>
                     </ul>
                 </li>
                 <li><a class="ai-icon" href="sales.html" aria-expanded="false">
@@ -232,7 +232,7 @@
                         <span class="nav-text">Events</span>
                     </a>
                     <ul aria-expanded="false">
-                        <li><a href="events.html">Events List</a></li>
+                        <li><a href="{{ route('franchise_staff.events.calendar') }}">Calender</a></li>
                     </ul>
                 </li>
             @endrole

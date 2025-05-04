@@ -105,9 +105,12 @@
                                         ->where('fpg_order_id', $order->fgp_ordersID)
                                         ->selectRaw('SUM(unit_number * unit_cost) as total')
                                         ->value('total');
+
+                                        $franchisee = App\Models\Franchisee::where('franchisee_id' , $order->user_ID)->first();
+                                        $customer = App\Models\Customer::where('customer_id' , $order->customer_id)->first();
                                 @endphp
                                     <tr style="text-wrap: nowrap;">
-                                        <td>{{ $order->user->name ?? 'N/A' }}</td>
+                                        <td>{{ $customer->name ?? $franchisee->business_name }}</td>
                                         <td>
                                             <span class="cursor-pointer text-primary order-detail-trigger" data-id="{{ $order->fgp_ordersID }}">
                                                 {{ \DB::table('fgp_order_details')->where('fpg_order_id', $order->fgp_ordersID)->count() }} items
