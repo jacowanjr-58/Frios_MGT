@@ -7,12 +7,12 @@
         <div class="content-body default-height">
             <!-- row -->
 			<div class="container-fluid">
-				
+
 				<div class="form-head mb-4 d-flex flex-wrap align-items-center">
 					<div class="me-auto">
 						<h2 class="font-w600 mb-0">Dashboard \</h2>
 						<p>Flover Items List</p>
-					</div>	
+					</div>
 					<div class="input-group search-area2 d-xl-inline-flex mb-2 me-lg-4 me-md-2">
 						<button class="input-group-text"><i class="flaticon-381-search-2 text-primary"></i></button>
 						<input type="text" class="form-control" placeholder="Search here...">
@@ -24,7 +24,7 @@
 								<path d="M2.33362 22.1669C2.33362 23.0952 2.70237 23.9854 3.35874 24.6418C4.01512 25.2982 4.90536 25.6669 5.83362 25.6669H22.167C23.0952 25.6669 23.9854 25.2982 24.6418 24.6418C25.2982 23.9854 25.667 23.0952 25.667 22.1669V12.8336H2.33362V22.1669Z" fill="#0E8A74"/>
 							</svg>
 							<div class="text-start ms-3 flex-1">
-								<span class="d-block text-black">Change Periode</span>
+								<span class="d-block text-black">Change Period</span>
 								<small class="d-block text-muted">August 28th - October 28th, 2021</small>
 							</div>
 							<i class="fa fa-caret-down text-light scale5 ms-3"></i>
@@ -66,7 +66,7 @@
                                         <a href="javascript:void(0);" class="btn btn-outline-warning rounded ms-2">Edit</a>
                                         <a href="javascript:void(0);" class="btn btn-danger rounded ms-2">Delete</a>
                                     </div>
-                                </div>							
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -129,15 +129,15 @@
                                                     No Category
                                                 @endif
                                             </td>
-                                            
-                                            
+
+
                                             {{-- <td>
                                                 <select class="orderable-dropdown" data-id="{{ $item->fgp_item_id }}" style="width:5rem;">
                                                     <option value="1" {{ $item->orderable == 1 ? 'selected' : '' }}>Yes</option>
                                                     <option value="0" {{ $item->orderable == 0 ? 'selected' : '' }}>No</option>
                                                 </select>
                                             </td> --}}
-                                            
+
                                             <td>
                                                 <div class="d-flex">
                                                     <a href="{{ route('corporate_admin.fpgitem.edit', $item->fgp_item_id) }}" class="edit-user">
@@ -149,7 +149,7 @@
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="ms-4 delete-user">
-                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> 
+                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                                 <path d="M3 6H5H21" stroke="#FF3131" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                                 <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="#FF3131" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                             </svg>
@@ -160,14 +160,14 @@
                                         </tr>
                                     @endforeach
                                 </tbody>
-                            
-                                
+
+
 							</table>
 						</div>
 					</div>
 				</div>
             </div>
-			
+
         </div>
         <!--**********************************
             Content body end
@@ -176,11 +176,11 @@
         <script>
             $(document).ready(function() {
                 $('.orderable-dropdown').change(function() {
-                    let itemId = $(this).data('id');  
+                    let itemId = $(this).data('id');
                     let orderableValue = $(this).val();
-        
+
                     $.ajax({
-                        url: "{{ route('corporate_admin.fpgitem.updateOrderable') }}", 
+                        url: "{{ route('corporate_admin.fpgitem.updateOrderable') }}",
                         type: "POST",
                         data: {
                             _token: "{{ csrf_token() }}",
@@ -190,7 +190,7 @@
                         success: function(response) {
                             console.log(response); // Debugging: Check response in console
                             if (response.success) {
-                                // location.reload(); 
+                                // location.reload();
                             } else {
                                 alert("Error: " + response.message);
                             }
@@ -203,6 +203,6 @@
                 });
             });
         </script>
-        
+
 
 @endsection

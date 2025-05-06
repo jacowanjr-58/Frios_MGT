@@ -4,7 +4,7 @@
 {{-- <div class="container">
     <h1>Franchise List</h1>
     <a href="{{ route('corporate_admin.franchise.create') }}" class="btn btn-primary">Add Franchise</a>
-    
+
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
@@ -44,12 +44,12 @@
         <div class="content-body default-height">
             <!-- row -->
 			<div class="container-fluid">
-				
+
 				<div class="form-head mb-4 d-flex flex-wrap align-items-center">
 					<div class="me-auto">
 						<h2 class="font-w600 mb-0">Dashboard \</h2>
 						<p>Franchise List</p>
-					</div>	
+					</div>
 					<div class="input-group search-area2 d-xl-inline-flex mb-2 me-lg-4 me-md-2">
 						<button class="input-group-text"><i class="flaticon-381-search-2 text-primary"></i></button>
 						<input type="text" class="form-control" placeholder="Search here...">
@@ -61,7 +61,7 @@
 								<path d="M2.33362 22.1669C2.33362 23.0952 2.70237 23.9854 3.35874 24.6418C4.01512 25.2982 4.90536 25.6669 5.83362 25.6669H22.167C23.0952 25.6669 23.9854 25.2982 24.6418 24.6418C25.2982 23.9854 25.667 23.0952 25.667 22.1669V12.8336H2.33362V22.1669Z" fill="#0E8A74"/>
 							</svg>
 							<div class="text-start ms-3 flex-1">
-								<span class="d-block text-black">Change Periode</span>
+								<span class="d-block text-black">Change Period</span>
 								<small class="d-block text-muted">August 28th - October 28th, 2021</small>
 							</div>
 							<i class="fa fa-caret-down text-light scale5 ms-3"></i>
@@ -94,7 +94,7 @@
                                         <a href="javascript:void(0);" class="btn btn-outline-warning rounded ms-2">Edit</a>
                                         <a href="javascript:void(0);" class="btn btn-danger rounded ms-2">Delete</a>
                                     </div>
-                                </div>							
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -125,7 +125,7 @@
                                         <th>Territory Zip codes</th>
                                         <th>Actions</th>
                                     </tr>
-                                </thead>                                
+                                </thead>
 								<tbody>
                                     @foreach ($franchisees as $franchisee)
                                         <tr>
@@ -146,11 +146,11 @@
                                                     $zipCodes = explode(',', $franchisee->location_zip); // Convert ZIP codes into an array
                                                     $chunks = array_chunk($zipCodes, 5); // Split array into chunks of 5
                                                 @endphp
-                                            
+
                                                 @foreach($chunks as $chunk)
                                                     {{ implode(', ', $chunk) }}<br>
                                                 @endforeach
-                                            </td>                                            
+                                            </td>
                                             <!-- No data available for 'Last Order' -->
                                             {{-- <td class="text-secondary font-w500">$0</td> <!-- No data available for 'Total Spent' --> --}}
                                             <td>
@@ -160,7 +160,7 @@
                                                             <path d="M17 3C17.2626 2.73735 17.5744 2.52901 17.9176 2.38687C18.2608 2.24473 18.6286 2.17157 19 2.17157C19.3714 2.17157 19.7392 2.24473 20.0824 2.38687C20.4256 2.52901 20.7374 2.73735 21 3C21.2626 3.26264 21.471 3.57444 21.6131 3.9176C21.7553 4.26077 21.8284 4.62856 21.8284 5C21.8284 5.37143 21.7553 5.73923 21.6131 6.08239C21.471 6.42555 21.2626 6.73735 21 7L7.5 20.5L2 22L3.5 16.5L17 3Z" stroke="#FF7B31" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                         </svg>
                                                     </a>
-                                                    
+
                                                     <form action="{{ route('corporate_admin.franchise.destroy', $franchisee->franchisee_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this franchisee?')">
                                                         @csrf
                                                         @method('DELETE')
@@ -173,22 +173,22 @@
                                                     </form>
                                                 </div>
                                             </td>
-                                            
+
                                         </tr>
                                     @endforeach
                                 </tbody>
-                                
+
 							</table>
 						</div>
 					</div>
 				</div>
             </div>
-			
+
         </div>
         <!--**********************************
             Content body end
         ***********************************-->
-		
+
 		<script>
             document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".edit-franchisee").forEach(button => {

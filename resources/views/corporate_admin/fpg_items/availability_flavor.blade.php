@@ -72,7 +72,7 @@
 								<path d="M2.33362 22.1669C2.33362 23.0952 2.70237 23.9854 3.35874 24.6418C4.01512 25.2982 4.90536 25.6669 5.83362 25.6669H22.167C23.0952 25.6669 23.9854 25.2982 24.6418 24.6418C25.2982 23.9854 25.667 23.0952 25.667 22.1669V12.8336H2.33362V22.1669Z" fill="#0E8A74"/>
 							</svg>
 							<div class="text-start ms-3 flex-1">
-								<span class="d-block text-black">Change Periode</span>
+								<span class="d-block text-black">Change Period</span>
 								<small class="d-block text-muted">August 28th - October 28th, 2021</small>
 							</div>
 							<i class="fa fa-caret-down text-light scale5 ms-3"></i>

@@ -28,7 +28,7 @@
                                 fill="#0E8A74" />
                         </svg>
                         <div class="text-start ms-3 flex-1">
-                            <span class="d-block text-black">Change Periode</span>
+                            <span class="d-block text-black">Change Period</span>
                             <small class="d-block text-muted">August 28th - October 28th, 2021</small>
                         </div>
                         <i class="fa fa-caret-down text-light scale5 ms-3"></i>
