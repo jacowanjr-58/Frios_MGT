@@ -51,11 +51,7 @@
                                             </span>
                                             <x-input-error :messages="$errors->get('password')" class="mt-2" />
                                         </div>
-                                        @if (session('error'))
-                                            <div class="alert alert-danger text-center">
-                                                {{ session('error') }}
-                                            </div>
-                                        @endif
+
                                         <div class="form-row d-flex flex-wrap justify-content-between mt-4 mb-2">
                                             <div class="form-group">
                                                 <div class="form-check custom-checkbox ms-1">

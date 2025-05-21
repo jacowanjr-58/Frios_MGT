@@ -121,6 +121,10 @@
                                 <i class="bi bi-people-fill text-primary"></i>
                                 <span class="ms-2">Manage Users</span>
                             </a>
+                            <a href="{{ route('franchise.stripe') }}" class="dropdown-item ai-icon d-flex">
+                                <i class="bi bi-stripe text-primary"></i>
+                                <span class="ms-2">Stripe</span>
+                            </a>
                             @endrole
                             @role('franchise_manager')
                             <a href="{{ route('franchise.staff.index') }}" class="dropdown-item ai-icon d-flex">

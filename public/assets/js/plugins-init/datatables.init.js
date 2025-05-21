@@ -79,7 +79,7 @@ let dataSet = [
 
         "scrollY":        "42vh",
         "scrollCollapse": true,
-        "paging":         false
+        "paging":         true
     });
 
     table2.on('click', 'tbody tr', function() {
@@ -99,47 +99,47 @@ let dataSet = [
 
 	// dataTable1
 	var table = $('#dataTable1').DataTable({
-		searching: false,
+		searching: true,
 		paging:true,
-		select: false,
+		select: true,
 
-		lengthChange:false ,
+		lengthChange:true ,
 
 
 
 	});
 	// dataTable2
 	var table = $('#dataTable2').DataTable({
-		searching: false,
+		searching: true,
 		paging:true,
-		select: false,
-		lengthChange:false ,
+		select: true,
+		lengthChange:true ,
 
 	});
 	// dataTable3
 	var table = $('#dataTable3').DataTable({
-		searching: false,
+		searching: true,
 		paging:true,
-		select: false,
-		lengthChange:false ,
+		select: true,
+		lengthChange:true ,
 
 	});
 	// dataTable4
 	var table = $('#dataTable4').DataTable({
-		searching: false,
+		searching: true,
 		paging:true,
-		select: false,
-		lengthChange:false,
+		select: true,
+		lengthChange:true,
 
 	});
 
 	// dataTable5
     var table = $('#example5').DataTable({
-        searching: false,
+        searching: true,
         paging: true,
-        select: false,
-        info: false,
-        lengthChange: false,
+        select: true,
+        info: true,
+        lengthChange: true,
         language: {
             paginate: {
                 next: '<i class="fa fa-angle-double-right" aria-hidden="true"></i>',
@@ -154,12 +154,12 @@ let dataSet = [
 
 	// dataTable5
 	var table = $('#example10').DataTable({
-		searching: false,
+		searching: true,
 		paging:true,
-		select: false,
-		info: false,
+		select: true,
+		info: true,
 		responsive: true,
-		lengthChange:false ,
+		lengthChange:true ,
 
 
 		language: {
@@ -174,11 +174,11 @@ let dataSet = [
 
 	// dataTable6
 		var table = $('#example6').DataTable({
-			searching: false,
+			searching: true,
 			paging:true,
-			select: false,
-			info: false,
-			lengthChange:false ,
+			select: true,
+			info: true,
+			lengthChange:true ,
 			language: {
 			paginate: {
 			  next: '<i class="fa fa-angle-double-right" aria-hidden="true"></i>',
@@ -190,11 +190,11 @@ let dataSet = [
 
 		// dataTable7
 		var table = $('#example7').DataTable({
-			searching: false,
+			searching: true,
 			paging:true,
-			select: false,
-			info: false,
-			lengthChange:false ,
+			select: true,
+			info: true,
+			lengthChange:true ,
 			language: {
 			paginate: {
 			  next: '<i class="fa fa-angle-double-right" aria-hidden="true"></i>',
@@ -206,11 +206,11 @@ let dataSet = [
 
 		// dataTable8
 		var table = $('#example8').DataTable({
-			searching: false,
+			searching: true,
 			paging:true,
-			select: false,
-			info: false,
-			lengthChange:false ,
+			select: true,
+			info: true,
+			lengthChange:true ,
 			language: {
 			paginate: {
 			  next: '<i class="fa fa-angle-double-right" aria-hidden="true"></i>',
@@ -221,11 +221,11 @@ let dataSet = [
 		});
 	// orderTable
 		var table = $('#orderTable').DataTable({
-			searching: false,
+			searching: true,
 			paging:true,
-			select: false,
-			info: false,
-			lengthChange:false ,
+			select: true,
+			info: true,
+			lengthChange:true ,
 			language: {
 				paginate: {
 				  next: '<i class="fa fa-angle-double-right" aria-hidden="true"></i>',

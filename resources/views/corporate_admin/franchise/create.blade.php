@@ -50,15 +50,11 @@
                                         <div class="basic-form">
 
                                             <!-- Display Success Message -->
-                                            @if(session('success'))
-                                                <div class="alert alert-success">
-                                                    {{ session('success') }}
-                                                </div>
-                                            @endif
+
 
                                             <form action="{{ route('corporate_admin.franchise.store') }}" method="POST">
                                                 @csrf
-                                            
+
                                                 <div class="row">
                                                     <!-- Left Side Fields -->
                                                     <div class="col-md-6">
@@ -70,7 +66,7 @@
                                                                 <div class="text-danger">{{ $message }}</div>
                                                             @enderror
                                                         </div>
-                                            
+
                                                         <div class="mb-3">
                                                             <label class="form-label">Address 1 <span class="text-danger">*</span></label>
                                                             <input type="text" class="form-control @error('address1') is-invalid @enderror"
@@ -80,7 +76,7 @@
                                                                 <div class="text-danger">{{ $message }}</div>
                                                             @enderror
                                                         </div>
-                                            
+
                                                         <div class="mb-3">
                                                             <label class="form-label">Address 2</label>
                                                             <input type="text" class="form-control @error('address2') is-invalid @enderror"
@@ -90,7 +86,7 @@
                                                                 <div class="text-danger">{{ $message }}</div>
                                                             @enderror
                                                         </div>
-                                            
+
                                                         <div class="mb-3">
                                                             <label class="form-label">City <span class="text-danger">*</span></label>
                                                             <input type="text" class="form-control @error('city') is-invalid @enderror"
@@ -99,7 +95,7 @@
                                                                 <div class="text-danger">{{ $message }}</div>
                                                             @enderror
                                                         </div>
-                                            
+
                                                         <div class="mb-3">
                                                             <label class="form-label">State/Province/Region <span class="text-danger">*</span></label>
                                                             <input type="text" class="form-control @error('state') is-invalid @enderror"
@@ -108,7 +104,7 @@
                                                                 <div class="text-danger">{{ $message }}</div>
                                                             @enderror
                                                         </div>
-                                            
+
                                                         <div class="mb-3">
                                                             <label class="form-label">Zip / Postal Code <span class="text-danger">*</span></label>
                                                             <input type="text" class="form-control @error('zip_code') is-invalid @enderror"
@@ -118,7 +114,7 @@
                                                             @enderror
                                                         </div>
                                                     </div>
-                                            
+
                                                     <!-- Right Side ZIP Code Selection -->
                                                     <div class="col-md-6">
                                                         {{-- <div class="mb-3">
@@ -129,7 +125,7 @@
                                                                 <div class="text-danger">{{ $message }}</div>
                                                             @enderror
                                                         </div> --}}
-                                            
+
                                                         <div class="mb-3">
                                                             <label for="paste-zipcodes" class="form-label">Paste ZIP Codes (comma or newline separated)</label>
                                                             <small id="success-message" class="text-success" style="display:none;">
@@ -147,17 +143,17 @@
                                                                 Process ZIP Codes
                                                             </button>
                                                         </div>
-                                            
+
                                                         <div class="mb-3">
                                                             <label for="zipcodes" class="form-label">ZIP Codes</label>
                                                             <div id="zipcodes-list"></div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            
+
                                                 <button type="submit" class="btn btn-primary bg-primary">Add Franchise</button>
                                             </form>
-                                            
+
                                         </div>
                                     </div>
                                 </div>

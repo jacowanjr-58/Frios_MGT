@@ -22,13 +22,14 @@ class CustomerController extends Controller
     public function store(Request $request){
         $request->validate([
             'name' => 'required|max:191',
-            'phone' => 'required|numeric|digits_between:8,16',
+            'phone' => 'nullable|numeric|digits_between:8,16',
             'email' => 'required|email|max:191',
-    'state' => 'required|alpha|size:2', // 2-letter state code (alphabetic)
-    'zip_code' => 'required|digits:5', // 5 digits zip code
+    'state' => 'nullable|alpha|size:2', // 2-letter state code (alphabetic)
+    'zip_code' => 'nullable|digits:5', // 5 digits zip code
 
-            'address1' => 'required|max:191',
+            'address1' => 'nullable|max:191',
             'address2' => 'nullable|max:191',
+            'notes' => 'nullable|max:191',
         ]);
 
         $customer = Customer::create([
@@ -40,6 +41,7 @@ class CustomerController extends Controller
             'zip_code' => $request->zip_code,
             'address1' => $request->address1,
             'address2' => $request->address2,
+            'notes' => $request->notes,
         ]);
 
 
@@ -54,13 +56,14 @@ class CustomerController extends Controller
     public function update(Request $request , $id){
         $request->validate([
             'name' => 'required|max:191',
-            'phone' => 'required|numeric|digits_between:8,16',
+            'phone' => 'nullable|numeric|digits_between:8,16',
             'email' => 'required|email|max:191',
-    'zip_code' => 'required|digits:5', // 5 digits zip code
-    'state' => 'required|alpha|size:2', // 2-letter state code (alphabetic)
+    'zip_code' => 'nullable|digits:5', // 5 digits zip code
+    'state' => 'nullable|alpha|size:2', // 2-letter state code (alphabetic)
 
-            'address1' => 'required|max:191',
+            'address1' => 'nullable|max:191',
             'address2' => 'nullable|max:191',
+            'notes' => 'nullable|max:191',
         ]);
 
         $customer = Customer::where('customer_id' , $id)->update([
@@ -72,6 +75,7 @@ class CustomerController extends Controller
             'zip_code' => $request->zip_code,
             'address1' => $request->address1,
             'address2' => $request->address2,
+            'notes' => $request->notes,
         ]);
 
 

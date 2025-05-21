@@ -13,17 +13,17 @@ class FranchiseEventItem extends Model
     }
 
     public function item() {
-        return $this->belongsTo(FpgItem::class, 'item_id');
+        return $this->belongsTo(FgpItem::class, 'item_id');
     }
 
-    public function fpgItem()
+    public function fgpItem()
     {
-        return $this->belongsTo(FpgItem::class, 'in_stock');
+        return $this->belongsTo(FgpItem::class, 'in_stock');
     }
 
     public function orderableItem()
     {
-        return $this->belongsTo(FpgItem::class, 'orderable');
+        return $this->belongsTo(FgpItem::class, 'orderable');
     }
 
 

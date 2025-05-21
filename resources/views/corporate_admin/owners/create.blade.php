@@ -50,15 +50,11 @@
                                         <div class="basic-form">
 
                                             <!-- Display Success Message -->
-                                            @if(session('success'))
-                                                <div class="alert alert-success">
-                                                    {{ session('success') }}
-                                                </div>
-                                            @endif
+
 
                                             <form action="{{ route('corporate_admin.owner.store') }}" method="POST">
                                                 @csrf
-                                            
+
                                                 <div class="row">
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Owner Name <span class="text-danger">*</span></label>
@@ -68,7 +64,7 @@
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                            
+
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Email <span class="text-danger">*</span></label>
                                                         <input type="email" class="form-control @error('email') is-invalid @enderror"
@@ -77,7 +73,7 @@
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                            
+
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Password <span class="text-danger">*</span></label>
                                                         <input type="password" class="form-control @error('password') is-invalid @enderror"
@@ -86,7 +82,7 @@
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                            
+
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Assign Franchise <span class="text-danger">*</span></label>
                                                         <select class="form-control @error('franchisee_id') is-invalid @enderror" name="franchisee_id">
@@ -99,7 +95,7 @@
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                            
+
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Clearance</label>
                                                         <input type="text" class="form-control @error('clearance') is-invalid @enderror"
@@ -108,7 +104,7 @@
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                            
+
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Security</label>
                                                         <input type="text" class="form-control @error('security') is-invalid @enderror"
@@ -118,10 +114,10 @@
                                                         @enderror
                                                     </div>
                                                 </div>
-                                            
+
                                                 <button type="submit" class="btn btn-primary bg-primary">Add Owner</button>
                                             </form>
-                                            
+
                                         </div>
                                     </div>
                                 </div>

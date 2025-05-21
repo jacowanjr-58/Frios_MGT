@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('fgp_order_details', function (Blueprint $table) {
             $table->id();
-            $table->integer('fpg_order_id');
+            $table->integer('fgp_order_id');
             $table->integer('fgp_item_id');
             $table->decimal('unit_cost', 10, 2);
             $table->integer('unit_number');

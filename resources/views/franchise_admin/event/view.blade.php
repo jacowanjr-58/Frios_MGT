@@ -29,21 +29,29 @@
                     Event View : {{ $event->event_name }}
                 </h1>
 
-                <a href="javascript:history.back()" class="btn btn-primary" style="margin-right: 50px;">
+                <a href="javascript:history.back()" class="btn btn-secondary btn-sm" style="margin-right: 50px;">
                     Back
                 </a>
             </div>
 
 
             <div class="row mt-5">
-                <label class="mt-1"><b>Date: </b>
+                <label class="mt-1"><b>Start Date: </b>
                     @if (!empty($event->start_date))
-                        {{ date('d M Y', strtotime($event->start_date)) }}
+                    {{ date('d M Y h:i A', strtotime($event->start_date)) }}
                     @else
                         -
                     @endif
                 </label>
 
+                <label class="mt-1"><b>End Date: </b>
+                    @if (!empty($event->end_date))
+                    {{ date('d M Y h:i A', strtotime($event->end_date)) }}
+                    @else
+                        -
+                    @endif
+                </label>
+                
                 <label class="mt-1"><b>Type: </b>
                     @if (!empty($event->event_type))
                         {{ ucfirst($event->event_type) }}
@@ -165,7 +173,7 @@
                         $pop = null;
 
                         if (isset($eventItem->in_stock)) {
-                            $pop = \App\Models\FpgItem::where('fgp_item_id', $eventItem->in_stock)->first();
+                            $pop = \App\Models\FgpItem::where('fgp_item_id', $eventItem->in_stock)->first();
                         }
 
                         $orderDetail = null;
@@ -175,23 +183,31 @@
                             ->first();
                         }
 
+                        $orderable = \DB::table('fgp_order_details')
+                                    ->where('id', $eventItem->orderable)
+                                    ->first();
+
+                        $fgpItem = isset($orderable->fgp_item_id)
+                            ? \App\Models\FgpItem::where('fgp_item_id', $orderable->fgp_item_id)->first()
+                            : null;
+
                         // dd($orderDetail);
                     @endphp
                         <tr>
                             <td>
-                                {{ $eventItem->fpgItem->name ?? '-' }}
+                                {{ $eventItem->fgpItem->name ?? '-' }}
                             </td>
                             <td>
                                 {{ $eventItem->quantity ?: '-' }}
                             </td>
                             <td>
-                                {{ $eventItem->orderableItem->name ?? '-' }}
+                                {{ $fgpItem->name ?? '-' }}
                             </td>
                             <td>
-                                {{ isset($orderDetail->unit_number) ? $orderDetail->unit_number : '-' }}
+                                {{ isset($orderable->unit_number) ? $orderable->unit_number : '-' }}
                             </td>
                             <td>
-                                {{ isset($orderDetail->unit_number, $eventItem->quantity) ? $orderDetail->unit_number - $eventItem->quantity : '' }}
+                                {{ isset($orderable->unit_number, $eventItem->quantity) ? $orderable->unit_number - $eventItem->quantity : '' }}
                             </td>
                             <td>
                                 @if($pop && $pop->created_at)

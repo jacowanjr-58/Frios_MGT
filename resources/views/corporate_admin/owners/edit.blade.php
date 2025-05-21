@@ -50,35 +50,31 @@
                                         <div class="basic-form">
 
                                             <!-- Display Success Message -->
-                                            @if(session('success'))
-                                                <div class="alert alert-success">
-                                                    {{ session('success') }}
-                                                </div>
-                                            @endif
+
 
                                             <form action="{{ route('corporate_admin.owner.update', $owner->user_id) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
-                                        
+
                                                 <div class="row">
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Owner Name <span class="text-danger">*</span></label>
                                                         <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name', $owner->name) }}" required>
                                                         @error('name') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
-                                        
+
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Email <span class="text-danger">*</span></label>
                                                         <input type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email', $owner->email) }}" required>
                                                         @error('email') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
-                                        
+
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Password (Leave empty to keep current)</label>
                                                         <input type="password" class="form-control @error('password') is-invalid @enderror" name="password">
                                                         @error('password') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
-                                        
+
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Assign Franchise <span class="text-danger">*</span></label>
                                                         <select class="form-control @error('franchisee_id') is-invalid @enderror" name="franchisee_id">
@@ -91,23 +87,23 @@
                                                         </select>
                                                         @error('franchisee_id') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
-                                        
+
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Clearance</label>
                                                         <input type="text" class="form-control @error('clearance') is-invalid @enderror" name="clearance" value="{{ old('clearance', $owner->clearance) }}">
                                                         @error('clearance') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
-                                        
+
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Security</label>
                                                         <input type="text" class="form-control @error('security') is-invalid @enderror" name="security" value="{{ old('security', $owner->security) }}">
                                                         @error('security') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
                                                 </div>
-                                        
+
                                                 <button type="submit" class="btn btn-primary bg-primary">Update Owner</button>
                                             </form>
-                                            
+
                                         </div>
                                     </div>
                                 </div>

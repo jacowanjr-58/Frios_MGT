@@ -3,17 +3,25 @@
 namespace App\Http\Controllers\Franchise;
 
 use App\Http\Controllers\Controller;
-use App\Models\FpgItem;
+use App\Models\FgpItem;
 use App\Models\FranchiseEvent;
 use App\Models\FranchiseEventItem;
 use App\Models\InventoryAllocation;
 use App\Models\Customer;
 use App\Models\User;
+use App\Models\FgpOrderDetail;
 use App\Models\Event;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Stripe\Stripe;
+use Stripe\Charge;
+use App\Models\EventTransaction;
+use App\Mail\EventPaidMail;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Mail;
+
 use DB;
 
 class EventController extends Controller
@@ -81,7 +89,7 @@ class EventController extends Controller
 
     public function create() {
         $currentMonth = strval(Carbon::now()->format('n'));
-        $pops = FpgItem::where('orderable', 1)
+        $pops = FgpItem::where('orderable', 1)
             ->where('internal_inventory', '>', 0)
             ->get()
             ->filter(function ($pop) use ($currentMonth) {
@@ -92,21 +100,21 @@ class EventController extends Controller
         $staffs = User::where('role', 'franchise_staff')->get();
 
 
-        $orders = DB::table('fpg_orders')
+        $orders = DB::table('fgp_orders')
         ->where('status', 'Delivered')
         ->get();
 
     $orderIds = $orders->pluck('fgp_ordersID');
 
     $orderDetails = DB::table('fgp_order_details')
-        ->join('fpg_items', 'fgp_order_details.fgp_item_id', '=', 'fpg_items.fgp_item_id')
-        ->whereIn('fgp_order_details.fpg_order_id', $orderIds)
+        ->join('fgp_items', 'fgp_order_details.fgp_item_id', '=', 'fgp_items.fgp_item_id')
+        ->whereIn('fgp_order_details.fgp_order_id', $orderIds)
         ->select(
             'fgp_order_details.fgp_item_id',
-            'fpg_items.name as item_name',
+            'fgp_items.name as item_name',
             DB::raw('SUM(fgp_order_details.unit_number) as total_units')
         )
-        ->groupBy('fgp_order_details.fgp_item_id', 'fpg_items.name')
+        ->groupBy('fgp_order_details.fgp_item_id', 'fgp_items.name')
         ->get();
 
         $customers = Customer::get();
@@ -121,7 +129,7 @@ class EventController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'event_status' => 'required|in:scheduled,tentative,staffed',
-            'staff_assigned' => 'nullable|array',
+            'staff_assigned' => 'required|array',
             'staff_assigned.*' => 'integer',
             'customer_id' => 'nullable|integer',
             'expected_sales' => 'nullable|numeric',
@@ -139,7 +147,50 @@ class EventController extends Controller
             'quantity.*' => 'required|numeric|min:0',
         ]);
 
-        // try {
+        $instock    = $request->in_stock;
+        $quantities = $request->quantity;
+        $orderable  = $request->orderable;
+
+
+        $inStockItems = FgpItem::whereIn('fgp_item_id', $instock)->get();
+
+        $totalCaseCost = 0;
+        foreach ($inStockItems as $index => $item) {
+            $qty = $quantities[$index] ?? 0;
+            $itemTotal = $item->case_cost * $qty;
+            $totalCaseCost += $itemTotal;
+            $item->total_cost = $itemTotal;
+        }
+
+        $orderItems = FgpOrderDetail::whereIn('id', $orderable)->get();
+
+        $itemsWithCost = $orderItems->map(function ($item) {
+            $item->total_cost = $item->unit_number * $item->unit_cost;
+            return $item;
+        });
+
+        $grandTotal = $itemsWithCost->sum('total_cost');
+
+        $finalTotal = $totalCaseCost + $grandTotal;
+
+    \Stripe\Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
+
+    try {
+        $amountInCents = $finalTotal * 100;
+
+        $charge = \Stripe\Charge::create([
+            'amount' => $amountInCents,
+            'currency' => 'usd',
+            'description' => 'Order Payment by: ' . $request->cardholder_name,
+            'source' => $request->stripeToken,
+            'metadata' => [
+                'franchisee_id' => Auth::user()->franchisee_id,
+            ],
+        ]);
+    } catch (\Exception $e) {
+        return redirect()->back()->withErrors(['Stripe Error: ' . $e->getMessage()]);
+    }
+
             $event = \App\Models\Event::create([
                 'franchisee_id' => Auth::user()->franchisee_id,
                 'event_name' => $validated['event_name'],
@@ -157,7 +208,18 @@ class EventController extends Controller
                 'planned_payment' => $validated['planned_payment'] ?? null,
             ]);
 
-            // 3. Save Event Items
+                \App\Models\EventTransaction::create([
+                'franchisee_id' => Auth::user()->franchisee_id,
+                'event_id' => $event->id,
+                'cardholder_name' => $request->cardholder_name,
+                'amount' => $finalTotal,
+                'stripe_payment_intent_id' => $charge->id,
+                'stripe_payment_method' => $charge->payment_method ?? null,
+                'stripe_currency' => $charge->currency,
+                'stripe_client_secret' => $charge->client_secret ?? null,
+                'stripe_status' => $charge->status,
+            ]);
+
             foreach ($validated['orderable'] as $index => $orderableId) {
                 FranchiseEventItem::create([
                     'event_id' => $event->id,
@@ -167,10 +229,20 @@ class EventController extends Controller
                 ]);
             }
 
+        // $eventTransaction = \App\Models\EventTransaction::where('event_id', $event->id)->firstOrFail();
+        // $eventItems = \App\Models\FranchiseEventItem::where('event_id', $event->id)->get();
+        // $franchisee = \App\Models\Franchisee::where('franchisee_id', $event->franchisee_id)->firstOrFail();
+
+        // $pdf = PDF::loadView('franchise_admin.payment.pdf.event-pos', compact('eventTransaction', 'franchisee', 'eventItems'));
+        // $pdfPath = storage_path('app/public/event_invoice_' . $event->id . '.pdf');
+        // $pdf->save($pdfPath);
+
+        // Mail::to($franchisee->email)->send(new EventPaidMail($franchisee, $eventTransaction, $eventItems, $pdfPath));
+
+        // unlink($pdfPath);
+
             return redirect()->route('franchise.events.calender')->with('success', 'Event created successfully!');
-        // } catch (\Exception $e) {
-        //     return redirect()->back()->with(['error' => 'Something went wrong: ' . $e->getMessage()]);
-        // }
+
     }
 
     public function compare(FranchiseEvent $event) {
@@ -183,41 +255,45 @@ class EventController extends Controller
         $startDate = Carbon::parse($request->start_date);
         $endDate = Carbon::parse($request->end_date);
 
-        // Calculate the difference between the start and end date
         $diffInDays = $startDate->diffInDays($endDate);
 
-        // Check if the duration is less than 15 days and modify the $pops query accordingly
         if ($diffInDays < 15) {
-            // If the duration is less than 15 days, set $pops to null and return a message
             $pops = null;
             $message = 'No Orderable pops will be available within the 15-day duration.';
         } else {
-            // Fetch pops data if the duration is greater than or equal to 15 days
-            $pops = FpgItem::where('orderable', 1)
+            $pops = FgpItem::where('orderable', 1)
                 ->where('internal_inventory', '>', 0)
                 ->get();
             $message = null;
         }
 
-        // Fetch order details based on orders within the date range
-        $orders = DB::table('fpg_orders')
+        $orders = DB::table('fgp_orders')
             ->where('status', 'Delivered')
             ->get();
 
         $orderIds = $orders->pluck('fgp_ordersID');
 
         $orderDetails = DB::table('fgp_order_details')
-            ->join('fpg_items', 'fgp_order_details.fgp_item_id', '=', 'fpg_items.fgp_item_id')
-            ->whereIn('fgp_order_details.fpg_order_id', $orderIds)
+            ->join('fgp_items', 'fgp_order_details.fgp_item_id', '=', 'fgp_items.fgp_item_id')
+            ->whereIn('fgp_order_details.fgp_order_id', $orderIds)
             ->select(
+                'fgp_order_details.id',
+                'fgp_order_details.fgp_order_id',
                 'fgp_order_details.fgp_item_id',
-                'fpg_items.name as item_name',
-                DB::raw('SUM(fgp_order_details.unit_number) as total_units')
+                'fgp_items.name as item_name',
+                'fgp_order_details.unit_number'
             )
-            ->groupBy('fgp_order_details.fgp_item_id', 'fpg_items.name')
             ->get();
 
 
+
+//                 return response()->json([
+//  'orderDetails' => $orderDetails,
+//                 'pops' => $pops,
+//                 'startDate' => $startDate->toDateString(),
+//                 'endDate' => $endDate->toDateString(),
+//                 'orderCount' => $orders->count(),
+//                 ]);
 
             $html = view('franchise_admin.event.flavor', [
                 'orderDetails' => $orderDetails,
@@ -256,5 +332,19 @@ class EventController extends Controller
         $event = Event::where('id' , $id)->firstorfail();
         $eventItems = FranchiseEventItem::where('event_id' , $event->id)->get();
         return view('corporate_admin.event.view' , compact('event','eventItems'));
+    }
+
+    public function eventReportAdmin(Request $request) {
+        $monthYear = $request->input('month_year', Carbon::now()->format('Y-m'));
+
+        // Extract year and month from the provided monthYear
+        $year = Carbon::parse($monthYear)->year;
+        $month = Carbon::parse($monthYear)->month;
+
+        // Fetch the data based on the selected or default month/year
+        $eventItems = FranchiseEventItem::whereYear('created_at', $year)
+                                         ->whereMonth('created_at', $month)
+                                         ->get();
+        return view('corporate_admin.event.report', compact('eventItems'));
     }
 }

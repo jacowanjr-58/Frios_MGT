@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('franchisee_id');
             $table->string('event_name');
-            $table->date('start_date');
-            $table->date('end_date');
+            $table->datetime('start_date');
+            $table->datetime('end_date');
             $table->enum('event_status' , ['scheduled' , 'tentative' , 'staffed']);
             $table->json('staff_assigned')->nullable();
             $table->integer('customer_id')->nullable();

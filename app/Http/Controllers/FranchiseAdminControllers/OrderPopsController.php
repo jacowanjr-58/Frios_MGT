@@ -3,16 +3,22 @@
 namespace App\Http\Controllers\FranchiseAdminControllers;
 
 use Carbon\Carbon;
-use App\Models\FpgItem;
-use App\Models\FpgOrder;
-use App\Models\FpgCategory;
+use App\Models\FgpItem;
+use App\Models\FgpOrder;
+use App\Models\FgpCategory;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Models\AdditionalCharge;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Models\FgpOrder;
+use Stripe\Stripe;
+use Stripe\Charge;
+use App\Mail\OrderPaidMail;
+use Illuminate\Support\Facades\Mail;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\OrderTransaction;
+use App\Models\User;
 use DB;
 
 class OrderPopsController extends Controller
@@ -22,7 +28,7 @@ class OrderPopsController extends Controller
         $currentMonth = strval(Carbon::now()->format('n')); // Get current month as single-digit (1-12)
 
         // Fetch only items that are orderable, in stock, and available in the current month
-        $pops = FpgItem::where('orderable', 1)
+        $pops = FgpItem::where('orderable', 1)
             ->where('internal_inventory', '>', 0) // Ensure the item is in stock
             ->get()
             ->filter(function ($pop) use ($currentMonth) {
@@ -41,7 +47,7 @@ class OrderPopsController extends Controller
         $currentMonth = strval(Carbon::now()->format('n'));
 
         // Fetch only orderable, in-stock, and currently available items
-        $pops = FpgItem::where('orderable', 1)
+        $pops = FgpItem::where('orderable', 1)
             ->where('internal_inventory', '>', 0) // Ensure item is in stock
             ->get()
             ->filter(function ($pop) use ($currentMonth) {
@@ -126,39 +132,69 @@ public function showConfirmPage()
 
 public function store(Request $request)
 {
-    $minCases = 12; // Can be made configurable via settings
-    $factorCase = 3; // Can be made configurable via settings
-    // Validate request
+    $minCases = 12;
+    $factorCase = 3;
+
     $validated = $request->validate([
+        'stripeToken' => 'required|string',
+        'cardholder_name' => 'required|string|max:191',
+        'grandTotal' => 'required|numeric|min:1',
         'items' => 'required|array',
-        'items.*.fgp_item_id' => 'required|exists:fpg_items,fgp_item_id',
+        'items.*.fgp_item_id' => 'required|exists:fgp_items,fgp_item_id',
         'items.*.user_ID' => 'required|exists:users,user_id',
         'items.*.unit_cost' => 'required|numeric|min:0',
-        'items.*.unit_number' => 'required|integer|min:1', // Allow any positive integer
+        'items.*.unit_number' => 'required|integer|min:1',
     ]);
 
-    // Calculate total case quantity
     $totalCaseQty = collect($validated['items'])->sum('unit_number');
 
-    // Check if the total order quantity meets the minimum required cases
     if ($totalCaseQty < $minCases) {
         return redirect()->back()->withErrors(['Order must have at least ' . $minCases . ' cases.']);
     }
 
-    // Check if the total order quantity is a valid multiple of the factor case
     if ($totalCaseQty % $factorCase !== 0) {
         return redirect()->back()->withErrors(['Order quantity must be a multiple of ' . $factorCase . '.']);
     }
 
-    $orders = FpgOrder::create([
+    \Stripe\Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
+
+    try {
+        $amountInCents = $request->grandTotal * 100;
+
+        $charge = \Stripe\Charge::create([
+            'amount' => $amountInCents,
+            'currency' => 'usd',
+            'description' => 'Order Payment by: ' . $request->cardholder_name,
+            'source' => $request->stripeToken,
+            'metadata' => [
+                'franchisee_id' => Auth::user()->franchisee_id,
+            ],
+        ]);
+    } catch (\Exception $e) {
+        return redirect()->back()->withErrors(['Stripe Error: ' . $e->getMessage()]);
+    }
+
+    $order = \App\Models\FgpOrder::create([
         'user_ID' => Auth::user()->franchisee_id,
         'date_transaction' => now(),
         'status' => 'Pending',
     ]);
 
+    \App\Models\OrderTransaction::create([
+        'franchisee_id' => Auth::user()->franchisee_id,
+        'fgp_order_id' => $order->id,
+        'cardholder_name' => $request->cardholder_name,
+        'amount' => $request->grandTotal,
+        'stripe_payment_intent_id' => $charge->id,
+        'stripe_payment_method' => $charge->payment_method ?? null,
+        'stripe_currency' => $charge->currency,
+        'stripe_client_secret' => $charge->client_secret ?? null,
+        'stripe_status' => $charge->status,
+    ]);
+
     foreach ($validated['items'] as $item) {
         DB::table('fgp_order_details')->insert([
-            'fpg_order_id' => $orders->id,
+            'fgp_order_id' => $order->id,
             'fgp_item_id' => $item['fgp_item_id'],
             'unit_cost' => $item['unit_cost'],
             'unit_number' => $item['unit_number'],
@@ -167,13 +203,32 @@ public function store(Request $request)
         ]);
     }
 
-    return redirect()->route('franchise.orderpops.view')->with('success', 'Order placed successfully!');
+    // $orderTransaction = \App\Models\OrderTransaction::where('fgp_order_id', $order->id)->firstOrFail();
+    // $orderDetails = \App\Models\FgpOrderDetail::where('fgp_order_id', $order->id)->get();
+    // $franchisee = \App\Models\Franchisee::where('franchisee_id', $order->user_ID)->firstOrFail();
+
+    // // Create the PDF
+    // $pdf = PDF::loadView('franchise_admin.payment.pdf.order-pos', compact('orderTransaction', 'order', 'franchisee', 'orderDetails'));
+    // $pdfPath = storage_path('app/public/order_invoice_' . $order->id . '.pdf');
+    // $pdf->save($pdfPath);  // Save PDF to storage path
+
+    // // Send the email with the attachment
+    // $corporateAdmin = User::where('user_id', 17)->first();  // Assuming 17 is the Corporate Admin ID
+    // if ($corporateAdmin) {
+    //     Mail::to($corporateAdmin->email)->send(new OrderPaidMail($corporateAdmin, $order, $pdfPath));  // Send email with attachment
+    // }
+
+    // // Remove PDF after sending
+    // unlink($pdfPath);
+
+    return redirect()->route('franchise.orderpops.view')->with('success', 'Order placed and paid successfully!');
 }
+
 
 
 public function viewOrders()
 {
-    // $orders = FpgOrder::where('user_ID', Auth::id())
+    // $orders = FgpOrder::where('user_ID', Auth::id())
     //     ->select(
     //         'user_ID',
     //         'date_transaction',
@@ -190,7 +245,7 @@ public function viewOrders()
     //         return $order;
     //     });
 
-    $orders = FpgOrder::where('user_ID' , Auth::user()->franchisee_id)->get();
+    $orders = FgpOrder::where('user_ID' , Auth::user()->franchisee_id)->get();
 
     $totalOrders = $orders->count();
 

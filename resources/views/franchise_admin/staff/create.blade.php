@@ -50,11 +50,7 @@
                                         <div class="basic-form">
 
                                             <!-- Display Success Message -->
-                                            @if(session('success'))
-                                                <div class="alert alert-success">
-                                                    {{ session('success') }}
-                                                </div>
-                                            @endif
+
                                             @role('franchise_admin')
                                             <form action="{{ route('franchise.staff.store') }}" method="POST">
                                             @endrole
@@ -62,7 +58,7 @@
                                             <form action="{{ route('franchise_manager.staff.store') }}" method="POST">
                                             @endrole
                                                 @csrf
-                                            
+
                                                 <div class="row">
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Staff Name <span class="text-danger">*</span></label>
@@ -72,7 +68,7 @@
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                            
+
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Email <span class="text-danger">*</span></label>
                                                         <input type="email" class="form-control @error('email') is-invalid @enderror"
@@ -81,7 +77,7 @@
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                            
+
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Password <span class="text-danger">*</span></label>
                                                         <input type="password" class="form-control @error('password') is-invalid @enderror"
@@ -90,7 +86,7 @@
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                            
+
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Assign Role <span class="text-danger">*</span></label>
                                                         <select class="form-control @error('role') is-invalid @enderror" name="role">
@@ -102,24 +98,24 @@
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                            
+
                                                     <div class="mb-3 col-md-12">
                                                         <label class="form-label">Phone number</label>
                                                         <input type="text" class="form-control" id="phone_number"
-                                                            name="phone_number" value="{{ old('phone_number') }}" 
+                                                            name="phone_number" value="{{ old('phone_number') }}"
                                                             placeholder="Phone number"  class="form-control @error('phone_number') is-invalid @enderror">
                                                         @error('phone_number')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                                    
-                                                   
-                                                    
+
+
+
                                                 </div>
-                                            
+
                                                 <button type="submit" class="btn btn-primary bg-primary">Add Staff</button>
                                             </form>
-                                            
+
                                         </div>
                                     </div>
                                 </div>
@@ -140,10 +136,10 @@
                 document.addEventListener("DOMContentLoaded", function () {
                     const phoneInput = document.getElementById("phone_number");
                     const phoneError = document.getElementById("phoneError");
-            
+
                     phoneInput.addEventListener("input", function (e) {
                         let value = phoneInput.value.replace(/\D/g, ""); // Remove non-numeric characters
-            
+
                         // Format as (123) 456-7890
                         if (value.length > 0) {
                             value = "(" + value;
@@ -154,9 +150,9 @@
                         if (value.length > 9) {
                             value = value.slice(0, 9) + "-" + value.slice(9, 13);
                         }
-            
+
                         phoneInput.value = value;
-            
+
                         // Validate phone format
                         const phoneValid = /^\(\d{3}\) \d{3}-\d{4}$/.test(phoneInput.value);
                         if (!phoneValid) {
@@ -165,7 +161,7 @@
                             phoneError.textContent = "";
                         }
                     });
-            
+
                     phoneInput.addEventListener("keypress", function (e) {
                         if (!/[0-9]/.test(e.key)) {
                             e.preventDefault(); // Allow only numbers

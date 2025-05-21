@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Franchise;
 
 use App\Http\Controllers\Controller;
-use App\Models\FpgItem;
-use App\Models\FpgOrder;
+use App\Models\FgpItem;
+use App\Models\FgpOrder;
 use App\Models\InventoryAllocation;
+use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -15,13 +16,13 @@ class InventoryController extends Controller
 {
     public function index()
     {
-        $deliveredOrders = FpgOrder::where('status', 'delivered')->get();
-        $shippedOrders = FpgOrder::where('status', 'shipped')->count();
-        $paidOrders = FpgOrder::where('status', 'paid')->count();
-        $pendingOrders = FpgOrder::where('status', 'pending')->count();
+        $deliveredOrders = FgpOrder::where('status', 'delivered')->get();
+        $shippedOrders = FgpOrder::where('status', 'shipped')->count();
+        $paidOrders = FgpOrder::where('status', 'paid')->count();
+        $pendingOrders = FgpOrder::where('status', 'pending')->count();
 
 
-        // $orders = FpgOrder::where('user_ID', Auth::user()->franchisee_id)
+        // $orders = FgpOrder::where('user_ID', Auth::user()->franchisee_id)
         // ->select(
         //     'user_ID',
         //     'date_transaction',
@@ -38,7 +39,7 @@ class InventoryController extends Controller
         //     return $order;
         // });
 
-        $orders = FpgOrder::where('user_ID' , Auth::user()->franchisee_id)->get();
+        $orders = FgpOrder::where('user_ID' , Auth::user()->franchisee_id)->get();
 
     $totalOrders = $orders->count();
 
@@ -51,8 +52,8 @@ class InventoryController extends Controller
         $orderId = $request->input('id');
 
         $orderDetails = DB::table('fgp_order_details as od')
-        ->join('fpg_items as fi', 'od.fgp_item_id', '=', 'fi.fgp_item_id')
-        ->where('od.fpg_order_id', $orderId)
+        ->join('fgp_items as fi', 'od.fgp_item_id', '=', 'fi.fgp_item_id')
+        ->where('od.fgp_order_id', $orderId)
         ->select('od.*', 'fi.name')
         ->get();
 
@@ -73,8 +74,8 @@ class InventoryController extends Controller
     public function inventoryLocations()
     {
         try {
-            $flavors = FpgItem::all();
-
+            $flavors = FgpItem::all();
+            $locations = Location::where('franchisee_id', Auth::user()->franchisee_id)->get();
             $initialPopFlavors = [];
             foreach ($flavors as $flavor) {
                 $initialPopFlavors[] = [
@@ -84,39 +85,40 @@ class InventoryController extends Controller
                 ];
             }
 
-            $allocatedInventory = InventoryAllocation::join('fpg_items', 'fpg_items.fgp_item_id', '=', 'inventory_allocations.fpg_item_id')
-                ->select('fpg_items.name as flavor', 'inventory_allocations.location', 'inventory_allocations.quantity as cases')
+            $allocatedInventory = InventoryAllocation::join('fgp_items', 'fgp_items.fgp_item_id', '=', 'inventory_allocations.fgp_item_id')
+                ->select('fgp_items.name as flavor', 'inventory_allocations.location', 'inventory_allocations.quantity as cases')
                 ->get();
 
             return view('franchise_admin.inventory.locations', compact(
                 'flavors',
                 'initialPopFlavors',
-                'allocatedInventory'
+                'allocatedInventory',
+                'locations'
             ));
         } catch (\Exception $e) {
             // Log error or dd for debug
             dd('Error: ' . $e->getMessage());
         }
     }
-    
+
 
     public function allocateInventory(Request $request)
     {
         try {
             foreach ($request->allocatedInventory as $item) {
-                $fpg_item_id = FpgItem::where('name', $item['flavor'])->first()->fgp_item_id ?? null;
-                if (!$fpg_item_id) {
+                $fgp_item_id = FgpItem::where('name', $item['flavor'])->first()->fgp_item_id ?? null;
+                if (!$fgp_item_id) {
                     continue;
                 }
-                $exists = InventoryAllocation::where('fpg_item_id', $fpg_item_id)->where('location', $item['location'])->first();
+                $exists = InventoryAllocation::where('fgp_item_id', $fgp_item_id)->where('location', $item['location'])->first();
                 if($exists){
                     $exists->update([
                     'quantity' => $item['cases'],
                     ]);
                 }else{
-                    // return $fpg_item_id;
+                    // return $fgp_item_id;
                     InventoryAllocation::create([
-                        'fpg_item_id' => $fpg_item_id,
+                        'fgp_item_id' => $fgp_item_id,
                         'quantity' => $item['cases'],
                         'location' => $item['location']
                     ]);
@@ -140,16 +142,16 @@ class InventoryController extends Controller
     public function updateQuantity(Request $request)
     {
         try {
-            $fpg_item_id = FpgItem::where('name', $request->flavor)->first()->fgp_item_id ?? null;
+            $fgp_item_id = FgpItem::where('name', $request->flavor)->first()->fgp_item_id ?? null;
 
-            if (!$fpg_item_id) {
+            if (!$fgp_item_id) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Invalid flavor'
                 ]);
             }
 
-            $allocation = InventoryAllocation::where('fpg_item_id', $fpg_item_id)
+            $allocation = InventoryAllocation::where('fgp_item_id', $fgp_item_id)
                 ->where('location', $request->location)
                 ->first();
 
@@ -185,16 +187,16 @@ class InventoryController extends Controller
     public function removeItem(Request $request)
     {
         try {
-            $fpg_item_id = FpgItem::where('name', $request->flavor)->first()->fgp_item_id ?? null;
+            $fgp_item_id = FgpItem::where('name', $request->flavor)->first()->fgp_item_id ?? null;
 
-            if (!$fpg_item_id) {
+            if (!$fgp_item_id) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Invalid flavor'
                 ]);
             }
 
-            InventoryAllocation::where('fpg_item_id', $fpg_item_id)
+            InventoryAllocation::where('fgp_item_id', $fgp_item_id)
                 ->where('location', $request->location)
                 ->delete();
 

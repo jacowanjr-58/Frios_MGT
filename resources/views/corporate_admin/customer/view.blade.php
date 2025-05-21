@@ -45,8 +45,8 @@
                                                         $franchisee = App\Models\User::where('franchisee_id' , $customer->franchisee_id)->first();
                                                     @endphp
 
-                                                    <div class="mb-3 col-md-4">
-                                                        <label class="form-label">Franchise Name <span class="text-danger">*</span></label>
+                                                    <div class="mb-3 col-md-3">
+                                                        <label class="form-label">Franchise Name</label>
                                                         <input type="text" disabled class="form-control @error('name') is-invalid @enderror"
                                                             name="name" value="{{ $franchisee->name }}" placeholder="Name">
                                                         @error('name')
@@ -54,8 +54,8 @@
                                                         @enderror
                                                     </div>
 
-                                                    <div class="mb-3 col-md-4">
-                                                        <label class="form-label">Customer Name <span class="text-danger">*</span></label>
+                                                    <div class="mb-3 col-md-3">
+                                                        <label class="form-label">Customer Name</label>
                                                         <input type="text" disabled class="form-control @error('name') is-invalid @enderror"
                                                             name="name" value="{{ $customer->name }}" placeholder="Name">
                                                         @error('name')
@@ -63,8 +63,8 @@
                                                         @enderror
                                                     </div>
 
-                                                    <div class="mb-3 col-md-4">
-                                                        <label class="form-label">Phone number <span class="text-danger">*</span></label>
+                                                    <div class="mb-3 col-md-3">
+                                                        <label class="form-label">Phone number</label>
                                                         <input type="text" disabled class="form-control @error('phone') is-invalid @enderror"
                                                             name="phone" value="{{ $customer->phone }}" placeholder="Phone">
                                                         @error('phone')
@@ -72,8 +72,8 @@
                                                         @enderror
                                                     </div>
 
-                                                    <div class="mb-3 col-md-4">
-                                                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                                                    <div class="mb-3 col-md-3">
+                                                        <label class="form-label">Email</label>
                                                         <input type="email" disabled class="form-control @error('email') is-invalid @enderror"
                                                         name="email" id="email" value="{{ $customer->email }}">
 
@@ -83,30 +83,9 @@
                                                         @enderror
                                                     </div>
 
-                                                    <div class="mb-3 col-md-4">
-                                                        <label class="form-label">State <span class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control @error('state') is-invalid @enderror"
-                                                            name="state" disabled value="{{ $customer->state }}" placeholder="State">
-                                                        @error('state')
-                                                            <div class="text-danger">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <div class="mb-3 col-md-4">
-                                                        <label class="form-label">Zip code <span class="text-danger">*</span></label>
-                                                        <input type="text" disabled class="form-control @error('zip_code') is-invalid @enderror"
-                                                        name="zip_code" id="zip_code" value="{{ $customer->zip_code }}">
-
-
-                                                        @error('zip_code')
-                                                            <div class="text-danger">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-
                                                     <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Address 1 <span class="text-danger">*</span></label>
-                                                        <textarea name="address1" id="address1" cols="10" rows="5" disabled class="form-control">{{ $customer->address1 }}</textarea>
+                                                        <label class="form-label">Address 1</label>
+                                                        <input disabled name="address1" id="address1" cols="10" rows="5" class="form-control" value="{{ $customer->address1 }}">
                                                         @error('address1')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
@@ -114,11 +93,41 @@
 
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Address 2</label>
-                                                        <textarea name="address2" id="address2" cols="10" rows="5" disabled class="form-control">{{ $customer->address2 }}</textarea>
+                                                        <input disabled name="address2" id="address2" cols="10" rows="5" class="form-control" value="{{ $customer->address2 }}">
                                                         @error('address2')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
+
+
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">State</label>
+                                                        <input type="text" class="form-control @error('state') is-invalid @enderror"
+                                                            disabled name="state" value="{{ $customer->state }}" placeholder="State">
+                                                        @error('state')
+                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Zip code</label>
+                                                        <input type="text" class="form-control @error('zip_code') is-invalid @enderror"
+                                                        disabled name="zip_code" id="zip_code" value="{{ $customer->zip_code }}">
+
+
+                                                        @error('zip_code')
+                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Notes</label>
+                                                        <textarea disabled name="notes" id="notes" cols="10" rows="5" class="form-control">{{ $customer->notes }}</textarea>
+                                                        @error('zip_code')
+                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+
 
 
                                                 </div>

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('locations_ID');
             $table->unsignedBigInteger('franchisee_id');
             $table->string('name');
-            $table->enum('type', ['On-Site', 'Off-Site', 'Other']);
+            $table->enum('type', ['On-Site', 'Off-Site', 'Other'])->nullable();
             $table->timestamps();
         
             // Foreign Key

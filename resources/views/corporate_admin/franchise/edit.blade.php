@@ -50,11 +50,7 @@
                                         <div class="basic-form">
 
                                             <!-- Display Success Message -->
-                                            @if(session('success'))
-                                                <div class="alert alert-success">
-                                                    {{ session('success') }}
-                                                </div>
-                                            @endif
+
                                             <form action="{{ route('corporate_admin.franchise.update', $franchise->franchisee_id) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
@@ -116,21 +112,21 @@
                                                             @enderror
                                                         </div>
                                                     </div>
-                                            
+
                                                     <!-- Right Side: ZIP Code Management -->
                                                     <div class="col-md-6">
                                                           {{-- {{ dd($franchise) }} --}}
                                                     @php
                                                     // Ensure location_zip is properly formatted as an array
-                                                    $selectedZips = is_array($franchise->location_zip) 
-                                                        ? $franchise->location_zip 
+                                                    $selectedZips = is_array($franchise->location_zip)
+                                                        ? $franchise->location_zip
                                                         : (is_string($franchise->location_zip) ? explode(',', $franchise->location_zip) : []);
                                                 @endphp
-                                                
+
                                                 {{-- <div class="mb-3 col-md-12">
                                                     <label class="form-label">Territory ZIP Codes</label>
                                                     <select class="form-control" name="location_zip[]" id="location_zip" multiple>
-                                            
+
                                                     </select>
                                                     <small class="form-text text-muted">Select or add ZIP codes.</small>
                                                     @error('location_zip')
@@ -154,8 +150,8 @@
                                                 </div>
                                                 <button type="submit" class="btn btn-primary bg-primary">Update Franchise</button>
                                             </form>
-                                            
-                                            
+
+
                                         </div>
                                     </div>
                                 </div>
@@ -274,5 +270,5 @@ zipDropdown.trigger('change.select2');
 });
 
                    </script>
-                   
+
 @endsection

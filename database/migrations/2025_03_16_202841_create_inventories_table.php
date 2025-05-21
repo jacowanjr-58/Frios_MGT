@@ -22,14 +22,14 @@ return new class extends Migration
             $table->decimal('whole_sale_price_case', 10, 2)->nullable();
             $table->decimal('retail_price_pop', 10, 2)->nullable();
             $table->timestamps();
-        
+
             // Foreign Keys
             $table->foreign('franchisee_id')->references('franchisee_id')->on('franchisees')->onDelete('cascade');
-            $table->foreign('fgp_item_id')->references('fgp_item_id')->on('fpg_items')->onDelete('cascade');
+            $table->foreign('fgp_item_id')->references('fgp_item_id')->on('fgp_items')->onDelete('cascade');
             $table->foreign('locations_ID')->references('locations_ID')->on('locations')->onDelete('set null');
         });
-        
-        
+
+
     }
 
     /**

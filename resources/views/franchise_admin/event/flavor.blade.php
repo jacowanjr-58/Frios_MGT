@@ -30,9 +30,9 @@
                 <td>
                     <select name="orderable[]" class="form-control status-select">
                         @foreach ($orderDetails as $item)
-                            <option value="{{ $item->fgp_item_id }}"{{
-                                old("orderable") == $item->fgp_item_id ? 'selected' : '' }}>
-                                {{ $item->item_name }} - (x{{ $item->total_units }})
+                            <option value="{{ $item->id }}"{{
+                                old("orderable") == $item->id ? 'selected' : '' }}>
+                                {{ $item->item_name }} - (x{{ $item->unit_number }})
                             </option>
                         @endforeach
                     </select>
@@ -48,7 +48,7 @@
                     @enderror
                 </td>
                 <td>
-                    <span class="btn btn-success action-btn" onclick="addRow(this)">+</span>
+                    <span class="btn btn-primary action-btn" onclick="addRow(this)">+</span>
                     <span class="btn btn-danger action-btn" onclick="removeRow(this)">−</span>
                 </td>
             </tr>
@@ -63,7 +63,7 @@ $(document).ready(function() {
     let orderOptions = '';
 
     @foreach($orderDetails as $item)
-        orderOptions += `<option value="{{ $item->fgp_item_id }}">{{ $item->item_name }} - (x{{ $item->total_units }})</option>`;
+        orderOptions += `<option value="{{ $item->id }}">{{ $item->item_name }} - (x{{ $item->unit_number }})</option>`;
     @endforeach
 
     // Add a new row with values
@@ -103,7 +103,7 @@ $(document).ready(function() {
 
             <!-- Insert the action buttons -->
             <td>
-                <span class="btn btn-success action-btn" onclick="addRow(this)">+</span>
+                <span class="btn btn-primary action-btn" onclick="addRow(this)">+</span>
                 <span class="btn btn-danger action-btn" onclick="removeRow(this)">−</span>
             </td>
         `;

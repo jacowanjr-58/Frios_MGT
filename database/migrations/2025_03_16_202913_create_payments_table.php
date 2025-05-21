@@ -20,11 +20,11 @@ return new class extends Migration
             $table->decimal('total', 10, 2);
             $table->decimal('taxes', 10, 2)->nullable();
             $table->timestamps();
-        
+
             // Foreign Keys
-            $table->foreign('order_id')->references('fgp_ordersID')->on('fpg_orders')->onDelete("cascade");
+            $table->foreign('order_id')->references('fgp_ordersID')->on('fgp_orders')->onDelete("cascade");
         });
-        
+
     }
 
     /**

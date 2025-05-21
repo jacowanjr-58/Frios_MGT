@@ -136,13 +136,7 @@
              */
 
             // Initial locations (from the "locations" table)
-            const initialLocations = [
-                "Van 1",
-                "Van 2",
-                "Trailer 1",
-                "Freezer 1",
-                "Freezer 2",
-            ];
+            const initialLocations = @json($locations->pluck('name'));
 
             const initialPopFlavors = @json($initialPopFlavors);
 

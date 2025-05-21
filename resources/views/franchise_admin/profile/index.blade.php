@@ -36,37 +36,33 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="basic-form">
-                                
+
                                             <!-- Display Success Message -->
-                                            @if(session('success'))
-                                                <div class="alert alert-success">
-                                                    {{ session('success') }}
-                                                </div>
-                                            @endif
-                                
+
+
                                             <form>
                                                 @csrf
-                                
+
                                                 <div class="mb-3">
                                                     <label class="form-label">Name</label>
                                                     <input type="text" class="form-control" value="{{ $user->name }}" readonly>
                                                 </div>
-                                
+
                                                 <div class="mb-3">
                                                     <label class="form-label">Email</label>
                                                     <input type="email" class="form-control" value="{{ $user->email }}" readonly>
                                                 </div>
-                                
+
                                                 <div class="mb-3">
                                                     <label class="form-label">Phone Number</label>
                                                     <input type="text" class="form-control" value="{{ $user->phone_number }}" readonly>
                                                 </div>
-                                
+
                                             </form>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                             </div>
                         </div>
 
@@ -85,10 +81,10 @@
                 document.addEventListener("DOMContentLoaded", function () {
                     const phoneInput = document.getElementById("phone_number");
                     const phoneError = document.getElementById("phoneError");
-            
+
                     phoneInput.addEventListener("input", function (e) {
                         let value = phoneInput.value.replace(/\D/g, ""); // Remove non-numeric characters
-            
+
                         // Format as (123) 456-7890
                         if (value.length > 0) {
                             value = "(" + value;
@@ -99,9 +95,9 @@
                         if (value.length > 9) {
                             value = value.slice(0, 9) + "-" + value.slice(9, 13);
                         }
-            
+
                         phoneInput.value = value;
-            
+
                         // Validate phone format
                         const phoneValid = /^\(\d{3}\) \d{3}-\d{4}$/.test(phoneInput.value);
                         if (!phoneValid) {
@@ -110,7 +106,7 @@
                             phoneError.textContent = "";
                         }
                     });
-            
+
                     phoneInput.addEventListener("keypress", function (e) {
                         if (!/[0-9]/.test(e.key)) {
                             e.preventDefault(); // Allow only numbers

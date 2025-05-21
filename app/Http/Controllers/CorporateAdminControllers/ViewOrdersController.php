@@ -4,9 +4,9 @@ namespace App\Http\Controllers\CorporateAdminControllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\FpgOrder;
+use App\Models\FgpOrder;
 use App\Models\User;
-use App\Models\FpgItem;
+use App\Models\FgpItem;
 use App\Models\Franchisee;
 use App\Models\AdditionalCharge;
 use Illuminate\Support\Facades\Auth;
@@ -18,13 +18,13 @@ class ViewOrdersController extends Controller
 {
     public function index()
     {
-        $deliveredOrders = FpgOrder::where('status', 'delivered')->get();
-        $shippedOrders = FpgOrder::where('status', 'shipped')->count();
-        $paidOrders = FpgOrder::where('status', 'paid')->count();
-        $pendingOrders = FpgOrder::where('status', 'pending')->count();
+        $deliveredOrders = FgpOrder::where('status', 'delivered')->get();
+        $shippedOrders = FgpOrder::where('status', 'shipped')->count();
+        $paidOrders = FgpOrder::where('status', 'paid')->count();
+        $pendingOrders = FgpOrder::where('status', 'pending')->count();
 
 
-        // $orders = FpgOrder::where('user_ID', Auth::id())
+        // $orders = FgpOrder::where('user_ID', Auth::id())
         // ->select(
         //     'user_ID',
         //     'date_transaction',
@@ -41,7 +41,7 @@ class ViewOrdersController extends Controller
         //     return $order;
         // });
 
-        $orders = FpgOrder::get();
+        $orders = FgpOrder::get();
 
         $totalOrders = $orders->count();
 
@@ -53,8 +53,8 @@ class ViewOrdersController extends Controller
         $orderId = $request->input('id');
 
         $orderDetails = DB::table('fgp_order_details as od')
-        ->join('fpg_items as fi', 'od.fgp_item_id', '=', 'fi.fgp_item_id')
-        ->where('od.fpg_order_id', $orderId)
+        ->join('fgp_items as fi', 'od.fgp_item_id', '=', 'fi.fgp_item_id')
+        ->where('od.fgp_order_id', $orderId)
         ->select('od.*', 'fi.name')
         ->get();
 
@@ -86,7 +86,7 @@ class ViewOrdersController extends Controller
         //     \Log::info('Validation passed, proceeding with update');
 
         //     // Query by fgp_ordersID
-        //     $order = DB::table('fpg_orders')->where('fgp_ordersID', $request->fgp_ordersID)->firstOrFail();
+        //     $order = DB::table('fgp_orders')->where('fgp_ordersID', $request->fgp_ordersID)->firstOrFail();
 
         //     $order->status = $request->status;
         //     $order->save();
@@ -112,9 +112,9 @@ class ViewOrdersController extends Controller
         //         'message' => $e->getMessage()
         //     ], 500);
         // }
-            $order = DB::table('fpg_orders')->where('fgp_ordersID', $request->fgp_ordersID)->firstOrFail();
+            $order = DB::table('fgp_orders')->where('fgp_ordersID', $request->fgp_ordersID)->firstOrFail();
             if($order){
-                $updated = DB::table('fpg_orders')
+                $updated = DB::table('fgp_orders')
                     ->where('fgp_ordersID', $request->fgp_ordersID)
                     ->update(['status' => $request->status]);
                 return response()->json([
@@ -129,11 +129,11 @@ class ViewOrdersController extends Controller
 
     public function edit($orderId)
     {
-        $order = FpgOrder::find($orderId);
+        $order = FgpOrder::find($orderId);
         $currentMonth = strval(Carbon::now()->format('n'));
 
         // Fetch only orderable, in-stock, and currently available items
-        $pops = FpgItem::where('orderable', 1)
+        $pops = FgpItem::where('orderable', 1)
             ->where('internal_inventory', '>', 0) // Ensure item is in stock
             ->get()
             ->filter(function ($pop) use ($currentMonth) {
@@ -159,7 +159,7 @@ class ViewOrdersController extends Controller
         $currentMonth = strval(Carbon::now()->format('n')); // Get current month as single-digit (1-12)
 
         // Fetch only items that are orderable, in stock, and available in the current month
-        $pops = FpgItem::where('orderable', 1)
+        $pops = FgpItem::where('orderable', 1)
             ->where('internal_inventory', '>', 0) // Ensure the item is in stock
             ->get()
             ->filter(function ($pop) use ($currentMonth) {
@@ -224,7 +224,7 @@ class ViewOrdersController extends Controller
         $validated = $request->validate([
             'user_ID' => 'required',
             'items' => 'required|array',
-            'items.*.fgp_item_id' => 'required|exists:fpg_items,fgp_item_id',
+            'items.*.fgp_item_id' => 'required|exists:fgp_items,fgp_item_id',
             'items.*.user_ID' => 'required|exists:users,user_id',
             'items.*.unit_cost' => 'required|numeric|min:0',
             'items.*.unit_number' => 'required|integer|min:1', // Allow any positive integer
@@ -243,7 +243,7 @@ class ViewOrdersController extends Controller
             return redirect()->back()->withErrors(['Order quantity must be a multiple of ' . $factorCase . '.']);
         }
 
-        $orders = FpgOrder::create([
+        $orders = FgpOrder::create([
             'user_ID' => $request->user_ID,
             'customer_id' => $request->customer_id,
             'date_transaction' => now(),
@@ -252,7 +252,7 @@ class ViewOrdersController extends Controller
 
         foreach ($validated['items'] as $item) {
             DB::table('fgp_order_details')->insert([
-                'fpg_order_id' => $orders->id,
+                'fgp_order_id' => $orders->id,
                 'fgp_item_id' => $item['fgp_item_id'],
                 'unit_cost' => $item['unit_cost'],
                 'unit_number' => $item['unit_number'],

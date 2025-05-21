@@ -83,8 +83,14 @@ eventClick: function(info) {
 
 
 
+
         <div class="row">
-            <div class="col-xl-3 col-xxl-4">
+            <div class="col-md-12">
+                <div style="float: right;">
+                    <a href="{{ route('franchise.events.report') }}" class="mb-3 btn btn-secondary btn-sm">Report</a>
+                </div>
+            </div>
+            <div style="display: none;" class="col-xl-3 col-xxl-4">
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-intro-title">Events</h4>
@@ -121,7 +127,7 @@ eventClick: function(info) {
                     </div>
                 </div>
             </div>
-            <div class="col-xl-9 col-xxl-8">
+            <div class="col-xl-12 col-xxl-12">
                 <div class="card">
                     <div class="card-body">
                         <div id="calendar" class="app-fullcalendar"></div>

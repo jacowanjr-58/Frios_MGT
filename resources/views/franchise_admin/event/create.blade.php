@@ -6,6 +6,9 @@
             overflow-y: auto;
             min-height: 96px;
         }
+        :disabled{
+            color: #00ABC7 !important;
+        }
     </style>
     <div class="content-body default-height p-5 mt-5">
         <div class="container-fluid rounded border p-5 bg-white">
@@ -18,19 +21,9 @@
                     Back
                 </a>
             </div>
-            @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <strong>Error!</strong> {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
 
-            @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <strong>Success!</strong> {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
+
+
 
             <div class="mt-3 alert alert-info message alert-dismissible fade show" style="display: none;" role="alert">
                 <strong></strong>
@@ -38,7 +31,7 @@
             </div>
 
 
-            <form action="{{ route('franchise.events.store') }}" method="post">
+            <form action="{{ route('franchise.events.store') }}" method="post" id="stripe-payment-form">
                 @csrf
                 <div class="form-group">
                     <label for="" class="form-label">Event Name</label>
@@ -49,33 +42,37 @@
 
                 </div>
                 @php
-                    use Carbon\Carbon;
+use Carbon\Carbon;
 
-                    $rawDate = request('date');
-                    $start = null;
-                    $end = null;
+$rawDate = request('date');
+$start = null;
+$end = null;
 
-                    if ($rawDate) {
-                        $cleanDate = str_replace(' ', '+', $rawDate);
+if ($rawDate) {
+    // Clean up any spaces and replace them with a plus sign (in case there's a space between time and timezone)
+    $cleanDate = str_replace(' ', '+', $rawDate);
 
-                        // Case 3: Special case — same start and end
-                        if ($cleanDate === '2025-05-01T05:00:00+05:00') {
-                            $parsedDate = Carbon::parse($cleanDate)->format('Y-m-d');
-                            $start = $parsedDate;
-                            $end = $parsedDate;
+    // Check if the cleaned date is in a specific format (e.g., `2025-05-01T05:00:00+05:00`)
+    if ($cleanDate === '2025-05-01T05:00:00+05:00') {
+        // Parse the date and set both start and end to the same date, with time set to 12 AM (00:00:00)
+        $parsedDate = Carbon::parse($cleanDate)->format('Y-m-d\T00:00:00');
+        $start = $parsedDate;
+        $end = $parsedDate;
 
-                            // Case 1: If datetime exists (has T), add 7 days
-                        } elseif (str_contains($cleanDate, 'T')) {
-                            $parsedDate = Carbon::parse($cleanDate);
-                            $start = $parsedDate->format('Y-m-d');
-                            $end = $parsedDate->copy()->addDays(7)->format('Y-m-d');
+    } elseif (str_contains($cleanDate, 'T')) {
+        // If the date contains time (T), parse the date and set both start and end to the same date, with time set to 12 AM (00:00:00)
+        $parsedDate = Carbon::parse($cleanDate);
+        $start = $parsedDate->format('Y-m-d\T00:00:00');  // Set to 12 AM (midnight)
+        $end = $parsedDate->format('Y-m-d\T00:00:00');  // Set to 12 AM (midnight)
 
-                            // Case 2: Pure date — only start_date
-                        } else {
-                            $start = Carbon::parse($cleanDate)->format('Y-m-d');
-                            $end = null;
-                        }
-                    }
+    } else {
+        // If no time part is provided, assume it's just a date and add default time of '00:00:00' (12 AM)
+        $start = Carbon::parse($cleanDate)->format('Y-m-d\T00:00:00');
+        $end = null;  // End is null if no time is provided
+    }
+}
+
+
                 @endphp
 
 
@@ -84,14 +81,14 @@
                 <div class="row mt-2">
                     <div class="col-md-6 form-group">
                         <label for="" class="form-label">Start Date</label>
-                        <input type="date" class="form-control" name="start_date" value="{{ $start }}" readonly>
+                        <input type="datetime-local" class="form-control" name="start_date" value="{{ old('start_date', $start) }}" readonly>
                         @error('start_date')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6 form-group">
                         <label for="" class="form-label">End Date</label>
-                        <input type="date" class="form-control" name="end_date" value="{{ old('end_date', $end) }}">
+                        <input type="datetime-local" class="form-control" name="end_date" value="{{ old('end_date', $start) }}">
                         @error('end_date')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -310,7 +307,32 @@
 
                 </div>
 
-                <button class="btn btn-outline-primary">
+
+
+                                                        <div class="row">
+                                                                                                                <div class="col-md-6 mb-3">
+                                                        <input type="text" id="cardholder-name" name="cardholder_name"
+                                                            placeholder="Cardholder Name" class="form-control">
+                                                    </div>
+
+                                                    <div class="col-md-6 mb-3">
+                                                        <div id="card-number-element" class="form-control"></div>
+                                                    </div>
+
+                                                    <div class="col-md-6 mb-3">
+                                                        <div id="card-expiry-element" class="form-control"></div>
+                                                    </div>
+
+                                                    <div class="col-md-6 mb-3">
+                                                        <div id="card-cvc-element" class="form-control"></div>
+                                                        <input type="hidden" name="stripeToken" id="stripeToken">
+                                                    </div>
+                                                    <div id="card-errors" class="text-danger mb-3"></div>
+
+                                                </div>
+
+
+                <button disabled class="btn btn-outline-primary" id="submit-button">
                     Submit
                 </button>
 
@@ -321,7 +343,81 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
 
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const stripe = Stripe("{{ env('STRIPE_PUBLIC_KEY') }}");
+            const elements = stripe.elements();
 
+            const cardNumber = elements.create('cardNumber');
+            const cardExpiry = elements.create('cardExpiry');
+            const cardCvc = elements.create('cardCvc');
+
+            cardNumber.mount('#card-number-element');
+            cardExpiry.mount('#card-expiry-element');
+            cardCvc.mount('#card-cvc-element');
+
+            const cardholderName = document.getElementById('cardholder-name');
+            const form = document.getElementById('stripe-payment-form');
+            const submitButton = document.getElementById('submit-button');
+            const errorElement = document.getElementById('card-errors');
+            const tokenInput = document.getElementById('stripeToken');
+
+            let cardComplete = {
+                number: false,
+                expiry: false,
+                cvc: false
+            };
+
+            function updateButtonState() {
+                const allComplete = cardComplete.number && cardComplete.expiry && cardComplete.cvc && cardholderName
+                    .value.trim() !== "";
+                submitButton.disabled = !allComplete;
+            }
+
+            cardNumber.on('change', function(event) {
+                cardComplete.number = event.complete;
+                if (event.error) {
+                    errorElement.textContent = event.error.message;
+                } else {
+                    errorElement.textContent = '';
+                }
+                updateButtonState();
+            });
+
+            cardExpiry.on('change', function(event) {
+                cardComplete.expiry = event.complete;
+                updateButtonState();
+            });
+
+            cardCvc.on('change', function(event) {
+                cardComplete.cvc = event.complete;
+                updateButtonState();
+            });
+
+            cardholderName.addEventListener('input', updateButtonState);
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                submitButton.disabled = true;
+
+                const {
+                    token,
+                    error
+                } = await stripe.createToken(cardNumber, {
+                    name: cardholderName.value
+                });
+
+                if (error) {
+                    errorElement.textContent = error.message;
+                    submitButton.disabled = false;
+                } else {
+                    tokenInput.value = token.id;
+                    form.submit();
+                }
+            });
+        });
+    </script>
 <script>
 $(document).ready(function () {
     function fetchFlavorData() {

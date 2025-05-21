@@ -122,7 +122,7 @@
                                 fill="#0E8A74" />
                         </svg>
                         <div class="text-start ms-3 flex-1">
-                            <span class="d-block text-black">Change Period</span>
+                            <span class="d-block text-black">Change Periode</span>
                             <small class="d-block text-muted">August 28th - October 28th, 2021</small>
                         </div>
                         <i class="fa fa-caret-down text-light scale5 ms-3"></i>
@@ -134,11 +134,7 @@
                 </div> --}}
             </div>
 
-            @if (session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
+
 
             <div class="row">
                 <div class="col-lg-12">
@@ -157,7 +153,7 @@
                                 @foreach ($orders as $index => $order)
                                 @php
                                     $totalAmount = \DB::table('fgp_order_details')
-                                        ->where('fpg_order_id', $order->fgp_ordersID)
+                                        ->where('fgp_order_id', $order->fgp_ordersID)
                                         ->selectRaw('SUM(unit_number * unit_cost) as total')
                                         ->value('total');
                                 @endphp
@@ -168,7 +164,7 @@
                                     <td>{{ $franchisee->name ?? 'N/A' }}</td>
                                     <td>
                                         <span class="cursor-pointer text-primary order-detail-trigger" data-id="{{ $order->fgp_ordersID }}">
-                                            {{ \DB::table('fgp_order_details')->where('fpg_order_id', $order->fgp_ordersID)->count() }} items
+                                            {{ \DB::table('fgp_order_details')->where('fgp_order_id', $order->fgp_ordersID)->count() }} items
                                         </span>
                                     </td>
                                     <td>{{ $order->status }}</td>
@@ -369,7 +365,7 @@
                 let orderableValue = $(this).val();
 
                 $.ajax({
-                    url: "{{ route('corporate_admin.fpgitem.updateOrderable') }}",
+                    url: "{{ route('corporate_admin.fgpitem.updateOrderable') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",

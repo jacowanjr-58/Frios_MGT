@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('inventory_allocations', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('fpg_item_id');
-            $table->foreign('fpg_item_id')->on('fpg_items')->references('fpg_item_id')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedBigInteger('fgp_item_id');
+            $table->foreign('fgp_item_id')->on('fgp_items')->references('fgp_item_id')->onUpdate('cascade')->onDelete('cascade');
             $table->string('location');
             $table->string('quantity');
             $table->timestamps();

@@ -1,16 +1,16 @@
 (function($) {
     /* "use strict" */
-	
+
  var dzChartlist = function(){
-	var screenWidth = $(window).width();	
+	var screenWidth = $(window).width();
 	var widgetChart1 = function(){
 		var options = {
 		  series: [
 			{
 				name: 'Net Profit',
 				data: [100,200, 100, 300, 200, 400, 200, 300,100, 300,200,300],
-				//radius: 12,	
-			}, 				
+				//radius: 12,
+			},
 		],
 			chart: {
 			type: 'line',
@@ -24,9 +24,9 @@
 			sparkline: {
 				enabled: true
 			}
-			
+
 		},
-		
+
 		colors:['var(--primary)'],
 		dataLabels: {
 		  enabled: false,
@@ -41,7 +41,7 @@
 		  curve:'smooth',
 		  colors:['var(--primary)'],
 		},
-		
+
 		grid: {
 			show:false,
 			borderColor: '#eee',
@@ -126,17 +126,17 @@
 
 		var chartBar1 = new ApexCharts(document.querySelector("#widgetChart1"), options);
 		chartBar1.render();
-	 
+
 	}
-	
+
 	var widgetChart2 = function(){
 		var options = {
 		  series: [
 			{
 				name: 'Net Profit',
 				data: [100,200, 100, 300, 200, 400, 200, 300,100, 300,200,300],
-				//radius: 12,	
-			}, 				
+				//radius: 12,
+			},
 		],
 			chart: {
 			type: 'line',
@@ -150,9 +150,9 @@
 			sparkline: {
 				enabled: true
 			}
-			
+
 		},
-		
+
 		colors:['#FB3E7A'],
 		dataLabels: {
 		  enabled: false,
@@ -167,7 +167,7 @@
 		  curve:'smooth',
 		  colors:['#FB3E7A'],
 		},
-		
+
 		grid: {
 			show:false,
 			borderColor: '#eee',
@@ -252,14 +252,14 @@
 
 		var chartBar1 = new ApexCharts(document.querySelector("#widgetChart2"), options);
 		chartBar1.render();
-	 
+
 	}
 	var chartBar = function(){
 		if(jQuery('#widgetChart3').length > 0 ){
-	
+
 			const widgetChart3 = document.getElementById("widgetChart3").getContext('2d');
 			//generate gradient
-			
+
 
 			// widgetChart1.attr('height', '100');
 
@@ -274,9 +274,9 @@
 							data: [15, 40, 55, 40, 25, 35, 40, 50, 85, 95],
 							borderColor: '#FE634E',
 							borderWidth: "0",
-							backgroundColor: '#FE634E', 
+							backgroundColor: '#FE634E',
 							 borderRadius: 20,
-							 barPercentage: 0.4, 
+							 barPercentage: 0.4,
 							hoverBackgroundColor: '#FE634E'
 						}
 					]
@@ -284,33 +284,33 @@
 				options: {
 					plugins:{
 						legend:false,
-						
+
 					},
-					responsive: true, 
+					responsive: true,
 					barRoundness: 1,
-					maintainAspectRatio: false,  
+					maintainAspectRatio: false,
 					scales: {
 						y:{
-							display: false, 
-							max: 100, 
-							min: 0, 
+							display: false,
+							max: 100,
+							min: 0,
 							ticks: {
-								beginAtZero: true, 
-								display: false, 
+								beginAtZero: true,
+								display: false,
 								stepSize: 10
-							}, 
+							},
 							grid: {
-								display: false, 
+								display: false,
 								drawBorder: false
 							}
 						},
 						x:{
-							display: false, 
-							barPercentage: 0.4, 
+							display: false,
+							barPercentage: 0.4,
 							grid: {
-								display: false, 
+								display: false,
 								drawBorder: false
-							}, 
+							},
 							ticks: {
 								display: false
 							}
@@ -320,8 +320,8 @@
 			});
 
 		}
-		
-		
+
+
 	}
 	var donutChart1 = function(){
 		$("span.donut1").peity("donut", {
@@ -329,7 +329,7 @@
 			height: "90"
 		});
 	}
-		
+
 	var donutChart2 = function(){
 		var options = {
           series: [45, 25, 30],
@@ -338,7 +338,7 @@
 		  height:230,
         },
 		  legend:{
-			show:false  
+			show:false
 		  },
 		  plotOptions: {
 			 pie: {
@@ -348,7 +348,7 @@
 				}
 			 },
 		  },
-		  
+
 		  states: {
 				normal: {
 					filter: {
@@ -369,9 +369,9 @@
 					}
 				},
 			},
-		  
+
 		  stroke:{
-			width:'10'  
+			width:'10'
 		  },
 		  dataLabels: {
 			  formatter(val, opts) {
@@ -394,7 +394,7 @@
               height: 200
             },
           }
-        }] 
+        }]
         };
 
         var chart = new ApexCharts(document.querySelector("#donutChart2"), options);
@@ -408,7 +408,7 @@
 		  height:230,
         },
 		  legend:{
-			show:false  
+			show:false
 		  },
 		  plotOptions: {
 			 pie: {
@@ -418,7 +418,7 @@
 				}
 			 },
 		  },
-		  
+
 		  states: {
 				normal: {
 					filter: {
@@ -439,9 +439,9 @@
 					}
 				},
 			},
-		  
+
 		  stroke:{
-			width:'10'  
+			width:'10'
 		  },
 		  dataLabels: {
 			  formatter(val, opts) {
@@ -464,7 +464,7 @@
               height: 200
             },
           }
-        }] 
+        }]
         };
 
         var chart = new ApexCharts(document.querySelector("#donutChart3"), options);
@@ -478,7 +478,7 @@
 		   height:230,
         },
 		  legend:{
-			show:false  
+			show:false
 		  },
 		  plotOptions: {
 			 pie: {
@@ -488,7 +488,7 @@
 				}
 			 },
 		  },
-		  
+
 		  states: {
 				normal: {
 					filter: {
@@ -509,9 +509,9 @@
 					}
 				},
 			},
-		  
+
 		  stroke:{
-			width:'10'  
+			width:'10'
 		  },
 		  dataLabels: {
 			  formatter(val, opts) {
@@ -534,7 +534,7 @@
               height: 200
             },
           }
-        }] 
+        }]
         };
 
         var chart = new ApexCharts(document.querySelector("#donutChart4"), options);
@@ -546,8 +546,8 @@
 			{
 				name: 'Net Profit',
 				data: [100,200, 100, 300, 200, 400, 200, 300,100],
-				//radius: 12,	
-			}, 				
+				//radius: 12,
+			},
 		],
 			chart: {
 			type: 'line',
@@ -556,7 +556,7 @@
 				show: false,
 			},
 		},
-		
+
 		colors:['var(--primary)'],
 		dataLabels: {
 		  enabled: false,
@@ -571,7 +571,7 @@
 		  curve:'smooth',
 		  colors:['var(--primary)'],
 		},
-		
+
 		grid: {
 			show:true,
 			borderColor: '#C8C8C8',
@@ -618,8 +618,8 @@
 				style: {
 					fontSize: '14px',
 					colors:'#a4a7ab',
-				}	
-			
+				}
+
 			},
 			crosshairs: {
 				show: false,
@@ -677,7 +677,7 @@
 
 		var chartBar1 = new ApexCharts(document.querySelector("#salesChart"), options);
 		chartBar1.render();
-	 
+
 	}
 	var salesChart1 = function(){
 		var options = {
@@ -685,8 +685,8 @@
 			{
 				name: 'Net Profit',
 				data: [100, 300, 200, 400, 100, 300, 100, 200, 100],
-				//radius: 12,	
-			}, 				
+				//radius: 12,
+			},
 		],
 			chart: {
 			type: 'line',
@@ -695,7 +695,7 @@
 				show: false,
 			},
 		},
-		
+
 		colors:['var(--primary)'],
 		dataLabels: {
 		  enabled: false,
@@ -710,7 +710,7 @@
 		  curve:'smooth',
 		  colors:['var(--primary)'],
 		},
-		
+
 		grid: {
 			show:true,
 			borderColor: '#C8C8C8',
@@ -815,7 +815,7 @@
 
 		var chartBar1 = new ApexCharts(document.querySelector("#salesChart1"), options);
 		chartBar1.render();
-	 
+
 	}
 	var salesChart2 = function(){
 		var options = {
@@ -823,8 +823,8 @@
 			{
 				name: 'Net Profit',
 				data: [200, 300, 400, 200, 300, 100, 300, 200, 100],
-				//radius: 12,	
-			}, 				
+				//radius: 12,
+			},
 		],
 			chart: {
 			type: 'line',
@@ -833,7 +833,7 @@
 				show: false,
 			},
 		},
-		
+
 		colors:['var(--primary)'],
 		dataLabels: {
 		  enabled: false,
@@ -848,7 +848,7 @@
 		  curve:'smooth',
 		  colors:['var(--primary)'],
 		},
-		
+
 		grid: {
 			show:true,
 			borderColor: '#C8C8C8',
@@ -953,16 +953,16 @@
 
 		var chartBar1 = new ApexCharts(document.querySelector("#salesChart2"), options);
 		chartBar1.render();
-	 
+
 	}
-	
- 
+
+
 	/* Function ============ */
 		return {
 			init:function(){
 			},
-			
-			
+
+
 			load:function(){
 				widgetChart1();
 				widgetChart2();
@@ -974,24 +974,24 @@
 				salesChart();
 				salesChart1();
 				salesChart2();
-					
+
 			},
-			
+
 			resize:function(){
 			}
 		}
-	
+
 	}();
 
-	
-		
+
+
 	jQuery(window).on('load',function(){
 		setTimeout(function(){
 			dzChartlist.load();
-		}, 1000); 
-		
+		}, 1000);
+
 	});
 
-     
+
 
 })(jQuery);

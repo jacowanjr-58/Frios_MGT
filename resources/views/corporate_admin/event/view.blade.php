@@ -37,9 +37,17 @@
 
 
             <div class="row mt-5">
-                <label class="mt-1"><b>Date: </b>
+                <label class="mt-1"><b>Start Date: </b>
                     @if (!empty($event->start_date))
-                        {{ date('d M Y', strtotime($event->start_date)) }}
+                    {{ date('d M Y h:i A', strtotime($event->start_date)) }}
+                    @else
+                        -
+                    @endif
+                </label>
+
+                <label class="mt-1"><b>End Date: </b>
+                    @if (!empty($event->end_date))
+                    {{ date('d M Y h:i A', strtotime($event->end_date)) }}
                     @else
                         -
                     @endif
@@ -166,7 +174,7 @@
                         $pop = null;
 
                         if (isset($eventItem->in_stock)) {
-                            $pop = \App\Models\FpgItem::where('fgp_item_id', $eventItem->in_stock)->first();
+                            $pop = \App\Models\FgpItem::where('fgp_item_id', $eventItem->in_stock)->first();
                         }
 
                         $orderDetail = null;
@@ -180,7 +188,7 @@
                     @endphp
                         <tr>
                             <td>
-                                {{ $eventItem->fpgItem->name ?? '-' }}
+                                {{ $eventItem->fgpItem->name ?? '-' }}
                             </td>
                             <td>
                                 {{ $eventItem->quantity ?: '-' }}

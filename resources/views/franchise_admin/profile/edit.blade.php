@@ -38,33 +38,29 @@
                                         <div class="basic-form">
 
                                             <!-- Display Success Message -->
-                                            @if(session('success'))
-                                                <div class="alert alert-success">
-                                                    {{ session('success') }}
-                                                </div>
-                                            @endif
+
                                             <form action="{{ route('profile.update', $user->user_id) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
-                                            
+
                                                 <div class="row">
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Name <span class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" 
+                                                        <input type="text" class="form-control @error('name') is-invalid @enderror" name="name"
                                                             value="{{ old('name', $user->name) }}" required>
                                                         @error('name') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
-                                            
+
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Email <span class="text-danger">*</span></label>
-                                                        <input type="email" class="form-control @error('email') is-invalid @enderror" name="email" 
+                                                        <input type="email" class="form-control @error('email') is-invalid @enderror" name="email"
                                                             value="{{ old('email', $user->email) }}" required>
                                                         @error('email') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
                                                     <div class="mb-3 col-md-12">
                                                         <label class="form-label">Phone number</label>
-                                                        <input type="text" class="form-control @error('phone_number') is-invalid @enderror" 
-                                                            id="phone_number" name="phone_number" 
+                                                        <input type="text" class="form-control @error('phone_number') is-invalid @enderror"
+                                                            id="phone_number" name="phone_number"
                                                             value="{{ old('phone_number', $user->phone_number) }}" placeholder="Phone number">
                                                         @error('phone_number') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
@@ -75,29 +71,29 @@
                                                     <!-- Old Password Field -->
                                                     <div class="mb-3 col-md-12">
                                                         <label class="form-label">Old Password <span class="text-danger">*</span></label>
-                                                        <input type="password" class="form-control @error('old_password') is-invalid @enderror" 
+                                                        <input type="password" class="form-control @error('old_password') is-invalid @enderror"
                                                             name="old_password">
                                                         @error('old_password') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
-                                            
+
                                                     <div class="mb-3 col-md-12">
                                                         <label class="form-label">New Password (Leave empty to keep current)</label>
                                                         <input type="password" class="form-control @error('password') is-invalid @enderror" name="password">
                                                         @error('password') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
-                                            
+
                                                     <div class="mb-3 col-md-12">
                                                         <label class="form-label">Confirm Password (Leave empty to keep current)</label>
-                                                        <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" 
+                                                        <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror"
                                                             name="password_confirmation">
                                                         @error('password_confirmation') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
-                                            
+
                                                 </div>
-                                            
+
                                                 <button type="submit" class="btn btn-primary bg-primary">Update Profile</button>
                                             </form>
-                                            
+
                                         </div>
                                     </div>
                                 </div>
@@ -119,10 +115,10 @@
                 document.addEventListener("DOMContentLoaded", function () {
                     const phoneInput = document.getElementById("phone_number");
                     const phoneError = document.getElementById("phoneError");
-            
+
                     phoneInput.addEventListener("input", function (e) {
                         let value = phoneInput.value.replace(/\D/g, ""); // Remove non-numeric characters
-            
+
                         // Format as (123) 456-7890
                         if (value.length > 0) {
                             value = "(" + value;
@@ -133,9 +129,9 @@
                         if (value.length > 9) {
                             value = value.slice(0, 9) + "-" + value.slice(9, 13);
                         }
-            
+
                         phoneInput.value = value;
-            
+
                         // Validate phone format
                         const phoneValid = /^\(\d{3}\) \d{3}-\d{4}$/.test(phoneInput.value);
                         if (!phoneValid) {
@@ -144,7 +140,7 @@
                             phoneError.textContent = "";
                         }
                     });
-            
+
                     phoneInput.addEventListener("keypress", function (e) {
                         if (!/[0-9]/.test(e.key)) {
                             e.preventDefault(); // Allow only numbers

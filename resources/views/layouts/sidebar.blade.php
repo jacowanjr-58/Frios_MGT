@@ -34,9 +34,9 @@
                         <span class="nav-text">Frios Flavors</span>
                     </a>
                     <ul aria-expanded="false">
-                        <li><a href="{{ route('corporate_admin.fpgitem.index') }}">Flavor List</a></li>
-                        <li><a href="{{ route('corporate_admin.fpgitem.availability') }}">Availability</a></li>
-                        <li><a href="{{ route('corporate_admin.fpgcategory.index') }}">Edit Flavor Categories</a></li>
+                        <li><a href="{{ route('corporate_admin.fgpitem.index') }}">Flavor List</a></li>
+                        <li><a href="{{ route('corporate_admin.fgpitem.availability') }}">Availability</a></li>
+                        <li><a href="{{ route('corporate_admin.fgpcategory.index') }}">Edit Flavor Categories</a></li>
                     </ul>
                 </li>
                 <li><a class="has-arrow ai-icon" href="javascript:void()" aria-expanded="false">
@@ -54,8 +54,7 @@
                         <span class="nav-text">Payments</span>
                     </a>
                     <ul aria-expanded="false">
-                        <li><a href="payments_total.html">Payments Total</a></li>
-                        <li><a href="payments_by_franchisee.html">Payments by Franchisee</a></li>
+                        <li><a href="{{ route('corporate_admin.transaction') }}">Payments by Franchisee</a></li>
                     </ul>
                 </li>
                 <li><a class="has-arrow ai-icon" href="javascript:void()" aria-expanded="false">
@@ -82,6 +81,7 @@
                     </a>
                     <ul aria-expanded="false">
                         <li><a href="{{ route('corporate_admin.events.calender') }}">Calender</a></li>
+                        <li><a href="{{ route('corporate_admin.events.report') }}">Report</a></li>
                     </ul>
                 </li>
             @endrole
@@ -95,6 +95,7 @@
                         <span class="nav-text">Inventory</span>
                     </a>
                     <ul aria-expanded="false">
+                        <li><a href="{{ route('franchise.locations.index') }}">Location</a></li>
                         <li><a href="{{ route('franchise.inventory.index') }}">Inventory List</a></li>
                         <li><a href="{{ route('franchise.inventory.locations') }}">Edit Inventory Locations</a></li>
                     </ul>
@@ -113,9 +114,10 @@
                         <span class="nav-text">Get Paid</span>
                     </a>
                     <ul aria-expanded="false">
-                        <li><a href="invoices.html">Invoices</a></li>
+                        <li><a href="{{ route('franchise.account.index') }}">Accounts</a></li>
+                        <li><a href="{{ route('franchise.invoice.index') }}">Invoices</a></li>
                         <li><a href="sales.html">Sales</a></li>
-                        <li><a href="payments.html">Payments</a></li>
+                        <li><a href="{{ route('franchise.transaction') }}">Transactions</a></li>
                     </ul>
                 </li>
                 <li><a class="has-arrow ai-icon" href="javascript:void()" aria-expanded="false">
@@ -157,6 +159,7 @@
                     <span class="nav-text">Inventory</span>
                 </a>
                 <ul aria-expanded="false">
+                    <li><a href="{{ route('franchise.locations.index') }}">Location</a></li>
                     <li><a href="{{ route('franchise.inventory.index') }}">Inventory List</a></li>
                     <li><a href="{{ route('franchise.inventory.locations') }}">Edit Inventory Locations</a></li>
                 </ul>
@@ -233,6 +236,7 @@
                     </a>
                     <ul aria-expanded="false">
                         <li><a href="{{ route('franchise_staff.events.calendar') }}">Calender</a></li>
+                        <li><a href="{{ route('franchise_staff.events.report') }}">Report</a></li>
                     </ul>
                 </li>
             @endrole
