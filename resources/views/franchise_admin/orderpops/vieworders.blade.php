@@ -226,3 +226,7 @@ $(document).ready(function () {
 
 </script>
 @endpush
+
+
+<p><strong>Tracking:</strong> {{ $order->tracking_number }}</p>
+<p><strong>Delivered:</strong> {{ $order->is_delivered ? 'Yes' : 'No' }} @if($order->delivered_at) ({{ $order->delivered_at }}) @endif</p>
