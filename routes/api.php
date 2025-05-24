@@ -1,8 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Webhooks\ShipStationWebhookController;
+use App\Http\Controllers\Webhook\ShipStationWebhookController;
 
-Route::middleware('api')->group(function () {
-    Route::post('/webhooks/shipstation', [ShipStationWebhookController::class, 'handle']);
+Route::post('/webhooks/shipstation/{token}', function ($token, \Illuminate\Http\Request $request) {
+    abort_unless(
+        $token === config('services.shipstation.webhook_token'),
+        403,
+        'Invalid webhook token'
+    );
+
+    return app(ShipStationWebhookController::class)->handle($request);
 });

@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Mail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\OrderTransaction;
 use App\Models\User;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class OrderPopsController extends Controller
 {
@@ -46,33 +46,79 @@ class OrderPopsController extends Controller
     }
 
     public function create()
-    {
-        $currentMonth = strval(Carbon::now()->format('n'));
 
-        // Fetch only orderable, in-stock, and currently available items
-        $pops = FgpItem::where('orderable', 1)
-            ->where('internal_inventory', '>', 0) // Ensure item is in stock
+    {
+        $currentMonth = now()->format('n');
+
+        // Load eligible items
+      /*   $items = FgpItem::with('categories')
+            ->where('orderable', 1)
+            ->where('internal_inventory', '>', 0)
+            ->get()
+            ->filter(function ($item) use ($currentMonth) {
+                $months = json_decode($item->dates_available, true);
+                return in_array($currentMonth, $months ?? []);
+            }); */
+
+             $items = FgpItem::where('orderable', 1)
+            ->where('internal_inventory', '>', 0) // Ensure the item is in stock
             ->get()
             ->filter(function ($pop) use ($currentMonth) {
                 $availableMonths = json_decode($pop->dates_available, true);
                 return in_array($currentMonth, $availableMonths ?? []);
             });
 
-        $categorizedItems = [];
-        foreach ($pops as $pop) {
-            foreach ($pop->categories as $category) {
-                $types = json_decode($category->type, true); // Decode JSON types
+        // Build inventory array
+        $inventory = $items->map(function ($item) {
+            $categoryMap = [
+                'Availability' => [],
+                'Flavor' => [],
+                'Allergen' => [],
+            ];
 
+            foreach ($item->categories as $category) {
+                $types = json_decode($category->type, true) ?? [];
                 foreach ($types as $type) {
-                    $categorizedItems[$type][$category->name][] = $pop;
+                    if (isset($categoryMap[$type])) {
+                        $categoryMap[$type][] = $category->name;
+                    }
                 }
             }
+
+            return [
+                'type' => $item->name,
+                'flavor' => implode(', ', $categoryMap['Flavor']),
+                'availability' => implode(', ', $categoryMap['Availability']),
+                'allergen' => implode(', ', $categoryMap['Allergen']),
+                'price' => $item->unit_cost,
+                'image' => asset($item->image_path), // Ensure this points to your image directory
+            ];
+        })->values();
+
+        // Build categoriesData
+        $allCategories = FgpCategory::all();
+        $categoryTypes = ['Availability', 'Flavor', 'Allergen'];
+        $categoriesData = [];
+
+        foreach ($categoryTypes as $type) {
+            $options = $allCategories->filter(function ($cat) use ($type) {
+                $types = json_decode($cat->type, true) ?? [];
+                return in_array($type, $types);
+            })->pluck('name')->unique()->sort()->values();
+
+            $categoriesData[] = [
+                'category' => $type,
+                'options' => $options,
+            ];
         }
 
-        return view('franchise_admin.orderpops.create', compact('categorizedItems'));
+        return view('franchise_admin.orderpops.create', [
+            'categoriesData' => json_encode($categoriesData),
+            'orderableInventory' => json_encode($inventory),
+        ]);
     }
 
-  
+
     public function confirmOrder(Request $request)
     {
         try {
@@ -312,40 +358,53 @@ foreach ($validated['items'] as $index => $item) {
 
 
 
-    public function viewOrders()
+        public function viewOrders()
     {
-        // $orders = FgpOrder::where('user_ID', Auth::id())
-        //     ->select(
-        //         'user_ID',
-        //         'date_transaction',
-        //         \DB::raw('SUM(unit_number) as total_quantity'),
-        //         \DB::raw('SUM(unit_number * unit_cost) as total_amount'),
-        //         'status'
-        //     )
-        //     ->groupBy('date_transaction', 'user_ID', 'status')
-        //     ->orderBy('date_transaction', 'desc')
-        //     ->with('user')
-        //     ->get()
-        //     ->map(function ($order) {
-        //         $order->date_transaction = Carbon::parse($order->date_transaction);
-        //         return $order;
-        //     });
-
-        $orders = FgpOrder::where('user_ID' , Auth::user()->franchisee_id)->get();
-
+        $orders = FgpOrder::with([
+            'items.flavor',
+            'user',
+            'customer'
+        ])
+            ->where('user_ID', Auth::user()->franchisee_id)
+            ->orderByDesc('date_transaction')
+            ->get()
+            ->map(
+                function ($order) {
+                    $order->total_amount = $order->items->sum(function ($item) {
+                        return $item->unit_number * $item->unit_cost;
+                    });
+                return $order;
+            });
         $totalOrders = $orders->count();
 
         return view('franchise_admin.orderpops.vieworders', compact('orders', 'totalOrders'));
     }
 
 
-    public function customer($franchisee_id)
-    {
-        $customers = Customer::where('franchisee_id', $franchisee_id)->get();
+        public function customer($franchisee_id)
+        {
+            $customers = Customer::where('franchisee_id', $franchisee_id)->get();
 
-        return response()->json([
-            'data' => $customers,
+            return response()->json([
+                'data' => $customers,
+            ]);
+        }
+
+
+        public function markDelivered(FgpOrder $order)
+        {
+        if ($order->is_delivered) {
+            return redirect()->back()->with('error', 'This order has already been marked as delivered.');
+        }
+
+        $order->update([
+            'status' => 'Delivered',
+            'is_delivered' => true,
+            'delivered_at' => now(),
         ]);
+
+        return redirect()->back()->with('success', 'Order marked as delivered.');
+        }
+
     }
-}
 

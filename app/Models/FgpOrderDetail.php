@@ -8,7 +8,7 @@ class FgpOrderDetail extends Model
 {
     protected $guarded = [];
 
-    public function fgp_item()
+    public function flavor()
     {
         return $this->belongsTo(FgpItem::class, 'fgp_item_id', 'fgp_item_id');
     }
