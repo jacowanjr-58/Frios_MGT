@@ -1,5 +1,10 @@
 @extends('layouts.app')
 @section('content')
+<style>
+    .dataTables_wrapper{
+        overflow: scroll !important
+    }
+</style>
 
     <div class="content-body default-height p-5 mt-5">
         <div class="container-fluid rounded border p-5 bg-white">

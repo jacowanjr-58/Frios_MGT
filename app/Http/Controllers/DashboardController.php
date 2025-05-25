@@ -18,49 +18,49 @@ class DashboardController extends Controller
         $startOfMonth = Carbon::now()->startOfMonth();
 
         if (Auth::user()->role == 'franchise_admin' || Auth::user()->role == 'franchise_manager' || Auth::user()->role == 'franchise_staff') {
-            $data['eventCount'] = Event::whereMonth('created_at', Carbon::now()->month)
+            $data['eventCount'] = Event::where('franchisee_id' , $franchiseeId)->whereMonth('created_at', Carbon::now()->month)
                 ->count();
 
-            $data['saleCount'] = InvoiceTransaction::whereMonth('created_at', Carbon::now()->month)
+            $data['saleCount'] = InvoiceTransaction::where('franchisee_id' , $franchiseeId)->whereMonth('created_at', Carbon::now()->month)
                 ->count();
-            $data['events'] = Event::orderBy('created_at', 'DESC')->take(3)->get();
+            $data['events'] = Event::where('franchisee_id' , $franchiseeId)->orderBy('created_at', 'DESC')->take(3)->get();
 
             $data['orderAmount'] = [
-                'monthly' => OrderTransaction::whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
+                'monthly' => OrderTransaction::where('franchisee_id' , $franchiseeId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
             ];
 
             $data['inoviceAmount'] = [
-                'monthly' => InvoiceTransaction::whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
+                'monthly' => InvoiceTransaction::where('franchisee_id' , $franchiseeId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
             ];
             $data['totalAmount'] = [
                 'monthly' => $data['orderAmount']['monthly'] + $data['inoviceAmount']['monthly'],
             ];
 
-            $data['salesData'] = InvoiceTransaction::whereYear('created_at', Carbon::now()->year)
+            $data['salesData'] = InvoiceTransaction::where('franchisee_id' , $franchiseeId)->whereYear('created_at', Carbon::now()->year)
                 ->select(DB::raw("COUNT(*) as count"), DB::raw("MONTHNAME(created_at) as month"))
                 ->groupBy(DB::raw("MONTH(created_at), MONTHNAME(created_at)"))
                 ->pluck('count', 'month');
 
         } elseif (Auth::user()->role == 'corporate_admin') {
-            $data['eventCount'] = Event::whereMonth('created_at', Carbon::now()->month)
+            $data['eventCount'] = Event::where('franchisee_id' , $franchiseeId)->whereMonth('created_at', Carbon::now()->month)
                 ->count();
 
-            $data['saleCount'] = InvoiceTransaction::whereMonth('created_at', Carbon::now()->month)
+            $data['saleCount'] = InvoiceTransaction::where('franchisee_id' , $franchiseeId)->whereMonth('created_at', Carbon::now()->month)
                 ->count();
-            $data['events'] = Event::orderBy('created_at', 'DESC')->take(3)->get();
+            $data['events'] = Event::where('franchisee_id' , $franchiseeId)->orderBy('created_at', 'DESC')->take(3)->get();
 
             $data['orderAmount'] = [
-                'monthly' => OrderTransaction::whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
+                'monthly' => OrderTransaction::where('franchisee_id' , $franchiseeId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
             ];
 
             $data['inoviceAmount'] = [
-                'monthly' => InvoiceTransaction::whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
+                'monthly' => InvoiceTransaction::where('franchisee_id' , $franchiseeId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
             ];
             $data['totalAmount'] = [
                 'monthly' => $data['orderAmount']['monthly'] + $data['inoviceAmount']['monthly'],
             ];
 
-            $data['salesData'] = InvoiceTransaction::whereYear('created_at', Carbon::now()->year)
+            $data['salesData'] = InvoiceTransaction::where('franchisee_id' , $franchiseeId)->whereYear('created_at', Carbon::now()->year)
                 ->select(DB::raw("COUNT(*) as count"), DB::raw("MONTHNAME(created_at) as month"))
                 ->groupBy(DB::raw("MONTH(created_at), MONTHNAME(created_at)"))
                 ->pluck('count', 'month');

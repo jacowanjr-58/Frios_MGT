@@ -1,39 +1,29 @@
 @extends('layouts.app')
 @section('content')
-    <!--**********************************
-            Content body start
-        ***********************************-->
     <div class="content-body default-height">
-        <!-- row -->
         <div class="container-fluid">
             <div class="form-head mb-4 d-flex flex-wrap align-items-center">
                 <div class="me-auto">
                     <h2 class="font-w600 mb-0">Dashboard \</h2>
                     <p>Pops Order List</p>
                 </div>
-
             </div>
             <div class="row mb-4 align-items-center">
-
                 <div class="col-xl-12 col-lg-12">
                     <div class="card m-0">
                         <div class="card-body py-3 py-md-2">
                             <div class="d-sm-flex d-block align-items-center">
                                 <div class="d-flex mb-sm-0 mb-3 me-auto align-items-center">
-
                                     <div class="media-body">
                                         <p class="mb-1 fs-12">Total Orders Pops</p>
                                         <h3 class="mb-0 font-w600 fs-22">{{ $totalOrders }} Flavor Pops</h3>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-
             <div class="row">
                 <div class="col-lg-12">
                     <div class="table-responsive rounded">
@@ -54,7 +44,6 @@
                                         ->where('fgp_order_id', $order->fgp_ordersID)
                                         ->selectRaw('SUM(unit_number * unit_cost) as total')
                                         ->value('total');
-
                                         $franchisee = App\Models\Franchisee::where('franchisee_id' , $order->user_ID)->first();
                                         $customer = App\Models\Customer::where('customer_id' , $order->customer_id)->first();
                                 @endphp
@@ -65,7 +54,6 @@
                                                 {{ \DB::table('fgp_order_details')->where('fgp_order_id', $order->fgp_ordersID)->count() }} items
                                             </span>
                                         </td>
-                                        {{-- <td>{{ $order->status }}</td> --}}
                                         <td>${{ number_format($totalAmount, 2) }}</td>
                                         <td>{{ \Carbon\Carbon::parse($order->date_transaction)->format('M d, Y h:i A') }}</td>
                                         <td>
@@ -82,76 +70,15 @@
                                                 </option>
                                             </select>
                                         </td>
-
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table>
-
-                        <!-- Custom Pagination -->
-                        {{-- <div class="d-flex justify-content-center mt-4">
-                            @if ($orders->hasPages())
-                                <nav>
-                                    <ul class="pagination">
-                                        <!-- Previous Page Link -->
-                                        @if ($orders->onFirstPage())
-                                            <li class="page-item disabled" aria-disabled="true"
-                                                aria-label="@lang('pagination.previous')">
-                                                <span class="page-link custom-arrow" aria-hidden="true">‹</span>
-                                            </li>
-                                        @else
-                                            <li class="page-item">
-                                                <a class="page-link custom-arrow" href="{{ $orders->previousPageUrl() }}"
-                                                    rel="prev" aria-label="@lang('pagination.previous')">‹</a>
-                                            </li>
-                                        @endif
-
-                                        <!-- Pagination Elements -->
-                                        @foreach ($orders->links()->elements as $element)
-                                            <!-- "Three Dots" Separator -->
-                                            @if (is_string($element))
-                                                <li class="page-item disabled" aria-disabled="true"><span
-                                                        class="page-link">{{ $element }}</span></li>
-                                            @endif
-
-                                            <!-- Array Of Links -->
-                                            @if (is_array($element))
-                                                @foreach ($element as $page => $url)
-                                                    @if ($page == $orders->currentPage())
-                                                        <li class="page-item active" aria-current="page"><span
-                                                                class="page-link custom-page">{{ $page }}</span>
-                                                        </li>
-                                                    @else
-                                                        <li class="page-item"><a class="page-link"
-                                                                href="{{ $url }}">{{ $page }}</a></li>
-                                                    @endif
-                                                @endforeach
-                                            @endif
-                                        @endforeach
-
-                                        <!-- Next Page Link -->
-                                        @if ($orders->hasMorePages())
-                                            <li class="page-item">
-                                                <a class="page-link custom-arrow" href="{{ $orders->nextPageUrl() }}"
-                                                    rel="next" aria-label="@lang('pagination.next')">›</a>
-                                            </li>
-                                        @else
-                                            <li class="page-item disabled" aria-disabled="true"
-                                                aria-label="@lang('pagination.next')">
-                                                <span class="page-link custom-arrow" aria-hidden="true">›</span>
-                                            </li>
-                                        @endif
-                                    </ul>
-                                </nav>
-                            @endif
-                        </div> --}}
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-
     <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
@@ -160,8 +87,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Table for displaying order details -->
-
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary rounded text-secondary custom-hover" data-bs-dismiss="modal">Close</button>
@@ -170,80 +95,19 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script>
-        // $(document).ready(function () {
-        //     $(document).on('change', '.status-select', function () {
-        //         let select = $(this);
-        //         let dateTransaction = select.data('date');
-        //         let newStatus = select.val();
-        //         let fgpOrdersId = select.data('fgp-orders-id'); // Use fgp-orders-id
-
-        //         console.log('Data to be sent:', {
-        //             date_transaction: dateTransaction,
-        //             status: newStatus,
-        //             fgp_ordersID: fgpOrdersId
-        //         });
-
-        //         const data = {
-        //             date_transaction: dateTransaction,
-        //             status: newStatus,
-        //             fgp_ordersID: fgpOrdersId // Send fgp_ordersID
-        //         };
-
-        //         // Validate fields
-        //         for (const [key, value] of Object.entries(data)) {
-        //             if (!value && value !== 0) {
-        //                 console.error(`Field '${key}' is missing or empty!`);
-        //                 alert(`Error: Field '${key}' is missing or empty!`);
-        //                 return;
-        //             }
-        //         }
-
-        //         fetch("/corporate_admin/vieworders/update-status", {
-        //             method: "POST",
-        //             headers: {
-        //                 "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content'),
-        //                 "Content-Type": "application/json"
-        //             },
-        //             body: JSON.stringify(data)
-        //         })
-        //             .then(response => {
-        //                 console.log('Response status:', response.status);
-        //                 return response.json().then(data => {
-        //                     if (!response.ok) {
-        //                         throw new Error(data.message || 'Update failed');
-        //                     }
-        //                     return data;
-        //                 });
-        //             })
-        //             .then(data => {
-        //                 console.log('Success:', data);
-        //                 alert(data.message);
-        //             })
-        //             .catch(error => {
-        //                 console.error('Error:', error);
-        //                 alert('Error: ' + error.message);
-        //             });
-        //     });
-        // });
-
-
         $(document).ready(function () {
         $(document).on('change', '.status-select', function () {
             let select = $(this);
             let dateTransaction = select.data('date');
             let newStatus = select.val();
-            let fgpOrdersId = select.data('fgp-orders-id'); // Use fgp-orders-id
+            let fgpOrdersId = select.data('fgp-orders-id');
 
             const data = {
                 date_transaction: dateTransaction,
                 status: newStatus,
-                fgp_ordersID: fgpOrdersId // Send fgp_ordersID
+                fgp_ordersID: fgpOrdersId
             };
-
-            // Validate fields
-            // jQuery Ajax request
             $.ajax({
                 url: "/corporate_admin/vieworders/update-status",
                 method: "POST",
@@ -263,8 +127,6 @@
     });
 
         </script>
-
-    <!-- Custom Styles for Pagination -->
     <style>
         .pagination .page-item {
             margin: 0 5px;
@@ -304,62 +166,48 @@
 @endsection
 @push('scripts')
 <script>
-$(document).ready(function () {
-    $('.order-detail-trigger').on('click', function () {
-        const orderId = $(this).data('id'); // Get the order ID from the data-id attribute
+$(document).on('click', '.order-detail-trigger', function () {
+    const orderId = $(this).data('id');
 
-        $.ajax({
-            url: '{{ route('corporate_admin.vieworders.detail') }}', // Backend route to fetch order details
-            method: 'GET',
-            data: { id: orderId }, // Pass orderId to backend
-            success: function (response) {
-    // Assuming response contains the orderDetails array
-    let orderDetails = response.orderDetails;
+    $.ajax({
+        url: '{{ route('corporate_admin.vieworders.detail') }}',
+        method: 'GET',
+        data: { id: orderId },
+        success: function (response) {
+            let orderDetails = response.orderDetails;
+            let detailsHtml = `
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Item</th>
+                            <th scope="col">Unit Cost</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Transaction Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
 
-    // Prepare HTML to display the order details inside a table
-    let detailsHtml = `
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th scope="col">Item</th>
-                    <th scope="col">Unit Cost</th>
-                    <th scope="col">Quantity</th>
-                    <th scope="col">Transaction Date</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
+            orderDetails.forEach(function(detail) {
+                detailsHtml += `
+                    <tr>
+                        <td>${detail.name}</td>
+                        <td>$${detail.unit_cost}</td>
+                        <td>${detail.unit_number}</td>
+                        <td>${detail.formatted_date}</td>
+                    </tr>
+                `;
+            });
 
-    // Loop through orderDetails and create table rows
-    orderDetails.forEach(function(detail) {
-        detailsHtml += `
-            <tr>
-                <td>${detail.name}</td>
-                <td>$${detail.unit_cost}</td>
-                <td>${detail.unit_number}</td>
-                <td>${detail.formatted_date}</td>
-            </tr>
-        `;
-    });
-
-    // Close the table
-    detailsHtml += `</tbody></table>`;
-
-    // Insert the details HTML into the modal body
-    $('#orderModal .modal-body').html(detailsHtml);
-
-    // Show the modal
-    $('#orderModal').modal('show');
-},
-
-            error: function () {
-                alert('Error loading order details.');
-            }
-        });
+            detailsHtml += `</tbody></table>`;
+            $('#orderModal .modal-body').html(detailsHtml);
+            $('#orderModal').modal('show');
+        },
+        error: function () {
+            alert('Error loading order details.');
+        }
     });
 });
-
-
 
 </script>
 @endpush

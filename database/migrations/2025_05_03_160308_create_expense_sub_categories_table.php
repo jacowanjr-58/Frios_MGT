@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('category_id');
             $table->string('sub_category');
             $table->string('sub_category_description');
+            $table->string('franchisee_id')->nullable();
             $table->timestamps();
         });
     }

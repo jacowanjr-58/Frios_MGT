@@ -21,7 +21,7 @@
                         <a href="{{ route('franchise.staff.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Staff</a>
                         @endrole
                         @role('franchise_manager')
-                        <a href="{{ route('franchise_manager.staff.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Staff</a>
+                        <a href="{{ route('franchise.staff.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Staff</a>
                         @endrole
                     </div>
                     <div class="col-xl-9 col-lg-8">
@@ -58,12 +58,6 @@
 							<table id="example5" class="table customer-table display mb-4 fs-14 card-table">
 								<thead>
                                     <tr>
-                                        <th>
-                                            <div class="form-check checkbox-secondary">
-                                                <input class="form-check-input" type="checkbox" value="" id="checkAll">
-                                                <label class="form-check-label" for="checkAll"></label>
-                                            </div>
-                                        </th>
                                         {{-- <th>Staff ID</th> --}}
                                         <th>Staff Name</th>
                                         <th>Staff Of</th>
@@ -77,12 +71,6 @@
                                 <tbody>
                                     @foreach ($users as $user)
                                         <tr>
-                                            <td>
-                                                <div class="form-check checkbox-secondary">
-                                                    <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault{{ $user->user_id }}">
-                                                    <label class="form-check-label" for="flexCheckDefault{{ $user->user_id }}"></label>
-                                                </div>
-                                            </td>
                                             {{-- <td>#{{ str_pad($user->user_id, 7, '0', STR_PAD_LEFT) }}</td> --}}
                                             <td>{{ $user->name }}</td>
                                             <td>
@@ -126,13 +114,13 @@
                                                 @endrole
                                                 @role('franchise_manager')
                                                 <div class="d-flex">
-                                                    <a href="{{ route('franchise_manager.staff.edit', $user->user_id) }}" class="edit-user">
+                                                    <a href="{{ route('franchise.staff.edit', $user->user_id) }}" class="edit-user">
                                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M17 3C17.2626 2.73735 17.5744 2.52901 17.9176 2.38687C18.2608 2.24473 18.6286 2.17157 19 2.17157C19.3714 2.17157 19.7392 2.24473 20.0824 2.38687C20.4256 2.52901 20.7374 2.73735 21 3C21.2626 3.26264 21.471 3.57444 21.6131 3.9176C21.7553 4.26077 21.8284 4.62856 21.8284 5C21.8284 5.37143 21.7553 5.73923 21.6131 6.08239C21.471 6.42555 21.2626 6.73735 21 7L7.5 20.5L2 22L3.5 16.5L17 3Z" stroke="#FF7B31" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                         </svg>
                                                     </a>
 
-                                                    <form action="{{ route('franchise_manager.staff.destroy', $user->user_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                                    <form action="{{ route('franchise.staff.destroy', $user->user_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?')">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="ms-4 delete-user">

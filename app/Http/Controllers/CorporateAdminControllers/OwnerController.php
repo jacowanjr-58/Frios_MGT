@@ -21,10 +21,10 @@ class OwnerController extends Controller
 
      public function create()
      {
-        $franchises = Franchisee::all();
+        $franchises = Franchisee::whereDoesntHave('users')->get();
         return view('corporate_admin.owners.create', compact('franchises'));
      }
-     
+
 
     public function store(Request $request)
     {
@@ -39,7 +39,7 @@ class OwnerController extends Controller
             'franchisee_id.required' => 'Franchise is required.', // Custom error message
             'franchisee_id.exists' => 'Selected franchise does not exist.', // Custom error message for invalid franchise
         ]);
-        
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -50,19 +50,19 @@ class OwnerController extends Controller
             'security' => $request->security,
             'created_date' => Carbon::now()->toDateString(), // Storing the current date
         ]);
-    
+
         // Assign the role using Spatie Role Permission
         $user->assignRole('franchise_admin');
-    
+
         return redirect()->route('corporate_admin.owner.index')->with('success', 'Owner created successfully.');
     }
-     
+
     public function edit(User $owner)
     {
         $franchises = Franchisee::all(); // Fetch all franchises
         return view('corporate_admin.owners.edit', compact('owner', 'franchises'));
     }
-        
+
     public function update(Request $request, User $owner)
     {
         $request->validate([
@@ -73,7 +73,7 @@ class OwnerController extends Controller
             'clearance' => 'nullable|string',
             'security' => 'nullable|string',
         ]);
-    
+
         $owner->update([
             'name' => $request->name,
             'email' => $request->email,
@@ -81,11 +81,11 @@ class OwnerController extends Controller
             'clearance' => $request->clearance,
             'security' => $request->security,
         ]);
-    
+
         if ($request->filled('password')) {
             $owner->update(['password' => bcrypt($request->password)]);
         }
-    
+
         return redirect()->route('corporate_admin.owner.index')->with('success', 'Owner updated successfully.');
     }
     public function destroy($id)
@@ -98,7 +98,7 @@ class OwnerController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('corporate_admin.owner.index')->with('error', 'Failed to delete user.');
         }
-    }    
-    
-    
+    }
+
+
 }

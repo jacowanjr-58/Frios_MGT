@@ -38,7 +38,7 @@
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
                                     <label for="customer">Customer</label>
-                                    <select name="customer_id" id="customer_id" class="form-control" required>
+                                    <select name="customer_id" id="customer_id" class="form-control">
                                         <option value="">-- Select Customer --</option>
                                         @foreach ($customers as $customer)
                                             <option value="{{ $customer->customer_id }}">{{ $customer->name }}</option>
@@ -108,13 +108,14 @@
                                 <select id="item-flavor" class="form-control">
                                     <option value="">-- Select Flavor &amp; Location --</option>
                                     @foreach ($allocations as $alloc)
-                                        <!-- Check if the flavor exists -->
-                                        <option value="{{ $alloc->flavor->fgp_item_id }}"
-                                            data-price="{{ $alloc->flavor->case_cost }}"
+                                        <option value="{{ $alloc->fgp_item_id }}"
+                                            data-price="{{ $alloc->case_cost }}"
                                             data-location="{{ $alloc->location }}">
-                                            {{ $alloc->flavor->name }} ({{ $alloc->location }})
+                                            {{ $alloc->name }} ({{ $alloc->location }})
                                         </option>
                                     @endforeach
+
+
 
                                 </select>
                             </div>

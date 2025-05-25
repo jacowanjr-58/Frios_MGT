@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-
+use DB;
+use Illuminate\Support\Facades\Auth;
 
 class FgpItem extends Model
 {
@@ -35,10 +35,12 @@ class FgpItem extends Model
         return $this->belongsToMany(FgpCategory::class, 'fgp_category_fgp_item', 'fgp_item_id', 'category_ID');
     }
 
-    public function Orders() {
+    public function Orders()
+    {
         return $this->hasMany(FgpOrder::class, 'fgp_item_id')->where('status', 'delivered');
     }
-    public function InventoryAllocations() {
+    public function InventoryAllocations()
+    {
         return $this->hasMany(InventoryAllocation::class, 'fgp_item_id');
     }
 
@@ -54,17 +56,18 @@ class FgpItem extends Model
 
 
     public function availableQuantity()
-{
-    return DB::table('fgp_order_details')
-        ->join('fgp_orders', 'fgp_orders.fgp_ordersID', '=', 'fgp_order_details.fgp_order_id')
-        ->where('fgp_order_details.fgp_item_id', $this->fgp_item_id)
-        ->where('fgp_orders.status', 'Delivered')
-        ->sum('fgp_order_details.unit_number');
-}
+    {
+        return DB::table('fgp_order_details')
+            ->join('fgp_orders', 'fgp_orders.fgp_ordersID', '=', 'fgp_order_details.fgp_order_id')
+            ->where('fgp_order_details.fgp_item_id', $this->fgp_item_id)
+            ->where('fgp_orders.status', 'Delivered')
+            ->where('fgp_orders.status', 'Delivered')
+            ->where('fgp_orders.user_ID', Auth::user()->franchisee_id)
+            ->sum('fgp_order_details.unit_number');
+    }
 
     public function allocations()
     {
         return $this->hasMany(InventoryAllocation::class, 'fgp_item_id', 'fgp_item_id');
     }
-
 }

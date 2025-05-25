@@ -90,11 +90,11 @@
                                 </div>
                             </div>
                             <div>
-                                <div class="d-inline-block position-relative donut-chart-sale">
+                                {{-- <div class="d-inline-block position-relative donut-chart-sale">
                                     <span class="donut1"
                                         data-peity='{ "fill": ["var(--primary)", "rgba(240, 240, 240)"],   "innerRadius": 35, "radius": 10}'>5/8</span>
                                     <small class="text-black">66%</small>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                     </div>

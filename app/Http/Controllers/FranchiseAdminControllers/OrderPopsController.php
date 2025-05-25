@@ -7,8 +7,6 @@ use App\Models\FgpItem;
 use App\Models\FgpOrder;
 use App\Models\FgpCategory;
 use App\Models\Customer;
-use \App\Models\Invoice;
-use App\Services\ShipStationService;
 use Illuminate\Http\Request;
 use App\Models\AdditionalCharge;
 use Illuminate\Support\Facades\Log;
@@ -17,12 +15,12 @@ use Illuminate\Support\Facades\Auth;
 use Stripe\Stripe;
 use Stripe\Charge;
 use App\Mail\OrderPaidMail;
-use App\Models\Franchisee;
 use Illuminate\Support\Facades\Mail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\OrderTransaction;
+use Stripe\Checkout\Session as StripeSession;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use DB;
 
 class OrderPopsController extends Controller
 {
@@ -45,94 +43,77 @@ class OrderPopsController extends Controller
         return view('franchise_admin.orderpops.index', compact('pops', 'totalPops'));
     }
 
-public function create()
-{
-    $currentMonth = strval(Carbon::now()->format('n'));
+    public function create()
+    {
+        $currentMonth = strval(Carbon::now()->format('n'));
 
-    $items = FgpItem::with('categories')
-        ->where('orderable', 1)
-        ->where('internal_inventory', '>', 0)
-        ->get()
-        ->filter(function ($item) use ($currentMonth) {
-            $months = json_decode($item->dates_available, true);
-            return in_array($currentMonth, $months ?? []);
-        });
+        // Fetch only orderable, in-stock, and currently available items
+        $pops = FgpItem::where('orderable', 1)
+            ->where('internal_inventory', '>', 0) // Ensure item is in stock
+            ->get()
+            ->filter(function ($pop) use ($currentMonth) {
+                $availableMonths = json_decode($pop->dates_available, true);
+                return in_array($currentMonth, $availableMonths ?? []);
+            });
 
-    $orderableInventory = $items->map(function ($item) {
-        $availability = [];
-        $flavor = [];
-        $allergen = [];
+        $categorizedItems = [];
+        foreach ($pops as $pop) {
+            foreach ($pop->categories as $category) {
+                $types = json_decode($category->type, true); // Decode JSON types
 
-        foreach ($item->categories as $category) {
-            $rawType = $category->type;
-
-            // Handle cases like "\"Flavor\"" or '["Flavor"]'
-            if (is_string($rawType)) {
-                $decoded = json_decode($rawType, true);
-                if (is_array($decoded)) {
-                    $types = $decoded;
-                } else {
-                    // fallback: treat raw string as single value array
-                    $types = [trim($rawType, "\"")];
+                foreach ($types as $type) {
+                    $categorizedItems[$type][$category->name][] = $pop;
                 }
-            } elseif (is_array($rawType)) {
-                $types = $rawType;
-            } else {
-                $types = [];
-            }
-
-            if (in_array('Availability', $types)) {
-                $availability[] = $category->name;
-            }
-            if (in_array('Flavor', $types)) {
-                $flavor[] = $category->name;
-            }
-            if (in_array('Allergen', $types)) {
-                $allergen[] = $category->name;
             }
         }
 
-        return [
-            'id' => $item->fgp_item_id,
-            'type' => $item->name ?? 'Unnamed',
-            'availability' => $availability,
-            'flavor' => $flavor,
-            'allergen' => $allergen,
-            'price' => number_format($item->case_cost ?? 0, 2),
-            'image' => asset(ltrim($item->image1, '/')),
-        ];
-    })->values();
+        return view('franchise_admin.orderpops.create', compact('categorizedItems'));
+    }
 
-    return view('franchise_admin.orderpops.create', compact('orderableInventory'));
-}
+    // public function confirmOrder(Request $request)
+    // {
+    //     \Log::info('Received Order Data:', ['ordered_items' => $request->input('ordered_items')]);
 
+    //     // Decode the JSON input
+    //     $items = json_decode($request->input('ordered_items'), true) ?: [];
+
+    //     if (empty($items)) {
+    //         \Log::warning('No items received in order confirmation.');
+    //     }
+
+    //     // Fetch additional charges from the database
+    //     $requiredCharges = AdditionalCharge::where('charge_optional', 'required')->get();
+    //     $optionalCharges = AdditionalCharge::where('charge_optional', 'optional')->get();
+
+    //     return view('franchise.orderpops.confirm', compact('items', 'requiredCharges', 'optionalCharges'));
+    // }
 
     public function confirmOrder(Request $request)
-    {
-        try {
-            $items = $request->input('ordered_items');
+{
+    try {
+        $items = $request->input('ordered_items');
 
-            \Log::info('Received Order Data:', ['ordered_items' => $items]);
+        \Log::info('Received Order Data:', ['ordered_items' => $items]);
 
-            if (empty($items)) {
-                \Log::warning('No items received in order confirmation.');
-                return response()->json(['error' => 'No items selected for order.'], 400);
-            }
-
-            // Convert price strings to numeric values for calculations
-            foreach ($items as &$item) {
-                $item['price'] = floatval(str_replace(['$', ','], '', $item['price']));
-                $item['quantity'] = $item['quantity'] ?? 1; // Set default quantity if not provided
-            }
-
-            // Store items in the session for retrieval on the confirmation page
-            session(['ordered_items' => $items]);
-
-            return response()->json(['redirect' => route('franchise.orderpops.confirm.page')]);
-        } catch (\Exception $e) {
-            \Log::error('Error in confirmOrder method: ' . $e->getMessage());
-            return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
+        if (empty($items)) {
+            \Log::warning('No items received in order confirmation.');
+            return response()->json(['error' => 'No items selected for order.'], 400);
         }
+
+        // Convert price strings to numeric values for calculations
+        foreach ($items as &$item) {
+            $item['price'] = floatval(str_replace(['$', ','], '', $item['price']));
+            $item['quantity'] = $item['quantity'] ?? 1; // Set default quantity if not provided
+        }
+
+        // Store items in the session for retrieval on the confirmation page
+        session(['ordered_items' => $items]);
+
+        return response()->json(['redirect' => route('franchise.orderpops.confirm.page')]);
+    } catch (\Exception $e) {
+        \Log::error('Error in confirmOrder method: ' . $e->getMessage());
+        return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
+    }
 }
 
 public function showConfirmPage()
@@ -142,50 +123,29 @@ public function showConfirmPage()
     if (empty($items)) {
         return redirect()->route('franchise.orderpops.index')->withErrors('No items selected.');
     }
-        $franchiseeId = Auth::user()->franchisee_id;
 
-        $customers = Customer::where('franchisee_id', $franchiseeId)->get();
+    $requiredCharges = AdditionalCharge::where('charge_optional', 'required')->where('status', 1)->get();
+    $optionalCharges = AdditionalCharge::where('charge_optional', 'optional')->where('status', 1)->get();
 
-        $franchisee = Franchisee::where('franchisee_id', $franchiseeId)->get();
-
-        $requiredCharges = AdditionalCharge::where('charge_optional', 'required')->where('status', 1)->get();
-        $optionalCharges = AdditionalCharge::where('charge_optional', 'optional')->where('status', 1)->get();
-
-    return view('franchise_admin.orderpops.confirm', compact('items', 'requiredCharges', 'optionalCharges', 'customers', 'franchisee'));
+    return view('franchise_admin.orderpops.confirm', compact('items', 'requiredCharges', 'optionalCharges'));
 }
 
 
-    public function store(Request $request)
-{     // Validate input
-    $rules = [
-        'is_paid' => 'required|in:0,1',
+public function store(Request $request)
+{
+    $minCases = 12;
+    $factorCase = 3;
+
+    $validated = $request->validate([
         'grandTotal' => 'required|numeric|min:1',
         'items' => 'required|array',
         'items.*.fgp_item_id' => 'required|exists:fgp_items,fgp_item_id',
-      //  'items.*.user_ID' => 'required|exists:users,user_id',
+        'items.*.user_ID' => 'required|exists:users,user_id',
         'items.*.unit_cost' => 'required|numeric|min:0',
         'items.*.unit_number' => 'required|integer|min:1',
-        'ship_to_name' => 'required|string',
-        'ship_to_address1' => 'required|string',
-        'ship_to_city' => 'required|string',
-        'ship_to_state' => 'required|string',
-        'ship_to_zip' => 'required|string',
-        'ship_to_phone' => 'nullable|string',
-        'ship_to_country' => 'nullable|string',
-        'ship_method' => 'nullable|string'
-    ];
+    ]);
 
-    if ($request->is_paid === '1') {
-        $rules['stripeToken'] = 'required|string';
-        $rules['cardholder_name'] = 'required|string|max:191';
-    }
-
-    $validated = $request->validate($rules);
-
-    // Enforce minimum and multiple case logic
     $totalCaseQty = collect($validated['items'])->sum('unit_number');
-    $minCases = 12;
-    $factorCase = 3;
 
     if ($totalCaseQty < $minCases) {
         return redirect()->back()->withErrors(['Order must have at least ' . $minCases . ' cases.']);
@@ -195,204 +155,172 @@ public function showConfirmPage()
         return redirect()->back()->withErrors(['Order quantity must be a multiple of ' . $factorCase . '.']);
     }
 
-    // Stripe payment processing
-    $charge = null;
-    if ($request->is_paid === '1') {
-        \Stripe\Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
-
-        try {
-            $charge = \Stripe\Charge::create([
-                'amount' => $request->grandTotal * 100,
-                'currency' => 'usd',
-                'description' => 'Order Payment by: ' . $request->cardholder_name,
-                'source' => $request->stripeToken,
-                'metadata' => [
-                    'franchisee_id' => Auth::user()->franchisee_id,
-                ],
-            ]);
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['Stripe Error: ' . $e->getMessage()]);
-        }
-    }
-
-    // Create the order
-    $order = FgpOrder::create([
+    $order = \App\Models\FgpOrder::create([
         'user_ID' => Auth::user()->franchisee_id,
         'date_transaction' => now(),
         'status' => 'Pending',
-        'is_paid' => $request->is_paid === '1',
-        'ship_to_name' => $request->ship_to_name,
-        'ship_to_address1' => $request->ship_to_address1,
-        'ship_to_address2' => $request->ship_to_address2,
-        'ship_to_city' => $request->ship_to_city,
-        'ship_to_state' => $request->ship_to_state,
-        'ship_to_zip' => $request->ship_to_zip,
-        'ship_to_country' => $request->ship_to_country ?? 'US',
-        'ship_to_phone' => $request->ship_to_phone,
-        'ship_method' => $request->ship_method ?? 'Standard',
-        'shipstation_status' => 'awaiting_shipment',
     ]);
 
-        $orderNum = 'FGP-' . $order->id; // Unique, readable, traceable
+    foreach ($validated['items'] as $item) {
+        DB::table('fgp_order_details')->insert([
+            'fgp_order_id' => $order->fgp_ordersID,
+            'fgp_item_id' => $item['fgp_item_id'],
+            'unit_cost' => $item['unit_cost'],
+            'unit_number' => $item['unit_number'],
+            'date_transaction' => now(),
+            'ACH_data' => null,
+        ]);
+    }
 
- // Store order items
-   $orderItems = [];
-   $noteLines[] = "Ordered Items:";
+    // Stripe Checkout Session Creation
+    \Stripe\Stripe::setApiKey(apiKey: config('stripe.secret_key'));
 
-foreach ($validated['items'] as $index => $item) {
-    DB::table('fgp_order_details')->insert([
-        'fgp_order_id' => $order->id,
-        'fgp_item_id' => $item['fgp_item_id'],
-        'unit_cost' => $item['unit_cost'],
-        'unit_number' => $item['unit_number'],
-        'date_transaction' => now(),
-        'ACH_data' => null,
-    ]);
+    try {
+        $amountInCents = $request->grandTotal * 100;
 
-    // Optional: get item name/sku from DB or cache beforehand if not in $item
-    $fgpItem = \App\Models\FgpItem::find($item['fgp_item_id']);
+        $checkoutSession = \Stripe\Checkout\Session::create([
+            'payment_method_types' => ['card'],
+            'line_items' => [[
+                'price_data' => [
+                    'currency' => 'usd',
+                    'product_data' => [
+                        'name' => 'Order Payment - ' . Auth::user()->name,
+                    ],
+                    'unit_amount' => $amountInCents,
+                ],
+                'quantity' => 1,
+            ]],
+            'mode' => 'payment',
+            'success_url' => route('payment.successs') . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => route('payment.cancell'),
+            'metadata' => [
+                'order_id' => $order->fgp_ordersID,
+                'franchisee_id' => Auth::user()->franchisee_id,
+            ],
+        ]);
 
-    $orderItems[] = [
-      //  'lineItemKey' => 'line_' . $index, // Can be more unique if needed
-       'sku' => $fgpItem->name ?? 'UNKNOWN',
-        'name' => $fgpItem->name ?? 'Item',
-        'quantity' => (int) $item['unit_number'],
-        'unitPrice' => (float) $item['unit_cost'],
-    ];
-    
-    $name = $fgpItem->name ?? 'Unnamed';
-    $qty = $item['unit_number'];
-    $cost = number_format($item['unit_cost'], 2);
-    $total = number_format($item['unit_number'] * $item['unit_cost'], 2);
+        $paymentUrl = $checkoutSession->url;
 
-    $noteLines[] = "- {$name} | Qty: {$qty} | Cost: \${$cost} | Total: \${$total}";
-    
+    } catch (\Exception $e) {
+        return redirect()->back()->withErrors(['Stripe Error: ' . $e->getMessage()]);
+    }
+
+    // Generate PDF
+    $orderDetails = \App\Models\FgpOrderDetail::where('fgp_order_id', $order->fgp_ordersID)->get();
+    $franchisee = \App\Models\Franchisee::where('franchisee_id', $order->user_ID)->firstOrFail();
+
+    $pdf = \PDF::loadView('franchise_admin.payment.pdf.order-pos', compact('order', 'franchisee', 'orderDetails'));
+    $pdfPath = storage_path('app/public/order_invoice_' . $order->id . '.pdf');
+    $pdf->save($pdfPath);
+
+    // Send Email
+    $franchiseeadmin = \App\Models\User::where(['franchisee_id' => Auth()->user()->franchisee_id , 'role' => 'franchise_admin'])->first();
+    if ($franchiseeadmin) {
+        \Mail::to($franchiseeadmin->email)->send(
+            new \App\Mail\OrderPaidMail($franchiseeadmin, $order, $pdfPath, $paymentUrl)
+        );
+    }
+
+    unlink($pdfPath); // Remove the PDF after sending
+
+    return redirect()->route('franchise.orderpops.view')->with('success', 'Order placed successfully!');
 }
-    $invoiceNotes = implode("\n", $noteLines);
 
-    // Save transaction or invoice
-    if ($request->is_paid === '1') {
+
+
+
+public function viewOrders()
+{
+    // $orders = FgpOrder::where('user_ID', Auth::id())
+    //     ->select(
+    //         'user_ID',
+    //         'date_transaction',
+    //         \DB::raw('SUM(unit_number) as total_quantity'),
+    //         \DB::raw('SUM(unit_number * unit_cost) as total_amount'),
+    //         'status'
+    //     )
+    //     ->groupBy('date_transaction', 'user_ID', 'status')
+    //     ->orderBy('date_transaction', 'desc')
+    //     ->with('user')
+    //     ->get()
+    //     ->map(function ($order) {
+    //         $order->date_transaction = Carbon::parse($order->date_transaction);
+    //         return $order;
+    //     });
+
+    $orders = FgpOrder::where('user_ID' , Auth::user()->franchisee_id)->get();
+
+    $totalOrders = $orders->count();
+
+    return view('franchise_admin.orderpops.vieworders', compact('orders', 'totalOrders'));
+}
+
+
+public function customer($franchisee_id)
+{
+    $customers = Customer::where('franchisee_id', $franchisee_id)->get();
+
+    return response()->json([
+        'data' => $customers,
+    ]);
+}
+
+
+public function success(Request $request){
+        $sessionId = $request->get('session_id');
+
+    if (!$sessionId) {
+        return 'Missing Stripe session ID.';
+    }
+
+    \Stripe\Stripe::setApiKey(config('stripe.secret_key'));
+
+    try {
+        // Get the Checkout Session
+        $session = StripeSession::retrieve($sessionId);
+
+        // Get PaymentIntent if available
+        $paymentIntent = \Stripe\PaymentIntent::retrieve($session->payment_intent);
+
+        // Get metadata
+        $orderId = $session->metadata->order_id ?? null;
+        $franchiseeId = $session->metadata->franchisee_id ?? null;
+
+        if (!$orderId || !$franchiseeId) {
+            return 'Missing metadata from Stripe.';
+        }
+
+        // Check if transaction already exists (avoid duplicates)
+        $existing = OrderTransaction::where('stripe_payment_intent_id', $session->payment_intent)->first();
+        if ($existing) {
+            return 'Payment already recorded.';
+        }
+
+        // Create the transaction
         OrderTransaction::create([
-            'franchisee_id' => Auth::user()->franchisee_id,
-            'fgp_order_id' => $order->id,
-            'order_num' => $orderNum,
-            'cardholder_name' => $request->cardholder_name,
-            'amount' => $request->grandTotal,
-            'stripe_payment_intent_id' => $charge->id,
-            'stripe_payment_method' => $charge->payment_method ?? null,
-            'stripe_currency' => $charge->currency,
-            'stripe_client_secret' => $charge->client_secret ?? null,
-            'stripe_status' => $charge->status,
+            'franchisee_id' => $franchiseeId,
+            'fgp_order_id' => $orderId,
+            'cardholder_name' => $session->customer_details->name ?? 'Unknown',
+            'amount' => $session->amount_total / 100,
+            'stripe_payment_intent_id' => $session->payment_intent,
+            'stripe_payment_method' => $paymentIntent->payment_method ?? null,
+            'stripe_currency' => $session->currency,
+            'stripe_client_secret' => $paymentIntent->client_secret ?? null,
+            'stripe_status' => $session->payment_status,
         ]);
-    } else {
-        Invoice::create([
-            'franchisee_id' => Auth::user()->franchisee_id,
-            'name' => Auth::user()->name,
-            'order_num' => $orderNum,
-            'total_price' => $request->grandTotal,
-            'payment_status' => 'unpaid',
-            'direction' => 'payable',
-            'due_date'  =>  Carbon::now()->addDays(7),
-            'note' => mb_strimwidth($invoiceNotes, 0, 255, '...')
-        ]);
+
+        // Optionally: update order status
+        $order = FgpOrder::find($orderId);
+        if ($order) {
+            $order->status = 'Paid';
+            $order->save();
+        }
+
+            return view('thankyou');
+
+    } catch (\Exception $e) {
+        return 'Stripe error: ' . $e->getMessage();
     }
-   
-
-    // Send to ShipStation
-   $shipStationPayload = [
-    'order_number' => 'FGP-' . $order->id,
-    'order_email'  => Auth::user()->email,
-    'ship_to_name' => $request->ship_to_name,
-    'ship_to_address1' => $request->ship_to_address1,
-    'ship_to_address2' => $request->ship_to_address2,
-    'ship_to_city' => $request->ship_to_city,
-    'ship_to_state' => $request->ship_to_state,
-    'ship_to_zip' => $request->ship_to_zip,
-    'ship_to_country' => $request->ship_to_country ?? 'US',
-    'ship_to_phone' => $request->ship_to_phone,
-    'is_paid' => $request->has('stripeToken'), // boolean
-    'grandTotal' => $request->grandTotal,
-    'invoice_id' => $invoice->id ?? null,
-    'orderItems' => $orderItems, // shipstation-ready item array
-];
-    $isPaid = $request->has('stripeToken');
-    $invoiceId = $orderNum ?? null;  
-
-    $shipstation = new ShipStationService();
-    $shipstation->sendOrder($shipStationPayload, $isPaid, $invoiceId);
-     
-
-    return redirect()->route('franchise.orderpops.view')
-        ->with('success', 'Order placed successfully ' . ($request->is_paid === '1' ? 'and paid!' : '. An invoice has been generated.'));
 }
-    // $orderTransaction = \App\Models\OrderTransaction::where('fgp_order_id', $order->id)->firstOrFail();
-    // $orderDetails = \App\Models\FgpOrderDetail::where('fgp_order_id', $order->id)->get();
-    // $franchisee = \App\Models\Franchisee::where('franchisee_id', $order->user_ID)->firstOrFail();
-
-    // // Create the PDF
-    // $pdf = PDF::loadView('franchise_admin.payment.pdf.order-pos', compact('orderTransaction', 'order', 'franchisee', 'orderDetails'));
-    // $pdfPath = storage_path('app/public/order_invoice_' . $order->id . '.pdf');
-    // $pdf->save($pdfPath);  // Save PDF to storage path
-
-    // // Send the email with the attachment
-    // $corporateAdmin = User::where('user_id', 17)->first();  // Assuming 17 is the Corporate Admin ID
-    // if ($corporateAdmin) {
-    //     Mail::to($corporateAdmin->email)->send(new OrderPaidMail($corporateAdmin, $order, $pdfPath));  // Send email with attachment
-    // }
-
-    // // Remove PDF after sending
-    // unlink($pdfPath);
-
-
-
-
-        public function viewOrders()
-    {
-        $orders = FgpOrder::with([
-            'items.flavor',
-            'user',
-            'customer'
-        ])
-            ->where('user_ID', Auth::user()->franchisee_id)
-            ->orderByDesc('date_transaction')
-            ->get()
-            ->map(
-                function ($order) {
-                    $order->total_amount = $order->items->sum(function ($item) {
-                        return $item->unit_number * $item->unit_cost;
-                    });
-                return $order;
-            });
-        $totalOrders = $orders->count();
-
-        return view('franchise_admin.orderpops.vieworders', compact('orders', 'totalOrders'));
-    }
-
-
-        public function customer($franchisee_id)
-        {
-            $customers = Customer::where('franchisee_id', $franchisee_id)->get();
-
-            return response()->json([
-                'data' => $customers,
-            ]);
-        }
-
-
-        public function markDelivered(FgpOrder $order)
-        {
-        if ($order->is_delivered) {
-            return redirect()->back()->with('error', 'This order has already been marked as delivered.');
-        }
-
-        $order->update([
-            'status' => 'Delivered',
-            'is_delivered' => true,
-            'delivered_at' => now(),
-        ]);
-
-        return redirect()->back()->with('success', 'Order marked as delivered.');
-        }
-
-    }
+}
 

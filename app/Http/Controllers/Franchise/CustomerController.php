@@ -34,6 +34,7 @@ class CustomerController extends Controller
 
         $customer = Customer::create([
             'franchisee_id' => Auth::user()->franchisee_id,
+            'user_id' => Auth::user()->user_id ?? 0,
             'name' => $request->name,
             'phone' => $request->phone,
             'email' => $request->email,
