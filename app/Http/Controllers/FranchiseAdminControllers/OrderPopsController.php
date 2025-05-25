@@ -45,78 +45,66 @@ class OrderPopsController extends Controller
         return view('franchise_admin.orderpops.index', compact('pops', 'totalPops'));
     }
 
-    public function create()
+public function create()
+{
+    $currentMonth = strval(Carbon::now()->format('n'));
 
-    {
-        $currentMonth = now()->format('n');
+    $items = FgpItem::with('categories')
+        ->where('orderable', 1)
+        ->where('internal_inventory', '>', 0)
+        ->get()
+        ->filter(function ($item) use ($currentMonth) {
+            $months = json_decode($item->dates_available, true);
+            return in_array($currentMonth, $months ?? []);
+        });
 
-        // Load eligible items
-      /*   $items = FgpItem::with('categories')
-            ->where('orderable', 1)
-            ->where('internal_inventory', '>', 0)
-            ->get()
-            ->filter(function ($item) use ($currentMonth) {
-                $months = json_decode($item->dates_available, true);
-                return in_array($currentMonth, $months ?? []);
-            }); */
+    $orderableInventory = $items->map(function ($item) {
+        $availability = [];
+        $flavor = [];
+        $allergen = [];
 
-             $items = FgpItem::where('orderable', 1)
-            ->where('internal_inventory', '>', 0) // Ensure the item is in stock
-            ->get()
-            ->filter(function ($pop) use ($currentMonth) {
-                $availableMonths = json_decode($pop->dates_available, true);
-                return in_array($currentMonth, $availableMonths ?? []);
-            });
+        foreach ($item->categories as $category) {
+            $rawType = $category->type;
 
-        // Build inventory array
-        $inventory = $items->map(function ($item) {
-            $categoryMap = [
-                'Availability' => [],
-                'Flavor' => [],
-                'Allergen' => [],
-            ];
-
-            foreach ($item->categories as $category) {
-                $types = json_decode($category->type, true) ?? [];
-                foreach ($types as $type) {
-                    if (isset($categoryMap[$type])) {
-                        $categoryMap[$type][] = $category->name;
-                    }
+            // Handle cases like "\"Flavor\"" or '["Flavor"]'
+            if (is_string($rawType)) {
+                $decoded = json_decode($rawType, true);
+                if (is_array($decoded)) {
+                    $types = $decoded;
+                } else {
+                    // fallback: treat raw string as single value array
+                    $types = [trim($rawType, "\"")];
                 }
+            } elseif (is_array($rawType)) {
+                $types = $rawType;
+            } else {
+                $types = [];
             }
 
-            return [
-                'type' => $item->name,
-                'flavor' => implode(', ', $categoryMap['Flavor']),
-                'availability' => implode(', ', $categoryMap['Availability']),
-                'allergen' => implode(', ', $categoryMap['Allergen']),
-                'price' => $item->unit_cost,
-                'image' => asset($item->image_path), // Ensure this points to your image directory
-            ];
-        })->values();
-
-        // Build categoriesData
-        $allCategories = FgpCategory::all();
-        $categoryTypes = ['Availability', 'Flavor', 'Allergen'];
-        $categoriesData = [];
-
-        foreach ($categoryTypes as $type) {
-            $options = $allCategories->filter(function ($cat) use ($type) {
-                $types = json_decode($cat->type, true) ?? [];
-                return in_array($type, $types);
-            })->pluck('name')->unique()->sort()->values();
-
-            $categoriesData[] = [
-                'category' => $type,
-                'options' => $options,
-            ];
+            if (in_array('Availability', $types)) {
+                $availability[] = $category->name;
+            }
+            if (in_array('Flavor', $types)) {
+                $flavor[] = $category->name;
+            }
+            if (in_array('Allergen', $types)) {
+                $allergen[] = $category->name;
+            }
         }
 
-        return view('franchise_admin.orderpops.create', [
-            'categoriesData' => json_encode($categoriesData),
-            'orderableInventory' => json_encode($inventory),
-        ]);
-    }
+        return [
+            'id' => $item->fgp_item_id,
+            'type' => $item->name ?? 'Unnamed',
+            'availability' => $availability,
+            'flavor' => $flavor,
+            'allergen' => $allergen,
+            'price' => number_format($item->case_cost ?? 0, 2),
+            'image' => asset(ltrim($item->image1, '/')),
+        ];
+    })->values();
+
+    return view('franchise_admin.orderpops.create', compact('orderableInventory'));
+}
 
 
     public function confirmOrder(Request $request)
