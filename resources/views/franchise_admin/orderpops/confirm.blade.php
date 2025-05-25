@@ -62,11 +62,11 @@
                                             </td>
                                             <td>
                                                 <input type="number" name="items[{{ $index }}][unit_cost]" class="form-control cost" step="0.01"
-                                                    value="{{ old(" items.$index.unit_cost", $item['price']) }}" data-index="{{ $index }}">
+                                                    value="{{ old(" items.$index.unit_cost", $item['case_cost']) }}" data-index="{{ $index }}">
                                             </td>
                                             <td>
                                                 <input type="text" class="form-control total" readonly value="{{ number_format(old("
-                                                    items.$index.unit_cost", $item['price']) * old("items.$index.unit_number", $item['quantity']),
+                                                    items.$index.unit_cost", $item['case_cost']) * old("items.$index.unit_number", $item['quantity']),
                                                     2) }}" data-index="{{ $index }}">
                                             </td>
                                         </tr>

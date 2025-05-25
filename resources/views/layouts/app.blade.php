@@ -65,6 +65,7 @@
     border: 1px solid #FDE68A;
     background-color: transparent;
 } */
+        @stack('styles')
     </style>
 </head>
 

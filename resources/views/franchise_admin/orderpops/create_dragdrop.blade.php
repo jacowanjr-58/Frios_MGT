@@ -640,3 +640,4 @@ function drop(event) {
     <label>Phone</label>
     <input type="text" name="ship_to_phone" class="form-input" value="{{ old('ship_to_phone') }}">
 </div>
+ 

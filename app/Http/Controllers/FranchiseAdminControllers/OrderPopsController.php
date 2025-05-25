@@ -45,9 +45,9 @@ class OrderPopsController extends Controller
         return view('franchise_admin.orderpops.index', compact('pops', 'totalPops'));
     }
 
-public function create()
+ public function create()
 {
-    $currentMonth = strval(Carbon::now()->format('n'));
+        $currentMonth = (string) Carbon::now()->month;
 
     $items = FgpItem::with('categories')
         ->where('orderable', 1)
@@ -58,81 +58,55 @@ public function create()
             return in_array($currentMonth, $months ?? []);
         });
 
-    $orderableInventory = $items->map(function ($item) {
-        $availability = [];
-        $flavor = [];
-        $allergen = [];
+        $categoriesByType = FgpCategory::select('category_ID', 'name', 'type')
+        ->with(['items' => function ($q) {
+            $q->select(
+                    'fgp_Items.fgp_item_id',
+                    'fgp_Items.name',
+                    'fgp_Items.image1',
+                    'fgp_Items.case_cost'
+                )
+                ->where('fgp_Items.orderable', 1)
+                ->where('fgp_Items.internal_inventory', '>', 0)
+                ->whereJsonContains('fgp_Items.dates_available', (string) Carbon::now()->month)
+                ->orderBy('fgp_Items.name');
+        }])
+        // optional: if you want your types in a specific order
+        ->orderBy('type')
+        ->get()
+        ->groupBy('type');
 
-        foreach ($item->categories as $category) {
-            $rawType = $category->type;
 
-            // Handle cases like "\"Flavor\"" or '["Flavor"]'
-            if (is_string($rawType)) {
-                $decoded = json_decode($rawType, true);
-                if (is_array($decoded)) {
-                    $types = $decoded;
-                } else {
-                    // fallback: treat raw string as single value array
-                    $types = [trim($rawType, "\"")];
-                }
-            } elseif (is_array($rawType)) {
-                $types = $rawType;
-            } else {
-                $types = [];
-            }
+  
 
-            if (in_array('Availability', $types)) {
-                $availability[] = $category->name;
-            }
-            if (in_array('Flavor', $types)) {
-                $flavor[] = $category->name;
-            }
-            if (in_array('Allergen', $types)) {
-                $allergen[] = $category->name;
-            }
-        }
-
-        return [
-            'id' => $item->fgp_item_id,
-            'type' => $item->name ?? 'Unnamed',
-            'availability' => $availability,
-            'flavor' => $flavor,
-            'allergen' => $allergen,
-            'price' => number_format($item->case_cost ?? 0, 2),
-            'image' => asset(ltrim($item->image1, '/')),
-        ];
-    })->values();
-
-    return view('franchise_admin.orderpops.create', compact('orderableInventory'));
+    return view('franchise_admin.orderpops.create', compact('categoriesByType'));
 }
-
+ 
 
     public function confirmOrder(Request $request)
     {
-        try {
-            $items = $request->input('ordered_items');
+        
+              
+           $items = json_decode($request->input('ordered_items'), true);
 
-            \Log::info('Received Order Data:', ['ordered_items' => $items]);
+         
 
             if (empty($items)) {
-                \Log::warning('No items received in order confirmation.');
+                
                 return response()->json(['error' => 'No items selected for order.'], 400);
             }
 
             // Convert price strings to numeric values for calculations
             foreach ($items as &$item) {
-                $item['price'] = floatval(str_replace(['$', ','], '', $item['price']));
+                $item['case_cost'] = floatval(str_replace(['$', ','], '', $item['case_cost']));
                 $item['quantity'] = $item['quantity'] ?? 1; // Set default quantity if not provided
             }
-
+        //dd($items);
             // Store items in the session for retrieval on the confirmation page
             session(['ordered_items' => $items]);
-
-            return response()->json(['redirect' => route('franchise.orderpops.confirm.page')]);
-        } catch (\Exception $e) {
-            \Log::error('Error in confirmOrder method: ' . $e->getMessage());
-            return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
-        }
+           // return view('franchise_admin.orderpops.confirm', compact('items'));
+           return redirect()->route('franchise.orderpops.confirm.page');          
+       
 }
 
 public function showConfirmPage()

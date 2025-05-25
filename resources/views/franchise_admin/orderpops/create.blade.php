@@ -1,157 +1,200 @@
+{{-- resources/views/order_pops/create.blade.php --}}
 @extends('layouts.app')
 
 @section('content')
-        <div class="content-body default-height">
-            <!-- row -->
-			<div class="container-fluid">
-                <div class="container py-4">
-                    <h2 class="mb-4">Order Pops</h2>
 
-                    <form id="order-form" method="POST" action="{{ route('franchise.orderpops.confirm') }}">
-                        @csrf
-                        <input type="hidden" name="ordered_items" id="ordered_items_input">
+<div class="form-head mb-4 ml-12 mt-24 pt-10 d-flex flex-wrap align-items-center max-w-fit">
+<div class="container py-4">
+  <h1 class="mb-4 text-center">Build Your Pop Order</h1>
 
-                        <div id="pop-selection" class="d-flex flex-wrap gap-4 mb-5"></div>
+  <form id="order-form" action="{{ route('franchise.orderpops.confirm') }}" method="POST">
+    @csrf
+ {{-- Hidden payload --}}
+    <input type="hidden" name="ordered_items" id="ordered_items_input" value="">
+    
+    {{-- Cart display --}}
+    <div class="text-center ">
+    <span class="inline-flex"><h3 class="text-center mb-3">Your Cart</h3>
+       
+    </span>
+    </div>
+    <div id="cart" class="d-flex flex-wrap gap-3 p-3 border rounded bg-light justify-content-center mb-2">
+ 
+         
+    </div>
+    <h5 class="text-center">Total: $<span id="cart-total">0.00</span></h5>
 
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="card-title">Cart</h4>
-                                <div id="cart-display" class="d-flex flex-wrap gap-3"></div>
-                                <div class="mt-3">
-                                    <strong>Total:</strong> $<span id="cart-total">0.00</span>
-                                </div>
-                                <button type="submit" class="btn btn-primary mt-3">Confirm Order</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+    <div class="row mb-4">
+     <button type="submit" class="btn-default  btn-lg">Review Order</button>
+   </div>
+    </form> 
+    
+ 
+  
+    {{-- Three columns --}}
+    <div class="row mb-4">
+      @foreach(['Availability','Flavor','Allergen'] as $colType)
+        <div class="col-md-4 border-start @if($colType==='Availability') border-0 @endif p-4">
+          <h4 class="text-center bg-dark text-white py-2 rounded">{{ $colType }}</h4>
+
+          @foreach($categoriesByType[$colType] ?? [] as $category)
+            {{-- Sub‐category heading --}}
+            <div class="subcategory-label bg-secondary text-white text-center py-1 my-3 rounded">
+              {{ $category->name }}
             </div>
-        </div>    
 
-<script>
-    const orderableInventory = @json($orderableInventory);
-    const categories = ['Availability', 'Flavor', 'Allergen'];
-    const matrix = {};
+            {{-- Pops in this subcategory --}}
+            <div class="d-flex flex-wrap gap-3 justify-content-center">
+              @foreach($category->items as $item)
+                <div class="pop-icon text-center"
+                     data-id="{{ $item->fgp_item_id }}"
+                     data-name="{{ $item->name }}"
+                     data-unit-cost="{{ $item->case_cost }}"
+                     data-image="{{ asset($item->image1) }}"
+                >
+                  <img src="{{ asset($item->image1) }}"
+                       alt="{{ $item->name }}"
+                       class="img-fluid rounded">
+                  <div class="unit-cost mt-1">${{ number_format($item->case_cost,2) }}</div>
+                  <div class="pop-overlay">{{ $item->name }}</div>
+                </div>
+              @endforeach
+            </div>
+          @endforeach
+        </div>
+      @endforeach
+    </div>
+   
 
-    categories.forEach(category => {
-        matrix[category] = {};
-    });
+</div>
+</div>
 
-    orderableInventory.forEach(item => {
-    categories.forEach(category => {
-        const subtypes = item[category.toLowerCase()] || [];
-        subtypes.forEach(sub => {
-            if (!matrix[category][sub]) matrix[category][sub] = [];
-            matrix[category][sub].push(item);
-        });
-    });
-});
 
-    const cart = {};
-    const cartTotalEl = document.getElementById('cart-total');
-    const cartDisplayEl = document.getElementById('cart-display');
-    const popSelectionEl = document.getElementById('pop-selection');
-    const orderedItemsInput = document.getElementById('ordered_items_input');
-
-    function renderMatrix() {
-        Object.entries(matrix).forEach(([category, subtypes]) => {
-            const col = document.createElement('div');
-            col.className = 'p-3';
-
-            const catTitle = document.createElement('h4');
-            catTitle.innerText = category;
-            col.appendChild(catTitle);
-
-            Object.entries(subtypes).forEach(([sub, pops]) => {
-                const subHeader = document.createElement('div');
-                subHeader.innerHTML = `<strong>${sub}</strong>`;
-                col.appendChild(subHeader);
-
-                const row = document.createElement('div');
-                row.className = 'd-flex flex-wrap gap-2 mb-4';
-
-                pops.forEach(pop => {
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'position-relative';
-                    wrapper.style.width = '60px';
-                    wrapper.style.cursor = 'pointer';
-
-                    const img = document.createElement('img');
-                    img.src = pop.image;
-                    img.title = pop.type;
-                    img.className = 'img-fluid';
-                    img.onclick = () => addToCart(pop);
-
-                    const overlay = document.createElement('div');
-                    overlay.innerText = `$${pop.price}`;
-                    overlay.className = 'position-absolute bottom-0 start-0 bg-dark text-white w-100 text-center small';
-
-                    wrapper.appendChild(img);
-                    wrapper.appendChild(overlay);
-                    row.appendChild(wrapper);
-                });
-
-                col.appendChild(row);
-            });
-
-            popSelectionEl.appendChild(col);
-        });
-    }
-
-    function addToCart(item) {
-        const key = item.fgp_item_id;
-        if (!cart[key]) {
-            cart[key] = { ...item, quantity: 0 };
-        }
-        cart[key].quantity += 1;
-        renderCart();
-    }
-
-    function removeFromCart(key) {
-        if (cart[key]) {
-            cart[key].quantity -= 1;
-            if (cart[key].quantity <= 0) delete cart[key];
-            renderCart();
-        }
-    }
-
-    function renderCart() {
-        cartDisplayEl.innerHTML = '';
-        let total = 0;
-        const itemsArray = [];
-
-        Object.keys(cart).forEach(key => {
-            const entry = cart[key];
-            const wrapper = document.createElement('div');
-            wrapper.className = 'position-relative';
-            wrapper.style.cursor = 'pointer';
-
-            const img = document.createElement('img');
-            img.src = entry.image;
-            img.style.width = '60px';
-            img.onclick = () => removeFromCart(key);
-
-            const qty = document.createElement('div');
-            qty.innerText = entry.quantity;
-            qty.className = 'badge bg-primary position-absolute top-0 start-0';
-
-            wrapper.appendChild(img);
-            wrapper.appendChild(qty);
-            cartDisplayEl.appendChild(wrapper);
-
-            total += entry.quantity * entry.price;
-            itemsArray.push({
-                fgp_item_id: entry.fgp_item_id,
-                type: entry.type,
-                price: entry.price,
-                quantity: entry.quantity,
-            });
-        });
-
-        orderedItemsInput.value = JSON.stringify(itemsArray);
-        cartTotalEl.innerText = total.toFixed(2);
-    }
-
-    renderMatrix();
-</script>
 @endsection
+
+@push('styles')
+<style>
+  .pop-icon {
+    position: relative;
+    width: 100px;
+    cursor: pointer;
+  }
+  .pop-icon img {
+    width: 100%;
+    display: block;
+  }
+  .unit-cost {
+    font-weight: bold;
+  }
+  .pop-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    padding: 2px 0;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .pop-icon:hover .pop-overlay {
+    opacity: 1;
+  }
+  .cart-item {
+    position: relative;
+    width: 60px; height: 60px;
+    overflow: hidden;
+    border-radius: 5px;
+  }
+  .cart-item img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .quantity {
+    position: absolute;
+    top: 0; left: 0;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    font-size: 12px;
+    padding: 1px 4px;
+    border-bottom-right-radius: 3px;
+  }
+  .remove-btn {
+    position: absolute;
+    bottom: 0; right: 0;
+    background: red;
+    color: white;
+    border: none;
+    font-size: 12px;
+    padding: 1px 4px;
+    border-top-left-radius: 3px;
+    cursor: pointer;
+  }
+  .border-start { border-left: 1px solid #dee2e6 !important; }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  let orderedItems = [];
+
+  function updateCart() {
+    const cartEl   = document.getElementById('cart');
+    const totalEl  = document.getElementById('cart-total');
+    cartEl.innerHTML = '';
+    let total = 0;
+
+    orderedItems.forEach(item => {
+      total += item.case_cost * item.quantity;
+      const div = document.createElement('div');
+      div.className = 'cart-item';
+      div.innerHTML = `
+        <img src="${item.image}" alt="${item.name}">
+        <div class="quantity">${item.quantity}</div>
+        <button type="button" class="remove-btn" data-id="${item.id}">&times;</button>
+      `;
+      cartEl.appendChild(div);
+    });
+
+    totalEl.textContent = total.toFixed(2);
+    document.getElementById('ordered_items_input').value = JSON.stringify(orderedItems);
+  }
+
+  // Add to cart
+  document.querySelectorAll('.pop-icon').forEach(el => {
+    el.addEventListener('click', () => {
+      const id        = el.dataset.id;
+      const name      = el.dataset.name;
+      const case_cost = parseFloat(el.dataset.unitCost);
+      const image     = el.dataset.image;
+      const existing  = orderedItems.find(i => i.id == id);
+
+      if (existing) {
+        existing.quantity++;
+      } else {
+        orderedItems.push({ id, name, case_cost, image, quantity: 1 });
+      }
+      updateCart();
+    });
+  });
+
+  // Remove / decrement
+  document.getElementById('cart').addEventListener('click', e => {
+    if (!e.target.matches('.remove-btn')) return;
+    const id  = e.target.dataset.id;
+    const idx = orderedItems.findIndex(i => i.id == id);
+    if (idx > -1) {
+      orderedItems[idx].quantity--;
+      if (orderedItems[idx].quantity < 1) orderedItems.splice(idx, 1);
+      updateCart();
+    }
+  });
+});
+</script>
+@endpush
+
+
+
+
+
+
