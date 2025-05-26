@@ -1,12 +1,13 @@
 @extends('layouts.app')
 @section('content')
     <style>
-        .dropdown-menu.show {
+        /* .dropdown-menu.show {
             max-height: 184.306px !important;
             overflow-y: auto;
             min-height: 96px;
-        }
-        :disabled{
+        } */
+
+        :disabled {
             color: #00ABC7 !important;
         }
     </style>
@@ -17,7 +18,7 @@
                     Create Event
                 </h1>
 
-                <a href="{{ route('franchise.events.calender') }}" class="btn btn-primary">
+                <a href="{{ route('franchise.events.calender') }}" class="mb-3 btn btn-secondary btn-sm">
                     Back
                 </a>
             </div>
@@ -42,14 +43,14 @@
 
                 </div>
                 @php
-use Carbon\Carbon;
+                    use Carbon\Carbon;
 
-$rawDate = request('date');
-$start = null;
-$end = null;
+                    $rawDate = request('date');
+                    $start = null;
+                    $end = null;
 
-if ($rawDate) {
-    // Clean up any spaces and replace them with a plus sign (in case there's a space between time and timezone)
+                    if ($rawDate) {
+                        // Clean up any spaces and replace them with a plus sign (in case there's a space between time and timezone)
     $cleanDate = str_replace(' ', '+', $rawDate);
 
     // Check if the cleaned date is in a specific format (e.g., `2025-05-01T05:00:00+05:00`)
@@ -58,20 +59,17 @@ if ($rawDate) {
         $parsedDate = Carbon::parse($cleanDate)->format('Y-m-d\T00:00:00');
         $start = $parsedDate;
         $end = $parsedDate;
-
     } elseif (str_contains($cleanDate, 'T')) {
         // If the date contains time (T), parse the date and set both start and end to the same date, with time set to 12 AM (00:00:00)
         $parsedDate = Carbon::parse($cleanDate);
-        $start = $parsedDate->format('Y-m-d\T00:00:00');  // Set to 12 AM (midnight)
-        $end = $parsedDate->format('Y-m-d\T00:00:00');  // Set to 12 AM (midnight)
-
+        $start = $parsedDate->format('Y-m-d\T00:00:00'); // Set to 12 AM (midnight)
+        $end = $parsedDate->format('Y-m-d\T00:00:00'); // Set to 12 AM (midnight)
     } else {
         // If no time part is provided, assume it's just a date and add default time of '00:00:00' (12 AM)
-        $start = Carbon::parse($cleanDate)->format('Y-m-d\T00:00:00');
-        $end = null;  // End is null if no time is provided
-    }
-}
-
+                            $start = Carbon::parse($cleanDate)->format('Y-m-d\T00:00:00');
+                            $end = null; // End is null if no time is provided
+                        }
+                    }
 
                 @endphp
 
@@ -81,14 +79,16 @@ if ($rawDate) {
                 <div class="row mt-2">
                     <div class="col-md-6 form-group">
                         <label for="" class="form-label">Start Date</label>
-                        <input type="datetime-local" class="form-control" name="start_date" value="{{ old('start_date', $start) }}" readonly>
+                        <input type="datetime-local" class="form-control" name="start_date"
+                            value="{{ old('start_date', $start) }}" readonly>
                         @error('start_date')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6 form-group">
                         <label for="" class="form-label">End Date</label>
-                        <input type="datetime-local" class="form-control" name="end_date" value="{{ old('end_date', $start) }}">
+                        <input type="datetime-local" class="form-control" name="end_date"
+                            value="{{ old('end_date', $start) }}">
                         @error('end_date')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -309,30 +309,34 @@ if ($rawDate) {
 
 
 
-                                                        <div class="row">
-                                                                                                                <div class="col-md-6 mb-3">
-                                                        <input type="text" id="cardholder-name" name="cardholder_name"
-                                                            placeholder="Cardholder Name" class="form-control">
-                                                    </div>
+                {{-- <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <input type="text" id="cardholder-name" name="cardholder_name" placeholder="Cardholder Name"
+                            class="form-control">
+                    </div>
 
-                                                    <div class="col-md-6 mb-3">
-                                                        <div id="card-number-element" class="form-control"></div>
-                                                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div id="card-number-element" class="form-control"></div>
+                    </div>
 
-                                                    <div class="col-md-6 mb-3">
-                                                        <div id="card-expiry-element" class="form-control"></div>
-                                                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div id="card-expiry-element" class="form-control"></div>
+                    </div>
 
-                                                    <div class="col-md-6 mb-3">
-                                                        <div id="card-cvc-element" class="form-control"></div>
-                                                        <input type="hidden" name="stripeToken" id="stripeToken">
-                                                    </div>
-                                                    <div id="card-errors" class="text-danger mb-3"></div>
+                    <div class="col-md-6 mb-3">
+                        <div id="card-cvc-element" class="form-control"></div>
+                        <input type="hidden" name="stripeToken" id="stripeToken">
+                    </div>
+                    <div id="card-errors" class="text-danger mb-3"></div>
 
-                                                </div>
+                </div> --}}
 
 
-                <button disabled class="btn btn-outline-primary" id="submit-button">
+                {{-- <button disabled class="btn btn-outline-primary" id="submit-button">
+                    Submit
+                </button> --}}
+
+                <button class="btn btn-primary" >
                     Submit
                 </button>
 
@@ -343,7 +347,7 @@ if ($rawDate) {
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
 
-    <script src="https://js.stripe.com/v3/"></script>
+    {{-- <script src="https://js.stripe.com/v3/"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const stripe = Stripe("{{ env('STRIPE_PUBLIC_KEY') }}");
@@ -417,60 +421,61 @@ if ($rawDate) {
                 }
             });
         });
-    </script>
-<script>
-$(document).ready(function () {
-    function fetchFlavorData() {
-        var selectedEndDate = $('input[name="end_date"]').val();
-        var selectedStartDate = $('input[name="start_date"]').val();
+    </script> --}}
+    <script>
+        $(document).ready(function() {
+            function fetchFlavorData() {
+                var selectedEndDate = $('input[name="end_date"]').val();
+                var selectedStartDate = $('input[name="start_date"]').val();
 
-        if (!selectedEndDate || !selectedStartDate) {
-            return; // Don't fire AJAX if dates are not selected
-        }
+                if (!selectedEndDate || !selectedStartDate) {
+                    return; // Don't fire AJAX if dates are not selected
+                }
 
-        $.ajax({
-    url: '{{ route('franchise.events.date') }}',
-    method: 'POST',
-    data: {
-        start_date: selectedStartDate,
-        end_date: selectedEndDate,
-        _token: '{{ csrf_token() }}'
-    },
-    beforeSend: function () {
-        // Clear previous message and table content
-        $('.displayFlavor').html('');
-        $('.message').hide();
-        $('tbody').html('');
-    },
-    success: function (response) {
-        if (response.success) {
-            // Update the table content with the new data
-            $('.displayFlavor').html(response.html);  // Assuming response.html contains the new table content
+                $.ajax({
+                    url: '{{ route('franchise.events.date') }}',
+                    method: 'POST',
+                    data: {
+                        start_date: selectedStartDate,
+                        end_date: selectedEndDate,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    beforeSend: function() {
+                        // Clear previous message and table content
+                        $('.displayFlavor').html('');
+                        $('.message').hide();
+                        $('tbody').html('');
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Update the table content with the new data
+                            $('.displayFlavor').html(response
+                            .html); // Assuming response.html contains the new table content
 
-            // Show any message if returned
-            if (response.message) {
-                $('.message').html(response.message).show();
-            } else {
-                $('.message').hide();
+                            // Show any message if returned
+                            if (response.message) {
+                                $('.message').html(response.message).show();
+                            } else {
+                                $('.message').hide();
+                            }
+
+                            // Re-initialize selectpicker for the newly loaded content
+                            initializeSelectpicker
+                        (); // Make sure selectpicker is refreshed after new rows are added
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error(xhr.responseText);
+                    }
+                });
+
             }
 
-            // Re-initialize selectpicker for the newly loaded content
-            initializeSelectpicker();  // Make sure selectpicker is refreshed after new rows are added
-        }
-    },
-    error: function (xhr) {
-        console.error(xhr.responseText);
-    }
-});
+            // Call on page load
+            fetchFlavorData();
 
-    }
-
-    // Call on page load
-    fetchFlavorData();
-
-    // Call on end_date change
-    $('input[name="end_date"]').on('change', fetchFlavorData);
-});
-
-</script>
+            // Call on end_date change
+            $('input[name="end_date"]').on('change', fetchFlavorData);
+        });
+    </script>
 @endsection

@@ -82,9 +82,6 @@
                                             </td>
                                         </tr>
                                     @empty
-                                        <tr>
-                                            <td colspan="2">No locations found.</td>
-                                        </tr>
                                     @endforelse
                                 </tbody>
 

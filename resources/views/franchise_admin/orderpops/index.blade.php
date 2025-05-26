@@ -11,7 +11,7 @@
 				<div class="form-head mb-4 d-flex flex-wrap align-items-center">
 					<div class="me-auto">
 						<h2 class="font-w600 mb-0">Dashboard \</h2>
-						<p>Frios Pops List</p>
+						<p>Flover Pops List</p>
 					</div>
 
 				</div>
@@ -136,9 +136,9 @@ document.getElementById('orderButton').addEventListener('click', function () {
 
     console.log("Checked Items:", checkedItems);
 
-    if (checkedItems.length < 1) {
-    alert("Please select at least one item to order.");
-    console.log("Less than one item selected, alert displayed.");
+    if (checkedItems.length < 3) {
+    alert("Please select at least three items to order.");
+    console.log("Less than three items selected, alert displayed.");
     return;
 }
 
@@ -241,10 +241,3 @@ document.getElementById('orderButton').addEventListener('click', function () {
 
 
 @endsection
-
-{{-- 
-<th>Paid</th>
-<th>Status</th>
-...
-<td>{{ $order->is_paid ? 'Yes' : 'No' }}</td>
-<td>{{ $order->shipstation_status }}</td> --}}

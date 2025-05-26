@@ -1,6 +1,5 @@
 {{-- resources/views/order_pops/create.blade.php --}}
 @extends('layouts.app')
-
 @section('content')
 
 <div class="form-head mb-4 ml-12 mt-24 pt-10 d-flex flex-wrap align-items-center max-w-fit">

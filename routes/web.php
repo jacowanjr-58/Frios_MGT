@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FranchiseStaffController\PosController;
+use App\Http\Controllers\FranchiseStaffController\SaleController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\ProfileController;
@@ -25,6 +27,7 @@ use App\Http\Controllers\CorporateAdminControllers\AdditionalChargesController;
 use App\Http\Controllers\CorporateAdminControllers\PaymentController as CorpPaymentController;
 
 use App\Http\Controllers\Franchise\EventController;
+use App\Http\Controllers\Franchise\StripeController;
 use App\Http\Controllers\Franchise\ExpenseController;
 use App\Http\Controllers\Franchise\CustomerController;
 use App\Http\Controllers\Franchise\InventoryController;
@@ -33,13 +36,17 @@ use App\Http\Controllers\Franchise\LocationController;
 use App\Http\Controllers\Franchise\InvoiceController;
 use App\Http\Controllers\Franchise\AccountController;
 use App\Http\Controllers\FranchiseManagerControllers\FranchiseManagerController;
+use App\Http\Middleware\StripeMiddleware;
 
 Route::get('/', function () {
     return view('auth.login');
 });
 
-Route::get('/dashboard', [DashboardController::class , 'dashboard'])->name('dashboard')->middleware('auth');
-Route::get('/load-more-events', [DashboardController::class , 'loadMoreEvents'])->name('loadMoreEvents')->middleware('auth');
+Route::middleware(StripeMiddleware::class)->group(function () {
+
+    Route::get('/dashboard', [DashboardController::class , 'dashboard'])->name('dashboard')->middleware('auth');
+    Route::get('/load-more-events', [DashboardController::class , 'loadMoreEvents'])->name('loadMoreEvents')->middleware('auth');
+});
 
 Route::middleware('auth')->group(function () {
     // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -157,11 +164,7 @@ Route::middleware(['auth', 'role:corporate_admin'])->prefix('corporate_admin')->
     Route::get('pos/{id}/event' , [CorpPaymentController::class , 'posEvent'])->name('pos.event');
     Route::get('pos/event/{id}/download', [CorpPaymentController::class, 'posEventDownloadPDF'])->name('event.pos.download');
 });
-
-
-
-
-Route::middleware(['auth', 'role:franchise_admin|franchise_manager'])->prefix('franchise')->name('franchise.')->group(function () {
+Route::middleware(['auth', 'role:franchise_admin|franchise_manager' , StripeMiddleware::class])->prefix('franchise')->name('franchise.')->group(function () {
     Route::get('/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard');
 
     // Staff routes
@@ -183,9 +186,6 @@ Route::middleware(['auth', 'role:franchise_admin|franchise_manager'])->prefix('f
     Route::post('/orderpops/confirm', [OrderPopsController::class, 'confirmOrder'])->name('orderpops.confirm');
     Route::get('/orderpops/confirm/page', [OrderPopsController::class, 'showConfirmPage'])->name('orderpops.confirm.page');
     Route::get('/orderpops/view', [OrderPopsController::class, 'viewOrders'])->name('orderpops.view');
-    Route::post('/orderpops/{order}/mark-delivered', [OrderPopsController::class, 'markDelivered'])
-    ->name('orderpops.markDelivered');
-
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::get('/inventory/detail', [InventoryController::class, 'inventoryDetail'])->name('inventory.detail');
@@ -239,13 +239,41 @@ Route::middleware(['auth', 'role:franchise_admin|franchise_manager'])->prefix('f
     Route::resource('invoice', InvoiceController::class);
 
     // Account
-    Route::resource('account', AccountController::class);
+    // Route::resource('account', AccountController::class);
 
-    // Stripe
-    Route::get('stripe' , [PaymentController::class , 'stripe'])->name('stripe');
-    Route::post('stripes' , [PaymentController::class , 'stripePost'])->name('stripe.post');
+
+
+    // Expense Category
+    Route::get('expense-category' , [ExpensesCategoryController::class , 'indexExpense'])->name('expense-category');
+    Route::get('expense-category/create' , [ExpensesCategoryController::class , 'createExpense'])->name('expense-category.create');
+    Route::get('expense-category/{id}/edit' , [ExpensesCategoryController::class , 'editExpense'])->name('expense-category.edit');
+    Route::put('expense-category/{id}/update' , [ExpensesCategoryController::class , 'updateExpense'])->name('expense-category.update');
+    Route::post('expense-category/store' , [ExpensesCategoryController::class , 'storeExpense'])->name('expense-category.store');
+    Route::post('expense-sub-category/store' , [ExpensesCategoryController::class , 'SubstoreExpense'])->name('expense-sub-category.store');
+    Route::delete('expense-sub-category/{id}/delete' , [ExpensesCategoryController::class , 'deleteExpense'])->name('expense-sub-category.delete');
+
 
 });
+
+Route::get('/payment/success', [OrderPopsController::class , 'success'])->name('payment.successs');
+
+Route::get('/payment/cancel', function () {
+    return 'Payment was cancelled.';
+})->name('payment.cancell');
+
+
+
+    // Stripe Connect
+    Route::get('/stripe/onboard', [StripeController::class, 'createConnectedAccount'])->name('franchise.stripe.onboard');
+    Route::get('/stripe/refresh', [StripeController::class, 'refreshOnboarding'])->name('franchise.stripe.refresh');
+    Route::get('/stripe/return', [StripeController::class, 'returnOnboarding'])->name('franchise.stripe.return');
+
+    Route::get('/pay/{recipient}', [StripeController::class, 'showPayForm'])->name('franchise.pay.form');
+    Route::post('/pay/{recipient}/intent', [StripeController::class, 'createPaymentIntent'])->name('franchise.pay.intent');
+
+    // Stripe
+    Route::get('stripe' , [PaymentController::class , 'stripe'])->name('franchise.stripe');
+    Route::post('stripes' , [PaymentController::class , 'stripePost'])->name('franchise.stripe.post');
 
 
 // Route::middleware(['auth', 'role:franchise_admin'])->prefix('franchise_admin')->name('franchise.')->group(function () {
@@ -306,6 +334,14 @@ Route::middleware(['auth', 'role:franchise_staff'])->group(function () {
         Route::get('customer/{id}/view' , [FranchiseStaffController::class , 'view'])->name('customer.view');
         Route::put('customer/{id}/update' , [FranchiseStaffController::class , 'update'])->name('customer.update');
         Route::delete('customer/{id}/delete' , [FranchiseStaffController::class , 'delete'])->name('customer.delete');
+
+        // Sale
+        Route::resource('sales', SaleController::class);
+        Route::get('pos/sales/{id}/download', [PaymentController::class, 'posInvoiceDownloadPDF'])->name('sales.pos.download');
+
+
+        // Transaction
+        Route::get('pos' , [PosController::class , 'pos'])->name('pos');
     });
 
 });

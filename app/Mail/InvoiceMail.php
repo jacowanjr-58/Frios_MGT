@@ -8,7 +8,7 @@ use Illuminate\Queue\SerializesModels;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
-use App\Models\Stripe as StripeModel;
+use App\Models\User;
 
 class InvoiceMail extends Mailable
 {
@@ -27,31 +27,36 @@ use Queueable, SerializesModels;
         $this->franchisee = $franchisee;
 
         // Fetch Stripe keys from the database
-        $stripe = StripeModel::where('franchisee_id', $invoice->franchisee_id)->first();
-        $this->stripePublicKey = $stripe->public_key;
+        $user = User::where('franchisee_id', $invoice->franchisee_id)->first();
 
         // Set the API key from the Stripe record associated with the franchisee
-        Stripe::setApiKey($stripe->secret_key); // Using the franchisee's secret_key
-
+        Stripe::setApiKey(config('services.stripe.secret'));
+        // Create the Stripe checkout session
         // Create the Stripe checkout session
         $session = Session::create([
             'payment_method_types' => ['card'],
             'line_items' => [
                 [
                     'price_data' => [
-                        'currency' => 'usd', // Use dynamic currency if needed
+                        'currency' => 'usd',
                         'product_data' => [
                             'name' => 'Invoice #' . $invoice->id,
                         ],
-                        'unit_amount' => $invoice->total_price * 100, // Convert to cents
+                        'unit_amount' => $invoice->total_price * 100,
                     ],
                     'quantity' => 1,
                 ],
             ],
             'mode' => 'payment',
-            'success_url' => route('payment.success', ['invoice' => $invoice->id]), // Success URL
-            'cancel_url' => route('payment.cancel', ['invoice' => $invoice->id]), // Cancel URL
+            'payment_intent_data' => [
+                'transfer_data' => [
+                    'destination' => $user->stripe_account_id, // ✅ Route to connected account
+                ],
+            ],
+            'success_url' => route('payment.success', ['invoice' => $invoice->id]),
+            'cancel_url' => route('payment.cancel', ['invoice' => $invoice->id]),
         ]);
+
         $invoice->stripe_session_id = $session->id;
         $invoice->save();
 

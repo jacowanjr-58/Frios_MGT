@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreign('fgp_item_id')->on('fgp_items')->references('fgp_item_id')->onUpdate('cascade')->onDelete('cascade');
             $table->string('location');
             $table->string('quantity');
+            $table->unsignedBigInteger('franchise_id');
+            $table->foreign('franchise_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }

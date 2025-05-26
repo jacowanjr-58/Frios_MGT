@@ -39,13 +39,13 @@ class AuthenticatedSessionController extends Controller
                 ->with('success', 'Welcome Back, ' . $user->name);
         } elseif ($user->hasRole('franchise_admin')) {
             return redirect()->intended(route('dashboard', absolute: false))
-                ->with('success', 'Welcome Back, ' . $franchisee->business_name);
+                ->with('success', 'Welcome Back, ' . $user->name);
         } elseif ($user->hasRole('franchise_manager')) {
             return redirect()->intended(route('dashboard', absolute: false))
-                ->with('success', 'Welcome Back, ' . $franchisee->business_name);
+                ->with('success', 'Welcome Back, ' . $user->name);
         } elseif ($user->hasRole('franchise_staff')) {
             return redirect()->intended(route('dashboard', absolute: false))
-                ->with('success', 'Welcome Back, ' . $franchisee->business_name);
+                ->with('success', 'Welcome Back, ' . $user->name);
         }
 
         return redirect()->intended(route('dashboard', absolute: false))->with('success', 'Welcome Back');

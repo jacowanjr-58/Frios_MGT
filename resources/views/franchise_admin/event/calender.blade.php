@@ -34,6 +34,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         selectable: true,
         selectMirror: true,
+
+            validRange: {
+                start: new Date().toISOString().split("T")[0]
+            },
+            
         select: function(arg) {
             var selectedDate = arg.startStr; // 'YYYY-MM-DD' format
             window.location.href = 'create?date=' + selectedDate;

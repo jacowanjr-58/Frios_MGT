@@ -55,7 +55,7 @@
                                             <form action="{{ route('franchise.staff.store') }}" method="POST">
                                             @endrole
                                             @role('franchise_manager')
-                                            <form action="{{ route('franchise_manager.staff.store') }}" method="POST">
+                                            <form action="{{ route('franchise.staff.store') }}" method="POST">
                                             @endrole
                                                 @csrf
 

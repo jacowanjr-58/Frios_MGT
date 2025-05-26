@@ -26,5 +26,10 @@ class FranchiseEventItem extends Model
         return $this->belongsTo(FgpItem::class, 'orderable');
     }
 
+    public function events()
+    {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
+
 
 }

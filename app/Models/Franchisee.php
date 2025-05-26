@@ -29,4 +29,10 @@ class Franchisee extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'franchisee_id');
+    }
+
 }

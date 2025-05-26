@@ -32,7 +32,7 @@ public function store(Request $request)
 
     \Log::info("Received Stripe Token: " . $stripeToken);
 
-    \Stripe\Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
+    \Stripe\Stripe::setApiKey(apiKey: config('stripe.secret_key'));
 
     try {
         $charge = \Stripe\Charge::create([
