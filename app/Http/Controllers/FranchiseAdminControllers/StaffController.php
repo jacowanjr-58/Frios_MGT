@@ -11,17 +11,17 @@ class StaffController extends Controller
 {
     public function index()
     {
-        $franchiseeId = auth()->user()->franchisee_id; 
+        $franchiseeId = auth()->user()->franchisee_id;
 
         $users = User::where('franchisee_id', $franchiseeId)
                      ->whereIn('role', ['franchise_manager', 'franchise_staff'])
                      ->get();
-    
+
         $totalUsers = $users->count();
-    
+
         return view('franchise_admin.staff.index', compact('users', 'totalUsers'));
     }
-    
+
 
      // Show create form
 
@@ -29,7 +29,7 @@ class StaffController extends Controller
      {
         return view('franchise_admin.staff.create');
      }
-     
+
 
      public function store(Request $request)
      {
@@ -41,9 +41,9 @@ class StaffController extends Controller
              'phone_number' => 'nullable|string|regex:/^\(\d{3}\) \d{3}-\d{4}$/',
              'security' => 'nullable|string',
          ]);
-     
-         $franchiseeId = auth()->user()->franchisee_id; 
-         
+
+         $franchiseeId = auth()->user()->franchisee_id;
+
          $user = User::create([
              'name' => $request->name,
              'email' => $request->email,
@@ -54,27 +54,27 @@ class StaffController extends Controller
              'security' => $request->security,
              'created_date' => Carbon::now()->toDateString(), // Storing the current date
          ]);
-     
+
          // Assign the role using Spatie Role Permission
          $user->assignRole($request->role);
-     
+
          // Role-based redirection
          if (auth()->user()->hasRole('franchise_admin')) {
              return redirect()->route('franchise.staff.index')->with('success', 'Staff created successfully.');
          } elseif (auth()->user()->hasRole('franchise_manager')) {
-             return redirect()->route('franchise_manager.staff.index')->with('success', 'Staff created successfully.');
+             return redirect()->route('franchise.staff.index')->with('success', 'Staff created successfully.');
          }
-     
+
          // Default redirection if no role matches
          return redirect()->back()->with('success', 'Staff created successfully.');
      }
-     
-     
+
+
     public function edit(User $staff)
     {
         return view('franchise_admin.staff.edit', compact('staff'));
     }
-        
+
     public function update(Request $request, User $staff)
     {
         $request->validate([
@@ -85,8 +85,8 @@ class StaffController extends Controller
             'phone_number' => 'nullable|string|regex:/^\(\d{3}\) \d{3}-\d{4}$/',
             'security' => 'nullable|string',
         ]);
-        $franchiseeId = auth()->user()->franchisee_id; 
-        
+        $franchiseeId = auth()->user()->franchisee_id;
+
         $staff->update([
             'name' => $request->name,
             'email' => $request->email,
@@ -96,19 +96,19 @@ class StaffController extends Controller
             'phone_number' => $request->phone_number,
             'security' => $request->security,
         ]);
-        
+
         if ($request->filled('password')) {
             $staff->update(['password' => bcrypt($request->password)]);
         }
-        
+
         // dd($request);
         // Role-based redirection
         if (auth()->user()->hasRole('franchise_admin')) {
             return redirect()->route('franchise.staff.index')->with('success', 'Staff updated successfully.');
         } elseif (auth()->user()->hasRole('franchise_manager')) {
-            return redirect()->route('franchise_manager.staff.index')->with('success', 'Staff updated successfully.');
+            return redirect()->route('franchise.staff.index')->with('success', 'Staff updated successfully.');
         }
-    
+
         // Default redirection if no role matches
         return redirect()->back()->with('success', 'Staff updated successfully.');
     }
@@ -121,22 +121,22 @@ class StaffController extends Controller
             if (auth()->user()->hasRole('franchise_admin')) {
                 return redirect()->route('franchise.staff.index')->with('success', 'Staff updated successfully.');
             } elseif (auth()->user()->hasRole('franchise_manager')) {
-                return redirect()->route('franchise_manager.staff.index')->with('success', 'Staff updated successfully.');
+                return redirect()->route('franchise.staff.index')->with('success', 'Staff updated successfully.');
             }
-        
+
             // Default redirection if no role matches
             return redirect()->back()->with('success', 'User deleted successfully.');
         } catch (\Exception $e) {
             if (auth()->user()->hasRole('franchise_admin')) {
                 return redirect()->route('franchise.staff.index')->with('success', 'Staff updated successfully.');
             } elseif (auth()->user()->hasRole('franchise_manager')) {
-                return redirect()->route('franchise_manager.staff.index')->with('success', 'Staff updated successfully.');
+                return redirect()->route('franchise.staff.index')->with('success', 'Staff updated successfully.');
             }
-        
+
             // Default redirection if no role matches
             return redirect()->back()->with('error', 'Failed to delete user.');
         }
-    }    
-    
+    }
+
 
 }

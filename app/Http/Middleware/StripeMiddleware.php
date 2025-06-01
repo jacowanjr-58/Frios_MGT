@@ -21,10 +21,10 @@ class StripeMiddleware
 
             $franchiseeId = Auth::user()->franchisee_id;
 
-            $stripe = StripeModel::where('franchisee_id', $franchiseeId)->first();
+            $user = User::where('franchisee_id', $franchiseeId)->first();
 
-            if ($stripe == null) {
-                return redirect()->route('franchise.stripe')->with('error', 'You have not created a Stripe account yet. Please create one to proceed.');
+            if ($user->stripe_account_id == null) {
+                return redirect()->route('franchise.stripe')->with('error', 'You have not connect a Stripe account yet. Please connect one to proceed.');
             } else {
                 return $next($request);
             }

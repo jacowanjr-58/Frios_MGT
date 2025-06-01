@@ -155,7 +155,7 @@
                 <li class="category-item">
 
                     <div class="category-header">{{ $franchisee->business_name }}
-                        <div style="float: right">OR-00{{ $orderTransaction->id }}</div>
+                        <div style="float: right">OR-00{{ $order->id }}</div>
                     </div>
                     <ul class="item-list">
                         @php

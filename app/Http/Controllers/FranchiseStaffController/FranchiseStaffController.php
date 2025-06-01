@@ -21,8 +21,8 @@ class FranchiseStaffController extends Controller
     }
 
     public function calendar(){
-        $events = Event::get();
-        $badgeEvents = Event::orderBy('created_at', 'DESC')
+        $events = Event::where('franchisee_id' , Auth::user()->franchisee_id)->get();
+        $badgeEvents = Event::where('franchisee_id' , Auth::user()->franchisee_id)->orderBy('created_at', 'DESC')
         ->get();
 
         // Group by year and month
@@ -46,9 +46,12 @@ class FranchiseStaffController extends Controller
         $month = Carbon::parse($monthYear)->month;
 
         // Fetch the data based on the selected or default month/year
-        $eventItems = FranchiseEventItem::whereYear('created_at', $year)
-                                         ->whereMonth('created_at', $month)
-                                         ->get();
+  $eventItems = FranchiseEventItem::whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)
+            ->whereHas('events', function ($query) {
+                $query->where('franchisee_id', Auth::user()->franchisee_id);
+            })
+            ->get();
         return view('franchise_staff.event.report', compact('eventItems'));
     }
 
@@ -99,6 +102,7 @@ class FranchiseStaffController extends Controller
 
         $customer = Customer::create([
             'franchisee_id' => Auth::user()->franchisee_id,
+            'user_id' => Auth::user()->user_id ?? 0,
             'name' => $request->name,
             'phone' => $request->phone,
             'email' => $request->email,

@@ -7,8 +7,6 @@ use App\Models\FgpItem;
 use App\Models\FgpOrder;
 use App\Models\FgpCategory;
 use App\Models\Customer;
-use \App\Models\Invoice;
-use App\Services\ShipStationService;
 use Illuminate\Http\Request;
 use App\Models\AdditionalCharge;
 use Illuminate\Support\Facades\Log;
@@ -17,12 +15,12 @@ use Illuminate\Support\Facades\Auth;
 use Stripe\Stripe;
 use Stripe\Charge;
 use App\Mail\OrderPaidMail;
-use App\Models\Franchisee;
 use Illuminate\Support\Facades\Mail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\OrderTransaction;
+use Stripe\Checkout\Session as StripeSession;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use DB;
 
 class OrderPopsController extends Controller
 {
@@ -119,50 +117,29 @@ public function showConfirmPage()
     if (empty($items)) {
         return redirect()->route('franchise.orderpops.index')->withErrors('No items selected.');
     }
-        $franchiseeId = Auth::user()->franchisee_id;
 
-        $customers = Customer::where('franchisee_id', $franchiseeId)->get();
+    $requiredCharges = AdditionalCharge::where('charge_optional', 'required')->where('status', 1)->get();
+    $optionalCharges = AdditionalCharge::where('charge_optional', 'optional')->where('status', 1)->get();
 
-        $franchisee = Franchisee::where('franchisee_id', $franchiseeId)->get();
-
-        $requiredCharges = AdditionalCharge::where('charge_optional', 'required')->where('status', 1)->get();
-        $optionalCharges = AdditionalCharge::where('charge_optional', 'optional')->where('status', 1)->get();
-
-    return view('franchise_admin.orderpops.confirm', compact('items', 'requiredCharges', 'optionalCharges', 'customers', 'franchisee'));
+    return view('franchise_admin.orderpops.confirm', compact('items', 'requiredCharges', 'optionalCharges'));
 }
 
 
-    public function store(Request $request)
-{     // Validate input
-    $rules = [
-        'is_paid' => 'required|in:0,1',
+public function store(Request $request)
+{
+    $minCases = 12;
+    $factorCase = 3;
+
+    $validated = $request->validate([
         'grandTotal' => 'required|numeric|min:1',
         'items' => 'required|array',
         'items.*.fgp_item_id' => 'required|exists:fgp_items,fgp_item_id',
-      //  'items.*.user_ID' => 'required|exists:users,user_id',
+        'items.*.user_ID' => 'required|exists:users,user_id',
         'items.*.unit_cost' => 'required|numeric|min:0',
         'items.*.unit_number' => 'required|integer|min:1',
-        'ship_to_name' => 'required|string',
-        'ship_to_address1' => 'required|string',
-        'ship_to_city' => 'required|string',
-        'ship_to_state' => 'required|string',
-        'ship_to_zip' => 'required|string',
-        'ship_to_phone' => 'nullable|string',
-        'ship_to_country' => 'nullable|string',
-        'ship_method' => 'nullable|string'
-    ];
+    ]);
 
-    if ($request->is_paid === '1') {
-        $rules['stripeToken'] = 'required|string';
-        $rules['cardholder_name'] = 'required|string|max:191';
-    }
-
-    $validated = $request->validate($rules);
-
-    // Enforce minimum and multiple case logic
     $totalCaseQty = collect($validated['items'])->sum('unit_number');
-    $minCases = 12;
-    $factorCase = 3;
 
     if ($totalCaseQty < $minCases) {
         return redirect()->back()->withErrors(['Order must have at least ' . $minCases . ' cases.']);
@@ -172,28 +149,7 @@ public function showConfirmPage()
         return redirect()->back()->withErrors(['Order quantity must be a multiple of ' . $factorCase . '.']);
     }
 
-    // Stripe payment processing
-    $charge = null;
-    if ($request->is_paid === '1') {
-        \Stripe\Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
-
-        try {
-            $charge = \Stripe\Charge::create([
-                'amount' => $request->grandTotal * 100,
-                'currency' => 'usd',
-                'description' => 'Order Payment by: ' . $request->cardholder_name,
-                'source' => $request->stripeToken,
-                'metadata' => [
-                    'franchisee_id' => Auth::user()->franchisee_id,
-                ],
-            ]);
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['Stripe Error: ' . $e->getMessage()]);
-        }
-    }
-
-    // Create the order
-    $order = FgpOrder::create([
+    $order = \App\Models\FgpOrder::create([
         'user_ID' => Auth::user()->franchisee_id,
         'date_transaction' => now(),
         'status' => 'Pending',
@@ -306,70 +262,118 @@ foreach ($validated['items'] as $index => $item) {
     // $orderDetails = \App\Models\FgpOrderDetail::where('fgp_order_id', $order->id)->get();
     // $franchisee = \App\Models\Franchisee::where('franchisee_id', $order->user_ID)->firstOrFail();
 
-    // // Create the PDF
-    // $pdf = PDF::loadView('franchise_admin.payment.pdf.order-pos', compact('orderTransaction', 'order', 'franchisee', 'orderDetails'));
-    // $pdfPath = storage_path('app/public/order_invoice_' . $order->id . '.pdf');
-    // $pdf->save($pdfPath);  // Save PDF to storage path
+    $pdf = \PDF::loadView('franchise_admin.payment.pdf.order-pos', compact('order', 'franchisee', 'orderDetails'));
+    $pdfPath = storage_path('app/public/order_invoice_' . $order->id . '.pdf');
+    $pdf->save($pdfPath);
 
-    // // Send the email with the attachment
-    // $corporateAdmin = User::where('user_id', 17)->first();  // Assuming 17 is the Corporate Admin ID
-    // if ($corporateAdmin) {
-    //     Mail::to($corporateAdmin->email)->send(new OrderPaidMail($corporateAdmin, $order, $pdfPath));  // Send email with attachment
-    // }
-
-    // // Remove PDF after sending
-    // unlink($pdfPath);
-
-
-
-
-        public function viewOrders()
-    {
-        $orders = FgpOrder::with([
-            'items.flavor',
-            'user',
-            'customer'
-        ])
-            ->where('user_ID', Auth::user()->franchisee_id)
-            ->orderByDesc('date_transaction')
-            ->get()
-            ->map(
-                function ($order) {
-                    $order->total_amount = $order->items->sum(function ($item) {
-                        return $item->unit_number * $item->unit_cost;
-                    });
-                return $order;
-            });
-        $totalOrders = $orders->count();
-
-        return view('franchise_admin.orderpops.vieworders', compact('orders', 'totalOrders'));
+    // Send Email
+    $franchiseeadmin = \App\Models\User::where(['franchisee_id' => Auth()->user()->franchisee_id , 'role' => 'franchise_admin'])->first();
+    if ($franchiseeadmin) {
+        \Mail::to($franchiseeadmin->email)->send(
+            new \App\Mail\OrderPaidMail($franchiseeadmin, $order, $pdfPath, $paymentUrl)
+        );
     }
 
+    unlink($pdfPath); // Remove the PDF after sending
 
-        public function customer($franchisee_id)
-        {
-            $customers = Customer::where('franchisee_id', $franchisee_id)->get();
+    return redirect()->route('franchise.orderpops.view')->with('success', 'Order placed successfully!');
+}
 
-            return response()->json([
-                'data' => $customers,
-            ]);
+
+
+
+public function viewOrders()
+{
+    // $orders = FgpOrder::where('user_ID', Auth::id())
+    //     ->select(
+    //         'user_ID',
+    //         'date_transaction',
+    //         \DB::raw('SUM(unit_number) as total_quantity'),
+    //         \DB::raw('SUM(unit_number * unit_cost) as total_amount'),
+    //         'status'
+    //     )
+    //     ->groupBy('date_transaction', 'user_ID', 'status')
+    //     ->orderBy('date_transaction', 'desc')
+    //     ->with('user')
+    //     ->get()
+    //     ->map(function ($order) {
+    //         $order->date_transaction = Carbon::parse($order->date_transaction);
+    //         return $order;
+    //     });
+
+    $orders = FgpOrder::where('user_ID' , Auth::user()->franchisee_id)->get();
+
+    $totalOrders = $orders->count();
+
+    return view('franchise_admin.orderpops.vieworders', compact('orders', 'totalOrders'));
+}
+
+
+public function customer($franchisee_id)
+{
+    $customers = Customer::where('franchisee_id', $franchisee_id)->get();
+
+    return response()->json([
+        'data' => $customers,
+    ]);
+}
+
+
+public function success(Request $request){
+        $sessionId = $request->get('session_id');
+
+    if (!$sessionId) {
+        return 'Missing Stripe session ID.';
+    }
+
+    \Stripe\Stripe::setApiKey(config('stripe.secret_key'));
+
+    try {
+        // Get the Checkout Session
+        $session = StripeSession::retrieve($sessionId);
+
+        // Get PaymentIntent if available
+        $paymentIntent = \Stripe\PaymentIntent::retrieve($session->payment_intent);
+
+        // Get metadata
+        $orderId = $session->metadata->order_id ?? null;
+        $franchiseeId = $session->metadata->franchisee_id ?? null;
+
+        if (!$orderId || !$franchiseeId) {
+            return 'Missing metadata from Stripe.';
         }
 
-
-        public function markDelivered(FgpOrder $order)
-        {
-        if ($order->is_delivered) {
-            return redirect()->back()->with('error', 'This order has already been marked as delivered.');
+        // Check if transaction already exists (avoid duplicates)
+        $existing = OrderTransaction::where('stripe_payment_intent_id', $session->payment_intent)->first();
+        if ($existing) {
+            return 'Payment already recorded.';
         }
 
-        $order->update([
-            'status' => 'Delivered',
-            'is_delivered' => true,
-            'delivered_at' => now(),
+        // Create the transaction
+        OrderTransaction::create([
+            'franchisee_id' => $franchiseeId,
+            'fgp_order_id' => $orderId,
+            'cardholder_name' => $session->customer_details->name ?? 'Unknown',
+            'amount' => $session->amount_total / 100,
+            'stripe_payment_intent_id' => $session->payment_intent,
+            'stripe_payment_method' => $paymentIntent->payment_method ?? null,
+            'stripe_currency' => $session->currency,
+            'stripe_client_secret' => $paymentIntent->client_secret ?? null,
+            'stripe_status' => $session->payment_status,
         ]);
 
-        return redirect()->back()->with('success', 'Order marked as delivered.');
+        // Optionally: update order status
+        $order = FgpOrder::find($orderId);
+        if ($order) {
+            $order->status = 'Paid';
+            $order->save();
         }
 
+            return view('thankyou');
+
+    } catch (\Exception $e) {
+        return 'Stripe error: ' . $e->getMessage();
     }
+}
+}
 

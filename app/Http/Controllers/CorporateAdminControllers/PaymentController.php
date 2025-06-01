@@ -32,12 +32,12 @@ class PaymentController extends Controller
         $startOfMonth = Carbon::now()->startOfMonth();
         $startOfYear = Carbon::now()->startOfYear();
 
-        $data['expenseAmount'] = [
-            'daily' => ExpenseTransaction::whereDate('created_at', $today)->sum('amount'),
-            'weekly' => ExpenseTransaction::whereBetween('created_at', [$startOfWeek, now()])->sum('amount'),
-            'monthly' => ExpenseTransaction::whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
-            'yearly' => ExpenseTransaction::whereBetween('created_at', [$startOfYear, now()])->sum('amount'),
-        ];
+        // $data['expenseAmount'] = [
+        //     'daily' => ExpenseTransaction::whereDate('created_at', $today)->sum('amount'),
+        //     'weekly' => ExpenseTransaction::whereBetween('created_at', [$startOfWeek, now()])->sum('amount'),
+        //     'monthly' => ExpenseTransaction::whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
+        //     'yearly' => ExpenseTransaction::whereBetween('created_at', [$startOfYear, now()])->sum('amount'),
+        // ];
 
         $data['orderAmount'] = [
             'daily' => OrderTransaction::whereDate('created_at', $today)->sum('amount'),
@@ -46,18 +46,18 @@ class PaymentController extends Controller
             'yearly' => OrderTransaction::whereBetween('created_at', [$startOfYear, now()])->sum('amount'),
         ];
 
-        $data['eventAmount'] = [
-            'daily' => EventTransaction::whereDate('created_at', $today)->sum('amount'),
-            'weekly' => EventTransaction::whereBetween('created_at', [$startOfWeek, now()])->sum('amount'),
-            'monthly' => EventTransaction::whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
-            'yearly' => EventTransaction::whereBetween('created_at', [$startOfYear, now()])->sum('amount'),
-        ];
+        // $data['eventAmount'] = [
+        //     'daily' => EventTransaction::whereDate('created_at', $today)->sum('amount'),
+        //     'weekly' => EventTransaction::whereBetween('created_at', [$startOfWeek, now()])->sum('amount'),
+        //     'monthly' => EventTransaction::whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
+        //     'yearly' => EventTransaction::whereBetween('created_at', [$startOfYear, now()])->sum('amount'),
+        // ];
 
         $data['totalAmount'] = [
-            'daily' => $data['expenseAmount']['daily'] + $data['orderAmount']['daily'] + $data['eventAmount']['daily'],
-            'weekly' => $data['expenseAmount']['weekly'] + $data['orderAmount']['weekly'] + $data['eventAmount']['weekly'],
-            'monthly' => $data['expenseAmount']['monthly'] + $data['orderAmount']['monthly'] + $data['eventAmount']['monthly'],
-            'yearly' => $data['expenseAmount']['yearly'] + $data['orderAmount']['yearly'] + $data['eventAmount']['yearly'],
+            'daily' => $data['orderAmount']['daily'],
+            'weekly' => $data['orderAmount']['weekly'],
+            'monthly' => $data['orderAmount']['monthly'],
+            'yearly' => $data['orderAmount']['yearly'],
         ];
 
 

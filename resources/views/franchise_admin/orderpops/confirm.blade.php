@@ -1,34 +1,50 @@
 @extends('layouts.app')
-
 @section('content')
-<div class="content-body default-height">
-    <div class="container-fluid">
-        <div class="form-head mb-4 d-flex flex-wrap align-items-center">
-            <div class="me-auto">
-                <h2 class="font-w600 mb-0">Dashboard</h2>
-                <p>Confirm Order</p>
-            </div>
-            <a href="javascript:history.back()" class="btn btn-secondary btn-sm">
-                <i class="fa fa-arrow-left me-2"></i> Back
-            </a>
-        </div>
 
-        <div class="row">
-            <div class="col-xl-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title">Confirm Order</h4>
-                    </div>
-                    <div class="card-body">
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
+    <!--**********************************
+                Content body start
+            ***********************************-->
+    <div class=" content-body default-height">
+        <!-- row -->
+        <div class="container-fluid">
+            <!-- <div class="page-titles">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
+                            <li class="breadcrumb-item active"><a href="javascript:void(0)">Analytics</a></li>
+                        </ol>
+                    </div> -->
+            <div class="form-head mb-4 d-flex flex-wrap align-items-center">
+                <div class="me-auto">
+                    <h2 class="font-w600 mb-0">Dashboard \</h2>
+                    <p>Confirm Order</p>
+                </div>
+
+                <a href="javascript:history.back()" class="btn btn-secondary btn-sm">
+                    <i class="fa fa-arrow-left me-2"></i> Back
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="col-xl-12 col-lg-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Confirm Order</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="basic-form">
+
+                                        @if ($errors->any())
+                                        <div class="alert alert-danger">
+                                            <ul>
+                                                @foreach ($errors->all() as $error)
+                                                    <li>{{ $error }}</li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @endif
 
                         @if (!empty($items))
      <form id="stripe-payment-form" action="{{ route('franchise.orderpops.store') }}" method="POST">
@@ -127,158 +143,129 @@
                     <button type="button" class="btn btn-sm btn-outline-secondary" onclick="autofillFranchisee()">Use Franchise Address</button>
                 </div>
 
-                <div class="mb-3">
-                    <label for="customer_id" class="form-label">Choose Customer (optional)</label>
-                    <select name="customer_id" id="customer_id" class="form-select" onchange="autofillFromCustomer(this.value)">
-                        <option value="">-- Select Customer --</option>
-                        @foreach($customers as $customer)
-                            <option value="{{ $customer->customer_id }}">{{ $customer->name }} - {{ $customer->address1 }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <div id="card-number-element" class="form-control"></div>
+                                                    </div>
 
-                <div class="mb-3">
-                    <label for="ship_to_name" class="form-label">Recipient Name</label>
-                    <input type="text" name="ship_to_name" id="ship_to_name" class="form-control" value="{{ old('ship_to_name') }}">
-                </div>
-                <div class="mb-3">
-                    <label for="ship_to_address1" class="form-label">Address Line 1</label>
-                    <input type="text" name="ship_to_address1" id="ship_to_address1" class="form-control" value="{{ old('ship_to_address1') }}">
-                </div>
-                <div class="mb-3">
-                    <label for="ship_to_address2" class="form-label">Address Line 2</label>
-                    <input type="text" name="ship_to_address2" id="ship_to_address2" class="form-control" value="{{ old('ship_to_address2') }}">
-                </div>
-                <div class="mb-3">
-                    <label for="ship_to_city" class="form-label">City</label>
-                    <input type="text" name="ship_to_city" id="ship_to_city" class="form-control" value="{{ old('ship_to_city') }}">
-                </div>
-                <div class="mb-3">
-                    <label for="ship_to_state" class="form-label">State</label>
-                    <input type="text" name="ship_to_state" id="ship_to_state" class="form-control" value="{{ old('ship_to_state') }}">
-                </div>
-                <div class="mb-3">
-                    <label for="ship_to_zip" class="form-label">ZIP</label>
-                    <input type="text" name="ship_to_zip" id="ship_to_zip" class="form-control" value="{{ old('ship_to_zip') }}">
-                </div>
-                <div class="mb-3">
-                    <label for="ship_to_phone" class="form-label">Phone</label>
-                    <input type="text" name="ship_to_phone" id="ship_to_phone" class="form-control" value="{{ old('ship_to_phone') }}">
-                </div>
-              </td>
-</tr>  
-    </table>  
-<div >
-            <!-- Right Column: Payment Info -->
-            
-                <div class="mb-3"> Optional Pay Now
-                </div>   
-                <div class="mb-3">
-                    <label for="cardholder-name" class="form-label">Cardholder Name</label>
-                    <input type="text" id="cardholder-name" name="cardholder_name" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Card Number</label>
-                    <div id="card-number-element" class="form-control"></div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Expiration</label>
-                    <div id="card-expiry-element" class="form-control"></div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">CVC</label>
-                    <div id="card-cvc-element" class="form-control"></div>
-                    <input type="hidden" name="stripeToken" id="stripeToken">
-                </div>
-                <div class="mb-3">
-                    <label for="payment_reference" class="form-label">Payment Reference (if paid now)</label>
-                    <input type="text" name="payment_reference" class="form-control">
-                </div>
-                <div id="card-errors" class="text-danger mb-3"></div>
-           
-        </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <div id="card-expiry-element" class="form-control"></div>
+                                                    </div>
 
-                <input type="hidden" name="is_paid" id="is_paid" value="0">      
-                            <div class="mt-4">
-                                <button type="submit" id="submit-button" class="btn btn-primary">Confirm Order</button>
+                                                    <div class="col-md-6 mb-3">
+                                                        <div id="card-cvc-element" class="form-control"></div>
+                                                        <input type="hidden" name="stripeToken" id="stripeToken">
+                                                    </div>
+                                                        </div>
+
+                                                    <div id="card-errors" class="text-danger mb-3"></div> --}}
+
+                                                        {{-- <button disabled type="submit" id="submit-button" class="btn btn-primary bg-primary">Confirm Order</button> --}}
+                                                        <button type="submit" class="btn btn-primary bg-primary">Confirm Order</button>
+                                                    </form>
+                                                @else
+                                                    <p>No items in the order.</p>
+                                                @endif
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-        </form>
-                        @else
-                            <p>No items in the order.</p>
-                        @endif
+                        </div>
+
+
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-@endsection
+    <!--**********************************
+                Content body end
+            ***********************************-->
+    {{-- <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const stripe = Stripe("{{ config('stripe.public_key') }}");
+            const elements = stripe.elements();
 
-@push('scripts')
-<script src="https://js.stripe.com/v3/"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    const stripe = Stripe("{{ env('STRIPE_PUBLIC_KEY') }}");
-    const elements = stripe.elements();
+            const cardNumber = elements.create('cardNumber');
+            const cardExpiry = elements.create('cardExpiry');
+            const cardCvc = elements.create('cardCvc');
 
-    const cardNumber = elements.create('cardNumber');
-    const cardExpiry = elements.create('cardExpiry');
-    const cardCvc = elements.create('cardCvc');
+            cardNumber.mount('#card-number-element');
+            cardExpiry.mount('#card-expiry-element');
+            cardCvc.mount('#card-cvc-element');
 
-    cardNumber.mount('#card-number-element');
-    cardExpiry.mount('#card-expiry-element');
-    cardCvc.mount('#card-cvc-element');
+            const cardholderName = document.getElementById('cardholder-name');
+            const form = document.getElementById('stripe-payment-form');
+            const submitButton = document.getElementById('submit-button');
+            const errorElement = document.getElementById('card-errors');
+            const tokenInput = document.getElementById('stripeToken');
 
-    const cardholderName = document.getElementById('cardholder-name');
-    const form = document.getElementById('stripe-payment-form');
-    const submitButton = document.getElementById('submit-button');
-    const errorElement = document.getElementById('card-errors');
-    const tokenInput = document.getElementById('stripeToken');
-    const isPaidInput = document.getElementById('is_paid');
+            let cardComplete = {
+                number: false,
+                expiry: false,
+                cvc: false
+            };
 
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
+            function updateButtonState() {
+                const allComplete = cardComplete.number && cardComplete.expiry && cardComplete.cvc && cardholderName
+                    .value.trim() !== "";
+                submitButton.disabled = !allComplete;
+            }
 
-        // If no card number entered, proceed without Stripe
-        if (!cardComplete.number && !cardComplete.expiry && !cardComplete.cvc && cardholderName.value.trim() === "") {
-            form.submit();  // Allow fallback to invoice logic
-            return;
-        }
+            cardNumber.on('change', function(event) {
+                cardComplete.number = event.complete;
+                if (event.error) {
+                    errorElement.textContent = event.error.message;
+                } else {
+                    errorElement.textContent = '';
+                }
+                updateButtonState();
+            });
 
-        submitButton.disabled = true;
+            cardExpiry.on('change', function(event) {
+                cardComplete.expiry = event.complete;
+                updateButtonState();
+            });
 
-        const { token, error } = await stripe.createToken(cardNumber, { name: cardholderName.value });
+            cardCvc.on('change', function(event) {
+                cardComplete.cvc = event.complete;
+                updateButtonState();
+            });
 
-        if (error) {
-            errorElement.textContent = error.message;
-            submitButton.disabled = false;
-        } else {
-            tokenInput.value = token.id;
-            form.submit();
-        }
-    });
+            cardholderName.addEventListener('input', updateButtonState);
 
-        // Try to create a Stripe token
-        const { token, error } = await stripe.createToken(cardNumber, {
-            name: cardholderName.value
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                submitButton.disabled = true;
+
+                const {
+                    token,
+                    error
+                } = await stripe.createToken(cardNumber, {
+                    name: cardholderName.value
+                });
+
+                if (error) {
+                    errorElement.textContent = error.message;
+                    submitButton.disabled = false;
+                } else {
+                    tokenInput.value = token.id;
+                    form.submit();
+                }
+            });
         });
-
-        if (error) {
-            errorElement.textContent = error.message;
-            submitButton.disabled = false;
-        } else {
-            tokenInput.value = token.id;
-            isPaidInput.value = "1";
-            form.submit();
-        }
-    });
-});
-</script>
-
-<script>
+    </script> --}}
+            <script>
 function calculateTotals() {
     let subtotal = 0;
 
+    // Calculate item totals based on quantity and cost
     document.querySelectorAll('.qty').forEach((el, index) => {
         let qty = parseFloat(el.value) || 0;
         let cost = parseFloat(document.querySelector(`.cost[data-index='${index}']`).value) || 0;
@@ -287,30 +274,50 @@ function calculateTotals() {
         subtotal += total;
     });
 
+    // Update the subtotal
     document.getElementById('subtotal').value = subtotal.toFixed(2);
 
     let requiredChargeTotal = 0;
+
+    // Calculate required charges (both fixed and percentage)
     document.querySelectorAll('.required-charge').forEach(el => {
-        let charge = parseFloat(el.dataset.charge) || 0;
-        let type = el.dataset.chargeType;
-        if (type === 'percentage') {
-            requiredChargeTotal += (subtotal * charge) / 100;
+        let charge = parseFloat(el.getAttribute('data-charge')) || 0;
+        let chargeType = el.getAttribute('data-charge-type');
+
+        if (chargeType === 'percentage') {
+            // If charge is percentage, check if it's positive or negative
+            if (charge > 0) {
+                requiredChargeTotal += (subtotal * charge) / 100; // Apply percentage to subtotal
+            } else {
+                requiredChargeTotal -= (subtotal * Math.abs(charge)) / 100; // Subtract discount from subtotal
+            }
         } else {
+            // If charge is fixed, simply add the charge
             requiredChargeTotal += charge;
         }
     });
 
     let optionalChargeTotal = 0;
+
+    // Calculate optional charges (both fixed and percentage)
     document.querySelectorAll('.optional-charge:checked').forEach(el => {
-        let charge = parseFloat(el.dataset.charge) || 0;
-        let type = el.dataset.chargeType;
-        if (type === 'percentage') {
-            optionalChargeTotal += (subtotal * charge) / 100;
+        let charge = parseFloat(el.getAttribute('data-charge')) || 0;
+        let chargeType = el.getAttribute('data-charge-type');
+
+        if (chargeType === 'percentage') {
+            // If charge is percentage, check if it's positive or negative
+            if (charge > 0) {
+                optionalChargeTotal += (subtotal * charge) / 100; // Apply percentage to subtotal
+            } else {
+                optionalChargeTotal -= (subtotal * Math.abs(charge)) / 100; // Subtract discount from subtotal
+            }
         } else {
+            // If charge is fixed, simply add the charge
             optionalChargeTotal += charge;
         }
     });
 
+    // Update the grand total (subtotal + required charges + optional charges)
     document.getElementById('grandTotal').value = (subtotal + requiredChargeTotal + optionalChargeTotal).toFixed(2);
 }
 
@@ -320,49 +327,8 @@ document.querySelectorAll('.qty, .cost, .optional-charge').forEach(el => {
 });
 
 window.onload = calculateTotals;
-</script>
 
-<script>
-    const customers = @json($customers);
-     const franchisee = @json($franchisee instanceof \Illuminate\Support\Collection ? $franchisee->first() : $franchisee);
+            </script>
 
-    function autofillFromCustomer(customerId) {
-        const customer = customers.find(c => c.customer_id == parseInt(customerId));
-        if (!customer) return;
 
-        fillShippingFields({
-            name: customer.name,
-            address1: customer.address1,
-            address2: customer.address2,
-            city: customer.city,
-            state: customer.state,
-            zip: customer.zip_code,
-            phone: customer.phone,
-        });
-    }
-
-    function autofillFranchisee() {
-    if (!franchisee) return;
-
-    fillShippingFields({
-        name: franchisee.business_name ?? '',
-        address1: franchisee.address1 ?? '',
-        address2: franchisee.address2 ?? '',
-        city: franchisee.city ?? '',
-        state: franchisee.state ?? '',
-        zip: franchisee.zip_code ?? '',
-        phone: franchisee.phone ?? '',
-    });
-}
-
-    function fillShippingFields({ name, address1, address2, city, state, zip, phone }) {
-        document.getElementById('ship_to_name').value = name ?? '';
-        document.getElementById('ship_to_address1').value = address1 ?? '';
-        document.getElementById('ship_to_address2').value = address2 ?? '';
-        document.getElementById('ship_to_city').value = city ?? '';
-        document.getElementById('ship_to_state').value = state ?? '';
-        document.getElementById('ship_to_zip').value = zip ?? '';
-        document.getElementById('ship_to_phone').value = phone ?? '';
-    }
-</script>
-@endpush
+@endsection

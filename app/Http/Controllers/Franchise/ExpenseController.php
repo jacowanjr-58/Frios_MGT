@@ -108,7 +108,7 @@ public function store(Request $request)
 
     // unlink($pdfPath);
 
-    return redirect()->route('franchise.expense')->with('success', 'Expense created and payment successful!');
+    return redirect()->route('franchise.expense')->with('success', 'Expense created successfully!');
 }
 
 

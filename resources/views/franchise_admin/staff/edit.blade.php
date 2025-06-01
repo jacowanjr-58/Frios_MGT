@@ -55,7 +55,7 @@
                                             <form action="{{ route('franchise.staff.update', $staff->user_id) }}" method="POST">
                                             @endrole
                                             @role('franchise_manager')
-                                            <form action="{{ route('franchise_manager.staff.update', $staff->user_id) }}" method="POST">
+                                            <form action="{{ route('franchise.staff.update', $staff->user_id) }}" method="POST">
                                             @endrole
                                                 @csrf
                                                 @method('PUT')

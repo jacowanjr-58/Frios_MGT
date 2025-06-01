@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Models\FgpItem;
+use Illuminate\Support\Facades\Http;
 use App\Models\InventoryAllocation;
 use App\Models\ExpenseTransaction;
 use App\Models\OrderTransaction;
@@ -159,24 +160,30 @@ class PaymentController extends Controller
             'secret_key' => 'required',
         ]);
 
-        StripeModel::updateOrCreate(
-            ['franchisee_id' => Auth::user()->franchisee_id],
-            [
-                'public_key' => $request->public_key,
-                'secret_key' => $request->secret_key,
-            ]
-        );
+        $response = Http::withBasicAuth($request->secret_key, '')
+            ->get('https://api.stripe.com/v1/account');
 
-        return redirect()->back()->with('success', 'Stripe credentials save successfully.');
+        if ($response->successful()) {
+            StripeModel::updateOrCreate(
+                ['franchisee_id' => Auth::user()->franchisee_id],
+                [
+                    'public_key' => $request->public_key,
+                    'secret_key' => $request->secret_key,
+                ]
+            );
+
+            return redirect()->back()->with('success', 'Stripe credentials saved successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Invalid Stripe API keys. Please check and try again.');
+        }
     }
 
     public function success($invoiceId)
     {
         $invoice = Invoice::findOrFail($invoiceId);
 
-        $stripe = StripeModel::where('franchisee_id', $invoice->franchisee_id)->first();
 
-        Stripe::setApiKey($stripe->secret_key);
+Stripe::setApiKey(config('services.stripe.secret'));
 
         $session = Session::retrieve($invoice->stripe_session_id);
 
@@ -185,6 +192,7 @@ class PaymentController extends Controller
             InvoiceTransaction::create([
                 'invoice_id' => $invoice->id,
                 'franchisee_id' => $invoice->franchisee_id,
+                'user_id' => $invoice->user_id ?? null,
                 'transaction_id' => $session->payment_intent,
                 'status' => 'paid',
                 'amount' => $invoice->total_price,

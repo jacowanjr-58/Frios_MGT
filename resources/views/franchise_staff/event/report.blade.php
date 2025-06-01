@@ -26,7 +26,8 @@
             </form>
 
 
-            <table id="example5" class="table customer-table display mb-4 fs-14 card-table">
+            <div class="table-responsive">
+                            <table id="example5" class="table customer-table display mb-4 fs-14 card-table">
                 <thead>
                     <tr>
                         <th>Orderable flover</th>
@@ -93,6 +94,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 

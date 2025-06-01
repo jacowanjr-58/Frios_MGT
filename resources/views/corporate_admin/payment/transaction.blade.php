@@ -90,7 +90,7 @@
             </div>
 
 
-            <div class="row card pt-4">
+            {{-- <div class="row card pt-4">
                 <h4 class="card-title">Expense Transaction</h4>
                 <div class="col-lg-12 pt-4">
                     <div class="table-responsive rounded">
@@ -171,7 +171,7 @@
 
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
 
             <div class="row card pt-4">

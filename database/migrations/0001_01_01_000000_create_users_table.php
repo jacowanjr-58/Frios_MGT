@@ -23,6 +23,7 @@ return new class extends Migration
             $table->date('created_date')->nullable();
             $table->string('clearance')->nullable();
             $table->string('security')->nullable();
+            $table->string('stripe_account_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
 

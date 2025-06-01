@@ -103,7 +103,7 @@
                 @include('layouts.sidebar')
 
                 <!-- Main Content -->
-                <div class="flex-1 p-6">
+                <div class="flex-1 p-6" style="max-width: 100%">
                     <x-notify::notify />
                     @yield('content')
 
