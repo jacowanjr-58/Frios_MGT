@@ -77,22 +77,25 @@ class OrderPopsController extends Controller
         ->groupBy('type');
 
 
-  
+
+
+
+
 
     return view('franchise_admin.orderpops.create', compact('categoriesByType'));
 }
- 
+
 
     public function confirmOrder(Request $request)
     {
-        
-              
+
+
            $items = json_decode($request->input('ordered_items'), true);
 
-         
+
 
             if (empty($items)) {
-                
+
                 return response()->json(['error' => 'No items selected for order.'], 400);
             }
 
@@ -105,8 +108,8 @@ class OrderPopsController extends Controller
             // Store items in the session for retrieval on the confirmation page
             session(['ordered_items' => $items]);
            // return view('franchise_admin.orderpops.confirm', compact('items'));
-           return redirect()->route('franchise.orderpops.confirm.page');          
-       
+           return redirect()->route('franchise.orderpops.confirm.page');
+
 }
 
 public function showConfirmPage()
@@ -233,14 +236,14 @@ foreach ($validated['items'] as $index => $item) {
         'quantity' => (int) $item['unit_number'],
         'unitPrice' => (float) $item['unit_cost'],
     ];
-    
+
     $name = $fgpItem->name ?? 'Unnamed';
     $qty = $item['unit_number'];
     $cost = number_format($item['unit_cost'], 2);
     $total = number_format($item['unit_number'] * $item['unit_cost'], 2);
 
     $noteLines[] = "- {$name} | Qty: {$qty} | Cost: \${$cost} | Total: \${$total}";
-    
+
 }
     $invoiceNotes = implode("\n", $noteLines);
 
@@ -270,7 +273,7 @@ foreach ($validated['items'] as $index => $item) {
             'note' => mb_strimwidth($invoiceNotes, 0, 255, '...')
         ]);
     }
-   
+
 
     // Send to ShipStation
    $shipStationPayload = [
@@ -290,11 +293,11 @@ foreach ($validated['items'] as $index => $item) {
     'orderItems' => $orderItems, // shipstation-ready item array
 ];
     $isPaid = $request->has('stripeToken');
-    $invoiceId = $orderNum ?? null;  
+    $invoiceId = $orderNum ?? null;
 
     $shipstation = new ShipStationService();
     $shipstation->sendOrder($shipStationPayload, $isPaid, $invoiceId);
-     
+
 
     return redirect()->route('franchise.orderpops.view')
         ->with('success', 'Order placed successfully ' . ($request->is_paid === '1' ? 'and paid!' : '. An invoice has been generated.'));

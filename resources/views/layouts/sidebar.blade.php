@@ -105,7 +105,7 @@
                         <span class="nav-text">Orders</span>
                     </a>
                     <ul aria-expanded="false">
-                        <li><a href="{{ route('franchise.orderpops.index') }}">Order Pops</a></li>
+                        <li><a href="{{ route('franchise.orderpops.create') }}">Order Pops</a></li>
                         <li><a href="{{ route('franchise.orderpops.view') }}">View Orders</a></li>
                     </ul>
                 </li>
