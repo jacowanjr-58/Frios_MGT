@@ -24,4 +24,9 @@ class FgpOrderDetail extends Model
         return $this->belongsTo(FgpOrder::class, 'fgp_order_id');
     }
 
+      public function flavor()
+    {
+        return $this->belongsTo(FgpItem::class, 'fgp_item_id', 'fgp_item_id');
+    }
+
 }

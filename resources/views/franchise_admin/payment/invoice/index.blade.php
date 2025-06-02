@@ -59,6 +59,9 @@
                         <table id="example5" class="table customer-table display mb-4 fs-14 card-table">
                             <thead>
                                 <tr>
+                                    <th>Invoice #</th>
+                                    <th>Type</th>
+                                    <th>Total</th>
                                     <th>Name</th>
                                     <th>Customer Name</th>
                                     <th>Action</th>
@@ -67,6 +70,17 @@
                             <tbody>
                                 @foreach ($invoices as $index=>$invoice)
                                     <tr>
+                                        <td>{{ $invoice->order_num ?? '-' }}</td>
+                                        <td>
+                                            @if($invoice->direction === 'payable')
+                                                <strong style="color:red;">PAY</strong>
+                                            @elseif($invoice->direction === 'receivable')
+                                                <strong style="color:green;">OWED</strong>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>{{ $invoice->total_price ?: '-' }}</td>
                                         <td>{{ $invoice->name ?: '-' }}</td>
                                         <td>{{ $invoice->customer->name ?? '-' }}</td>
                                         <td>

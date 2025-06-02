@@ -49,4 +49,10 @@ return [
         'secret' => env('STRIPE_SECRET_KEY'),
     ],
 
+    'shipstation' => [
+            'key' => env('SHIPSTATION_API_KEY'),
+            'secret' => env('SHIPSTATION_API_SECRET'),
+            'webhook_token' => env('SHIPSTATION_WEBHOOK_TOKEN'),
+        ],
+
 ];

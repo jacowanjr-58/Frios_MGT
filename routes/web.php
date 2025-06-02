@@ -185,7 +185,9 @@ Route::middleware(['auth', 'role:franchise_admin|franchise_manager' , StripeMidd
 
     Route::post('/orderpops/confirm', [OrderPopsController::class, 'confirmOrder'])->name('orderpops.confirm');
     Route::get('/orderpops/confirm/page', [OrderPopsController::class, 'showConfirmPage'])->name('orderpops.confirm.page');
-    Route::get('/orderpops/view', [OrderPopsController::class, 'viewOrders'])->name('orderpops.view');
+     Route::get('/orderpops/view', [OrderPopsController::class, 'viewOrders'])->name('orderpops.view');
+    Route::post('/orderpops/{order}/mark-delivered', [OrderPopsController::class, 'markDelivered'])
+    ->name('orderpops.markDelivered');
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::get('/inventory/detail', [InventoryController::class, 'inventoryDetail'])->name('inventory.detail');
