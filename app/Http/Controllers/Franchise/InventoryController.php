@@ -18,13 +18,13 @@ class InventoryController extends Controller
     {
         $franchiseId = Auth::user()->franchisee_id;
 
-        $inventoryMasters = InventoryMaster::with('flavor')
+        $inventories = InventoryMaster::with('flavor')
             ->where('franchisee_id', $franchiseId)
             ->orderBy('custom_item_name')
             ->orderBy('fgp_item_id')
             ->paginate(20);
 
-        return view('franchise_admin.inventory.index', compact('inventoryMasters'));
+        return view('franchise_admin.inventory.index', compact('inventories'));
     }
 
     /**
@@ -202,4 +202,55 @@ class InventoryController extends Controller
             ->route('franchise.inventory.index')
             ->with('success', 'Inventory line deleted.');
     }
+
+
+    public function bulkEdit()
+    {
+        $query = InventoryMaster::with('item');
+
+        if (Auth::user()->role === 'corporate_admin') {
+            // Show only corporate SKUs
+            $query->whereHas('item', function ($q) {
+                $q->where('is_corporate', true);
+            });
+        } else {
+            // Show franchisee-specific inventory
+            $query->where('franchisee_id', Auth::user()->franchisee_id);
+        }
+
+        $inventoryItems = $query->get();
+
+        return view('inventory.bulk_edit', compact('inventoryItems'));
+    }
+
+
+    public function bulkUpdate(Request $request)
+    {
+        foreach ($request->inventory as $id => $values) {
+            $item = InventoryMaster::with('item')->find($id);
+            if (!$item) continue;
+
+            // Only allow update if the item is corporate-owned and user is a corporate_admin
+            if (Auth::user()->role === 'corporate_admin' && !$item->item?->is_corporate) {
+                continue;
+            }
+
+            // Franchise admins can only update their own franchise inventory
+            if (
+                Auth::user()->role !== 'corporate_admin' &&
+                $item->franchisee_id !== Auth::user()->franchisee_id
+            ) {
+                continue;
+            }
+
+            $item->update([
+                'total_quantity' => $values['total_quantity'],
+                'split_total_quantity' => $values['split_total_quantity'],
+            ]);
+        }
+
+        return redirect()->route('corp_admin.inventory.bulk_edit')->with('success', 'Inventory updated.');
+    }
+
+
 }

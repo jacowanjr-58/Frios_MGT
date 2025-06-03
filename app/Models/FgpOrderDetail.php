@@ -8,6 +8,12 @@ class FgpOrderDetail extends Model
 {
     protected $guarded = [];
 
+    protected $fillable = [
+    'fgp_order_id', 'fgp_item_id', 'quantity',
+    'allocated_quantity', 'shipped_quantity'
+];
+
+
     public function fgp_item()
     {
         return $this->belongsTo(FgpItem::class, 'fgp_item_id', 'fgp_item_id');

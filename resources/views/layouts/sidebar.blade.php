@@ -36,6 +36,17 @@
                     <ul aria-expanded="false">
                         <li><a href="{{ route('corporate_admin.fgpitem.index') }}">Flavor List</a></li>
                         <li><a href="{{ route('corporate_admin.fgpitem.availability') }}">Availability</a></li>
+                        <li>
+                            <a href="{{ route('corp_admin.inventory.bulk_edit') }}"
+                                class="block px-4 py-2 hover:bg-gray-200 {{ request()->routeIs('corp_admin.inventory.bulk_edit') ? 'bg-gray-300 font-bold' : '' }}">
+                                Bulk Edit Inventory
+                            </a>
+                        </li>
+                        <li class="font-semibold text-gray-600 px-4 mt-4">Inventory</li>
+                        <li>
+                            <a href="{{ route('corp_admin.inventory.index') }}" class="block px-4 py-2 hover:bg-gray-200">Inventory
+                                Dashboard</a>
+                        </li>
                         <li><a href="{{ route('corporate_admin.fgpcategory.index') }}">Edit Flavor Categories</a></li>
                     </ul>
                 </li>
@@ -95,10 +106,22 @@
                         <span class="nav-text">Inventory</span>
                     </a>
                     <ul aria-expanded="false">
-
                         <li><a href="{{ route('franchise.inventory.index') }}">Inventory List</a></li>
                         <li><a href="{{ route('franchise.inventory.locations') }}">Allocate Inventory</a></li>
-                        <li><a href="{{ route('franchise.locations.index') }}">Allocation Locations</a></li>
+                        <li><a href="{{ route('franchise.locations.index') }}">Edit Allocation Locations</a></li>
+                         <li>
+                            <a href="{{ route('franchise.inventory.bulk_edit') }}"
+                            class="block px-4 py-2 hover:bg-gray-200 {{ request()->routeIs('franchise.inventory.bulk_edit') ? 'bg-gray-300 font-bold' : '' }}">
+                                <i class="fas fa-warehouse"></i>
+                                   <span>Bulk Edit Inventory</span>
+                            </a>
+                        </li>
+                       <li class="{{ request()->routeIs('franchise.inventory.bulk-allocation.index') ? 'active' : '' }}">
+                             <a href="{{ route('franchise.inventory.bulk-allocation.index') }}" class="nav-link">
+                               <i class="fas fa-warehouse"></i>
+                                   <span>Bulk Inventory Allocation</span>
+                              </a>
+                        </li>
                     </ul>
                 </li>
                 <li><a class="has-arrow ai-icon" href="javascript:void()" aria-expanded="false">
@@ -160,9 +183,22 @@
                         <span class="nav-text">Inventory</span>
                     </a>
                     <ul aria-expanded="false">
-                        <li><a href="{{ route('franchise.locations.index') }}">Location</a></li>
                         <li><a href="{{ route('franchise.inventory.index') }}">Inventory List</a></li>
-                        <li><a href="{{ route('franchise.inventory.locations') }}">Edit Inventory Locations</a></li>
+                        <li><a href="{{ route('franchise.inventory.locations') }}">Allocate Inventory</a></li>
+                        <li><a href="{{ route('franchise.locations.index') }}">Edit Allocation Locations</a></li>
+                        <li>
+                            <a href="{{ route('franchise.inventory.bulk_edit') }}"
+                            class="block px-4 py-2 hover:bg-gray-200 {{ request()->routeIs('franchise.inventory.bulk_edit') ? 'bg-gray-300 font-bold' : '' }}">
+                                <i class="fas fa-warehouse"></i>
+                                   <span>Bulk Edit Inventory</span>
+                            </a>
+                        </li>
+                       <li class="{{ request()->routeIs('franchise.inventory.bulk-allocation.index') ? 'active' : '' }}">
+                             <a href="{{ route('franchise.inventory.bulk-allocation.index') }}" class="nav-link">
+                               <i class="fas fa-warehouse"></i>
+                                   <span>Bulk Inventory Allocation</span>
+                              </a>
+                        </li>
                     </ul>
                 </li>
                 <li><a class="has-arrow ai-icon" href="javascript:void()" aria-expanded="false">

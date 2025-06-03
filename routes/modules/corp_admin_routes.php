@@ -9,6 +9,7 @@ use App\Http\Controllers\CorporateAdminControllers\FgpItemsController;
 use App\Http\Controllers\CorporateAdminControllers\FranchiseController;
 use App\Http\Controllers\CorporateAdminControllers\ExpensesCategoryController;
 use App\Http\Controllers\FranchiseAdminControllers\OrderPopsController;
+use App\Http\Controllers\Franchise\InventoryController;
 // Franchise Admin Controller
 use App\Http\Controllers\CorporateAdminControllers\ViewOrdersController;
 use App\Http\Controllers\CorporateAdminControllers\FgpCategoryController;
@@ -56,6 +57,11 @@ Route::middleware(['auth', 'role:corporate_admin'])->prefix('corporate_admin')->
     Route::get('/fgpitemavailability', [FgpItemsController::class, 'availability'])->name('fgpitem.availability');
     Route::post('/fgpitem/update-status/{id}', [FgpItemsController::class, 'updateStatus'])->name('fgpitem.updateStatus');
     Route::post('/fgpitem/update-month/{id}', [FgpItemsController::class, 'updateMonth']);
+
+   // Add bulk inventory edit + update routes
+    Route::get('/inventory/bulk-edit', [InventoryController::class, 'bulkEdit'])->name('inventory.bulk_edit');
+    Route::post('/inventory/bulk-update', [InventoryController::class, 'bulkUpdate'])->name('inventory.bulk_update');
+
 
     // Additional charges routes
     Route::put('/additional-charges/status', [AdditionalChargesController::class, 'changeStatus']);

@@ -6,6 +6,7 @@ use App\Http\Controllers\Franchise\InventoryReceiveController;
 use App\Http\Controllers\Franchise\InventoryAdjustmentController;
 use App\Http\Controllers\Franchise\InventoryAllocationController;
 use App\Http\Controllers\Franchise\InventoryRemovalController;
+use App\Http\Controllers\Franchise\BulkInventoryAllocationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,7 +24,7 @@ use App\Http\Controllers\Franchise\InventoryRemovalController;
 |
 */
 
-Route::middleware(['auth', 'role:franchise_admin'])
+Route::middleware(['auth', 'role:franchise_admin|franchise_manager'])
      ->prefix('franchise/inventory')
      ->name('franchise.inventory.')
      ->group(function () {
@@ -121,5 +122,13 @@ Route::middleware(['auth', 'role:franchise_admin'])
 
     Route::delete('remove/{id}/cancel', [InventoryRemovalController::class, 'cancel'])
          ->name('remove.cancel');
+
+
+         // Optional: enable for franchisees
+    Route::get('/bulk-edit', [InventoryController::class, 'bulkEdit'])->name('bulk_edit');
+    Route::post('/bulk-update', [InventoryController::class, 'bulkUpdate'])->name('bulk_update');
+
+    Route::get('/bulk-allocation', [BulkInventoryAllocationController::class, 'index'])->name('bulk-allocation.index');
+    Route::post('/bulk-allocation', [BulkInventoryAllocationController::class, 'allocate'])->name('bulk-allocation.store');
 
 });

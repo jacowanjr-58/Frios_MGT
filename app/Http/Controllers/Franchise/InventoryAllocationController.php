@@ -8,6 +8,7 @@ use App\Models\InventoryAllocation;
 use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\FgpItem;
 
 class InventoryAllocationController extends Controller
 {

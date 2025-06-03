@@ -46,6 +46,8 @@ class FgpOrder extends Model
         return $this->hasMany(FgpOrderDetail::class, 'fgp_order_id', 'fgp_ordersID');
     }
 
+   
+
     // 🔗 Optional: link to customer (if used)
     public function customer()
     {
@@ -72,5 +74,13 @@ class FgpOrder extends Model
     {
         return trim("{$this->ship_to_address1} {$this->ship_to_address2}, {$this->ship_to_city}, {$this->ship_to_state} {$this->ship_to_zip}");
     }
+
+    public function checkAndMarkAllocated()
+{
+    if ($this->details->every(fn($d) => $d->allocated_quantity >= $d->quantity)) {
+        $this->update(['status' => 'Allocated']);
+    }
+}
+
 }
 
