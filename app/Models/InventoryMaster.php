@@ -11,6 +11,8 @@ class InventoryMaster extends Model
 
     protected $table = 'inventory_master';
     protected $primaryKey = 'inventory_id';
+
+    protected $appends = ['item_name'];
     public $timestamps = true;
 
     protected $fillable = [
@@ -20,6 +22,22 @@ class InventoryMaster extends Model
         'total_quantity',
     ];
 
+    /**
+     * If this row has an fgp_item_id, return the related FgpItem’s name;
+     * otherwise return custom_item_name.
+     */
+    public function getItemNameAttribute()
+    {
+        if ($this->fgp_item_id && $this->flavor) {
+            return $this->flavor->name;
+        }
+
+        return $this->custom_item_name;
+    }
+
+     /**
+     * Relationship to FgpItem (pop flavor).
+     */
     public function flavor()
     {
         return $this->belongsTo(FgpItem::class, 'fgp_item_id', 'fgp_item_id');

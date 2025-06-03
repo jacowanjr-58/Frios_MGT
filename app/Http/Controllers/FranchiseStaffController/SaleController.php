@@ -42,14 +42,15 @@ class SaleController extends Controller
         }
 
 $data['allocations'] = \DB::table('inventory_allocations')
-    ->join('fgp_items', 'fgp_items.fgp_item_id', '=', 'inventory_allocations.fgp_item_id')
-    ->where('inventory_allocations.franchise_id', Auth::user()->franchisee_id)
-    ->select(
+    ->join('inventory_master', 'inventory_allocations.inventory_id', '=', 'inventory_master.inventory_id')
+    ->join('fgp_items',       'inventory_master.fgp_item_id',      '=', 'fgp_items.fgp_item_id')
+    ->where('inventory_master.franchisee_id', Auth::user()->franchisee_id)
+    ->select([
         'inventory_allocations.*',
         'fgp_items.name',
         'fgp_items.image1',
-        'fgp_items.case_cost'
-    )
+        'fgp_items.case_cost',
+    ])
     ->get();
 
 
@@ -136,15 +137,23 @@ $data['allocations'] = \DB::table('inventory_allocations')
 
         $customers = Customer::where('franchisee_id', Auth::user()->franchisee_id)->get();
 
-        $allocations = InventoryAllocation::with('flavor')
-            ->join('fgp_items', 'fgp_items.fgp_item_id', '=', 'inventory_allocations.fgp_item_id')
-            ->select(
-                'inventory_allocations.*',
-                'fgp_items.name',
-                'fgp_items.image1',
-                'fgp_items.case_cost'
-            )
-            ->get();
+        $allocations = InventoryAllocation::with(['inventoryMaster.flavor'])
+            ->whereHas('inventoryMaster', function ($q) {
+                $q->where('franchisee_id', Auth::user()->franchisee_id);
+            })
+            ->get()
+            ->map(function ($alloc) {
+                return [
+                    'id'           => $alloc->id,
+                    'inventory_id' => $alloc->inventory_id,
+                    'location_id'  => $alloc->location_id,
+                    'allocated_quantity' => $alloc->allocated_quantity,
+                    // Pull in the fields from fgp_items through inventoryMaster → flavor:
+                    'name'         => optional($alloc->inventoryMaster->flavor)->name,
+                    'image1'       => optional($alloc->inventoryMaster->flavor)->image1,
+                    'case_cost'    => optional($alloc->inventoryMaster->flavor)->case_cost,
+                ];
+            });
 
         $franchisee = $taxRate;
 

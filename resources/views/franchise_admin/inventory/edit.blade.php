@@ -39,11 +39,11 @@
                 <div class="mb-3">
                     <label class="form-label">Stock On Hand <span class="text-danger">*</span></label>
                     <input type="number"
-                           name="stock_on_hand"
-                           class="form-control @error('stock_on_hand') is-invalid @enderror"
-                           value="{{ old('stock_on_hand', $inventory->stock_on_hand) }}"
+                           name="total_quantity"
+                           class="form-control @error('total_quantity') is-invalid @enderror"
+                           value="{{ old('total_quantity', $inventory->total_quantity) }}"
                            placeholder="Enter quantity">
-                    @error('stock_on_hand') <div class="text-danger">{{ $message }}</div> @enderror
+                    @error('total_quantity') <div class="text-danger">{{ $message }}</div> @enderror
                 </div>
 
                 <!-- Stock Count Date -->

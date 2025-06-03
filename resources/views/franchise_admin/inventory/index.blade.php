@@ -38,7 +38,7 @@
                     <td>{{ $inv->inventory_id }}</td>
                     <td>{{ $inv->item->name ?? '—' }}</td>
                     <td>{{ $inv->location->name ?? '—' }}</td>
-                    <td>{{ $inv->stock_on_hand }}</td>
+                    <td>{{ $inv->total_quantity }}</td>
                     <td>{{ \Carbon\Carbon::parse($inv->stock_count_date)->format('M d, Y') }}</td>
                     <td>{{ $inv->pops_on_hand }}</td>
                     <td>{{ number_format($inv->whole_sale_price_case, 2) }}</td>

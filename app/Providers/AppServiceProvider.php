@@ -9,6 +9,9 @@ use App\Policies\InventoryPolicy;
 class AppServiceProvider extends ServiceProvider
 {
 
+    protected $policies = [
+    InventoryMaster::class => InventoryPolicy::class,
+    ];
 
     /**
      * Register any application services.
@@ -23,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-    
+
 
     }
 }
