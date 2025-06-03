@@ -95,9 +95,10 @@
                         <span class="nav-text">Inventory</span>
                     </a>
                     <ul aria-expanded="false">
-                        <li><a href="{{ route('franchise.locations.index') }}">Location</a></li>
+
                         <li><a href="{{ route('franchise.inventory.index') }}">Inventory List</a></li>
-                        <li><a href="{{ route('franchise.inventory.locations') }}">Edit Inventory Locations</a></li>
+                        <li><a href="{{ route('franchise.inventory.locations') }}">Allocate Inventory</a></li>
+                        <li><a href="{{ route('franchise.locations.index') }}">Allocation Locations</a></li>
                     </ul>
                 </li>
                 <li><a class="has-arrow ai-icon" href="javascript:void()" aria-expanded="false">

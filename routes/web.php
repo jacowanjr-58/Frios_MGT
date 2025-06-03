@@ -189,8 +189,10 @@ Route::middleware(['auth', 'role:franchise_admin|franchise_manager' , StripeMidd
     Route::post('/orderpops/{order}/mark-delivered', [OrderPopsController::class, 'markDelivered'])
     ->name('orderpops.markDelivered');
 
-    Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
-    Route::get('/inventory/detail', [InventoryController::class, 'inventoryDetail'])->name('inventory.detail');
+
+    Route::resource('inventory', \App\Http\Controllers\Franchise\InventoryController::class);
+    //Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+    //Route::get('/inventory/detail', [InventoryController::class, 'inventoryDetail'])->name('inventory.detail');
     Route::get('/inventory-locations', [InventoryController::class, 'inventoryLocations'])->name('inventory.locations');
     Route::post('/allocate-inventory', [InventoryController::class, 'allocateInventory'])->name('allocate-inventory');
     Route::post('/update-quantity', [InventoryController::class, 'updateQuantity'])->name('updateQuantity');
