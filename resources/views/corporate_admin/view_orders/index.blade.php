@@ -48,7 +48,7 @@
                                         $customer = App\Models\Customer::where('customer_id' , $order->customer_id)->first();
                                 @endphp
                                     <tr style="text-wrap: nowrap;">
-                                        <td>{{ $customer->name ?? $franchisee->business_name }}</td>
+                                        <td>{{ $customer?->name ?? $franchisee?->business_name }}</td>
                                         <td>
                                             <span class="cursor-pointer text-primary order-detail-trigger" data-id="{{ $order->fgp_ordersID }}">
                                                 {{ \DB::table('fgp_order_details')->where('fgp_order_id', $order->fgp_ordersID)->count() }} items
