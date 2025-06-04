@@ -18,13 +18,13 @@ class InventoryController extends Controller
     {
         $franchiseId = Auth::user()->franchisee_id;
 
-        $inventoryMasters = InventoryMaster::with('flavor')
+        $inventories = InventoryMaster::with('flavor')
             ->where('franchisee_id', $franchiseId)
             ->orderBy('custom_item_name')
             ->orderBy('fgp_item_id')
             ->paginate(20);
 
-        return view('franchise_admin.inventory.index', compact('inventoryMasters'));
+        return view('franchise_admin.inventory.index', compact('inventories'));
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Franchise;
 
 use App\Http\Controllers\Controller;
+use App\Models\FgpItem;
 use App\Models\InventoryMaster;
 use App\Models\InventoryAllocation;
 use App\Models\Location;
@@ -15,41 +16,51 @@ class InventoryAllocationController extends Controller
     {
         $franchiseId = Auth::user()->franchisee_id;
 
-        $initialPopFlavors = FgpItem::whereHas('deliveries', function ($q) use ($franchiseId) {
-            $q->where('franchise_id', $franchiseId);
-        })->select('fgp_item_id', 'name')->get();
-
-        $inventoryMastersForPop = InventoryMaster::where('franchisee_id', $franchiseId)
+         // 1) Grab all "delivered" Pop flavors from inventory_master:
+        //    i.e. any master row with fgp_item_id != null AND positive on-hand.
+        $initialPopFlavors = InventoryMaster::with('flavor')
+            ->where('franchisee_id', $franchiseId)
             ->whereNotNull('fgp_item_id')
-            ->select('inventory_id', 'fgp_item_id', 'custom_item_name')
-            ->get();
+            ->where('total_quantity', '>', 0)
+            ->get(['inventory_id', 'fgp_item_id', 'custom_item_name']);
+            // note: 'custom_item_name' will be null for real Pops
 
+        // 2) Grab all "custom" inventory‐master lines (fgp_item_id IS NULL):
         $customItems = InventoryMaster::where('franchisee_id', $franchiseId)
             ->whereNull('fgp_item_id')
-            ->select('inventory_id', 'custom_item_name')
-            ->get();
+            ->get(['inventory_id', 'custom_item_name']);
 
-        $existingAllocations = InventoryAllocation::with(['inventoryMaster', 'location'])
+        // 3) Load existing allocations for this franchisee:
+        $existingAllocations = InventoryAllocation::with(['inventoryMaster.flavor', 'location'])
             ->whereHas('inventoryMaster', function ($q) use ($franchiseId) {
                 $q->where('franchisee_id', $franchiseId);
-            })->get()->map(function ($alloc) {
+            })
+            ->get()
+            ->map(function ($alloc) {
                 return [
                     'inventory_id'     => $alloc->inventory_id,
                     'fgp_item_id'      => $alloc->inventoryMaster->fgp_item_id,
                     'custom_item_name' => $alloc->inventoryMaster->custom_item_name,
                     'location'         => $alloc->location->name,
-                    'cases'            => $alloc->allocated_quantity
+                    'cases'            => $alloc->allocated_quantity,
                 ];
             });
 
+        // 4) Grab all locations for this franchisee:
+        $locations = Location::where('franchisee_id', $franchiseId)
+                    ->orderBy('name')
+                    ->get();
+
         return view('franchise_admin.inventory.locations', [
             'initialPopFlavors'      => $initialPopFlavors,
-            'inventoryMastersForPop' => $inventoryMastersForPop,
             'customItems'            => $customItems,
             'existingAllocations'    => $existingAllocations,
-            'locations'              => Auth::user()->franchisee->locations
+            'locations'              => $locations,
         ]);
     }
+
+
+
 
     public function allocateInventory(Request $request)
     {

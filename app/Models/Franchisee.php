@@ -35,4 +35,9 @@ class Franchisee extends Model
         return $this->hasMany(User::class, 'franchisee_id');
     }
 
+    public function inventoryMasters()
+    {
+        return $this->hasMany(InventoryMaster::class, 'franchisee_id', 'franchisee_id');
+    }
+
 }

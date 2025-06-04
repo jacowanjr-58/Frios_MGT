@@ -17,4 +17,9 @@ class Location extends Model
         'name',
         'franchisee_id',
     ];
+
+    public function inventoryMasters()
+    {
+        return $this->hasMany(InventoryMaster::class, 'franchisee_id', 'franchisee_id');
+    }
 }
