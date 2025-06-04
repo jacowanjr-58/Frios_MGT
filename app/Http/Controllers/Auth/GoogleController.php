@@ -12,6 +12,7 @@ class GoogleController extends Controller
     // Redirect to Google login
     public function redirectToGoogle()
     {
+       
         return Socialite::driver('google')->redirect();
     }
 
