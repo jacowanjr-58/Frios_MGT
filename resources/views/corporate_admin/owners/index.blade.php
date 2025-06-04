@@ -70,8 +70,8 @@
                                             <td>#{{ str_pad($user->user_id, 7, '0', STR_PAD_LEFT) }}</td>
                                             <td>{{ $user->name }}</td>
                                             <td>
-                                                @if ($user->franchisee)
-                                                    {{ $user->franchisee->business_name }}
+                                                @if ($user->franchisees->isNotEmpty())
+                                                    {{ $user->franchisees->pluck('business_name')->join(', ') }}
                                                 @else
                                                     No Franchise Assigned
                                                 @endif
