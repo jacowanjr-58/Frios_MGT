@@ -339,7 +339,7 @@ public function viewOrders()
             'user',
             'customer'
         ])
-            ->where('franchisee_ID', Auth::user()->franchisee_id)
+            ->where('franchisee_id', Auth::user()->franchisee_id)
             ->orderByDesc('date_transaction')
             ->get()
             ->map(

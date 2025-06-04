@@ -29,8 +29,8 @@ use App\Http\Controllers\Franchise\PaymentController;
 use App\Http\Controllers\Franchise\LocationController;
 use App\Http\Controllers\Franchise\InvoiceController;
 use App\Http\Controllers\Franchise\AccountController;
-
 use App\Http\Middleware\StripeMiddleware;
+use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -284,3 +284,59 @@ Route::get('/payment/success/{invoice}', [PaymentController::class, 'success'])-
 Route::get('/payment/cancel/{invoice}', [PaymentController::class, 'cancel'])->name('payment.cancel');
 
 require __DIR__.'/auth.php';
+
+
+Route::get('/test-reset-migrations', function () {
+    // Truncate the migrations table
+    DB::table('migrations')->truncate();
+
+    // Insert the predefined rows
+    DB::table('migrations')->insert([
+        ['id' => 1, 'migration' => '0001_01_01_000000_create_users_table', 'batch' => 1],
+        ['id' => 2, 'migration' => '0001_01_01_000001_create_cache_table', 'batch' => 1],
+        ['id' => 3, 'migration' => '0001_01_01_000002_create_jobs_table', 'batch' => 1],
+        ['id' => 4, 'migration' => '2025_03_16_125620_create_permission_tables', 'batch' => 1],
+        ['id' => 5, 'migration' => '2025_03_16_202809_create_franchisees_table', 'batch' => 1],
+        ['id' => 6, 'migration' => '2025_03_16_202821_create_fgp_items_table', 'batch' => 1],
+        ['id' => 7, 'migration' => '2025_03_16_202829_create_fgp_categories_table', 'batch' => 1],
+        ['id' => 8, 'migration' => '2025_03_16_202835_create_fgp_orders_table', 'batch' => 1],
+        ['id' => 9, 'migration' => '2025_03_16_202841_create_inventories_table', 'batch' => 1],
+        ['id' => 10, 'migration' => '2025_03_16_202848_create_locations_table', 'batch' => 1],
+        ['id' => 11, 'migration' => '2025_03_16_202902_create_order_invoices_table', 'batch' => 1],
+        ['id' => 12, 'migration' => '2025_03_16_202908_create_order_items_table', 'batch' => 1],
+        ['id' => 13, 'migration' => '2025_03_16_202913_create_payments_table', 'batch' => 1],
+        ['id' => 14, 'migration' => '2025_03_16_202917_create_events_table', 'batch' => 1],
+        ['id' => 15, 'migration' => '2025_03_16_202924_create_customers_table', 'batch' => 1],
+        ['id' => 16, 'migration' => '2025_03_16_202931_create_sales_table', 'batch' => 1],
+        ['id' => 17, 'migration' => '2025_03_16_202936_create_expenses_table', 'batch' => 1],
+        ['id' => 18, 'migration' => '2025_03_16_202942_create_expense_categories_table', 'batch' => 1],
+        ['id' => 19, 'migration' => '2025_03_24_020235_create_fgp_category_fgp_item_table', 'batch' => 1],
+        ['id' => 20, 'migration' => '2025_03_27_221051_create_additionalcharges_table', 'batch' => 1],
+        ['id' => 21, 'migration' => '2025_04_17_171838_create_inventory_allocations_table', 'batch' => 1],
+        ['id' => 22, 'migration' => '2025_04_23_163520_create_franchise_events_table', 'batch' => 1],
+        ['id' => 23, 'migration' => '2025_04_23_163525_create_franchise_event_items_table', 'batch' => 1],
+        ['id' => 24, 'migration' => '2025_04_29_171010_create_fgp_order_details_table', 'batch' => 1],
+        ['id' => 25, 'migration' => '2025_05_03_160308_create_expense_sub_categories_table', 'batch' => 1],
+        ['id' => 26, 'migration' => '2025_05_10_030920_create_expense_transactions_table', 'batch' => 1],
+        ['id' => 27, 'migration' => '2025_05_10_043326_create_order_transactions_table', 'batch' => 1],
+        ['id' => 28, 'migration' => '2025_05_10_051550_create_event_transactions_table', 'batch' => 1],
+        ['id' => 29, 'migration' => '2025_05_11_102611_create_invoices_table', 'batch' => 1],
+        ['id' => 30, 'migration' => '2025_05_11_102618_create_invoice_items_table', 'batch' => 1],
+        ['id' => 31, 'migration' => '2025_05_15_002647_create_accounts_table', 'batch' => 1],
+        ['id' => 32, 'migration' => '2025_05_19_184945_create_stripes_table', 'batch' => 1],
+        ['id' => 33, 'migration' => '2025_05_19_193751_create_invoice_transactions_table', 'batch' => 1],
+        ['id' => 34, 'migration' => '2025_05_23_000001_add_direction_to_invoices_table', 'batch' => 1],
+        ['id' => 35, 'migration' => '2025_05_23_204650_add_shipping_columns_to_fgp_orders_table', 'batch' => 1],
+        ['id' => 36, 'migration' => '2025_05_24_035357_add_order_num_to_invoices_table', 'batch' => 1],
+        ['id' => 37, 'migration' => '2025_05_24_040046_add_order_num_to_order_transactions_table', 'batch' => 1],
+        ['id' => 38, 'migration' => '2025_05_24_042247_add_fields_to_invoices_table', 'batch' => 1],
+        ['id' => 39, 'migration' => '2025_06_02_205632_add_franchise__i_d__f_g_p__orders', 'batch' => 1],
+        ['id' => 40, 'migration' => '2025_06_03_003738_fgp_itemnullable_add_custom_item', 'batch' => 1],
+        ['id' => 41, 'migration' => '2025_06_04_000000_add_franchisee_id_foreign_to_users_table', 'batch' => 1],
+        ['id' => 42, 'migration' => '2025_06_02_000000_create_inventory_master_table', 'batch' => 2],
+        ['id' => 43, 'migration' => '2025_06_02_000100_create_inventory_transactions_table', 'batch' => 3],
+        ['id' => 44, 'migration' => '2025_06_02_000300_create_inventory_removal_queue_table', 'batch' => 4],
+    ]);
+
+    return 'Migrations table reset successfully.';
+});
