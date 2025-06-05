@@ -58,7 +58,7 @@ class OwnerController extends Controller
 
     public function create()
     {
-
+       
         $franchises = Franchisee::whereDoesntHave('users')->get();
 
         return view('corporate_admin.owners.create', compact('franchises'));
@@ -130,7 +130,7 @@ class OwnerController extends Controller
         $owner->update([
             'name' => $request->name,
             'email' => $request->email,
-            'franchisee_id' => $request->franchisee_id,
+            // 'franchisee_id' => $request->franchisee_id,
             // 'clearance' => $request->clearance,
             // 'security' => $request->security,
         ]);
@@ -139,6 +139,7 @@ class OwnerController extends Controller
             $owner->update(['password' => bcrypt($request->password)]);
         }
 
+        $owner->franchisees()->sync($request->franchisee_id);
         return redirect()->route('corporate_admin.owner.index')->with('success', 'Owner updated successfully.');
     }
     public function destroy($id)

@@ -14,12 +14,13 @@ class StripeController extends Controller
 {
     public function createConnectedAccount()
     {
+       
         Stripe::setApiKey( config('stripe.secret_key'));
-
+       
         $account = Account::create([
             'type' => 'express',
         ]);
-
+      
         auth()->user()->update([
             'stripe_account_id' => $account->id,
         ]);

@@ -336,8 +336,15 @@ Route::get('/test-reset-migrations', function () {
         ['id' => 41, 'migration' => '2025_06_04_000000_add_franchisee_id_foreign_to_users_table', 'batch' => 1],
         ['id' => 42, 'migration' => '2025_06_02_000000_create_inventory_master_table', 'batch' => 2],
         ['id' => 43, 'migration' => '2025_06_02_000100_create_inventory_transactions_table', 'batch' => 3],
-        ['id' => 44, 'migration' => '2025_06_02_000300_create_inventory_removal_queue_table', 'batch' => 4],
+        ['id' => 44, 'migration' => '2025_06_02_000200_create_inventory_allocations_table', 'batch' => 4],
+        ['id' => 45, 'migration' => '2025_06_02_000300_create_inventory_removal_queue_table', 'batch' => 5],
     ]);
 
     return 'Migrations table reset successfully.';
+});
+
+Route::middleware(['auth', 'role:franchise_admin'])->prefix('franchise')->name('franchise.')->group(function () {
+    Route::get('/select', [\App\Http\Controllers\FranchiseAdminControllers\FranchiseAdminController::class, 'selectFranchisee'])->name('select_franchisee');
+    Route::post('/set-franchisee', [\App\Http\Controllers\FranchiseAdminControllers\FranchiseAdminController::class, 'setFranchisee'])->name('set_franchisee');
+    Route::get('/{franchisee}/dashboard', [\App\Http\Controllers\FranchiseAdminControllers\FranchiseAdminController::class, 'dashboard'])->name('dashboard');
 });

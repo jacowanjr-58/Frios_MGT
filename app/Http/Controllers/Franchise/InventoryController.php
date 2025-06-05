@@ -19,7 +19,13 @@ class InventoryController extends Controller
      */
     public function index(Request $request)
     {
-        $franchiseId = Auth::user()->franchisee_id;
+
+        // $franchiseId = Auth::user()->franchisee_id;
+        $user = Auth::user();
+
+        // Get all franchisee_ids associated with the user
+        $franchiseeIds = $user->franchisees()->pluck('franchisee_id');
+
 
         $inventories = InventoryMaster::with('flavor')        // eager-load the FgpItem
             ->where('franchisee_id', $franchiseId)             // only this franchisee

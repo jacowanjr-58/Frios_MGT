@@ -85,7 +85,7 @@
 
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Assign Franchise <span class="text-danger">*</span></label>
-                                                        <select class="form-control @error('franchisee_id') is-invalid @enderror" name="franchisee_id">
+                                                        <select class="form-control multiple-select  @error('franchisee_id') is-invalid @enderror" name="franchisee_id[]" multiple>
                                                             <option value="">Select Franchise</option>
                                                             @foreach ($franchises as $franchise)
                                                                 <option value="{{ $franchise->franchisee_id }}">{{ $franchise->business_name }}</option>
