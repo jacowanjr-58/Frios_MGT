@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('expenses')) {
         Schema::create('expenses', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('franchisee_id');
@@ -24,6 +25,7 @@ return new class extends Migration
             // Foreign Keys
             $table->foreign('franchisee_id')->references('user_id')->on('users')->onDelete('cascade');
         });
+        }
 
     }
 

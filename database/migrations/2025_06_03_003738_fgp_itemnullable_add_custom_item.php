@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('inventory_allocations') && ! Schema::hasColumn('inventory_allocations', 'fgp_item_id')) {
         Schema::table('inventory_allocations', function (Blueprint $table) {
             // 1) Make fgp_item_id nullable
             $table->unsignedBigInteger('fgp_item_id')
@@ -22,6 +23,7 @@ return new class extends Migration
                   ->nullable()
                   ->after('fgp_item_id');
         });
+        }
     }
 
     /**
@@ -29,6 +31,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+         if (Schema::hasTable('inventory_allocations') && ! Schema::hasColumn('inventory_allocations', 'fgp_item_id')) {
          Schema::table('inventory_allocations', function (Blueprint $table) {
             // Remove custom_item_name
             $table->dropColumn('custom_item_name');
@@ -38,5 +41,6 @@ return new class extends Migration
                   ->nullable(false)
                   ->change();
         });
+         }
     }
 };

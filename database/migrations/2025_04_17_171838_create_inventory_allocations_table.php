@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('inventory_allocations')) {
         Schema::create('inventory_allocations', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('fgp_item_id');
@@ -21,6 +22,7 @@ return new class extends Migration
             $table->foreign('franchise_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
+        }
     }
 
     /**

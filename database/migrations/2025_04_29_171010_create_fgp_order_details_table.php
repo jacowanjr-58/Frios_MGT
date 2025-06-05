@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('fgp_order_details')) {
         Schema::create('fgp_order_details', function (Blueprint $table) {
             $table->id();
             $table->integer('fgp_order_id');
@@ -21,6 +22,7 @@ return new class extends Migration
             $table->json('ACH_data')->nullable();
             $table->timestamps();
         });
+        }
     }
 
     /**

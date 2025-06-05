@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+          if (Schema::hasTable('fgp_orders') && ! Schema::hasColumn('fgp_orders', 'franchisee_id')) {
           Schema::table('fgp_orders', function (Blueprint $table) {
             $table->unsignedBigInteger('franchisee_id')->nullable()->after('user_ID');
             $table->foreign('franchisee_id')
@@ -18,6 +19,7 @@ return new class extends Migration
                 ->on('franchisees')
                 ->onDelete('cascade');
     });
+          }
     }
 
     /**
@@ -25,9 +27,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (Schema::hasTable('fgp_orders')) {
         Schema::table('fgp_orders', function (Blueprint $table) {
         $table->dropForeign(['franchisee_id']);
         $table->dropColumn('franchisee_id');
     });
+        }
     }
 };

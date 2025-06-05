@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('event_transactions')) {
         Schema::create('event_transactions', function (Blueprint $table) {
             $table->id();
             $table->string('franchisee_id');
@@ -24,6 +25,7 @@ return new class extends Migration
             $table->string('stripe_status')->nullable();
             $table->timestamps();
         });
+        }
     }
 
     /**

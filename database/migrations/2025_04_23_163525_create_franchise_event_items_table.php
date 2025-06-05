@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('franchise_event_items')) {
         Schema::create('franchise_event_items', function (Blueprint $table) {
             $table->id();
             $table->integer('event_id');
@@ -19,6 +20,7 @@ return new class extends Migration
             $table->integer('quantity');
             $table->timestamps();
         });
+        }
     }
 
     /**

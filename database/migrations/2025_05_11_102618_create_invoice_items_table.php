@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('invoice_items')) {
         Schema::create('invoice_items', function (Blueprint $table) {
             $table->id();
             $table->integer('invoice_id');
@@ -22,6 +23,7 @@ return new class extends Migration
             $table->boolean('taxable');
             $table->timestamps();
         });
+        }
     }
 
     /**

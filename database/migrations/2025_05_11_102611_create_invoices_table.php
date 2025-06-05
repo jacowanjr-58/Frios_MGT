@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('invoices')) {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->string('franchisee_id');
@@ -21,6 +22,7 @@ return new class extends Migration
             $table->decimal('tax_price', 10, 2);
             $table->timestamps();
         });
+        }
     }
 
     /**

@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('franchise_events')) {
         Schema::create('franchise_events', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('franchise_id')->nullable();
@@ -19,6 +20,7 @@ return new class extends Migration
             $table->date('end_date')->nullable();
             $table->timestamps();
         });
+        }
     }
 
     /**

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up()
     {
+        if (! Schema::hasTable('additionalcharges')) {
         Schema::create('additionalcharges', function (Blueprint $table) {
             $table->id('additionalcharges_id');
             $table->string('charge_name');
@@ -16,6 +17,7 @@ return new class extends Migration {
             $table->boolean('status')->default(true);
             $table->timestamps();
         });
+        }
     }
 
     public function down()

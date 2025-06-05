@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('inventory')) {
         Schema::create('inventory', function (Blueprint $table) {
             $table->id('inventory_id');
             $table->unsignedBigInteger('franchisee_id');
@@ -28,6 +29,7 @@ return new class extends Migration
             $table->foreign('fgp_item_id')->references('fgp_item_id')->on('fgp_items')->onDelete('cascade');
             $table->foreign('locations_ID')->references('locations_ID')->on('locations')->onDelete('set null');
         });
+        }
 
 
     }

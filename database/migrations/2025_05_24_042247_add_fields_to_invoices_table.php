@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('invoices') && ! Schema::hasColumn('invoices', 'payment_status')) {
         Schema::table('invoices', function (Blueprint $table) {
             $table->date('due_date')->nullable()->after('updated_at');
             $table->enum('payment_status', ['unpaid', 'partial', 'paid'])->default('unpaid')->after('due_date');
             $table->text('notes_internal')->nullable()->after('payment_status');
         });
+        }
     }
 
     /**
@@ -23,8 +25,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (Schema::hasTable('invoices')) {
         Schema::table('invoices', function (Blueprint $table) {
              $table->dropColumn(['due_date', 'payment_status', 'notes_internal']);
         });
+        }
     }
 };

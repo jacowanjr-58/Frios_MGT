@@ -11,12 +11,14 @@ return new class extends Migration
      */
         public function up(): void
     {
+        if (! Schema::hasTable('fgp_categories')) {
         Schema::create('fgp_categories', function (Blueprint $table) {
             $table->id('category_ID');
             $table->string('name');
             $table->json('type'); // Change from string to json for multiple values
             $table->timestamps();
         });
+        }
     }
 
 

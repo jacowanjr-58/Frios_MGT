@@ -4,10 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateInventoryTransactionsTable extends Migration
+return new class extends Migration
 {
-    public function up()
+    public function up():void
     {
+        if (! Schema::hasTable('inventory_transactions')) {
         Schema::create('inventory_transactions', function (Blueprint $table) {
             $table->id('transaction_id');
             $table->unsignedBigInteger('inventory_id');
@@ -27,10 +28,11 @@ class CreateInventoryTransactionsTable extends Migration
           ->on('users')
           ->cascadeOnDelete();
         });
+        }
     }
 
-    public function down()
+    public function down():void
     {
         Schema::dropIfExists('inventory_transactions');
     }
-}
+};

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
+        if (Schema::hasTable('fgp_orders') && ! Schema::hasColumn('fgp_orders', 'ship_to_name')) {
         Schema::table('fgp_orders', function (Blueprint $table) {
             $table->string('ship_to_name')->nullable();
             $table->string('ship_to_address1')->nullable();
@@ -35,10 +36,12 @@ return new class extends Migration {
             $table->timestamp('label_created_at')->nullable();
             $table->string('shipstation_webhook_event')->nullable();
         });
+        }
     }
 
     public function down(): void
     {
+        if (Schema::hasTable('fgp_orders')) {
         Schema::table('fgp_orders', function (Blueprint $table) {
             $table->dropColumn([
                 'ship_to_name',
@@ -62,5 +65,6 @@ return new class extends Migration {
                 'shipstation_webhook_event'
             ]);
         });
+        }
     }
 };

@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('expense_sub_categories')) {
         Schema::create('expense_sub_categories', function (Blueprint $table) {
             $table->id();
             $table->integer('category_id');
@@ -19,6 +20,7 @@ return new class extends Migration
             $table->string('franchisee_id')->nullable();
             $table->timestamps();
         });
+        }
     }
 
     /**

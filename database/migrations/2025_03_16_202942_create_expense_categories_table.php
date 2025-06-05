@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('expense_categories')) {
         Schema::create('expense_categories', function (Blueprint $table) {
             $table->id();
             $table->string('category');
             $table->string('franchisee_id')->nullable();
             $table->timestamps();
         });
+        }
 
     }
 

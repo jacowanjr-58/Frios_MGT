@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('fgp_orders')) {
         Schema::create('fgp_orders', function (Blueprint $table) {
             $table->id('fgp_ordersID');
             $table->integer('user_ID');
@@ -20,6 +21,7 @@ return new class extends Migration
             $table->enum('status', ['Pending', 'Paid','Shipped','Delivered']);
             $table->timestamps();
         });
+        }
 
     }
 

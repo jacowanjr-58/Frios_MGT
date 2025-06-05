@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('fgp_items')) {
         Schema::create('fgp_items', function (Blueprint $table) {
             $table->id('fgp_item_id');
             $table->unsignedBigInteger('category_ID')->nullable();
@@ -28,6 +29,7 @@ return new class extends Migration
             // Ensure category_ID exists in fgp_categories
             $table->foreign('category_ID')->references('category_ID')->on('fgp_categories')->onDelete('cascade');
         });
+        }
     }
 
     /**

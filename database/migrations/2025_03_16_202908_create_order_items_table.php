@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('order_items')) {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id('order_items_ID');
             $table->unsignedBigInteger('invoice_ID');
@@ -22,6 +23,7 @@ return new class extends Migration
             // Foreign Key
             $table->foreign('invoice_ID')->references('invoice_ID')->on('orders_invoice')->onDelete('cascade');
         });
+        }
         
     }
 

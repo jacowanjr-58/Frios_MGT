@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('users') && ! Schema::hasColumn('users','franchisee_id')) {
         Schema::table('users', function (Blueprint $table) {
             $table->foreign('franchisee_id')
                 ->references('franchisee_id')
                 ->on('franchisees')
                 ->onDelete('cascade');
-                
+
         });
+        }
     }
 
     /**
@@ -25,8 +27,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (Schema::hasTable('users')) {
         Schema::table('users', function (Blueprint $table) {
             $table->dropForeign(['franchisee_id']);
         });
+        }
     }
-}; 
+};

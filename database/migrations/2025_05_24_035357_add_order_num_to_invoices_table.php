@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('invoices') && ! Schema::hasColumn('invoices', 'order_num')) {
         Schema::table('invoices', function (Blueprint $table) {
              $table->string('order_num')->after('franchisee_id')->nullable()->unique();
         });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (Schema::hasTable('invoices')) {
         Schema::table('invoices', function (Blueprint $table) {
               $table->dropColumn('order_num');
         });
+        }
     }
 };

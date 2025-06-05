@@ -4,10 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateInventoryRemovalQueueTable extends Migration
+return new class extends Migration
 {
-    public function up()
+    public function up():void
     {
+        if (! Schema::hasTable('inventory_removal_queue')) {
         Schema::create('inventory_removal_queue', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('inventory_id');
@@ -22,10 +23,11 @@ class CreateInventoryRemovalQueueTable extends Migration
             $table->foreign('location_id')->references('locations_ID')->on('locations')->onDelete('cascade');
             $table->foreign('requested_by')->references('user_id')->on('users')->onDelete('cascade');
         });
+        }
     }
 
-    public function down()
+    public function down():void
     {
         Schema::dropIfExists('inventory_removal_queue');
     }
-}
+};
