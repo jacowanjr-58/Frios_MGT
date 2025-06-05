@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class FgpOrder extends Model
 {
@@ -46,6 +47,17 @@ class FgpOrder extends Model
         return $this->hasMany(FgpOrderDetail::class, 'fgp_order_id', 'fgp_ordersID');
     }
 
+     public function orderDiscrepancies()
+    {
+        // If your OrderDiscrepancy table’s FK is “order_id”
+        // and your local PK is “fgp_ordersID”, do:
+        return $this->hasMany(
+            OrderDiscrepancy::class,
+            'order_id',        // FK column on order_discrepancies
+            'fgp_ordersID'     // PK column on fgp_orders
+        );
+    }
+
     // 🔗 Optional: link to customer (if used)
     public function customer()
     {
@@ -57,6 +69,24 @@ class FgpOrder extends Model
         return $this->items->map(function ($item) {
             return "({$item->unit_number}) {$item->flavor->name}";
         })->implode('; ');
+    }
+
+ /**
+     * NEW: Summarize what *actually arrived*, by grouping `quantity_received` per flavor.
+     */
+    public function arrivedFlavorSummary(): string
+    {
+        // If no detail has a positive `quantity_received`, show a dash
+        if ($this->orderDetails->sum('quantity_received') === 0) {
+            return '—';
+        }
+
+        return $this->orderDetails
+            ->groupBy(fn($detail) => $detail->flavor->name)
+            ->map(fn($grouped, $flavorName) =>
+                $grouped->sum('quantity_received') . " {$flavorName}"
+            )
+            ->implode(', ');
     }
 
 

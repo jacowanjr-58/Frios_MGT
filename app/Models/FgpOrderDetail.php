@@ -29,4 +29,13 @@ class FgpOrderDetail extends Model
         return $this->belongsTo(FgpItem::class, 'fgp_item_id', 'fgp_item_id');
     }
 
+      public function discrepancy()
+    {
+        return $this->hasOne(
+            OrderDiscrepancy::class,
+            'order_detail_id',  // FK on order_discrepancies
+            'id'                // PK of this detail
+        );
+    }
+
 }

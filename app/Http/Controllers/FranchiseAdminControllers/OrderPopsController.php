@@ -334,22 +334,20 @@ return redirect()->route('franchise.orderpops.view')
 
 public function viewOrders()
 {
-      $orders = FgpOrder::with([
-            'items.flavor',
+     $orders = FgpOrder::with([
+            'orderDetails.flavor',  // so `flavorSummary()` and `arrivedFlavorSummary()` don’t N+1
             'user',
-            'customer'
+            'customer',
         ])
-            ->where('franchisee_id', Auth::user()->franchisee_id)
-            ->orderByDesc('date_transaction')
-            ->get()
-            ->map(
-                function ($order) {
-                    $order->total_amount = $order->items->sum(function ($item) {
-                        return $item->unit_number * $item->unit_cost;
-                    });
-                    return $order;
-                }
-            );
+        ->where('franchisee_id', Auth::user()->franchisee_id)
+        ->orderByDesc('date_transaction')
+        ->get()
+        ->map(function ($order) {
+            // Recompute total_amount (you may want to sum unit_number * unit_cost from details)
+            $order->total_amount = $order->orderDetails->sum(fn($d) => $d->unit_number * $d->unit_cost);
+            return $order;
+        });
+
 
 
     $totalOrders = $orders->count();
@@ -368,20 +366,7 @@ public function customer($franchisee_id)
 }
 
 
-public function markDelivered(FgpOrder $order)
-    {
-        if ($order->is_delivered) {
-            return redirect()->back()->with('error', 'This order has already been marked as delivered.');
-        }
 
-        $order->update([
-            'status' => 'Delivered',
-            'is_delivered' => true,
-            'delivered_at' => now(),
-        ]);
-
-        return redirect()->back()->with('success', 'Order marked as delivered.');
-    }
     public function success(Request $request){
         $sessionId = $request->get('session_id');
 

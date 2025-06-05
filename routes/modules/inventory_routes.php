@@ -122,4 +122,22 @@ Route::middleware(['auth', 'role:franchise_admin'])
     Route::delete('remove/{id}/cancel', [InventoryRemovalController::class, 'cancel'])
          ->name('remove.cancel');
 
+
+     /**
+     * ----------------------------------------------------------------------
+     * 6) Removal Queue (InventoryAllocationlController)
+     * ----------------------------------------------------------------------
+     *   GET    /franchise/inventory/comfirm-delivery      → showConfirmDelivery
+     *
+     */
+
+        // Show the “Confirm Delivery” form
+        Route::get('{order}/confirm_delivery', [InventoryAllocationController::class, 'showConfirmDelivery'])
+             ->name('confirm_delivery');
+
+        // Handle the form submission
+        Route::post('{order}/confirm_delivery', [InventoryAllocationController::class, 'postConfirmDelivery'])
+             ->name('confirm_delivery.store');
+
+
 });

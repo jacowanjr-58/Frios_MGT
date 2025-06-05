@@ -71,9 +71,37 @@
                                         @endif
                                     </td>
                                     <td>${{ number_format($order->total_amount, 2) }}</td>
-                                    <td class="text-wrap">
-                                        {{ $order->flavorSummary() }}
+                                 
+                                        @php
+                                        // 1) Build totals per flavor for ordered vs. arrived
+                                        $orderedTotals = $order->orderDetails
+                                        ->groupBy(fn($d) => $d->flavor->name)
+                                        ->map(fn($items, $flavorName) => $items->sum('unit_number'));
+
+                                        $arrivedTotals = $order->orderDetails
+                                        ->groupBy(fn($d) => $d->flavor->name)
+                                        ->map(fn($items, $flavorName) => $items->sum('quantity_received'));
+
+                                        // 2) Check if any flavor’s arrivedQty differs from orderedQty
+                                        $hasDifference = $orderedTotals->some(fn($qty, $flavorName) =>
+                                        $qty !== ($arrivedTotals[$flavorName] ?? 0)
+                                        );
+                                        @endphp
+
+                                    <td class="px-4 py-2 border text-sm">
+                                        {{-- Always show “Ordered:” --}}
+                                        <div>
+                                            <strong>Ordered:</strong> {{ $order->flavorSummary() }}
+                                        </div>
+
+                                        {{-- Show “Arrived:” only if something actually changed --}}
+                                        @if($hasDifference)
+                                        <div class="mt-1 bg-slate-200">
+                                            <strong>Arrived:</strong> {{ $order->arrivedFlavorSummary() }}
+                                        </div>
+                                        @endif
                                     </td>
+
                                     <td>
                                         @if ($order->is_paid)
                                             <span class="badge bg-success">Paid</span>
@@ -83,13 +111,14 @@
                                     </td>
                                     <td>
                                         @if (!$order->is_delivered)
-                                            <form method="POST" action="{{ route('franchise.orderpops.markDelivered', $order->fgp_ordersID) }}"
-                                                onsubmit="return confirm('Confirming Delivery will close out the order. Are you sure?');">
+                                            <form method="GET" action="{{ route('franchise.inventory.confirm_delivery', ['order' => $order->fgp_ordersID]) }}"
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-outline-success">Confirm</button>
                                             </form>
-                                        @else
-                                            <span class="badge bg-secondary">Delivered</span>
+                                       @else
+                                        <span class="badge bg-secondary">Completed</span>
+
+
                                         @endif
                                     </td>
 
