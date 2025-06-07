@@ -29,7 +29,7 @@ class InventoryRemovalQueue extends Model
 
     public function location()
     {
-        return $this->belongsTo(Location::class, 'location_id', 'locations_ID');
+        return $this->belongsTo(InventoryLocation::class, 'location_id', 'locations_ID');
     }
 
     public function requestedBy()

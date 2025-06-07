@@ -11,7 +11,7 @@ use App\Models\InventoryTransaction;
 use App\Models\FgpOrder;
 use App\Models\FgpOrderDetail;
 use App\Models\OrderDiscrepancy;
-use App\Models\Location;
+use App\Models\InventoryLocation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -53,7 +53,7 @@ class InventoryAllocationController extends Controller
             });
 
         // 4) Grab all locations for this franchisee:
-        $locations = Location::where('franchisee_id', $franchiseId)
+        $locations = InventoryLocation::where('franchisee_id', $franchiseId)
                     ->orderBy('name')
                     ->get();
 
@@ -84,7 +84,7 @@ class InventoryAllocationController extends Controller
         InventoryAllocation::whereIn('inventory_id', $masterIds)->delete();
 
         foreach ($request->input('allocatedInventory') as $entry) {
-            $locModel = Location::where('name', $entry['location'])
+            $locModel = InventoryLocation::where('name', $entry['location'])
                 ->where('franchisee_id', $franchiseId)
                 ->first();
 

@@ -26,7 +26,7 @@ use App\Http\Controllers\Franchise\ExpenseController;
 use App\Http\Controllers\Franchise\CustomerController;
 use App\Http\Controllers\Franchise\InventoryController;
 use App\Http\Controllers\Franchise\PaymentController;
-use App\Http\Controllers\Franchise\LocationController;
+use App\Http\Controllers\Franchise\InventoryLocationController;
 use App\Http\Controllers\Franchise\InvoiceController;
 use App\Http\Controllers\Franchise\AccountController;
 use App\Http\Middleware\StripeMiddleware;
@@ -87,7 +87,7 @@ Route::middleware(['auth', 'role:franchise_admin|franchise_manager' , StripeMidd
     ->name('orderpops.markDelivered');
 
 
-    
+
     Route::get('/events', [EventController::class, 'index'])->name('events.index');
     Route::get('/events/calender', [EventController::class, 'eventCalender'])->name('events.calender');
     Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
@@ -127,7 +127,7 @@ Route::middleware(['auth', 'role:franchise_admin|franchise_manager' , StripeMidd
     Route::get('pos/invoice/{id}/download', [PaymentController::class, 'posInvoiceDownloadPDF'])->name('invoice.pos.download');
 
     // Location
-    Route::resource('locations', LocationController::class);
+    Route::resource('locations', InventoryLocationController::class);
 
     // Invoice
     Route::resource('invoice', InvoiceController::class);

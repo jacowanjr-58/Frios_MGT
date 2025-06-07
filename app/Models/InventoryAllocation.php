@@ -17,6 +17,8 @@ class InventoryAllocation extends Model
         'inventory_id',
         'location_id',
         'allocated_quantity',
+        'created_at',
+        'updated_at',
     ];
 
     public function inventoryMaster()
@@ -26,6 +28,6 @@ class InventoryAllocation extends Model
 
     public function location()
     {
-        return $this->belongsTo(Location::class, 'location_id', 'locations_ID');
+        return $this->belongsTo(InventoryLocation::class, 'location_id', 'locations_ID');
     }
 }

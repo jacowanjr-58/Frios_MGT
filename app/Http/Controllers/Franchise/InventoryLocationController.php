@@ -4,15 +4,15 @@ namespace App\Http\Controllers\Franchise;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Location;
+use App\Models\InventoryLocation;
 use Illuminate\Support\Facades\Auth;
 
-class LocationController extends Controller
+class InventoryLocationController extends Controller
 {
     public function index()
     {
-        $locations = Location::where('franchisee_id', Auth::user()->franchisee_id)->get();
-        $locationCount = Location::where('franchisee_id', Auth::user()->franchisee_id)->count();
+        $locations = InventoryLocation::where('franchisee_id', Auth::user()->franchisee_id)->get();
+        $locationCount = InventoryLocation::where('franchisee_id', Auth::user()->franchisee_id)->count();
         return view('franchise_admin.inventory.location.index', compact('locations','locationCount'));
     }
 
@@ -27,7 +27,7 @@ class LocationController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        Location::create([
+        InventoryLocation::create([
             'name' => $request->name,
             'franchisee_id' => Auth::user()->franchisee_id,
         ]);
@@ -35,16 +35,16 @@ class LocationController extends Controller
         return redirect()->route('franchise.locations.index')->with('success', 'Location created successfully.');
     }
 
-    public function edit(Location $location)
+    public function edit(InventoryLocation $location)
     {
-        $this->authorizeLocation($location);
+     //   $this->authorizeLocation($location);
 
         return view('franchise_admin.inventory.location.edit', compact('location'));
     }
 
-    public function update(Request $request, Location $location)
+    public function update(Request $request, InventoryLocation $location)
     {
-        $this->authorizeLocation($location);
+       // $this->authorizeLocation($location);
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -57,16 +57,16 @@ class LocationController extends Controller
         return redirect()->route('franchise.locations.index')->with('success', 'Location updated successfully.');
     }
 
-    public function destroy(Location $location)
+    public function destroy(InventoryLocation $location)
     {
-        $this->authorizeLocation($location);
+       // $this->authorizeLocation($location);
 
         $location->delete();
 
         return redirect()->route('franchise.locations.index')->with('success', 'Location deleted successfully.');
     }
 
-    private function authorizeLocation(Location $location)
+    private function authorizeLocation(InventoryLocation $location)
     {
         if ($location->franchisee_id !== Auth::user()->franchisee_id) {
             abort(403, 'Unauthorized action.');
