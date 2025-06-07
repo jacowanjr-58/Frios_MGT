@@ -32,79 +32,79 @@ class InventoryController extends Controller
 
     /**
      * Show the form for creating a new inventory master record.
+     * Create either an item from Corporate FGP items or a custom item.
      */
-    public function create()
-    {
-        $franchiseId = Auth::user()->franchisee_id;
-        $fgpItems = FgpItem::orderBy('name')->get();
+   public function create()
+{
+    $franchiseId = Auth::user()->franchisee_id;
+    $fgpItems    = FgpItem::orderBy('name')->get();
+    $locations   = InventoryLocation::where('franchisee_id', $franchiseId)
+                     ->orderBy('name')
+                     ->get();
+    $today       = now()->format('Y-m-d');
 
-        return view('franchise_admin.inventory.create', compact('fgpItems'));
-    }
+    return view('franchise_admin.inventory.create', compact(
+        'fgpItems',
+        'locations',
+        'today'
+    ));
+}
 
     /**
      * Store a newly created inventory master record in storage.
-     * This is whre we could add something from fgp_item (that doesn't come through order process, like onboarding)
-     * or could use to add custom_items (not fully schemed in db)
+     *
+     * This method handles both corporate items (by fpg_items_id) and custom items (by name).
      */
     public function store(Request $request)
-    {
-        $franchiseId = Auth::user()->franchisee_id;
+{
+    $franchiseId = Auth::user()->franchisee_id;
+    $data = $request->validate([
+        'fgp_item_id'       => ['nullable','exists:fgp_items,fgp_item_id'],
+        'custom_item_name'  => ['nullable','string','max:255'],
+        'stock_count_date'  => ['required','date'],
+        'total_quantity'    => ['required','integer','min:0'],
+        'allocations'       => ['required','array'],
+        'allocations.*'     => ['required','integer','min:0'],
+    ]);
 
-        $request->validate([
-            'fgp_item_id'       => ['nullable', 'exists:fgp_items,fgp_item_id'],
-            'custom_item_name'  => ['nullable', 'string', 'max:255'],
-            'total_quantity'    => ['required', 'integer', 'min:0'],
-        ]);
-
-        $fgpItemId      = $request->input('fgp_item_id');
-        $customItemName = trim($request->input('custom_item_name') ?? '');
-
-        // Ensure exactly one of fgp_item_id or custom_item_name is provided
-        if (!$fgpItemId && $customItemName === '') {
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['Either select a Pop flavor or enter a custom item name.']);
-        }
-        if ($fgpItemId && $customItemName !== '') {
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['Please either select a Pop flavor or enter a custom item name, not both.']);
-        }
-
-        // Prevent duplicate master lines for same franchisee + fgp_item_id or custom_item_name
-        if ($fgpItemId) {
-            $exists = InventoryMaster::where('franchisee_id', $franchiseId)
-                ->where('fgp_item_id', $fgpItemId)
-                ->first();
-            if ($exists) {
-                return redirect()->back()
-                    ->withInput()
-                    ->withErrors(['An inventory line for that Pop flavor already exists.']);
-            }
-        } else {
-            $exists = InventoryMaster::where('franchisee_id', $franchiseId)
-                ->whereNull('fgp_item_id')
-                ->where('custom_item_name', $customItemName)
-                ->first();
-            if ($exists) {
-                return redirect()->back()
-                    ->withInput()
-                    ->withErrors(['A custom inventory line with that name already exists.']);
-            }
-        }
-
-        InventoryMaster::create([
-            'franchisee_id'    => $franchiseId,
-            'fgp_item_id'      => $fgpItemId,
-            'custom_item_name' => $fgpItemId ? null : $customItemName,
-            'total_quantity'   => $request->input('total_quantity'),
-        ]);
-
-        return redirect()
-            ->route('franchise.inventory.index')
-            ->with('success', 'Inventory line created successfully.');
+    // require exactly one of corporate or custom
+    if (!($data['fgp_item_id'] xor $data['custom_item_name'])) {
+        return back()
+            ->withInput()
+            ->withErrors(['fgp_item_id' => 'Select a corporate item or enter a custom name, not both.']);
     }
 
+    // allocation sum check
+    if (array_sum($data['allocations']) !== (int)$data['total_quantity']) {
+        return back()
+            ->withInput()
+            ->withErrors(['allocations' => 'Sum of allocations must equal total quantity.']);
+    }
+
+    DB::transaction(function() use ($data, $franchiseId) {
+        $master = InventoryMaster::create([
+            'franchisee_id'    => $franchiseId,
+            'fgp_item_id'      => $data['fgp_item_id'],
+            'custom_item_name' => $data['custom_item_name'],
+            'stock_count_date' => $data['stock_count_date'],
+            'total_quantity'   => $data['total_quantity'],
+            'split_total_quantity' => $data['split_total_quantity'], // assuming split is same as total for now
+        ]);
+
+        foreach ($data['allocations'] as $locId => $qty) {
+            if ($qty > 0) {
+                $master->allocations()->create([
+                    'location_id'        => $locId,
+                    'allocated_quantity' => $qty,
+                ]);
+            }
+        }
+    });
+
+    return redirect()
+        ->route('franchise.inventory.index')
+        ->with('success', 'Inventory created successfully.');
+}
     /**
      * Show the form for editing the specified inventory master record.
      * Currently have the item name as lable because only have fgp_Items right now
@@ -154,7 +154,7 @@ class InventoryController extends Controller
 
     $data = $request->validate([
         'stock_count_date'      => 'required|date',
-        'pops_on_hand'          => 'nullable|integer|min:0',
+        'split_total_quantity'  => 'nullable|integer|min:0',
         'whole_sale_price_case' => 'nullable|numeric|min:0',
         'retail_price_pop'      => 'nullable|numeric|min:0',
         'total_quantity'        => 'required|integer|min:0',
@@ -174,7 +174,7 @@ class InventoryController extends Controller
         // 1) Update the master row
         $inventoryMaster->update([
             'stock_count_date'      => $data['stock_count_date'],
-            'pops_on_hand'          => $data['pops_on_hand'] ?? 0,
+            'split_total_quantity'  => $data['split_total_quantity'] ?? 0,
             'whole_sale_price_case' => $data['whole_sale_price_case'] ?? 0,
             'retail_price_pop'      => $data['retail_price_pop'] ?? 0,
             'total_quantity'        => $data['total_quantity'],

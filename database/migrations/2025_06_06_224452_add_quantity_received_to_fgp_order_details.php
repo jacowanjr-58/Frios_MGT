@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::table('fgp_order_details', function (Blueprint $table) {
             // // after() is optional—pick a column to slot it in next to
-            $table->unsignedInteger('quantity_received')->default(0)->after('unit_number');
+            if (!Schema::hasColumn('fgp_order_details', 'quantity_received')) {
+                 $table->unsignedInteger('quantity_received')->default(0)->after('unit_number');
+             }
         });
     }
 

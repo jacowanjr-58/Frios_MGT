@@ -21,7 +21,12 @@ class InventoryMaster extends Model
         'fgp_item_id',
         'custom_item_name',
         'total_quantity',
+        'split_total_quantity',
         'default_cost',
+        'split_factor',
+        'cogs_case','cogs_unit',
+        'wholesale_case','wholesale_unit',
+        'retail_case','retail_unit',
     ];
 
     /**

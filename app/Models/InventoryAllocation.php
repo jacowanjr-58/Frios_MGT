@@ -17,6 +17,8 @@ class InventoryAllocation extends Model
         'inventory_id',
         'location_id',
         'allocated_quantity',
+        'allocated_cases',
+        'allocated_units',
         'created_at',
         'updated_at',
     ];
