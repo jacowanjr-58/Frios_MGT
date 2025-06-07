@@ -156,7 +156,8 @@ class InventoryAllocationController extends Controller
                 $receivedQty  = (int) $validated['received_qty'][$detail->id];
                 $orderedQty   = (int) $detail->unit_number;      // how many were ordered
                 $itemId       = $detail->fgp_item_id;             // FK → FgpItem
-                $franchiseId  = $order->franchisee_id;            // which franchise
+                $franchiseId  = $order->franchisee_id;
+                $case_cost    = $detail->case_cost;           // which franchise
 
                 // a) If the franchise actually received > 0, update (or create) InventoryMaster
                 if ($receivedQty > 0) {
@@ -164,6 +165,8 @@ class InventoryAllocationController extends Controller
                         [
                             'franchisee_id' => $franchiseId,
                             'fgp_item_id'   => $itemId,
+                            'split_factor'  => 48,
+                            'cogs_case' => $case_cost,
                         ],
                         [
                             // default columns if newly created

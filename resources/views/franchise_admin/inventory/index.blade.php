@@ -44,8 +44,9 @@
                         <thead>
                             <tr class="bg-gray-200">
                                 <th class="px-4 py-2 text-left">Item</th>
-                                <th class="px-4 py-2 text-center">On Hand</th>
-                                <th class="px-4 py-2 text-right">Default Cost</th>
+                                <th class="px-4 py-2 text-center">Total on Hand</th>
+                                <th class="px-4 py-2 text-center">Totals Breakdown</th>
+                                <th class="px-4 py-2 text-right">Base Cost</th>
                                 <th class="px-4 py-2 text-center">Actions</th>
                             </tr>
                         </thead>
@@ -54,12 +55,17 @@
                             <tr class="{{ $loop->odd ? 'bg-gray-50' : 'bg-white' }}">
                                 {{-- Use the item_name accessor to get custom or corporate name --}}
                                 <td class="px-4 py-2 border">{{ $inv->item_name }}</td>
-                                <td class="px-4 py-2 border text-center">{{ $inv->total_quantity }}</td>
+                                <td class="px-4 py-2 border">{{ $inv->total_quantity }}</td>
+                                                    {{-- nicely broken out --}}
+                                <td class="px-4 py-2 border">
+                                    {{ $inv->quantity_breakdown['cases'] }} cases,
+                                    {{ $inv->quantity_breakdown['units'] }} units
+                                </td class="px-4 py-2 border">
                                 <td class="px-4 py-2 border text-right">
                                     @if($inv->flavor)
                                     ${{ number_format($inv->flavor->case_cost, 2) }}
                                     @else
-                                    ${{ number_format($inv->default_cost, 2) }}
+                                    ${{ number_format($inv->cogs_cost, 2) }}
                                     @endif
                                 </td>
                                 <td class="px-4 py-2 border text-center">

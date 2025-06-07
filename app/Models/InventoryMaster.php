@@ -42,6 +42,23 @@ class InventoryMaster extends Model
         return $this->custom_item_name;
     }
 
+        /**
+     * Break total_quantity into cases + units given split_factor.
+     *
+     * @return array{total:int, cases:int, units:int}
+     */
+    public function getQuantityBreakdownAttribute(): array
+    {
+        $total = (int) $this->total_quantity;
+        $split = (int) ($this->split_factor ?: 1);
+
+        return [
+            'total' => $total,
+            'cases' => intdiv($total, $split),
+            'units' => $total % $split,
+        ];
+    }
+
      /**
      * Relationship to FgpItem (pop flavor).
      */
