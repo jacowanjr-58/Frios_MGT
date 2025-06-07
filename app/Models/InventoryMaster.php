@@ -15,11 +15,12 @@ class InventoryMaster extends Model
     protected $appends = ['item_name'];
     public $timestamps = true;
 
-    protected $fillable = [
+     protected $fillable = [
         'franchisee_id',
         'fgp_item_id',
         'custom_item_name',
         'total_quantity',
+        'default_cost',
     ];
 
     /**

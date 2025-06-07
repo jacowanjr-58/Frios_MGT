@@ -8,6 +8,13 @@ class FgpOrderDetail extends Model
 {
     protected $guarded = [];
 
+    protected $fillable = [
+        'order_id',
+        'unit_number',
+        'quantity_received',
+        // …any others you want to mass‐assign
+    ];
+
     public function fgp_item()
     {
         return $this->belongsTo(FgpItem::class, 'fgp_item_id', 'fgp_item_id');

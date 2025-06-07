@@ -26,8 +26,17 @@ class FgpItem extends Model
         'image1',
         'image2',
         'image3',
-        'orderable'
+        'orderable',
     ];
+
+    /**
+     * All inventory_master rows for this FGP item.
+     */
+    public function inventories()
+    {
+        return $this->hasMany(InventoryMaster::class, 'fgp_item_id', 'fgp_item_id');
+    }
+
 
     // Many-to-many relationship with FgpCategory
     public function categories()

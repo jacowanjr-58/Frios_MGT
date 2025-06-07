@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Franchise;
 use App\Http\Controllers\Controller;
 use App\Models\InventoryMaster;
 use App\Models\FgpItem;
+use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -14,18 +15,19 @@ class InventoryController extends Controller
     /**
      * Display a listing of the franchisee's inventory master records.
      */
-    public function index()
+    public function index(Request $request)
     {
         $franchiseId = Auth::user()->franchisee_id;
 
-        $inventories = InventoryMaster::with('flavor')
-            ->where('franchisee_id', $franchiseId)
-            ->orderBy('custom_item_name')
+        $inventories = InventoryMaster::with('flavor')        // eager-load the FgpItem
+            ->where('franchisee_id', $franchiseId)             // only this franchisee
+            ->where('total_quantity', '>', 0)                  // only “active” (qty > 0)
             ->orderBy('fgp_item_id')
             ->paginate(20);
 
         return view('franchise_admin.inventory.index', compact('inventories'));
     }
+
 
     /**
      * Show the form for creating a new inventory master record.
@@ -105,15 +107,33 @@ class InventoryController extends Controller
      */
     public function edit(InventoryMaster $inventoryMaster)
     {
-        $this->authorize('update', $inventoryMaster);
+         $franchiseId = Auth::user()->franchisee_id;
+    //dd($inventoryMaster,$franchiseId );
 
-        $franchiseId = Auth::user()->franchisee_id;
+      //  $this->authorize('update', $inventoryMaster); //Could use a policy
+
+
         if ($inventoryMaster->franchisee_id !== $franchiseId) {
             abort(403);
         }
 
-        $fgpItems = FgpItem::orderBy('name')->get();
-        return view('franchise_admin.inventory.edit', compact('inventoryMaster', 'fgpItems'));
+        // Eager-load the flavor relationship (so you can use $inventoryMaster->flavor in the view)
+    $inventoryMaster->load('flavor');
+
+    // 1️⃣ All possible pop flavors for the dropdown
+    $fgpItems = FgpItem::orderBy('name')->get();
+
+    // 2️⃣ All locations for *this* franchisee
+    $locations = Location::where('franchisee_id', $franchiseId)
+                         ->orderBy('name')
+                         ->get();
+
+    // 3️⃣ Pass them into the Blade
+    return view('franchise_admin.inventory.edit', compact(
+        'inventoryMaster',
+        'fgpItems',
+        'locations'
+    ));
     }
 
     /**

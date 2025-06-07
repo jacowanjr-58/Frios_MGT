@@ -1,78 +1,40 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="content-body default-height">
-    <!-- row -->
-    <div class="container-fluid">
+<div class="container mx-auto px-4">
+  <h1 class="text-2xl font-bold mb-4">Inventory List</h1>
 
-        <h3 class="mb-4">Inventory List</h3>
+  <div class="bg-white p-6 rounded shadow">
+    <table class="table-auto w-full">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="px-4 py-2 text-left">Item</th>
+          <th class="px-4 py-2 text-center">On Hand</th>
+          <th class="px-4 py-2 text-right">Default Cost</th>
+          <th class="px-4 py-2 text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @forelse($inventories as $inv)
+          <tr class="{{ $loop->odd ? 'bg-gray-50' : 'bg-white' }}">
+            <td class="px-4 py-2 border">{{ $inv->item_name }}</td>
+            <td class="px-4 py-2 border text-center">{{ $inv->total_quantity }}</td>
+            <td class="px-4 py-2 border text-right">${{ number_format($inv->default_cost, 2) }}</td>
+            <td class="px-4 py-2 border text-center">
+              <a href="{{ route('franchise.inventory.edit', $inv->inventory_id) }}" class="text-blue-600 hover:underline">Edit</a>
+            </td>
+          </tr>
+        @empty
+          <tr>
+            <td colspan="4" class="px-4 py-2 text-center">No active inventory found.</td>
+          </tr>
+        @endforelse
+      </tbody>
+    </table>
 
-        <div class="row">
-
-
-            <div class="col text-end">
-                <a href="{{ route('franchise.inventory.create') }}" class="btn btn-primary">
-                    + Add Inventory
-                </a>
-            </div>
-        </div>
-
-        @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-
-        <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead class="table-light">
-                    <tr>
-                        <th>ID</th>
-                        <th>Item Name</th>
-                        <th>Location</th>
-                        <th>Stock On Hand</th>
-                        <th>Stock Count Date</th>
-                        <th>Pops On Hand</th>
-                        <th>Wholesale Price (Case)</th>
-                        <th>Retail Price (Pop)</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($inventories as $inv)
-                    <tr>
-                        <td>{{ $inv->inventory_id }}</td>
-                        <td>{{ $inv->item->name ?? '—' }}</td>
-                        <td>{{ $inv->location->name ?? '—' }}</td>
-                        <td>{{ $inv->total_quantity }}</td>
-                        <td>{{ \Carbon\Carbon::parse($inv->stock_count_date)->format('M d, Y') }}</td>
-                        <td>{{ $inv->pops_on_hand }}</td>
-                        <td>{{ number_format($inv->whole_sale_price_case, 2) }}</td>
-                        <td>{{ number_format($inv->retail_price_pop, 2) }}</td>
-                        <td>
-                            <a href="{{ route('franchise.inventory.edit', $inv->inventory_id) }}"
-                                class="btn btn-sm btn-warning">
-                                Edit
-                            </a>
-                            <form action="{{ route('franchise.inventory.destroy', $inv->inventory_id) }}" method="POST"
-                                style="display:inline-block"
-                                onsubmit="return confirm('Are you sure you want to delete this record?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger">
-                                    Delete
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="9" class="text-center">No inventory records found.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-
-            {{ $inventories->links() }} {{-- Pagination links --}}
-        </div>
+    <div class="mt-4">
+      {{ $inventories->links() }}
     </div>
+  </div>
 </div>
 @endsection

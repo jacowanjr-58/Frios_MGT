@@ -12,13 +12,13 @@ class InventoryPolicy
 
     public function update(User $user, InventoryMaster $inventoryMaster)
     {
-        return $user->franchisee_id === $inventoryMaster->franchisee_id;
+        return $user->franchisee_id == $inventoryMaster->franchisee_id;
     }
 
     public function allocate(User $user, InventoryMaster $inventoryMaster)
     {
         // Only allow allocation if total_quantity > 0, for example
-        return $user->franchisee_id === $inventoryMaster->franchisee_id
+        return $user->franchisee_id == $inventoryMaster->franchisee_id
             && $inventoryMaster->total_quantity > 0;
     }
 }
