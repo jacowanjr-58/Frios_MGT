@@ -15,6 +15,7 @@ use App\Models\InventoryLocation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class InventoryAllocationController extends Controller
 {
@@ -131,105 +132,104 @@ class InventoryAllocationController extends Controller
      */
 
    public function postConfirmDelivery(Request $request, $orderId)
-    {
-        // 1) Reload the order + all its details
-        $order = FgpOrder::with('orderDetails')->where('fgp_ordersID', $orderId)->firstOrFail();
+{
+    // 1) Load the order + details
+    $order = FgpOrder::with('orderDetails')
+                ->where('fgp_ordersID', $orderId)
+                ->firstOrFail();
 
-        // 2) Only the franchise that “owns” this order can confirm it
-        if (Auth::user()->franchisee_id !== $order->franchisee_id) {
-            abort(403, 'Unauthorized');
-        }
-
-        // 3) Dynamically build validation rules:
-        $rules = [];
-        foreach ($order->orderDetails as $detail) {
-            // Expect “received_qty[<detailId>]” for each detail
-            $rules["received_qty.{$detail->id}"] = 'required|integer|min:0';
-        }
-        $validated = $request->validate($rules);
-
-
-         // 4) Start transaction (so we either save all inventory updates or none)
-        DB::beginTransaction();
-        try {
-            foreach ($order->orderDetails as $detail) {
-                $receivedQty  = (int) $validated['received_qty'][$detail->id];
-                $orderedQty   = (int) $detail->unit_number;      // how many were ordered
-                $itemId       = $detail->fgp_item_id;             // FK → FgpItem
-                $franchiseId  = $order->franchisee_id;
-                $case_cost    = $detail->case_cost;           // which franchise
-
-                // a) If the franchise actually received > 0, update (or create) InventoryMaster
-                if ($receivedQty > 0) {
-                    $inventory = InventoryMaster::firstOrCreate(
-                        [
-                            'franchisee_id' => $franchiseId,
-                            'fgp_item_id'   => $itemId,
-                            'split_factor'  => 48,
-                            'cogs_case' => $case_cost,
-                        ],
-                        [
-                            // default columns if newly created
-                            'total_quantity' => 0,
-                        ]
-                    );
-
-                    // Increment by exactly how many came in
-                    $inventory->total_quantity += $receivedQty;
-                    $inventory->save();
-
-                    // Record an audit‐log transaction
-                    InventoryTransaction::create([
-                        'inventory_id' => $inventory->inventory_id, // PK in inventory_master
-                        'type'         => 'order_add',
-                        'quantity'     => $receivedQty,
-                        'reference'    => 'Order #' . $order->fgp_ordersID,
-                        'notes'        => 'Item ID: ' . $itemId,
-                        'created_by'   => Auth::user()->user_id,
-                    ]);
-                }
-
-                // b) If received ≠ ordered, log a discrepancy
-                if ($receivedQty !== $orderedQty) {
-                    OrderDiscrepancy::create([
-                        'order_id'          => $order->fgp_ordersID,
-                        'order_detail_id'   => $detail->id,
-                        'quantity_ordered'  => $orderedQty,
-                        'quantity_received' => $receivedQty,
-                        'notes'             => $request->input("notes.{$detail->id}", null),
-                    ]);
-                }
-
-                // c) Update the FgpOrderDetail→quantity_received column
-                $detail->quantity_received = $receivedQty;
-                $detail->save();
-            }
-
-            // 5) After looping through all details, mark the parent FgpOrder as “Delivered”
-            $order->status       = 'Delivered';
-            $order->is_delivered = true;
-            $order->delivered_at = now();
-            $order->save();
-
-            // (Optional) Notify Corporate if there were any discrepancies
-            // if ($order->orderDiscrepancies()->count() > 0) {
-            //     \Notification::route('mail', 'corporate@friospops.com')
-            //         ->notify(new \App\Notifications\OrderDiscrepancyNotification($order));
-            // }
-
-            DB::commit();
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            dd($e);
-            return back()
-                ->withErrors(['error' => 'There was a problem confirming delivery: ' . $e->getMessage()])
-                ->withInput();
-
-        }
-
-        return redirect()
-            ->route('franchise.orderpops.view') // adjust to whatever listing page you want
-            ->with('success', 'Delivery confirmed and inventory updated.');
+    // 2) Authorization
+    if (Auth::user()->franchisee_id !== $order->franchisee_id) {
+        abort(403, 'Unauthorized');
     }
 
+    // 3) Build & run validation
+    $rules = [];
+    foreach ($order->orderDetails as $detail) {
+        $rules["received_qty.{$detail->id}"] = 'required|integer|min:0';
+    }
+    $validated = $request->validate($rules);
+
+    // 4) Process each detail inside a transaction
+    DB::beginTransaction();
+    try {
+        foreach ($order->orderDetails as $detail) {
+            $receivedQty = (int) $validated['received_qty'][$detail->id];
+            $orderedQty  = (int) $detail->unit_number; // number of cases ordered
+
+            // Skip nothing received
+            if ($receivedQty <= 0) {
+                continue;
+            }
+
+            // a) Sync InventoryMaster
+            $itemId      = $detail->fgp_item_id;
+            $franchiseId = $order->franchisee_id;
+
+            // Corporate defaults
+            $fItem       = FgpItem::findOrFail($itemId);
+            $splitFactor = (int) $fItem->split_factor;
+            $caseCost    = (float) $fItem->case_cost;
+
+            // Fetch or create inventory_master row
+            $inventory = InventoryMaster::firstOrCreate(
+                [
+                    'franchisee_id' => $franchiseId,
+                    'fgp_item_id'   => $itemId,
+                ],
+                [
+                    'total_quantity' => 0,
+                    'split_factor'   => $splitFactor,
+                    'cogs_case'      => $caseCost,
+                ]
+            );
+
+            // Always keep split & cost in sync
+            $inventory->split_factor   = $splitFactor;
+            $inventory->cogs_case      = $caseCost;
+
+            // Increment by received cases → units
+            $inventory->total_quantity += $receivedQty * $splitFactor;
+
+            $inventory->save();
+
+           /*  // b) FUTURE Log an InventoryTransaction if desired
+            InventoryTransaction::create([
+                'franchisee_id'           => $franchiseId,
+                'inventory_id'            => $inventory->inventory_id,
+                'event_id'                => null,
+                'cardholder_name'         => Auth::user()->name,
+                'amount'                  => $receivedQty * $caseCost,
+                'stripe_payment_intent_id'=> null,
+                'stripe_payment_method'   => null,
+                'stripe_currency'         => null,
+                'stripe_status'           => 'received',
+                'created_at'              => now(),
+                'updated_at'              => now(),
+            ]); */
+
+            // c) Discrepancy if cases received ≠ cases ordered
+            if ($receivedQty !== $orderedQty) {
+                OrderDiscrepancy::create([
+                    'order_id'           => $order->fgp_ordersID,
+                    'order_detail_id'    => $detail->id,
+                    'quantity_ordered'   => $orderedQty,
+                    'quantity_received'  => $receivedQty,
+                    'notes'              => $request->input("notes.{$detail->id}", null),
+                ]);
+            }
+        }
+
+        DB::commit();
+    } catch (\Throwable $e) {
+        DB::rollBack();
+        return back()
+            ->withErrors(['error' => 'Error confirming delivery: '.$e->getMessage()])
+            ->withInput();
+    }
+
+    return redirect()
+        ->route('franchise.orderpops.view')
+        ->with('success', 'Delivery confirmed and inventory updated.');
+}
 }

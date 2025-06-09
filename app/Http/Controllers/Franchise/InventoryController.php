@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class InventoryController extends Controller
 {
@@ -56,115 +57,129 @@ class InventoryController extends Controller
      * This method handles both corporate items (by fpg_items_id) and custom items (by name).
      */
     public function store(Request $request)
+    {
+        $franchiseId = Auth::user()->franchisee_id;
+
+        // 1️⃣ Validation
+        $data = $request->validate([
+            'fgp_item_id'        => ['nullable','exists:fgp_items,fgp_item_id'],
+            'custom_item_name'   => ['nullable','string','max:255'],
+            'stock_count_date'   => ['required','date'],
+            'case_quantity'      => ['required','integer','min:0'],
+            'unit_quantity'      => ['required','integer','min:0'],
+            'split_factor'       => ['required','integer','min:1'],
+            'cogs_case'          => ['nullable','numeric','min:0'],
+            'cogs_unit'          => ['nullable','numeric','min:0'],
+            'wholesale_case'     => ['nullable','numeric','min:0'],
+            'wholesale_unit'     => ['nullable','numeric','min:0'],
+            'retail_case'        => ['nullable','numeric','min:0'],
+            'retail_unit'        => ['nullable','numeric','min:0'],
+            'image1'             => ['nullable','image','max:2048'],
+            'image2'             => ['nullable','image','max:2048'],
+            'image3'             => ['nullable','image','max:2048'],
+            'allocations'        => ['required','array'],
+            'allocations.*.cases'=> ['required','integer','min:0'],
+            'allocations.*.units'=> ['required','integer','min:0'],
+        ]);
+
+        // 2️⃣ Ensure at least one of corporate vs custom
+        if (empty($data['fgp_item_id']) && empty($data['custom_item_name'])) {
+            return back()->withInput()->withErrors([
+                'fgp_item_id' => 'Please select a corporate item or enter a custom name.'
+            ]);
+        }
+
+        // 3️⃣ Handle duplicates: if corporate selected with no custom name and record exists
+        if (!empty($data['fgp_item_id']) && empty($data['custom_item_name'])) {
+            $exists = InventoryMaster::where('franchisee_id', $franchiseId)
+                        ->where('fgp_item_id', $data['fgp_item_id'])
+                        ->exists();
+            if ($exists) {
+                $fgp = FgpItem::find($data['fgp_item_id']);
+                $data['custom_item_name'] = $fgp->name . ' copy';
+                session()->flash('warning', 'A record already exists; creating a duplicate as "' . $data['custom_item_name'] . '".');
+            }
+        }
+
+        // 4️⃣ Compute and verify total quantity
+        $totalQty = $data['case_quantity'] * $data['split_factor'] + $data['unit_quantity'];
+        $sumAlloc = 0;
+        foreach ($data['allocations'] as $alloc) {
+            $sumAlloc += $alloc['cases'] * $data['split_factor'] + $alloc['units'];
+        }
+        if ($sumAlloc !== $totalQty) {
+            return back()->withInput()->withErrors([
+                'allocations' => "Sum of allocations ({$sumAlloc}) must equal total quantity ({$totalQty})."
+            ]);
+        }
+
+        // 5️⃣ Persist master and allocations
+        DB::transaction(function() use ($data, $franchiseId, $request, $totalQty) {
+            $master = InventoryMaster::create([
+                'franchisee_id'     => $franchiseId,
+                'fgp_item_id'       => $data['fgp_item_id'],
+                'custom_item_name'  => $data['custom_item_name'],
+                'stock_count_date'  => $data['stock_count_date'],
+                'total_quantity'    => $totalQty,
+                'split_factor'      => $data['split_factor'],
+                'cogs_case'         => $data['cogs_case'],
+                'cogs_unit'         => $data['cogs_unit'],
+                'wholesale_case'    => $data['wholesale_case'],
+                'wholesale_unit'    => $data['wholesale_unit'],
+                'retail_case'       => $data['retail_case'],
+                'retail_unit'       => $data['retail_unit'],
+            ]);
+
+            // 6️⃣ Handle images: upload or inherit
+            $fgpItem = $data['fgp_item_id'] ? FgpItem::find($data['fgp_item_id']) : null;
+            foreach (['image1','image2','image3'] as $imgField) {
+                if ($request->hasFile($imgField)) {
+                    $master->$imgField = $request->file($imgField)->store('inventory_images', 'public');
+                } elseif ($fgpItem && $fgpItem->$imgField) {
+                    $master->$imgField = $fgpItem->$imgField;
+                }
+            }
+            $master->save();
+
+            // 7️⃣ Create allocations
+            foreach ($data['allocations'] as $locId => $alloc) {
+                $qty = $alloc['cases'] * $master->split_factor + $alloc['units'];
+                if ($qty > 0) {
+                    $master->allocations()->create([
+                        'location_id'        => $locId,
+                        'allocated_cases'    => $alloc['cases'],
+                        'allocated_units'    => $alloc['units'],
+                        'allocated_quantity' => $qty,
+                    ]);
+                }
+            }
+        });
+
+        return redirect()->route('franchise.inventory.index')
+                         ->with('success', 'Inventory created successfully.');
+    }
+    /**
+     * Show the form for editing the specified inventory master record.
+     *
+     */
+    public function edit(InventoryMaster $inventoryMaster)
 {
     $franchiseId = Auth::user()->franchisee_id;
 
-    // 1️⃣ Validation
-    $data = $request->validate([
-        'fgp_item_id'        => ['nullable','exists:fgp_items,fgp_item_id'],
-        'custom_item_name'   => ['nullable','string','max:255'],
-        'stock_count_date'   => ['required','date'],
-        'total_quantity'     => ['required','integer','min:0'],
-        'split_factor'       => ['required','integer','min:1'],        // units per case
-        'cogs_case'          => ['nullable','numeric','min:0'],        // cost of one case
-        'cogs_unit'          => ['nullable','numeric','min:0'],        // cost of one unit
-        'wholesale_case'     => ['nullable','numeric','min:0'],
-        'wholesale_unit'     => ['nullable','numeric','min:0'],
-        'retail_case'        => ['nullable','numeric','min:0'],
-        'retail_unit'        => ['nullable','numeric','min:0'],
-
-        // now nested allocations: each location has cases + units
-        'allocations'            => ['required','array'],
-        'allocations.*.cases'    => ['required','integer','min:0'],
-        'allocations.*.units'    => ['required','integer','min:0'],
-    ]);
-
-    // 2️⃣ Exactly one of corporate vs custom
-    if (! ($data['fgp_item_id'] xor $data['custom_item_name'])) {
-        return back()
-            ->withInput()
-            ->withErrors(['fgp_item_id' => 'Either select a corporate item or enter a custom name, not both.']);
-    }
-
-    // 3️⃣ Sum up allocations in base units and compare to total_quantity
-    $sum = 0;
-    foreach ($data['allocations'] as $locId => $alloc) {
-        $sum += $alloc['cases'] * $data['split_factor']
-              + $alloc['units'];
-    }
-    if ($sum !== (int)$data['total_quantity']) {
-        return back()
-            ->withInput()
-            ->withErrors(['allocations' =>
-                "Sum of allocations ({$sum}) must equal total quantity ({$data['total_quantity']})."
-            ]);
-    }
-
-    // 4️⃣ Persist master + allocations in a transaction
-    DB::transaction(function() use ($data, $franchiseId) {
-        $master = InventoryMaster::create([
-            'franchisee_id'     => $franchiseId,
-            'fgp_item_id'       => $data['fgp_item_id'],
-            'custom_item_name'  => $data['custom_item_name'],
-            'stock_count_date'  => $data['stock_count_date'],
-            'total_quantity'    => $data['total_quantity'],
-            'split_factor'      => $data['split_factor'],
-            'cogs_case'         => $data['cogs_case'],
-            'cogs_unit'         => $data['cogs_unit'],
-            'wholesale_case'    => $data['wholesale_case'],
-            'wholesale_unit'    => $data['wholesale_unit'],
-            'retail_case'       => $data['retail_case'],
-            'retail_unit'       => $data['retail_unit'],
-        ]);
-
-        foreach ($data['allocations'] as $locId => $alloc) {
-            $cases   = $alloc['cases'];
-            $units   = $alloc['units'];
-            $quantity = $cases * $master->split_factor + $units;
-
-            // only save non-zero allocations
-            if ($quantity > 0) {
-                $master->allocations()->create([
-                    'location_id'        => $locId,
-                    'allocated_cases'    => $cases,
-                    'allocated_units'    => $units,
-                    'allocated_quantity' => $quantity,
-                ]);
-            }
-        }
-    });
-
-    return redirect()
-        ->route('franchise.inventory.index')
-        ->with('success', 'Inventory created successfully.');
-}
-    /**
-     * Show the form for editing the specified inventory master record.
-     * Currently have the item name as lable because only have fgp_Items right now
-     */
-    public function edit(InventoryMaster $inventoryMaster)
-    {
-         $franchiseId = Auth::user()->franchisee_id;
-    //dd($inventoryMaster,$franchiseId );
-
-      //  $this->authorize('update', $inventoryMaster); //Could use a policy
-
-
-        // Load the related FgpItem (for item_name) and allocations (for the grid)
-    $inventoryMaster->load('flavor', 'allocations');
-
-    $franchiseId = Auth::user()->franchisee_id;
+    // ensure they own it
     if ($inventoryMaster->franchisee_id !== $franchiseId) {
         abort(403);
     }
 
-    // Pull your list of possible locations
-    $locations = InventoryLocation::where('franchisee_id', $franchiseId)
-                         ->orderBy('name')
-                         ->get();
+    // eager-load the corporate item and allocations
+    $inventoryMaster->load('flavor', 'allocations');
 
-    
-      // 3️⃣ Build [ location_id => ['cases'=>…, 'units'=>…] ]:
+    // fetch locations for the allocation grid
+    $locations = InventoryLocation::where('franchisee_id', $franchiseId)
+                     ->orderBy('name')
+                     ->get();
+
+    // build cases/units breakdown
     $existingAllocations = $inventoryMaster->allocations
         ->mapWithKeys(function($alloc) use ($inventoryMaster) {
             $split  = $inventoryMaster->split_factor;
@@ -175,43 +190,46 @@ class InventoryController extends Controller
                     'units' => $qty % $split,
                 ]
             ];
-        })
-        ->toArray();
+        })->toArray();
 
     return view('franchise_admin.inventory.edit', compact(
         'inventoryMaster',
         'locations',
         'existingAllocations'
     ));
-    }
+}
 
     /**
      * Update the specified inventory master record in storage.
      */
- public function update(Request $request, InventoryMaster $inventoryMaster)
+public function update(Request $request, InventoryMaster $inventoryMaster)
 {
     $franchiseId = Auth::user()->franchisee_id;
     if ($inventoryMaster->franchisee_id !== $franchiseId) {
         abort(403);
     }
 
-    // 1️⃣ Validate, including split_factor, costs, and nested allocations
+    // 1️⃣ Validation (add images + custom name)
     $data = $request->validate([
-        'stock_count_date'      => 'required|date',
-        'split_factor'          => 'required|integer|min:1',
-        'cogs_case'             => 'nullable|numeric|min:0',
-        'cogs_unit'             => 'nullable|numeric|min:0',
-        'wholesale_case'        => 'nullable|numeric|min:0',
-        'wholesale_unit'        => 'nullable|numeric|min:0',
-        'retail_case'           => 'nullable|numeric|min:0',
-        'retail_unit'           => 'nullable|numeric|min:0',
-        'total_quantity'        => 'required|integer|min:0',
-        'allocations'           => 'required|array',
-        'allocations.*.cases'   => 'required|integer|min:0',
-        'allocations.*.units'   => 'required|integer|min:0',
+        'stock_count_date'    => 'required|date',
+        'split_factor'        => 'required|integer|min:1',
+        'cogs_case'           => 'nullable|numeric|min:0',
+        'cogs_unit'           => 'nullable|numeric|min:0',
+        'wholesale_case'      => 'nullable|numeric|min:0',
+        'wholesale_unit'      => 'nullable|numeric|min:0',
+        'retail_case'         => 'nullable|numeric|min:0',
+        'retail_unit'         => 'nullable|numeric|min:0',
+        'total_quantity'      => 'required|integer|min:0',
+        'custom_item_name'    => 'nullable|string|max:255',            // ← add this
+        'image1'              => 'nullable|image|max:2048',             // ← add these
+        'image2'              => 'nullable|image|max:2048',
+        'image3'              => 'nullable|image|max:2048',
+        'allocations'         => 'required|array',
+        'allocations.*.cases' => 'required|integer|min:0',
+        'allocations.*.units' => 'required|integer|min:0',
     ]);
 
-    // 2️⃣ Compute and verify sums
+    // 2️⃣ Compute & verify allocations sum
     $computed = 0;
     foreach ($data['allocations'] as $locId => $alloc) {
         $computed += $alloc['cases'] * $data['split_factor']
@@ -225,36 +243,49 @@ class InventoryController extends Controller
             ]);
     }
 
-    // 3️⃣ Persist master + allocations atomically
-    DB::transaction(function() use ($inventoryMaster, $data) {
-        // Update the master record
+    // 3️⃣ Atomically update master, images, and allocations
+    DB::transaction(function() use ($inventoryMaster, $data, $request) {
+        // Update all the simple fields
         $inventoryMaster->update([
-            'stock_count_date'      => $data['stock_count_date'],
-            'split_factor'          => $data['split_factor'],
-            'cogs_case'             => $data['cogs_case'] ?? 0,
-            'cogs_unit'             => $data['cogs_unit'] ?? 0,
-            'wholesale_case'        => $data['wholesale_case'] ?? 0,
-            'wholesale_unit'        => $data['wholesale_unit'] ?? 0,
-            'retail_case'           => $data['retail_case'] ?? 0,
-            'retail_unit'           => $data['retail_unit'] ?? 0,
-            'total_quantity'        => $data['total_quantity'],
+            'stock_count_date'     => $data['stock_count_date'],
+            'split_factor'         => $data['split_factor'],
+            'cogs_case'            => $data['cogs_case'] ?? 0,
+            'cogs_unit'            => $data['cogs_unit'] ?? 0,
+            'wholesale_case'       => $data['wholesale_case'] ?? 0,
+            'wholesale_unit'       => $data['wholesale_unit'] ?? 0,
+            'retail_case'          => $data['retail_case'] ?? 0,
+            'retail_unit'          => $data['retail_unit'] ?? 0,
+            'total_quantity'       => $data['total_quantity'],
+            'custom_item_name'     => $data['custom_item_name'],
         ]);
 
-        // Clear out old allocations
+        // Handle images exactly as in store(): upload or inherit corporate
+        $fgpItem = $inventoryMaster->flavor; // relationship
+        foreach (['image1','image2','image3'] as $imgField) {
+            if ($request->hasFile($imgField)) {
+                // optional: delete old file
+                if ($inventoryMaster->$imgField) {
+                    Storage::disk('public')->delete($inventoryMaster->$imgField);
+                }
+                $inventoryMaster->$imgField =
+                    $request->file($imgField)->store('inventory_images','public');
+            } elseif ($inventoryMaster->fgp_item_id && $fgpItem->$imgField) {
+                // inherit corporate default
+                $inventoryMaster->$imgField = $fgpItem->$imgField;
+            }
+        }
+        $inventoryMaster->save();
+
+        // Clear & re‐create allocations
         $inventoryMaster->allocations()->delete();
-
-        // Re‐create only non‐zero allocations
         foreach ($data['allocations'] as $locId => $alloc) {
-            $cases    = $alloc['cases'];
-            $units    = $alloc['units'];
-            $quantity = $cases * $inventoryMaster->split_factor + $units;
-
-            if ($quantity > 0) {
+            $qty = $alloc['cases'] * $inventoryMaster->split_factor + $alloc['units'];
+            if ($qty > 0) {
                 $inventoryMaster->allocations()->create([
                     'location_id'        => $locId,
-                    'allocated_cases'    => $cases,
-                    'allocated_units'    => $units,
-                    'allocated_quantity' => $quantity,
+                    'allocated_cases'    => $alloc['cases'],
+                    'allocated_units'    => $alloc['units'],
+                    'allocated_quantity' => $qty,
                 ]);
             }
         }

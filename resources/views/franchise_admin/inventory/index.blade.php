@@ -58,14 +58,15 @@
                                 <td class="px-4 py-2 border">{{ $inv->total_quantity }}</td>
                                                     {{-- nicely broken out --}}
                                 <td class="px-4 py-2 border">
-                                    {{ $inv->quantity_breakdown['cases'] }} cases,
-                                    {{ $inv->quantity_breakdown['units'] }} units
+                                    {{ $inv->cases }} cases,
+                                    {{ $inv->units }} units
                                 </td class="px-4 py-2 border">
                                 <td class="px-4 py-2 border text-right">
+                                    {{-- I don't think I need this "IF" since saving case_cost as cogs_case --}}
                                     @if($inv->flavor)
                                     ${{ number_format($inv->flavor->case_cost, 2) }}
                                     @else
-                                    ${{ number_format($inv->cogs_cost, 2) }}
+                                    ${{ number_format($inv->cogs_case, 2) }}
                                     @endif
                                 </td>
                                 <td class="px-4 py-2 border text-center">
