@@ -88,7 +88,7 @@
                                                         @error('franchisee_id') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
 
-                                                    <div class="mb-3 col-md-6">
+                                                    {{-- <div class="mb-3 col-md-6">
                                                         <label class="form-label">Clearance</label>
                                                         <input type="text" class="form-control @error('clearance') is-invalid @enderror" name="clearance" value="{{ old('clearance', $owner->clearance) }}">
                                                         @error('clearance') <div class="text-danger">{{ $message }}</div> @enderror
@@ -98,7 +98,7 @@
                                                         <label class="form-label">Security</label>
                                                         <input type="text" class="form-control @error('security') is-invalid @enderror" name="security" value="{{ old('security', $owner->security) }}">
                                                         @error('security') <div class="text-danger">{{ $message }}</div> @enderror
-                                                    </div>
+                                                    </div> --}}
                                                 </div>
 
                                                 <button type="submit" class="btn btn-primary bg-primary">Update Owner</button>
