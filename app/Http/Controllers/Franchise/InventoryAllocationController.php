@@ -147,6 +147,7 @@ class InventoryAllocationController extends Controller
     $rules = [];
     foreach ($order->orderDetails as $detail) {
         $rules["received_qty.{$detail->id}"] = 'required|integer|min:0';
+        $rules["damaged_units.{$detail->id}"] = 'nullable|integer|min:0';
     }
     $validated = $request->validate($rules);
 
@@ -154,13 +155,7 @@ class InventoryAllocationController extends Controller
     DB::beginTransaction();
     try {
         foreach ($order->orderDetails as $detail) {
-            $receivedQty = (int) $validated['received_qty'][$detail->id];
-            $orderedQty  = (int) $detail->unit_number; // number of cases ordered
 
-            // Skip nothing received
-            if ($receivedQty <= 0) {
-                continue;
-            }
 
             // a) Sync InventoryMaster
             $itemId      = $detail->fgp_item_id;
@@ -170,6 +165,12 @@ class InventoryAllocationController extends Controller
             $fItem       = FgpItem::findOrFail($itemId);
             $splitFactor = (int) $fItem->split_factor;
             $caseCost    = (float) $fItem->case_cost;
+
+            // Load quantities from validated data
+            // Note: received_qty is the number of cases received, not units
+            $receivedQty = (int) $validated['received_qty'][$detail->id];
+            $damagedQty  = (int) ($validated['damaged_units'][$detail->id] ?? 0);
+            $orderedQty  = (int) $detail->unit_number * $splitFactor; // number of cases ordered * $splitFactor (gives Units)
 
             // Fetch or create inventory_master row
             $inventory = InventoryMaster::firstOrCreate(
@@ -188,25 +189,20 @@ class InventoryAllocationController extends Controller
             $inventory->split_factor   = $splitFactor;
             $inventory->cogs_case      = $caseCost;
 
-            // Increment by received cases → units
-            $inventory->total_quantity += $receivedQty * $splitFactor;
+            // Increment by total quantity received → units;
+            $inventory->total_quantity += ($receivedQty * $splitFactor) - $damagedQty;
 
             $inventory->save();
 
-           /*  // b) FUTURE Log an InventoryTransaction if desired
+             // b) FUTURE Log an InventoryTransaction if desired
             InventoryTransaction::create([
-                'franchisee_id'           => $franchiseId,
-                'inventory_id'            => $inventory->inventory_id,
-                'event_id'                => null,
-                'cardholder_name'         => Auth::user()->name,
-                'amount'                  => $receivedQty * $caseCost,
-                'stripe_payment_intent_id'=> null,
-                'stripe_payment_method'   => null,
-                'stripe_currency'         => null,
-                'stripe_status'           => 'received',
-                'created_at'              => now(),
-                'updated_at'              => now(),
-            ]); */
+                        'inventory_id' => $inventory->inventory_id, // PK in inventory_master
+                        'type'         => 'order_add',
+                        'quantity'     => $inventory->total_quantity,
+                        'reference'    => 'Order #' . $order->fgp_ordersID,
+                        'notes'        => 'Item ID: ' . $itemId,
+                        'created_by'   => Auth::user()->user_id,
+                    ]);
 
             // c) Discrepancy if cases received ≠ cases ordered
             if ($receivedQty !== $orderedQty) {
@@ -219,7 +215,16 @@ class InventoryAllocationController extends Controller
                 ]);
             }
         }
+            $order->status       = 'Delivered';
+            $order->is_delivered = true;
+            $order->delivered_at = now();
+            $order->save();
 
+             // (Optional) Notify Corporate if there were any discrepancies
+            // if ($order->orderDiscrepancies()->count() > 0) {
+            //     \Notification::route('mail', 'corporate@friospops.com')
+            //         ->notify(new \App\Notifications\OrderDiscrepancyNotification($order));
+            // }
         DB::commit();
     } catch (\Throwable $e) {
         DB::rollBack();

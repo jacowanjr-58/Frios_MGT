@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class FgpItem extends Model
@@ -27,6 +27,7 @@ class FgpItem extends Model
         'image2',
         'image3',
         'orderable',
+        'split_factor',
     ];
 
     /**
