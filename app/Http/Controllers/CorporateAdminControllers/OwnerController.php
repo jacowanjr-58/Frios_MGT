@@ -7,14 +7,50 @@ use App\Models\Franchisee;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Yajra\DataTables\Facades\DataTables;
 
 class OwnerController extends Controller
 {
     public function index()
     {
-        $users = User::where('role', 'franchise_admin')->get();
-        $totalUsers = $users->count();
-        return view('corporate_admin.owners.index', compact('users', 'totalUsers'));
+        $totalUsers = User::where('role', 'franchise_admin')->count();
+        
+        if (request()->ajax()) {
+            $users = User::where('role', 'franchise_admin');
+            
+            return DataTables::of($users)
+                ->addColumn('franchise_name', function ($user) {
+                    return $user->franchisee ? $user->franchisee->business_name : 'No Franchise Assigned';
+                })
+                ->addColumn('formatted_role', function ($user) {
+                    return ucwords(str_replace('_', ' ', $user->role));
+                })
+                ->addColumn('formatted_date', function ($user) {
+                    return $user->created_date ? Carbon::parse($user->created_date)->format('d/m/Y') : 'N/A';
+                })
+                ->addColumn('action', function ($user) {
+                    $editUrl = route('corporate_admin.owner.edit', $user->user_id);
+                    $deleteUrl = route('corporate_admin.owner.destroy', $user->user_id);
+                    
+                    return '
+                    <div class="d-flex">
+                        <a href="'.$editUrl.'" class="edit-user">
+                            <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
+                        </a>
+                        <form action="'.$deleteUrl.'" method="POST">
+                            '.csrf_field().'
+                            '.method_field('DELETE').'
+                            <button type="submit" class="ms-4 delete-user">
+                                <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
+                            </button>
+                        </form>
+                    </div>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        
+        return view('corporate_admin.owners.index', compact('totalUsers'));
     }
 
      // Show create form

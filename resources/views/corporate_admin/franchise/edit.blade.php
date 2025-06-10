@@ -219,7 +219,9 @@ function addToZipList(zip) {
 let zipList = $('#zipcodes-list');
 let div = $(`<div class="d-flex mb-2">
 <input type="text" class="form-control zip-input me-2 border-0" name="location_zip[]" readonly value="${zip}">
-<button class="btn btn-danger bg-danger remove-zip" type="button">Remove</button>
+<button class="btn btn-sm bg-danger" type="button">
+    <i class="ti ti-trash fs-24 text-white" style="color: #FF3131;"></i>
+</button>
 </div>`);
 zipList.append(div);
 }
