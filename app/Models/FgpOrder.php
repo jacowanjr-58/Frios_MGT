@@ -35,6 +35,9 @@ class FgpOrder extends Model
         return $this->belongsTo(FgpItem::class, 'fgp_item_id', 'name');
     }
 
+    public function getOrderNum() : string{
+            return "FGP-" . $this->fgp_ordersID;
+    }
 
     //Note the Plural for adding to OrderDetails
     public function items()

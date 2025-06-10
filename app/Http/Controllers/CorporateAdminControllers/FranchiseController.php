@@ -15,12 +15,12 @@ class FranchiseController extends Controller
         $totalFranchises = Franchisee::count();
         if (request()->ajax()) {
             $franchisees = Franchisee::query();
-            
+
             return DataTables::of($franchisees)
                 ->addColumn('location_zip', function ($franchisee) {
                     $zipCodes = explode(',', $franchisee->location_zip);
                     $formattedZips = '';
-                    
+
                     foreach($zipCodes as $zip) {
                         if (trim($zip)) {
                             $formattedZips .= '<span class="badge bg-primary me-2 mb-1">'.trim($zip).'</span>';
@@ -34,7 +34,7 @@ class FranchiseController extends Controller
                 ->addColumn('action', function ($franchisee) {
                     $editUrl = route('corporate_admin.franchise.edit', $franchisee->franchisee_id);
                     $deleteUrl = route('corporate_admin.franchise.destroy', $franchisee->franchisee_id);
-                    
+
                     return '
                     <div class="d-flex">
                         <a href="'.$editUrl.'" class="edit-franchisee">
@@ -52,7 +52,7 @@ class FranchiseController extends Controller
                 ->rawColumns(['action', 'location_zip'])
                 ->make(true);
         }
-        
+
         return view('corporate_admin.franchise.index', compact('totalFranchises'));
     }
 
@@ -63,7 +63,7 @@ class FranchiseController extends Controller
     }
 
     // Store franchise
-  
+
 public function store(Request $request)
 {
     // Validate Input Fields
@@ -91,14 +91,14 @@ public function store(Request $request)
     return redirect()->route('corporate_admin.franchise.index');
 }
 
-    
+
     // Show edit form
     public function edit(Franchisee $franchise)
     {
         $franchise->location_zip = explode(',', $franchise->location_zip ?? '');
         return view('corporate_admin.franchise.edit', compact('franchise'));
     }
-    
+
 
     // Update franchise
     public function update(Request $request, Franchisee $franchise)
@@ -112,19 +112,19 @@ public function store(Request $request)
             'location_zip' => 'required|array',
             'location_zip.*' => 'string|max:10',
         ]);
-    
+
         // Ensure unique ZIP codes before storing
         $uniqueZips = array_unique($request->location_zip);
-        
+
         // Convert ZIP codes array to a comma-separated string
         $requestData = $request->all();
         $requestData['location_zip'] = implode(',', $uniqueZips);
-    
+
         $franchise->update($requestData);
-    
+
         return redirect()->route('corporate_admin.franchise.index')->with('success', 'Franchise updated successfully.');
     }
-    
+
 
     // Delete franchise
     public function destroy(Franchisee $franchise)
@@ -132,5 +132,13 @@ public function store(Request $request)
         $franchise->delete();
         return redirect()->route('corporate_admin.franchise.index')->with('success', 'Franchise deleted successfully.');
     }
-    
+
+    public function show(Franchisee $franchise)
+{
+    // If you want ZIP codes as an array for the view:
+    $franchise->location_zip = explode(',', $franchise->location_zip ?? '');
+
+    return view('corporate_admin.franchise.view', compact('franchise'));
+}
+
 }

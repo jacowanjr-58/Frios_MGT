@@ -18,10 +18,10 @@ class ViewOrdersController extends Controller
 {
     public function index()
     {
-        $deliveredOrders = FgpOrder::where('status', 'delivered')->get();
-        $shippedOrders = FgpOrder::where('status', 'shipped')->count();
-        $paidOrders = FgpOrder::where('status', 'paid')->count();
-        $pendingOrders = FgpOrder::where('status', 'pending')->count();
+        $deliveredOrders = FgpOrder::where('status', 'Delivered')->get();
+        $shippedOrders = FgpOrder::where('status', 'Shipped')->count();
+        $paidOrders = FgpOrder::where('status', 'Paid')->count();
+        $pendingOrders = FgpOrder::where('status', 'Pending')->count();
 
 
         // $orders = FgpOrder::where('user_ID', Auth::id())

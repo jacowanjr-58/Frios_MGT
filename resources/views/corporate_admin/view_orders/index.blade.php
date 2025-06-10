@@ -15,8 +15,8 @@
                             <div class="d-sm-flex d-block align-items-center">
                                 <div class="d-flex mb-sm-0 mb-3 me-auto align-items-center">
                                     <div class="media-body">
-                                        <p class="mb-1 fs-12">Total Orders Pops</p>
-                                        <h3 class="mb-0 font-w600 fs-22">{{ $totalOrders }} Flavor Pops</h3>
+                                        <p class="mb-1 fs-12">Total Orders</p>
+                                        <h3 class="mb-0 font-w600 fs-22">{{ $totalOrders }}</h3>
                                     </div>
                                 </div>
                             </div>
@@ -30,10 +30,14 @@
                         <table id="example5" class="table customer-table display mb-4 fs-14 card-table">
                             <thead>
                                 <tr>
-                                    <th>User Name</th>
-                                    <th>Items Ordered</th>
-                                    <th>Total Price</th>
-                                    <th>Order Date/Time</th>
+                                    <th>#</th>
+                                    <th>Date/Time</th>
+                                    <th>$</th>
+
+                                    <th>By</th>
+                                    <th>Ship To</th>
+                                    <th>Items</th>
+                                    <th>Issues</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -47,15 +51,46 @@
                                         $franchisee = App\Models\Franchisee::where('franchisee_id' , $order->user_ID)->first();
                                         $customer = App\Models\Customer::where('customer_id' , $order->customer_id)->first();
                                 @endphp
-                                    <tr style="text-wrap: nowrap;">
-                                        <td>{{ $customer?->name ?? $franchisee?->business_name }}</td>
+
+                                    <tr style="text-wrap: wrap;">
+                                        <td>
+
+                                            <br>
+                                            <a href="{{ route('corporate_admin.vieworders.edit', $order->fgp_ordersID) }}" class="text-primary fs-12">
+                                                {{ $order->getOrderNum() }}
+                                            </a>
+                                        </td>
+                                        <td>{{ Carbon\Carbon::parse($order->date_transaction)->format('M d, Y h:i A') }}</td>
+                                        <td>${{ number_format($totalAmount, 2) }}</td>
+                                        <td>
+                                            @if($customer)
+                                            <a href="{{ route('corporate_admin.users.show', $customer->user_id) }}" class="text-primary">
+                                                {{ $customer->name }}
+                                            </a>
+                                            @elseif($franchisee)
+                                            <a href="{{ route('corporate_admin.users.show', $franchisee->user_id) }}" class="text-primary">
+                                                {{ $franchisee->business_name }}
+                                            </a>
+                                            @else
+                                            Unknown
+                                            @endif
+                                        </td>
+
+                                        <td> {{ $order->fullShippingAddress() }} </td>
                                         <td>
                                             <span class="cursor-pointer text-primary order-detail-trigger" data-id="{{ $order->fgp_ordersID }}">
                                                 {{ \DB::table('fgp_order_details')->where('fgp_order_id', $order->fgp_ordersID)->count() }} items
                                             </span>
+                                     </td>
+
+                                        <td>
+                                            @if($order->orderDiscrepancies->count() > 0)
+                                            <span class="badge bg-danger text-white">Alert</span> @else
+                                            <span class="badge bg-success text-white">OK</span>
+                                            @endif
                                         </td>
-                                        <td>${{ number_format($totalAmount, 2) }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($order->date_transaction)->format('M d, Y h:i A') }}</td>
+
+
                                         <td>
                                             <select class="status-select" data-date="{{ $order->date_transaction }}"
                                                 data-fgp-orders-id="{{ $order->fgp_ordersID }}">

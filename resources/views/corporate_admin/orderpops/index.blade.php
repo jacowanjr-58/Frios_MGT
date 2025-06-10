@@ -11,7 +11,7 @@
 				<div class="form-head mb-4 d-flex flex-wrap align-items-center">
 					<div class="me-auto">
 						<h2 class="font-w600 mb-0">Dashboard \</h2>
-						<p>Flover Pops List</p>
+						<p>Orders</p>
 					</div>
 
 				</div>

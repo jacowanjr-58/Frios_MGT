@@ -25,6 +25,7 @@ Route::middleware(['auth', 'role:corporate_admin'])->prefix('corporate_admin')->
      Route::get('/franchisee', [FranchiseController::class, 'index'])->name('franchise.index');
      Route::get('/franchisee/create', [FranchiseController::class, 'create'])->name('franchise.create');
      Route::post('/franchisee', [FranchiseController::class, 'store'])->name('franchise.store');
+     Route::get('/franchisee/{franchise}', [FranchiseController::class, 'show'])->name('franchise.show');
      Route::get('/franchisee/{franchise}/edit', [FranchiseController::class, 'edit'])->name('franchise.edit');
      Route::put('/franchisee/{franchise}', [FranchiseController::class, 'update'])->name('franchise.update');
      Route::delete('/franchisee/{franchise}', [FranchiseController::class, 'destroy'])->name('franchise.destroy');
@@ -33,6 +34,7 @@ Route::middleware(['auth', 'role:corporate_admin'])->prefix('corporate_admin')->
     Route::get('/owner', [OwnerController::class, 'index'])->name('owner.index');
     Route::get('/owner/create', [OwnerController::class, 'create'])->name('owner.create');
     Route::post('/owner', [OwnerController::class, 'store'])->name('owner.store');
+    Route::get('/owner/{owner}', [OwnerController::class, 'edit'])->name('owner.show');
     Route::get('/owner/{owner}/edit', [OwnerController::class, 'edit'])->name('owner.edit');
     Route::put('/owner/{owner}', [OwnerController::class, 'update'])->name('owner.update');
     Route::delete('/owner/{owner}', [OwnerController::class, 'destroy'])->name('owner.destroy');
