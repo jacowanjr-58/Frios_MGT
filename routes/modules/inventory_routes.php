@@ -65,16 +65,24 @@ Route::middleware(['auth', 'role:franchise_admin'])
 
     /**
      * ----------------------------------------------------------------------
-     * 2) Receive New Stock (InventoryReceiveController)
+     * 2) Receive New Stock (InventoryAllocationController)
      * ----------------------------------------------------------------------
-     *   GET  /franchise/inventory/receive      → receiveForm
-     *   POST /franchise/inventory/receive      → receiveStore
+     *
      */
-    Route::get('receive', [InventoryReceiveController::class, 'receiveForm'])
+
+      // Show the “Confirm Delivery” form
+        Route::get('{order}/confirm_delivery', [InventoryAllocationController::class, 'showConfirmDelivery'])
+             ->name('confirm_delivery');
+
+        // Handle the form submission
+        Route::post('{order}/confirm_delivery', [InventoryAllocationController::class, 'postConfirmDelivery'])
+             ->name('confirm_delivery.store');
+
+     /* Route::get('receive', [InventoryReceiveController::class, 'receiveForm'])
          ->name('receive.form');
 
     Route::post('receive', [InventoryReceiveController::class, 'receiveStore'])
-         ->name('receive.store');
+         ->name('receive.store'); */
 
 
     /**
@@ -125,19 +133,17 @@ Route::middleware(['auth', 'role:franchise_admin'])
 
      /**
      * ----------------------------------------------------------------------
-     * 6) Removal Queue (InventoryAllocationlController)
+     * 6) Bulk Price Update (InventoryAdjustmentlController)
      * ----------------------------------------------------------------------
-     *   GET    /franchise/inventory/comfirm-delivery      → showConfirmDelivery
+     *
      *
      */
+    Route::get('bulk-price', [InventoryAdjustmentController::class, 'showBulkPriceForm'])
+        ->name('bulk_price.form');
+        
+    Route::post('bulk-price', [InventoryAdjustmentController::class, 'updateBulkPrice'])
+        ->name('bulk_price.update');
 
-        // Show the “Confirm Delivery” form
-        Route::get('{order}/confirm_delivery', [InventoryAllocationController::class, 'showConfirmDelivery'])
-             ->name('confirm_delivery');
-
-        // Handle the form submission
-        Route::post('{order}/confirm_delivery', [InventoryAllocationController::class, 'postConfirmDelivery'])
-             ->name('confirm_delivery.store');
 
 
 });

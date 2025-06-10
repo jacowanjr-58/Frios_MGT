@@ -1,108 +1,100 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h3>Adjust / Onboard Inventory</h3>
-    @if(session('success'))
-      <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-      <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
-
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Item Name</th>
-                <th>Total Quantity</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($inventoryMasters as $master)
-                <tr>
-                    <td>{{ $master->inventory_id }}</td>
-                    <td>
-                        @if($master->fgp_item_id)
-                            {{ $master->flavor->name }}
-                        @else
-                            {{ $master->custom_item_name }}
+<div class="content-body default-height">
+    <!-- row -->
+    <div class="container-fluid">
+    <form method="POST" action="{{ route('franchise.inventory.adjust.update') }}">
+       @csrf
+        <div class="container">
+            <div class="form-head mb-4 d-flex flex-wrap align-items-center">
+					<div class="me-auto">
+						<h2 class="font-w600 mb-0">Adjust Inventory</h2>
+                        @if(session('success'))
+                        <div class="alert alert-success">{{ session('success') }}</div>
                         @endif
+                        @if(session('error'))
+                        <div class="alert alert-danger">{{ session('error') }}</div>
+                        @endif
+					</div>
+
+				</div>
+
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+
+                        <th>Item Name</th>
+                        <th>Case Quantity</th>
+                        <th>Unit Quantity</th>
+                        <th>Total Quantity</th>
+                        <th>Notes</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach($inventoryMasters as $master)
+             <tr>
+                    <td>{{ $master->item_name }}</td>
+                    <td class="d-flex align-items-center">
+                        <input type="number" name="total_cases_{{ $master->inventory_id }}" id="total_cases_{{ $master->inventory_id }}"
+                            value="{{ $master->cases }}" min="0" class="form-control case-input"
+                            data-id="{{ $master->inventory_id }}"
+                           style="width: 12ch">
+                        <div class="small"> ({{ $master->split_factor }} units/case)</div>
                     </td>
-                    <td>{{ $master->total_quantity }}</td>
                     <td>
-                        <button class="btn btn-sm btn-success adjust-btn" 
-                                data-id="{{ $master->inventory_id }}" 
-                                data-type="add">
-                            + Adjust
-                        </button>
-                        <button class="btn btn-sm btn-danger adjust-btn" 
-                                data-id="{{ $master->inventory_id }}" 
-                                data-type="remove">
-                            – Adjust
-                        </button>
+                        <input type="number" name="total_units_{{ $master->inventory_id }}" id="total_units_{{ $master->inventory_id }}"
+                            value="{{ $master->units }}" min="0" class="form-control unit-input"
+                            data-id="{{ $master->inventory_id }}"
+                            style="width: 12ch">
+                    </td>
+                    <td>
+                        <input type="number" name="total_quantity_{{ $master->inventory_id }}"
+                            id="total_quantity_{{ $master->inventory_id }}" value="{{ $master->total_quantity }}" class="form-control"
+                            style="width: 12ch"
+                            readonly>
+                        <input type="hidden" name="split_factor_{{ $master->inventory_id }}"
+                            id="split_factor_{{ $master->inventory_id }}" value="{{ $master->split_factor }}">
+                    </td>
+                    <td>
+                        <textarea name="notes_{{ $master->inventory_id }}" class="form-control">{{ $master->notes }}</textarea>
+                </tr>
+                @endforeach
+                <tr>
+                    <td colspan="5" class="text-center bg-white">
+                        <button type="submit" class="btn btn-primary">Update Inventory</button>
                     </td>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
-
-<div class="modal fade" id="adjustModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form id="adjustForm" method="POST" action="{{ route('franchise.inventory.adjust.update') }}">
-      @csrf
-      <input type="hidden" name="inventory_id" id="modal_inventory_id">
-      <input type="hidden" name="type" id="modal_type">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalTitle">Adjust Inventory</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </tbody>
+            </table>
         </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="modal_quantity" class="form-label">Quantity</label>
-            <input type="number" name="quantity" id="modal_quantity" class="form-control" min="1" value="1">
-          </div>
-          <div class="mb-3">
-            <label for="modal_notes" class="form-label">Notes (optional)</label>
-            <textarea name="notes" id="modal_notes" class="form-control" rows="2"></textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            Cancel
-          </button>
-          <button type="submit" class="btn btn-primary" id="modalSubmitBtn">
-            Confirm
-          </button>
-        </div>
-      </div>
     </form>
-  </div>
+
+
+    </div>
 </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const adjustButtons = document.querySelectorAll(".adjust-btn");
-    const adjustModal = new bootstrap.Modal(document.getElementById("adjustModal"));
-    const modalTitle = document.getElementById("modalTitle");
-    const modalInventoryId = document.getElementById("modal_inventory_id");
-    const modalType = document.getElementById("modal_type");
-    const modalQuantity = document.getElementById("modal_quantity");
+@push('scripts')<script>
+document.addEventListener("DOMContentLoaded", function() {
+    function recalcTotalQuantity(id) {
+        const cases = parseInt(document.getElementById('total_cases_' + id).value) || 0;
+        const units = parseInt(document.getElementById('total_units_' + id).value) || 0;
+        const split = parseInt(document.getElementById('split_factor_' + id).value) || 1;
+        document.getElementById('total_quantity_' + id).value = (cases * split) + units;
+    }
 
-    adjustButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const invId = btn.dataset.id;
-            const type = btn.dataset.type;
-            modalInventoryId.value = invId;
-            modalType.value = type;
-            modalTitle.textContent = type === 'add' ? "Add Quantity" : "Remove Quantity";
-            modalQuantity.value = 1;
-            adjustModal.show();
+    document.querySelectorAll('.case-input, .unit-input').forEach(function(input) {
+        input.addEventListener('input', function() {
+            recalcTotalQuantity(this.dataset.id);
         });
     });
 });
 </script>
+
+@endpush
+
 @endsection
+
+

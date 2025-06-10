@@ -97,6 +97,8 @@
                     <ul aria-expanded="false">
 
                         <li><a href="{{ route('franchise.inventory.index') }}">Inventory List</a></li>
+                        <li><a href="{{ route('franchise.inventory.adjust.form') }}">Bulk Stock Adjust</a></li>
+                        <li><a href="{{ route('franchise.inventory.bulk_price.form') }}">Bulk Prices Adjust</a></li>
                         <li><a href="{{ route('franchise.inventory.locations') }}">Allocate Inventory</a></li>
                         <li><a href="{{ route('franchise.locations.index') }}">Allocation Locations</a></li>
                     </ul>
