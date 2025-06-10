@@ -66,7 +66,7 @@
                                             {{-- <td>{{ $loop->iteration }}</td> --}}
                                             <td>{{ $category->name }}</td>
                                             <td>{{ $category->type }}</td>
-                                            <td>{{ $category->created_at ? \Carbon\Carbon::parse($category->created_at)->format('d/m/Y') : 'N/A' }}</td>
+                                            <td>{{ $category->formatted_created_at }}</td>
                                             <td>
                                                 <div class="d-flex">
                                                     <a href="{{ route('corporate_admin.fgpcategory.edit', $category->category_ID) }}" class="edit-user">
