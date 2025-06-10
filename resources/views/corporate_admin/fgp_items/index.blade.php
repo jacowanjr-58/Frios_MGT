@@ -54,7 +54,7 @@
                                 <thead>
                                     <tr>
 
-                                        <th>Sr No.</th>
+                                        {{-- <th>Sr No.</th> --}}
                                         <th>Name</th>
                                         <th>Image</th>
                                         <th>Description</th>
@@ -67,7 +67,7 @@
                                     @foreach ($items as $item)
                                         <tr>
 
-                                            <td>{{ $loop->iteration }}</td>
+                                            {{-- <td>{{ $loop->iteration }}</td> --}}
                                             <td>{{ $item->name }}</td>
                                             <td class="item-image">
                                                 @if ($item->image1)

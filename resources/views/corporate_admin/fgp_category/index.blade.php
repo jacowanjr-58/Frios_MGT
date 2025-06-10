@@ -53,7 +53,7 @@
 							<table id="example5" class="table customer-table display mb-4 fs-14 card-table">
 								<thead>
                                     <tr>
-                                        <th>Sr No.</th>
+                                        {{-- <th>Sr No.</th> --}}
                                         <th>Category Name</th>
                                         <th>Category Type</th>
                                         <th>Created Date</th>
@@ -63,7 +63,7 @@
                                 <tbody>
                                     @foreach ($categories as $category)
                                         <tr>
-                                            <td>{{ $loop->iteration }}</td>
+                                            {{-- <td>{{ $loop->iteration }}</td> --}}
                                             <td>{{ $category->name }}</td>
                                             <td>{{ $category->type }}</td>
                                             <td>{{ $category->created_at ? \Carbon\Carbon::parse($category->created_at)->format('d/m/Y') : 'N/A' }}</td>

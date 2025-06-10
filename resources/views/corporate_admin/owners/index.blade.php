@@ -54,7 +54,7 @@
 								<thead>
                                     <tr>
 
-                                        <th>Sr No.</th>
+                                        {{-- <th>Sr No.</th> --}}
                                         <th>Owner Name</th>
                                         <th>Owner Of</th>
                                         <th>Email</th>
@@ -67,7 +67,7 @@
                                     @foreach ($users as $user)
                                         <tr>
 
-                                            <td>{{ $loop->iteration }}</td>
+                                            {{-- <td>{{ $loop->iteration }}</td> --}}
                                             <td>{{ $user->name }}</td>
                                             <td>
                                                 @if ($user->franchisee)

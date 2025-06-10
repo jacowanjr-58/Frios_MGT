@@ -114,7 +114,7 @@
                             <thead>
                                 <tr>
 
-                                    <th>Sr No.</th>
+                                    {{-- <th>Sr No.</th> --}}
                                     <th>Charges Name</th>
                                     <th>Charges Amount</th>
                                     <th>Charges Type</th>
@@ -126,8 +126,8 @@
                                 @foreach ($additionalCharges as $additionalCharge)
                                     <tr>
 
-                                        <td>{{ $loop->iteration }}
-                                        </td>
+                                        {{-- <td>{{ $loop->iteration }}
+                                        </td> --}}
                                         <td>{{ $additionalCharge->charge_name }}</td>
                                         <td>
                                             @if ($additionalCharge->charge_type === 'percentage')
