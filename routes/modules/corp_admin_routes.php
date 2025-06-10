@@ -79,6 +79,8 @@ Route::middleware(['auth', 'role:corporate_admin'])->prefix('corporate_admin')->
     Route::delete('/vieworders/{vieworders}', [ViewOrdersController::class, 'destroy'])->name('vieworders.destroy');
     Route::get('/vieworders', [ViewOrdersController::class, 'index'])->name('vieworders.index');
     Route::post('/vieworders/update-status', [ViewOrdersController::class, 'updateStatus'])->name('vieworders.updateStatus');
+    Route::get('/vieworders/customersorder/{customer_id}', [ViewOrdersController::class, 'showCustomer'])->name('customersorder.show');
+
 
     Route::get('orderpops' , [ViewOrdersController::class , 'orderposps'])->name('orderposps');
     Route::get('orderpops/confirm/page' , [ViewOrdersController::class , 'confirmPage'])->name('confirm.page');

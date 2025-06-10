@@ -64,11 +64,11 @@
                                         <td>${{ number_format($totalAmount, 2) }}</td>
                                         <td>
                                             @if($customer)
-                                            <a href="{{ route('corporate_admin.users.show', $customer->user_id) }}" class="text-primary">
+                                            <a href="{{ route('corporate_admin.customersorder.show', ['customer_id', $customer->customer_id]) }}" class="text-primary">
                                                 {{ $customer->name }}
                                             </a>
                                             @elseif($franchisee)
-                                            <a href="{{ route('corporate_admin.users.show', $franchisee->user_id) }}" class="text-primary">
+                                            <a href="{{ route('corporate_admin.owner.show', ['owner', $franchisee->user_id] ) }}" class="text-primary">
                                                 {{ $franchisee->business_name }}
                                             </a>
                                             @else
