@@ -96,7 +96,7 @@
                                                         @enderror
                                                     </div>
 
-                                                    <div class="mb-3 col-md-6">
+                                                    {{-- <div class="mb-3 col-md-6">
                                                         <label class="form-label">Clearance</label>
                                                         <input type="text" class="form-control @error('clearance') is-invalid @enderror"
                                                             name="clearance" value="{{ old('clearance') }}" placeholder="Clearance">
@@ -112,7 +112,7 @@
                                                         @error('security')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
-                                                    </div>
+                                                    </div> --}}
                                                 </div>
 
                                                 <button type="submit" class="btn btn-primary bg-primary">Add Owner</button>

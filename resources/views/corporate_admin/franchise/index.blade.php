@@ -81,8 +81,7 @@
 							<table id="example5" class="table customer-table display mb-4 fs-14 card-table">
 								<thead>
                                     <tr>
-
-                                        <th>Franchisee ID</th>
+                                        {{-- <th>Sr No.</th> --}}
                                         <th>Business Name</th>
                                         <th>City</th>
                                         <th>State</th>
@@ -94,8 +93,7 @@
 								<tbody>
                                     @foreach ($franchisees as $franchisee)
                                         <tr>
-
-                                            <td>#{{ str_pad($franchisee->franchisee_id, 7, '0', STR_PAD_LEFT) }}</td>
+                                            {{-- <td>{{ $loop->iteration }}</td> --}}
                                             <td>{{ $franchisee->business_name }}</td>
                                             <td>{{ $franchisee->city }}</td>
                                             {{-- <td>{{ $franchisee->created_at->format('d/m/Y') }}</td> --}}

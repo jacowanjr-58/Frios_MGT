@@ -93,7 +93,7 @@
 }
 
 .brand-logo {
-  margin-left: 10px;
+  /* margin-left: 10px; */
   /* Adjust spacing */
 }
 
@@ -20540,7 +20540,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
   position: fixed;
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
-  height: 70px;
+  /* height: 70px; */
 }
 
 [data-sidebar-position="fixed"][data-layout="vertical"] .deznav {
@@ -22414,7 +22414,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 [data-nav-headerbg="color_11"] .nav-header .brand-logo {
   color: #fff;
   justify-content: center;
-  margin-left: 2rem;
+  /* margin-left: 2rem; */
 }
 
 [data-nav-headerbg="color_11"][data-theme-version="dark"] .nav-header .brand-logo:hover,

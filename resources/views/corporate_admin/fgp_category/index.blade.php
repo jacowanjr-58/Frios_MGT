@@ -53,7 +53,7 @@
 							<table id="example5" class="table customer-table display mb-4 fs-14 card-table">
 								<thead>
                                     <tr>
-                                        <th>Category ID</th>
+                                        {{-- <th>Sr No.</th> --}}
                                         <th>Category Name</th>
                                         <th>Category Type</th>
                                         <th>Created Date</th>
@@ -63,10 +63,10 @@
                                 <tbody>
                                     @foreach ($categories as $category)
                                         <tr>
-                                            <td>#{{ str_pad($category->category_ID, 7, '0', STR_PAD_LEFT) }}</td>
+                                            {{-- <td>{{ $loop->iteration }}</td> --}}
                                             <td>{{ $category->name }}</td>
                                             <td>{{ $category->type }}</td>
-                                            <td>{{ $category->created_at ? \Carbon\Carbon::parse($category->created_at)->format('d/m/Y') : 'N/A' }}</td>
+                                            <td>{{ $category->formatted_created_at }}</td>
                                             <td>
                                                 <div class="d-flex">
                                                     <a href="{{ route('corporate_admin.fgpcategory.edit', $category->category_ID) }}" class="edit-user">

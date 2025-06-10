@@ -8,7 +8,7 @@
         </div>
     </div>
     <a href="{{ route('dashboard') }}" class="brand-logo">
-        <img src="https://friospops.wpenginepowered.com/wp-content/uploads/2022/04/Frios-Logo-2022-light-yellow-orange-pop-01.png"
+        <img src="{{ asset('assets/images/Frios-Logo.png') }}"
             class="logo" />
     </a>
 </div>
@@ -20,7 +20,7 @@
     }
 
     .brand-logo {
-        margin-left: 10px;
+        /* margin-left: 10px; */
         /* Adjust spacing */
     }
 

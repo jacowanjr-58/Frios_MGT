@@ -33,8 +33,8 @@ class OwnerController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
             'franchisee_id' => 'required|exists:franchisees,franchisee_id',
-            'clearance' => 'nullable|string',
-            'security' => 'nullable|string',
+            // 'clearance' => 'nullable|string',
+            // 'security' => 'nullable|string',
         ], [
             'franchisee_id.required' => 'Franchise is required.', // Custom error message
             'franchisee_id.exists' => 'Selected franchise does not exist.', // Custom error message for invalid franchise
@@ -46,8 +46,8 @@ class OwnerController extends Controller
             'password' => bcrypt($request->password),
             'role' => 'franchise_admin', // Storing role in the database
             'franchisee_id' => $request->franchisee_id,
-            'clearance' => $request->clearance,
-            'security' => $request->security,
+            // 'clearance' => $request->clearance,
+            // 'security' => $request->security,
             'created_date' => Carbon::now()->toDateString(), // Storing the current date
         ]);
 
@@ -70,16 +70,16 @@ class OwnerController extends Controller
             'email' => 'required|email|unique:users,email,' . $owner->user_id . ',user_id', // Corrected validation
             'password' => 'nullable|min:6',
             'franchisee_id' => 'nullable|exists:franchisees,franchisee_id',
-            'clearance' => 'nullable|string',
-            'security' => 'nullable|string',
+            // 'clearance' => 'nullable|string',
+            // 'security' => 'nullable|string',
         ]);
 
         $owner->update([
             'name' => $request->name,
             'email' => $request->email,
             'franchisee_id' => $request->franchisee_id,
-            'clearance' => $request->clearance,
-            'security' => $request->security,
+            // 'clearance' => $request->clearance,
+            // 'security' => $request->security,
         ]);
 
         if ($request->filled('password')) {
