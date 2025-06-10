@@ -1,74 +1,75 @@
 {{-- resources/views/order_pops/create.blade.php --}}
 @extends('layouts.app')
 @section('content')
+<div class="content-body default-height">
+    <!-- row -->
+    <div class="container-fluid">
+        <div class="form-head mb-4 ml-12 mt-24 pt-10 d-flex flex-wrap align-items-center max-w-fit">
+            <div class="container py-4">
+                <h1 class="mb-4 text-center">Build Your Pop Order</h1>
 
-<div class="form-head mb-4 ml-12 mt-24 pt-10 d-flex flex-wrap align-items-center max-w-fit">
-<div class="container py-4">
-  <h1 class="mb-4 text-center">Build Your Pop Order</h1>
+                <form id="order-form" action="{{ route('franchise.orderpops.confirm') }}" method="POST">
+                    @csrf
+                    {{-- Hidden payload --}}
+                    <input type="hidden" name="ordered_items" id="ordered_items_input" value="">
 
-  <form id="order-form" action="{{ route('franchise.orderpops.confirm') }}" method="POST">
-    @csrf
- {{-- Hidden payload --}}
-    <input type="hidden" name="ordered_items" id="ordered_items_input" value="">
+                    {{-- Cart display --}}
+                    <div class="text-center ">
+                        <span class="inline-flex">
+                            <h3 class="text-center mb-3">Your Cart</h3>
 
-    {{-- Cart display --}}
-    <div class="text-center ">
-    <span class="inline-flex"><h3 class="text-center mb-3">Your Cart</h3>
-
-    </span>
-    </div>
-    <div id="cart" class="d-flex flex-wrap gap-3 p-3 border rounded bg-light justify-content-center mb-2">
-
-
-    </div>
-    <h5 class="text-center">Total: $<span id="cart-total">0.00</span></h5>
-
-    <div class="row mb-4">
-     <button type="submit" class="btn-default  btn-lg">Review Order</button>
-   </div>
-    </form>
+                        </span>
+                    </div>
+                    <div id="cart"
+                        class="d-flex flex-wrap gap-3 p-3 border rounded bg-light justify-content-center mb-2">
 
 
+                    </div>
+                    <h5 class="text-center">Total: $<span id="cart-total">0.00</span></h5>
 
-    {{-- Three columns --}}
-    <div class="row mb-4">
-      @foreach(['Availability','Flavor','Allergen'] as $colType)
-        <div class="col-md-4 border-start @if($colType==='Availability') border-0 @endif p-4">
-          <h4 class="text-center bg-dark text-white py-2 rounded">{{ $colType }}</h4>
+                    <div class="row mb-4">
+                        <button type="submit" class="btn-default  btn-lg">Review Order</button>
+                    </div>
+                </form>
 
-          @foreach($categoriesByType[$colType] ?? [] as $category)
-            {{-- Sub‐category heading --}}
-            <div class="subcategory-label bg-secondary text-white text-center py-1 my-3 rounded">
-              {{ $category->name }}
-            </div>
 
-            {{-- Pops in this subcategory --}}
-            <div class="d-flex flex-wrap gap-3 justify-content-center">
-                @foreach($category->items as $item)
-                <div class="pop-icon text-center"
-                    data-id="{{ $item->fgp_item_id }}"
-                    data-name="{{ $item->name }}"
-                    data-unit-cost="{{ $item->case_cost }}"
-                    data-image="{{ asset('storage/' . $item->image1) }}"
-                >
-                    <img src="{{ asset('storage/' . $item->image1) }}"
-                        alt="{{ $item->name }}"
-                        class="pop-image rounded">
-                    <div class="unit-cost">${{ number_format($item->case_cost, 2) }}</div>
-                    <div class="pop-overlay">{{ $item->name }}</div>
+
+                {{-- Three columns --}}
+                <div class="row mb-4">
+                    @foreach(['Availability','Flavor','Allergen'] as $colType)
+                    <div class="col-md-4 border-start @if($colType==='Availability') border-0 @endif p-4">
+                        <h4 class="text-center bg-dark text-white py-2 rounded">{{ $colType }}</h4>
+
+                        @foreach($categoriesByType[$colType] ?? [] as $category)
+                        {{-- Sub‐category heading --}}
+                        <div class="subcategory-label bg-secondary text-white text-center py-1 my-3 rounded">
+                            {{ $category->name }}
+                        </div>
+
+                        {{-- Pops in this subcategory --}}
+                        <div class="d-flex flex-wrap gap-3 justify-content-center">
+                            @foreach($category->items as $item)
+                            <div class="pop-icon text-center" data-id="{{ $item->fgp_item_id }}"
+                                data-name="{{ $item->name }}" data-unit-cost="{{ $item->case_cost }}"
+                                data-image="{{ asset('storage/' . $item->image1) }}">
+                                <img src="{{ asset('storage/' . $item->image1) }}" alt="{{ $item->name }}"
+                                    class="pop-image rounded">
+                                <div class="unit-cost">${{ number_format($item->case_cost, 2) }}</div>
+                                <div class="pop-overlay">{{ $item->name }}</div>
+                            </div>
+                            @endforeach
+                        </div>
+                        @endforeach
+                    </div>
+                    @endforeach
                 </div>
-                @endforeach
+
+
             </div>
-          @endforeach
         </div>
-      @endforeach
+
     </div>
-
-
 </div>
-</div>
-
-
 @endsection
 
 @push('styles')

@@ -145,7 +145,8 @@ let dataSet = [
                 next: '<i class="fa fa-angle-double-right" aria-hidden="true"></i>',
                 previous: '<i class="fa fa-angle-double-left" aria-hidden="true"></i>'
             }
-        }
+        },
+        order: [[1, 'desc']]
     });
 
     table.on('draw', function () {

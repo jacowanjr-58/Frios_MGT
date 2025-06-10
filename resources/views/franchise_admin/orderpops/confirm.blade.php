@@ -200,7 +200,7 @@
 
                 <input type="hidden" name="is_paid" id="is_paid" value="0">
                             <div class="mt-4">
-                                <button type="submit" id="submit-button" class="btn btn-primary">Confirm Order</button>
+                                <button type="submit" id="submit-button" class="btn btn-danger btn-lg fw-bold shadow">Confirm Order</button>
                             </div>
         </form>
                         @else

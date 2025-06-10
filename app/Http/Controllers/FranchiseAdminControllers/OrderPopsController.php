@@ -252,7 +252,9 @@ foreach ($validated['items'] as $index => $item) {
 }
     $invoiceNotes = implode("\n", $noteLines);
 
-    // Save transaction or invoice
+    // Save transaction or invoice area
+    // Need to update this base on ultimate payment method
+    // If paid, save transaction; if not, save invoice
     if ($request->is_paid === '1') {
         OrderTransaction::create([
             'franchisee_id' => Auth::user()->franchisee_id,
