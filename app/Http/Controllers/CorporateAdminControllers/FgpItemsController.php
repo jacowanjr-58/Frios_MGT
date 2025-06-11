@@ -7,14 +7,56 @@ use App\Models\FgpCategory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\DataTables;
 
 class FgpItemsController extends Controller
 {
     public function index()
     {
-        $items = FgpItem::with('categories')->get();
-        $totalItems = $items->count();
-        return view('corporate_admin.fgp_items.index', compact('items','totalItems'));
+        $totalItems = FgpItem::count();
+        if (request()->ajax()) {
+            $items = FgpItem::with('categories');
+
+            return DataTables::of($items)
+                ->addColumn('categories', function ($item) {
+                    $formattedCategories = '';
+                    if($item->categories->isNotEmpty()) {
+                        foreach($item->categories as $category) {
+                            $formattedCategories .= '<span class="badge bg-primary me-2 mb-1">'.$category->name.'</span>';
+                        }
+                    } else {
+                        $formattedCategories = 'No Category';
+                    }
+                    return '<div class="d-flex flex-wrap">'.$formattedCategories.'</div>';
+                })
+                ->filterColumn('categories', function ($query, $keyword) {
+                    $query->whereHas('categories', function ($q) use ($keyword) {
+                        $q->where('name', 'like', "%$keyword%");
+                    });
+                })
+                ->addColumn('action', function ($item) {
+                    $editUrl = route('corporate_admin.fgpitem.edit', $item->fgp_item_id);
+                    $deleteUrl = route('corporate_admin.fgpitem.destroy', $item->fgp_item_id);
+
+                    return '
+                    <div class="d-flex">
+                        <a href="'.$editUrl.'" class="edit-user">
+                            <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
+                        </a>
+                        <form action="'.$deleteUrl.'" method="POST">
+                            '.csrf_field().'
+                            '.method_field('DELETE').'
+                            <button type="submit" class="ms-4 delete-fgpitem">
+                                <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
+                            </button>
+                        </form>
+                    </div>';
+                })
+                ->rawColumns(['action', 'categories'])
+                ->make(true);
+        }
+
+        return view('corporate_admin.fgp_items.index', compact('totalItems'));
     }
 
     public function create()
@@ -155,8 +197,16 @@ class FgpItemsController extends Controller
             // Delete the item
             $fgpitem->delete();
 
+            if (request()->ajax()) {
+                return response()->json(['success' => true]);
+            }
+
             return redirect()->route('corporate_admin.fgpitem.index')->with('success', 'Fgp Item deleted successfully.');
         } catch (\Exception $e) {
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Failed to delete Fgp Item.']);
+            }
+
             return redirect()->route('corporate_admin.fgpitem.index')->with('error', 'Failed to delete Fgp Item.');
         }
     }

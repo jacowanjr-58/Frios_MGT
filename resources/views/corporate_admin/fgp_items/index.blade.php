@@ -1,6 +1,44 @@
 @extends('layouts.app')
 @section('content')
 
+@push('styles')
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Add SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        .dataTables_paginate.paging_simple_numbers {
+            margin: 15px 0;
+        }
+        .paginate_button {
+            padding: 8px 12px;
+            margin: 0 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #555;
+        }
+        .paginate_button.current {
+            background-color: #007bff;
+            color: white;
+        }
+        .paginate_button.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        .paginate_button:not(.disabled):hover {
+            background-color: #f0f0f0;
+        }
+        /* Custom SweetAlert2 button styles */
+        .swal2-confirm {
+            background-color: #00ABC7 !important;
+        }
+        .swal2-cancel {
+            background-color: #FF3131 !important;
+        }
+    </style>
+@endpush
+
 <!--**********************************
             Content body start
         ***********************************-->
@@ -50,78 +88,18 @@
 				<div class="row">
 					<div class="col-lg-12">
 						<div class="table-responsive rounded">
-							<table id="example5" class="table customer-table display mb-4 fs-14 card-table">
+							<table id="fgp-items-table" class="table customer-table display mb-4 fs-14 card-table">
                                 <thead>
                                     <tr>
-
                                         {{-- <th>Sr No.</th> --}}
                                         <th>Name</th>
                                         <th>Image</th>
                                         <th>Description</th>
-                                        <th>Category</th>
+                                        <th>Categories</th>
                                         {{-- <th>Orderable</th> --}}
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach ($items as $item)
-                                        <tr>
-
-                                            {{-- <td>{{ $loop->iteration }}</td> --}}
-                                            <td>{{ $item->name }}</td>
-                                            <td class="item-image">
-                                                @if ($item->image1)
-                                                    <img src="{{ asset('storage/' . $item->image1) }}" alt="Image" style="width: 50px; height: 50px; object-fit: contain;">
-                                                @else
-                                                    <span>No Image</span>
-                                                @endif
-                                            </td>
-                                            <td>{{ $item->description }}</td>
-                                            <td>
-                                                @if($item->categories->isNotEmpty())
-                                                    @php
-                                                        $chunks = $item->categories->pluck('name')->chunk(5);
-                                                    @endphp
-                                                    @foreach($chunks as $chunk)
-                                                        {{ $chunk->join(', ') }} <br>
-                                                    @endforeach
-                                                @else
-                                                    No Category
-                                                @endif
-                                            </td>
-
-
-                                            {{-- <td>
-                                                <select class="orderable-dropdown" data-id="{{ $item->fgp_item_id }}" style="width:5rem;">
-                                                    <option value="1" {{ $item->orderable == 1 ? 'selected' : '' }}>Yes</option>
-                                                    <option value="0" {{ $item->orderable == 0 ? 'selected' : '' }}>No</option>
-                                                </select>
-                                            </td> --}}
-
-                                            <td>
-                                                <div class="d-flex">
-                                                    <a href="{{ route('corporate_admin.fgpitem.edit', $item->fgp_item_id) }}" class="edit-user">
-                                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M17 3C17.2626 2.73735 17.5744 2.52901 17.9176 2.38687C18.2608 2.24473 18.6286 2.17157 19 2.17157C19.3714 2.17157 19.7392 2.24473 20.0824 2.38687C20.4256 2.52901 20.7374 2.73735 21 3C21.2626 3.26264 21.471 3.57444 21.6131 3.9176C21.7553 4.26077 21.8284 4.62856 21.8284 5C21.8284 5.37143 21.7553 5.73923 21.6131 6.08239C21.471 6.42555 21.2626 6.73735 21 7L7.5 20.5L2 22L3.5 16.5L17 3Z" stroke="#FF7B31" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </svg>
-                                                    </a>
-                                                    <form action="{{ route('corporate_admin.fgpitem.destroy', $item->fgp_item_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this item?')">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="ms-4 delete-user">
-                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <path d="M3 6H5H21" stroke="#FF3131" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                                <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="#FF3131" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                            </svg>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-
-
 							</table>
 						</div>
 					</div>
@@ -132,37 +110,139 @@
         <!--**********************************
             Content body end
         ***********************************-->
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script>
-            $(document).ready(function() {
-                $('.orderable-dropdown').change(function() {
-                    let itemId = $(this).data('id');
-                    let orderableValue = $(this).val();
 
-                    $.ajax({
-                        url: "{{ route('corporate_admin.fgpitem.updateOrderable') }}",
-                        type: "POST",
-                        data: {
-                            _token: "{{ csrf_token() }}",
-                            id: itemId,
-                            orderable: orderableValue
-                        },
-                        success: function(response) {
-                            console.log(response); // Debugging: Check response in console
-                            if (response.success) {
-                                // location.reload();
-                            } else {
-                                alert("Error: " + response.message);
+@push('scripts')
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Add SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function() {
+            // Destroy existing DataTable if it exists
+            if ($.fn.DataTable.isDataTable('#fgp-items-table')) {
+                $('#fgp-items-table').DataTable().destroy();
+            }
+
+            var table = $('#fgp-items-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('corporate_admin.fgpitem.index') }}",
+                columns: [
+                    { data: 'name', name: 'name' },
+                    { 
+                        data: 'image1',
+                        name: 'image1',
+                        render: function(data) {
+                            if (data) {
+                                return '<img src="/storage/' + data + '" alt="Image" style="width: 50px; height: 50px; object-fit: contain;">';
                             }
-                        },
-                        error: function(xhr, status, error) {
-                            console.error(xhr.responseText);
-                            alert("AJAX Error: " + xhr.responseText);
+                            return '<span>No Image</span>';
+                        }
+                    },
+                    { data: 'description', name: 'description' },
+                    { data: 'categories', name: 'categories' },
+                    { data: 'action', name: 'action', orderable: false, searchable: false }
+                ],
+                language: {
+                    paginate: {
+                        next: '<i class="fa fa-angle-double-right"></i>',
+                        previous: '<i class="fa fa-angle-double-left"></i>'
+                    }
+                },
+                drawCallback: function(settings) {
+                    // Initialize SweetAlert confirmation for delete buttons
+                    window.initSwalConfirm({
+                        triggerSelector: '.delete-fgpitem',
+                        title: 'Delete Item',
+                        text: 'Are you sure you want to delete this item? This action cannot be undone.',
+                        confirmButtonText: 'Yes, delete item'
+                    });
+
+                    $('.paginate_button').each(function() {
+                        if ($(this).hasClass('current')) {
+                            $(this).attr('aria-current', 'page');
                         }
                     });
+                }
+            });
+
+            // Keep the existing orderable dropdown functionality
+            $(document).on('change', '.orderable-dropdown', function() {
+                let itemId = $(this).data('id');
+                let orderableValue = $(this).val();
+
+                $.ajax({
+                    url: "{{ route('corporate_admin.fgpitem.updateOrderable') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        id: itemId,
+                        orderable: orderableValue
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        if (!response.success) {
+                            alert("Error: " + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);
+                        alert("AJAX Error: " + xhr.responseText);
+                    }
                 });
             });
-        </script>
+        });
 
+        // SweetAlert2 confirmation initialization function
+        function initSwalConfirm(options) {
+            $(document).off('click', options.triggerSelector).on('click', options.triggerSelector, function(e) {
+                e.preventDefault();
+                const form = $(this).closest('form');
+
+                Swal.fire({
+                    title: options.title,
+                    text: options.text,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: options.confirmButtonText,
+                    cancelButtonText: 'Cancel',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: form.attr('action'),
+                            type: 'POST',
+                            data: form.serialize(),
+                            success: function(response) {
+                                if (response.success) {
+                                    Swal.fire(
+                                        'Deleted!',
+                                        'The item has been deleted.',
+                                        'success'
+                                    ).then(() => {
+                                        $('#fgp-items-table').DataTable().ajax.reload();
+                                    });
+                                } else {
+                                    Swal.fire(
+                                        'Error!',
+                                        response.message || 'Something went wrong!',
+                                        'error'
+                                    );
+                                }
+                            },
+                            error: function() {
+                                Swal.fire(
+                                    'Error!',
+                                    'Something went wrong!',
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
+            });
+        }
+    </script>
+@endpush
 
 @endsection
