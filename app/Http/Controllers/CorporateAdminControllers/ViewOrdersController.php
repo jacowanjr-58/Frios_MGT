@@ -59,9 +59,9 @@ class ViewOrdersController extends Controller
                            DB::table('fgp_order_details')->where('fgp_order_id', $order->fgp_ordersID)->count() . ' items</span>';
                 })
                 ->addColumn('issues', function ($order) {
-                    // return $order->orderDiscrepancies->count() > 0 
-                    //     ? '<span class="badge bg-danger text-white">Alert</span>'
-                    //     : '<span class="badge bg-success text-white">OK</span>';
+                    return $order->orderDiscrepancies->count() > 0 
+                        ? '<span class="badge bg-danger text-white">Alert</span>'
+                        : '<span class="badge bg-success text-white">OK</span>';
                 })
                 ->addColumn('status', function ($order) {
                     $statuses = ['Pending', 'Paid', 'Shipped', 'Delivered'];
