@@ -154,14 +154,13 @@
                 serverSide: true,
                 ajax: "{{ route('corporate_admin.transaction') }}",
                 columns: [
-                    { data: 'order_id', name: 'order_id' },
+                    { data: 'cardholder_name', name: 'cardholder_name' },
                     { data: 'amount', name: 'amount' },
-                    { data: 'payment_method', name: 'payment_method' },
                     { data: 'status', name: 'status' },
                     { data: 'action', name: 'action', orderable: false, searchable: false },
                     { data: 'created_at', name: 'created_at', visible: false }
                 ],
-                order: [[5, 'desc']], // Order by created_at column
+                order: [[4, 'desc']],
                 language: {
                     paginate: {
                         next: '<i class="fa fa-angle-double-right"></i>',

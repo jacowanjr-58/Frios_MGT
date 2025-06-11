@@ -118,7 +118,15 @@
             var table = $('#fgp-items-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('corporate_admin.fgpitem.index') }}",
+                ajax: {
+                    url: "{{ route('corporate_admin.fgpitem.index') }}",
+                    error: function(xhr, error, thrown) {
+                        console.error('DataTables error:', error);
+                        if (xhr.responseJSON) {
+                            console.error('Server response:', xhr.responseJSON);
+                        }
+                    }
+                },
                 columns: [
                     { data: 'name', name: 'name' },
                     { 
@@ -136,12 +144,13 @@
                     { data: 'action', name: 'action', orderable: false, searchable: false },
                     { data: 'created_at', name: 'created_at', visible: false }
                 ],
-                order: [[6, 'desc']],
+                order: [[5, 'desc']],
                 language: {
                     paginate: {
                         next: '<i class="fa fa-angle-double-right"></i>',
                         previous: '<i class="fa fa-angle-double-left"></i>'
-                    }
+                    },
+                    processing: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>'
                 },
                 drawCallback: function(settings) {
                     // Initialize SweetAlert confirmation for delete buttons
@@ -152,9 +161,16 @@
                         confirmButtonText: 'Yes, delete item'
                     });
 
+                    $('.dataTables_paginate').addClass('paging_simple_numbers');
                     $('.paginate_button').each(function() {
                         if ($(this).hasClass('current')) {
                             $(this).attr('aria-current', 'page');
+                        }
+                    });
+                    $('.paginate_button.previous, .paginate_button.next').attr({
+                        'role': 'link',
+                        'aria-disabled': function() {
+                            return $(this).hasClass('disabled') ? 'true' : 'false';
                         }
                     });
                 }
@@ -174,14 +190,23 @@
                         orderable: orderableValue
                     },
                     success: function(response) {
-                        console.log(response);
-                        if (!response.success) {
-                            alert("Error: " + response.message);
+                        if (response.success) {
+                            table.ajax.reload(null, false); // Reload table without resetting pagination
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message || 'Something went wrong!'
+                            });
                         }
                     },
                     error: function(xhr, status, error) {
-                        console.error(xhr.responseText);
-                        alert("AJAX Error: " + xhr.responseText);
+                        console.error('AJAX Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to update orderable status'
+                        });
                     }
                 });
             });

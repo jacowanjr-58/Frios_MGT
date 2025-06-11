@@ -31,8 +31,21 @@ class PaymentController extends Controller
             $transactions = OrderTransaction::query();
 
             return DataTables::of($transactions)
+                ->addColumn('cardholder_name', function ($transaction) {
+                    return $transaction->cardholder_name ?? 'N/A';
+                })
                 ->addColumn('amount', function ($transaction) {
-                    return '$' . number_format($transaction->amount);
+                    return '$' . number_format($transaction->amount, 2);
+                })
+                ->addColumn('status', function ($transaction) {
+                    $statusClass = match($transaction->stripe_status) {
+                        'succeeded' => 'success',
+                        'paid' => 'success',
+                        'failed' => 'danger',
+                        'pending' => 'warning',
+                        default => 'secondary'
+                    };
+                    return '<span class="badge bg-'.$statusClass.'">' . ucfirst($transaction->stripe_status) . '</span>';
                 })
                 ->addColumn('action', function ($transaction) {
                     $viewUrl = route('corporate_admin.pos.order', $transaction->id);
@@ -48,7 +61,7 @@ class PaymentController extends Controller
                         </a>
                     </div>';
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['status', 'action'])
                 ->make(true);
         }
 
