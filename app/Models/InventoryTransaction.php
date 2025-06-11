@@ -16,6 +16,7 @@ class InventoryTransaction extends Model
     protected $fillable = [
         'inventory_id',
         'type',
+        
         'quantity',
         'reference',
         'notes',

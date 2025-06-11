@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\DB;
 
 class OrderPopsController extends Controller
 {
-    public function index()
+    public function index($franchisee=null)
     {
         $currentMonth = strval(Carbon::now()->format('n')); // Get current month as single-digit (1-12)
 
@@ -46,7 +46,7 @@ class OrderPopsController extends Controller
         return view('franchise_admin.orderpops.index', compact('pops', 'totalPops'));
     }
 
- public function create()
+ public function create($franchisee=null)
 {
         $currentMonth = (string) Carbon::now()->month;
 

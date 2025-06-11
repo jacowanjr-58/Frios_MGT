@@ -50,7 +50,7 @@
 
 
 
-                                            <form action="{{ route('franchise.expense.update' , $expense->id) }}" method="POST">
+                                            <form action="{{ route('franchise.expense.update' , ['franchisee' => request()->route('franchisee'), 'id' => $expense->id]) }}" method="POST">
                                                 @method('PUT')
                                                 @csrf
 

@@ -2,21 +2,7 @@
 
 @section('content')
     <x-notify::notify />
-
-    <!--**********************************
-                                        Content body start
-                                    ***********************************-->
-    @if (auth()->user()->role == 'corporate_admin' || auth()->user()->role == 'franchise_admin')
-        <div class=" content-body default-height">
-            <!-- row -->
-            <div class="container-fluid">
-                <div class="form-head mb-4 d-flex flex-wrap align-items-center">
-                    <div class="me-auto">
-                        <h2 class="font-w600 mb-0">Dashboard</h2>
-                        <!-- <p>Lorem ipsum  dolor sit amet </p> -->
-                         
-                    </div>
-                    @php
+    @php
                         $user = auth()->user();
                         $franchisees = $user->franchisees ?? collect();
                         $selectedFranchiseeId = $franchiseeId ?? null;
@@ -39,6 +25,20 @@
                             </div>
                         </div>
                     @endif
+    <!--**********************************
+                                        Content body start
+                                    ***********************************-->
+    @if (auth()->user()->role == 'corporate_admin' || auth()->user()->role == 'franchise_admin')
+        <div class=" content-body default-height">
+            <!-- row -->
+            <div class="container-fluid">
+                <div class="form-head mb-4 d-flex flex-wrap align-items-center">
+                    <div class="me-auto">
+                        <h2 class="font-w600 mb-0">Dashboard</h2>
+                        <!-- <p>Lorem ipsum  dolor sit amet </p> -->
+                         
+                    </div>
+                  
                 </div>
                 <div class="row">
                     <div class="col-xl-12">

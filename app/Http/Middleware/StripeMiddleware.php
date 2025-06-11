@@ -17,17 +17,19 @@ class StripeMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-
+       
         if (Auth::user()->role == "franchise_admin") {
 
 
             // $franchiseeId = Auth::user()->franchisee_id;
             $user = Auth::user();
+          
             // $franchiseeId =  $user->load('franchisees');
             // $user = User::where('franchisee_id', $franchiseeId)->first();
             if ($user->stripe_account_id == null) {
                 return redirect()->route('franchise.stripe')->with('error', 'You have not connect a Stripe account yet. Please connect one to proceed.');
             } else {
+            
                 return $next($request);
             }
 

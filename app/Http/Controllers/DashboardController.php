@@ -14,8 +14,11 @@ class DashboardController extends Controller
 {
     public function dashboard($franchisee = null)
     {
-        return redirect('/franchise/select');
+        
         $user = Auth::user();
+        if($user->role == 'franchise_admin' || $user->role == 'franchise_manager' || $user->role == 'franchise_staff'){
+            return redirect('/franchise/select');
+        }
         // If franchisee is provided, authorize and use it
         if ($franchisee) {
             if (!$user->franchisees->pluck('franchisee_id')->contains($franchisee)) {

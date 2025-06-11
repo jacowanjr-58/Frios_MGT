@@ -18,7 +18,7 @@
                     Create Event
                 </h1>
 
-                <a href="{{ route('franchise.events.calender') }}" class="mb-3 btn btn-secondary btn-sm">
+                <a href="{{ route('franchise.events.calender', ['franchisee' => request()->route('franchisee')]) }}" class="mb-3 btn btn-secondary btn-sm">
                     Back
                 </a>
             </div>
@@ -32,7 +32,7 @@
             </div>
 
 
-            <form action="{{ route('franchise.events.store') }}" method="post" id="stripe-payment-form">
+            <form action="{{ route('franchise.events.store', ['franchisee' => request()->route('franchisee')]) }}" method="post" id="stripe-payment-form">
                 @csrf
                 <div class="form-group">
                     <label for="" class="form-label">Event Name</label>
@@ -433,7 +433,7 @@
                 }
 
                 $.ajax({
-                    url: '{{ route('franchise.events.date') }}',
+                    url: '{{ route('franchise.events.date', ['franchisee' => request()->route('franchisee')]) }}',
                     method: 'POST',
                     data: {
                         start_date: selectedStartDate,

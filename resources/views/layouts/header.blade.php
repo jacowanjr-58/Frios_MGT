@@ -8,8 +8,7 @@
         </div>
     </div>
     <a href="{{ route('dashboard') }}" class="brand-logo">
-        <img src="{{ asset('assets/images/Frios-Logo.png') }}"
-            class="logo" />
+        <img src="{{ asset('assets/images/Frios-Logo.png') }}" class="logo" />
     </a>
 </div>
 <style>
@@ -72,7 +71,33 @@
         <nav class="navbar navbar-expand">
             <div class="collapse navbar-collapse justify-content-between">
                 <div class="header-left">
+                    @php
+                        $user = auth()->user();
+                        $franchisees = $user->franchisees ?? collect();
+                        $selectedFranchiseeId = $franchiseeId ?? null;
+                        $franchiseeId = $franchiseeId ?? null;
+                    @endphp
+                    @if($user->hasRole('franchise_admin') && $franchisees->count() > 1)
+                        <div class="">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <label for="franchisee_id" class="form-label mb-0 me-2">Select Franchisee</label>
+                                </div>
+                                <div class="col-auto">
+                                    <select name="franchisee_id" id="franchisee_id" class="form-select form-control"
+                                        onchange="if(this.value) window.location.href='/franchise/' + this.value + '/dashboard'">
+                                        @foreach($franchisees as $franchisee)
+                                            <option value="{{ $franchisee->franchisee_id }}" {{ $selectedFranchiseeId == $franchisee->franchisee_id ? 'selected' : '' }}>
+                                                {{ $franchisee->business_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
+
                 <ul class="navbar-nav header-right">
                     {{-- <li class="nav-item">
                         <div id="selectLanguageDropdown" name="selectLanguageDropdown" class="localizationTool"></div>
@@ -117,7 +142,7 @@
                             </a>
                             @endrole
                             @role('franchise_admin')
-                            <a href="{{ route('franchise.staff.index') }}" class="dropdown-item ai-icon d-flex">
+                            <a href="{{ route('franchise.staff.index' , ['franchise' => $franchiseeId]) }}" class="dropdown-item ai-icon d-flex">
                                 <i class="bi bi-people-fill text-primary"></i>
                                 <span class="ms-2">Manage Users</span>
                             </a>
@@ -127,7 +152,7 @@
                             </a>
                             @endrole
                             @role('franchise_manager')
-                            <a href="{{ route('franchise.staff.index') }}" class="dropdown-item ai-icon d-flex">
+                            <a href="{{ route('franchise.staff.index' , ['franchise' => $franchiseeId]) }}" class="dropdown-item ai-icon d-flex">
                                 <i class="bi bi-people-fill text-primary"></i>
                                 <span class="ms-2">Manage Users</span>
                             </a>

@@ -54,7 +54,7 @@ return new class extends Migration
         Schema::table('inventory_allocations', function (Blueprint $table) {
             $table->unsignedInteger('allocated_cases')
                   ->default(0)
-                  ->after('location_id')
+                   ->after('location_id')
                   ->comment('Full cases allocated');
             $table->unsignedInteger('allocated_units')
                   ->default(0)

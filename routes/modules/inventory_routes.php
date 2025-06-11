@@ -24,7 +24,7 @@ use App\Http\Controllers\Franchise\InventoryRemovalController;
 */
 
 Route::middleware(['auth', 'role:franchise_admin'])
-     ->prefix('franchise/inventory')
+     ->prefix('franchise/{franchisee}/inventory')
      ->name('franchise.inventory.')
      ->group(function () {
 
@@ -49,7 +49,7 @@ Route::middleware(['auth', 'role:franchise_admin'])
     Route::post('store', [InventoryController::class, 'store'])
          ->name('store');
 
-    // (If you need a “show” page for a single master line, uncomment next two lines)
+    // (If you need a "show" page for a single master line, uncomment next two lines)
     // Route::get('{inventoryMaster}', [InventoryController::class, 'show'])
     //      ->name('show');
 
@@ -70,7 +70,7 @@ Route::middleware(['auth', 'role:franchise_admin'])
      *
      */
 
-      // Show the “Confirm Delivery” form
+      // Show the "Confirm Delivery" form
         Route::get('{order}/confirm_delivery', [InventoryAllocationController::class, 'showConfirmDelivery'])
              ->name('confirm_delivery');
 

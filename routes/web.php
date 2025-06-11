@@ -32,6 +32,7 @@ use App\Http\Controllers\Franchise\AccountController;
 use App\Http\Middleware\StripeMiddleware;
 use Illuminate\Support\Facades\DB;
 
+
 Route::get('/', function () {
     return view('auth.login');
 });
@@ -63,7 +64,7 @@ Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallb
 
 
 Route::middleware(['auth', 'role:franchise_admin|franchise_manager', StripeMiddleware::class])->prefix('franchise')->name('franchise.')->group(function () {
-    Route::get('/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard');
+     Route::get('/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard');
 
     // Staff routes
     Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
@@ -89,33 +90,39 @@ Route::middleware(['auth', 'role:franchise_admin|franchise_manager', StripeMiddl
 
 
 
-    Route::get('/events', [EventController::class, 'index'])->name('events.index');
-    Route::get('/events/calender', [EventController::class, 'eventCalender'])->name('events.calender');
-    Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
-    Route::get('/events/{id}/view', [EventController::class, 'view'])->name('events.view');
-    Route::get('/events/report', [EventController::class, 'report'])->name('events.report');
-    Route::post('/events', [EventController::class, 'store'])->name('events.store');
-    Route::post('/events/update-status', [EventController::class, 'updateStatus'])->name('updateStatus');
-    Route::get('/events/{event}/compare', [EventController::class, 'compare'])->name('events.compare');
-    Route::post('/events/date', [EventController::class, 'date'])->name('events.date');
+    Route::prefix('{franchisee}/events')->group(function () {
+        Route::get('/', [EventController::class, 'index'])->name('events.index');
+        Route::get('/calender', [EventController::class, 'eventCalender'])->name('events.calender');
+        Route::get('/create', [EventController::class, 'create'])->name('events.create');
+        Route::get('/{id}/view', [EventController::class, 'view'])->name('events.view');
+        Route::get('/report', [EventController::class, 'report'])->name('events.report');
+        Route::post('/', [EventController::class, 'store'])->name('events.store');
+        Route::post('/update-status', [EventController::class, 'updateStatus'])->name('updateStatus');
+        Route::get('/{event}/compare', [EventController::class, 'compare'])->name('events.compare');
+        Route::post('/date', [EventController::class, 'date'])->name('events.date');
+    });
 
     // Expense
-    Route::get('expense', [ExpenseController::class, 'index'])->name('expense');
-    Route::get('expense-create', [ExpenseController::class, 'create'])->name('expense.create');
-    Route::post('expense-store', [ExpenseController::class, 'store'])->name('expense.store');
-    Route::get('expense/{id}/edit', [ExpenseController::class, 'edit'])->name('expense.edit');
-    Route::put('expense/{id}/update', [ExpenseController::class, 'update'])->name('expense.update');
-    Route::delete('expense/{id}/delete', [ExpenseController::class, 'delete'])->name('expense.delete');
-    Route::get('/get-subcategories/{category_id}', [ExpenseController::class, 'getSubCategories'])->name('getSubCategories');
+    Route::prefix('{franchisee}')->group(function () {
+        Route::get('expense', [ExpenseController::class, 'index'])->name('expense');
+        Route::get('expense-create', [ExpenseController::class, 'create'])->name('expense.create');
+        Route::post('expense-store', [ExpenseController::class, 'store'])->name('expense.store');
+        Route::get('expense/{id}/edit', [ExpenseController::class, 'edit'])->name('expense.edit');
+        Route::put('expense/{id}/update', [ExpenseController::class, 'update'])->name('expense.update');
+        Route::delete('expense/{id}/delete', [ExpenseController::class, 'delete'])->name('expense.delete');
+        Route::get('/get-subcategories/{category_id}', [ExpenseController::class, 'getSubCategories'])->name('getSubCategories');
+    });
 
     // Customer
-    Route::get('customer', [CustomerController::class, 'index'])->name('customer');
-    Route::get('customer-create', [CustomerController::class, 'create'])->name('customer.create');
-    Route::post('customer-store', [CustomerController::class, 'store'])->name('customer.store');
-    Route::get('customer/{id}/edit', [CustomerController::class, 'edit'])->name('customer.edit');
-    Route::get('customer/{id}/view', [CustomerController::class, 'view'])->name('customer.view');
-    Route::put('customer/{id}/update', [CustomerController::class, 'update'])->name('customer.update');
-    Route::delete('customer/{id}/delete', [CustomerController::class, 'delete'])->name('customer.delete');
+    Route::prefix('{franchisee}')->group(function () {
+        Route::get('customer', [CustomerController::class, 'index'])->name('customer');
+        Route::get('customer-create', [CustomerController::class, 'create'])->name('customer.create');
+        Route::post('customer-store', [CustomerController::class, 'store'])->name('customer.store');
+        Route::get('customer/{id}/edit', [CustomerController::class, 'edit'])->name('customer.edit');
+        Route::get('customer/{id}/view', [CustomerController::class, 'view'])->name('customer.view');
+        Route::put('customer/{id}/update', [CustomerController::class, 'update'])->name('customer.update');
+        Route::delete('customer/{id}/delete', [CustomerController::class, 'delete'])->name('customer.delete');
+    });
 
     // Payment
     Route::get('transactions', [PaymentController::class, 'transaction'])->name('transaction');
@@ -128,7 +135,14 @@ Route::middleware(['auth', 'role:franchise_admin|franchise_manager', StripeMiddl
     Route::get('pos/invoice/{id}/download', [PaymentController::class, 'posInvoiceDownloadPDF'])->name('invoice.pos.download');
 
     // Location
-    Route::resource('locations', InventoryLocationController::class);
+    Route::prefix('{franchisee}/locations')->name('franchise.locations.')->group(function () {
+        Route::get('/', [InventoryLocationController::class, 'index'])->name('index');
+        Route::get('/create', [InventoryLocationController::class, 'create'])->name('create');
+        Route::post('/', [InventoryLocationController::class, 'store'])->name('store');
+        Route::get('/{location}/edit', [InventoryLocationController::class, 'edit'])->name('edit');
+        Route::put('/{location}', [InventoryLocationController::class, 'update'])->name('update');
+        Route::delete('/{location}', [InventoryLocationController::class, 'destroy'])->name('destroy');
+    });
 
     // Invoice
     Route::resource('invoice', InvoiceController::class);
@@ -148,6 +162,12 @@ Route::middleware(['auth', 'role:franchise_admin|franchise_manager', StripeMiddl
     Route::delete('expense-sub-category/{id}/delete', [ExpensesCategoryController::class, 'deleteExpense'])->name('expense-sub-category.delete');
 
 
+});
+Route::middleware(['auth', 'role:franchise_admin'])->prefix('franchise')->name('franchise.')->group(function () {
+ 
+    Route::get('/select', [FranchiseAdminController::class, 'selectFranchisee'])->name('select_franchisee');
+    Route::post('/set-franchisee', [FranchiseAdminController::class, 'setFranchisee'])->name('set_franchisee');
+    Route::get('/{franchisee}/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard');
 });
 
 Route::get('/payment/success', [OrderPopsController::class, 'success'])->name('payment.successs');
@@ -338,13 +358,24 @@ Route::get('/test-reset-migrations', function () {
         ['id' => 43, 'migration' => '2025_06_02_000100_create_inventory_transactions_table', 'batch' => 3],
         ['id' => 44, 'migration' => '2025_06_02_000200_create_inventory_allocations_table', 'batch' => 4],
         ['id' => 45, 'migration' => '2025_06_02_000300_create_inventory_removal_queue_table', 'batch' => 5],
+        ['id' => 46, 'migration' => '2025_06_04_183234_create_user_franchisees_table', 'batch' => 6],
     ]);
 
     return 'Migrations table reset successfully.';
 });
 
-Route::middleware(['auth', 'role:franchise_admin'])->prefix('franchise')->name('franchise.')->group(function () {
-    Route::get('/select', [\App\Http\Controllers\FranchiseAdminControllers\FranchiseAdminController::class, 'selectFranchisee'])->name('select_franchisee');
-    Route::post('/set-franchisee', [\App\Http\Controllers\FranchiseAdminControllers\FranchiseAdminController::class, 'setFranchisee'])->name('set_franchisee');
-    Route::get('/{franchisee}/dashboard', [\App\Http\Controllers\FranchiseAdminControllers\FranchiseAdminController::class, 'dashboard'])->name('dashboard');
+Route::prefix('franchise-admin')->name('franchise.')->middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard');
+    
+    // Location routes
+    Route::prefix('{franchisee}/locations')->name('locations.')->group(function () {
+        Route::get('/', [InventoryLocationController::class, 'index'])->name('index');
+        Route::get('/create', [InventoryLocationController::class, 'create'])->name('create');
+        Route::post('/', [InventoryLocationController::class, 'store'])->name('store');
+        Route::get('/{location}/edit', [InventoryLocationController::class, 'edit'])->name('edit');
+        Route::put('/{location}', [InventoryLocationController::class, 'update'])->name('update');
+        Route::delete('/{location}', [InventoryLocationController::class, 'destroy'])->name('destroy');
+    });
 });
+
+

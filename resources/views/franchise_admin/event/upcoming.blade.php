@@ -8,7 +8,7 @@
          <div class="media-body px-0">
              <h6 class="mt-0 mb-3 fs-14">
                 @if (auth()->user()->role == 'franchise_admin' || auth()->user()->role == 'franchise_manager')
-                    <a href="{{ route('franchise.events.view', $event->id) }}" class="text-black">
+                    <a href="{{ route('franchise.events.view', ['id' => $event->id, 'franchisee' => request()->route('franchisee')]) }}" class="text-black">
                         {{ $event->event_name }}
                     </a>
                 @elseif(auth()->user()->role == 'franchise_staff')

@@ -7,63 +7,84 @@ use App\Models\InventoryMaster;
 use App\Models\InventoryTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class InventoryAdjustmentController extends Controller
 {
-    public function adjustForm()
+    public function adjustForm($franchisee)
     {
-        $franchiseId = Auth::user()->franchisee_id;
+        $franchiseId = (int)$franchisee; //Auth::user()->franchisee_id;
+        
         $inventoryMasters = InventoryMaster::where('franchisee_id', $franchiseId)->get();
         return view('franchise_admin.inventory.adjust', [
             'inventoryMasters' => $inventoryMasters
         ]);
     }
 
-    public function adjustUpdate(Request $request)
-    {
-        $franchiseId = Auth::user()->franchisee_id;
-        $inventoryMasters = InventoryMaster::where('franchisee_id', $franchiseId)->get();
+   // ... existing code ...
+   public function adjustUpdate(Request $request, $franchisee)
+   {
+       $franchiseId = (int)$franchisee;
+       $inventoryMasters = InventoryMaster::where('franchisee_id', $franchiseId)->get();
 
-        foreach ($inventoryMasters as $master) {
-            $id = $master->inventory_id;
+       DB::beginTransaction();
+       try {
+           foreach ($inventoryMasters as $master) {
+               $id = $master->inventory_id;
 
-            $new_cases = (int) $request->input("total_cases_$id");
-            $new_units = (int) $request->input("total_units_$id");
-            $split_factor = (int) $request->input("split_factor_$id");
-            $new_total = ($new_cases * $split_factor) + $new_units;
+               $new_cases = (int) $request->input("total_cases_$id");
+               $new_units = (int) $request->input("total_units_$id");
+               $split_factor = (int) $request->input("split_factor_$id");
+               $new_total = ($new_cases * $split_factor) + $new_units;
+               $notes = $request->input("notes_$id", '');  // Fixed: Changed from note_ to notes_
 
-            // Only process if changed
-            if ($new_total !== (int)$master->total_quantity) {
-                // Document the change in InventoryTransaction
-                InventoryTransaction::create([
-                    'inventory_id' => $id,
-                    'reference' => "Adjustment for inventory ID: $id",
-                    'created_by' => Auth::id(),
-                    'quantity' => $new_total - (int)$master->total_quantity,
-                    'note' => $request->input("note_$id", ''),
-                    'type' => 'Manual Adjustment',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+               // Only process if quantities changed or notes updated
+               if ($new_total !== (int)$master->total_quantity || $notes !== $master->notes) {
+                   // Document the change in InventoryTransaction
+                   InventoryTransaction::create([
+                       'inventory_id' => $id,
+                       'reference' => "Adjustment for inventory ID: $id",
+                       'created_by' => Auth::id(),
+                       'quantity' => $new_total - (int)$master->total_quantity,
+                       'note' => $notes,  // Use the new notes
+                       'type' => 'Manual Adjustment',
+                       'created_at' => now(),
+                       'updated_at' => now(),
+                   ]);
 
-                // Update the master record
-                $master->total_quantity = $new_total;
-                $master->save();
-            }
-        }
+                   // Update the master record
+                   $master->update([
+                       'total_quantity' => $new_total,
+                       'notes' => $notes,  // Save notes to master record
+                       // Also update the cases and units
+                       'case_quantity' => $new_cases,
+                       'unit_quantity' => $new_units
+                   ]);
+               }
+           }
 
-        return redirect()->back()->with('success', 'Inventory adjusted successfully.');
-    }
+           DB::commit();
+           return redirect()->back()->with('success', 'Inventory adjusted successfully.');
+           
+       } catch (\Exception $e) {
+           DB::rollback();
+           return redirect()->back()
+               ->with('error', 'Failed to adjust inventory. Please try again.')
+               ->withInput();
+       }
+   }
+// ... existing code ...
 
 
     /**
      * Show the bulk price adjustment form.
      */
-    public function showBulkPriceForm()
+    public function showBulkPriceForm($franchisee)
     {
-        $franchiseId = Auth::user()->franchisee_id;
+        $franchiseId = (int)$franchisee; //Auth::user()->franchisee_id;
         $inventoryMasters = InventoryMaster::where('franchisee_id', $franchiseId)->get();
         // Return a view (to be created) for bulk price adjustment
+       
         return view('franchise_admin.inventory.bulk_price', [
             'inventoryMasters' => $inventoryMasters
         ]);
@@ -72,9 +93,9 @@ class InventoryAdjustmentController extends Controller
     /**
      * Handle the bulk price adjustment update.
      */
-    public function updateBulkPrice(Request $request)
+    public function updateBulkPrice(Request $request, $franchisee)
     {
-        $franchiseId = Auth::user()->franchisee_id;
+        $franchiseId = (int)$franchisee;
         $inventoryMasters = InventoryMaster::where('franchisee_id', $franchiseId)->get();
 
         foreach ($inventoryMasters as $master) {

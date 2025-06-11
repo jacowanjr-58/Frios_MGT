@@ -51,7 +51,7 @@
 
 
 
-                                            <form id="stripe-payment-form" action="{{ route('franchise.expense.store') }}"
+                                            <form id="stripe-payment-form" action="{{ route('franchise.expense.store', ['franchisee' => request()->route('franchisee')]) }}"
                                                 method="POST">
                                                 @csrf
 

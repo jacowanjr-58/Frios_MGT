@@ -7,9 +7,9 @@ use Illuminate\Http\Request;
 
 class FranchiseAdminController extends Controller
 {
-    public function dashboard($franchisee)
+    public function dashboard($franchisee=null)
     {
-        
+      
         $user = auth()->user();
         $franchiseeId = $franchisee;
         $startOfMonth = \Carbon\Carbon::now()->startOfMonth();
@@ -31,12 +31,15 @@ class FranchiseAdminController extends Controller
             ->groupBy(\DB::raw("MONTH(created_at), MONTHNAME(created_at)"))
             ->pluck('count', 'month');
         $data['franchiseeId'] = $franchiseeId;
+       
         return view('dashboard', $data);
     }
 
     public function selectFranchisee()
     {
+       
         $user = auth()->user();
+       
         $franchisees = $user->franchisees;
         return view('franchise_admin.franchisee_select', compact('franchisees'));
     }
@@ -44,6 +47,7 @@ class FranchiseAdminController extends Controller
     public function setFranchisee(Request $request)
     {
         $request->validate(['franchisee_id' => 'required|exists:franchisees,franchisee_id']);
-        return redirect()->route('franchise.dashboard', ['franchisee' => $request->franchisee_id]);
+        return redirect("/franchise/{$request->franchisee_id}/dashboard");
+        // return redirect()->route('franchise.dashboard', ['franchisee' => $request->franchisee_id]);
     }
 }

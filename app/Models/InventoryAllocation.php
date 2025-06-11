@@ -16,6 +16,9 @@ class InventoryAllocation extends Model
     protected $fillable = [
         'inventory_id',
         'location_id',
+        'location',
+        'franchise_id',
+        'quantity',
         'allocated_quantity',
         'allocated_cases',
         'allocated_units',

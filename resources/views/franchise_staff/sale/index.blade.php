@@ -15,9 +15,7 @@
 
             </div>
             <div class="row mb-4 align-items-center">
-                {{-- <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                        <a href="{{ route('franchise.orderpops.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Order</a>
-                    </div> --}}
+              
                 <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
                     <a href="{{ route('franchise_staff.sales.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">Create
                         Sale</a>
