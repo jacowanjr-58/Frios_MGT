@@ -8,6 +8,7 @@ use App\Models\ExpenseCategory;
 use App\Models\ExpenseSubCategory;
 use App\Models\Expense;
 use App\Models\Customer;
+use App\Models\Franchisee;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
 
@@ -124,11 +125,11 @@ class ExpensesCategoryController extends Controller
 
             return DataTables::of($expenses)
                 ->addColumn('franchise', function ($expense) {
-                    return $expense->franchisee->name ?? '-';
+                    return $expense->franchisee->business_name ?? '-';
                 })
                 ->filterColumn('franchise', function ($query, $keyword) {
                     $query->whereHas('franchisee', function ($q) use ($keyword) {
-                        $q->where('name', 'like', "%$keyword%");
+                        $q->where('business_name', 'like', "%$keyword%");
                     });
                 })
                 ->addColumn('category', function ($expense) {
@@ -182,13 +183,12 @@ class ExpensesCategoryController extends Controller
 
             return DataTables::of($customers)
                 ->addColumn('franchise', function ($customer) {
-                    $franchisee = \App\Models\User::where('franchisee_id', $customer->franchisee_id)->first();
-                    return $franchisee->name ?? '-';
-                    return '-';
+                    $franchisee = Franchisee::where('franchisee_id', $customer->franchisee_id)->first();
+                    return $franchisee->business_name ?? '-';
                 })
                 ->filterColumn('franchise', function ($query, $keyword) {
                     $query->whereHas('franchisee', function ($q) use ($keyword) {
-                        $q->where('name', 'like', "%$keyword%");
+                        $q->where('business_name', 'like', "%$keyword%");
                     });
                 })
                 ->addColumn('action', function ($customer) {
@@ -217,19 +217,19 @@ class ExpensesCategoryController extends Controller
 
 
     public function indexExpense(){
-        $data['expenseSubCategories'] = ExpenseSubCategory::where('franchisee_id' , auth()->user()->franchisee_id)->orderBy('created_at' , 'DESC')->get();
-        $data['expenseSubCategoryCount'] = ExpenseSubCategory::where('franchisee_id' , auth()->user()->franchisee_id)->count();
+        $data['expenseSubCategories'] = ExpenseSubCategory::where('franchisee_id' , Auth::user()->franchisee_id)->orderBy('created_at' , 'DESC')->get();
+        $data['expenseSubCategoryCount'] = ExpenseSubCategory::where('franchisee_id' , Auth::user()->franchisee_id)->count();
         return view('franchise_admin.expense.category.index' , $data);
     }
 
 
     public function createExpense(){
-        $data['ExpenseCategories'] = ExpenseCategory::where('franchisee_id' , auth()->user()->franchisee_id)->get();
+        $data['ExpenseCategories'] = ExpenseCategory::where('franchisee_id' , Auth::user()->franchisee_id)->get();
         return view('franchise_admin.expense.category.create' , $data);
     }
 
     public function editExpense($id){
-        $data['ExpenseCategories'] = ExpenseCategory::where('franchisee_id' , auth()->user()->franchisee_id)->get();
+        $data['ExpenseCategories'] = ExpenseCategory::where('franchisee_id' , Auth::user()->franchisee_id)->get();
         $data['expenseSubCategory'] = ExpenseSubCategory::where('id' , $id)->first();
         return view('franchise_admin.expense.category.edit' , $data);
     }
@@ -241,7 +241,7 @@ class ExpensesCategoryController extends Controller
 
         $category = ExpenseCategory::create([
             'category' => $request->category,
-            'franchisee_id' => auth()->user()->franchisee_id,
+            'franchisee_id' => Auth::user()->franchisee_id,
         ]);
 
 
@@ -259,7 +259,7 @@ class ExpensesCategoryController extends Controller
         $subCategory = ExpenseSubCategory::create([
             'category_id' => $request->category_id,
             'sub_category' => $request->sub_category,
-            'franchisee_id' => auth()->user()->franchisee_id,
+            'franchisee_id' => Auth::user()->franchisee_id,
             'sub_category_description' => $request->sub_category_description,
         ]);
 
@@ -277,7 +277,7 @@ class ExpensesCategoryController extends Controller
         $subCategory = ExpenseSubCategory::where('id',$id)->update([
             'category_id' => $request->category_id,
             'sub_category' => $request->sub_category,
-            'franchisee_id' => auth()->user()->franchisee_id,
+            'franchisee_id' => Auth::user()->franchisee_id,
             'sub_category_description' => $request->sub_category_description,
         ]);
 

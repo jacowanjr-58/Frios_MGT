@@ -18,6 +18,6 @@ class Expense extends Model
 
     public function franchisee()
     {
-        return $this->belongsTo(User::class, 'franchisee_id', 'franchisee_id');
+        return $this->belongsTo(Franchisee::class, 'franchisee_id', 'franchisee_id');
     }
 }
