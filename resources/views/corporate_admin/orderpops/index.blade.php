@@ -1,6 +1,35 @@
 @extends('layouts.app')
 @section('content')
 
+@push('styles')
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        .dataTables_paginate.paging_simple_numbers {
+            margin: 15px 0;
+        }
+        .paginate_button {
+            padding: 8px 12px;
+            margin: 0 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #555;
+        }
+        .paginate_button.current {
+            background-color: #007bff;
+            color: white;
+        }
+        .paginate_button.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        .paginate_button:not(.disabled):hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+@endpush
+
 <!--**********************************
             Content body start
         ***********************************-->
@@ -56,7 +85,7 @@
 							<!-- New Order Button -->
 
 <!-- Pops Table -->
-<table id="example5" class="table customer-table display mb-4 fs-14 card-table">
+<table id="pops-table" class="table customer-table display mb-4 fs-14 card-table">
     <thead>
         <tr>
             <th>
@@ -73,42 +102,6 @@
             <th>Availability</th>
         </tr>
     </thead>
-    <tbody>
-        @foreach ($pops as $pop)
-        <tr>
-            <td>
-                <div class="form-check checkbox-secondary">
-                    <input class="form-check-input pop-checkbox" type="checkbox" value="{{ $pop->fgp_item_id }}" id="flexCheckDefault{{ $pop->fgp_item_id }}">
-                    <label class="form-check-label" for="flexCheckDefault{{ $pop->fgp_item_id }}"></label>
-                </div>
-            </td>
-            <td class="item-name">{{ $pop->name }}</td>
-            <td class="item-image">
-                @if ($pop->image1)
-                    <img src="{{ asset('storage/' . $pop->image1) }}" alt="Image" style="width: 50px; height: 50px; object-fit: contain;">
-                @else
-                    <span>No Image</span>
-                @endif
-            </td>
-            <td class="item-price">${{ number_format($pop->case_cost, 2) }}</td>
-            <td class="item-category">
-                @if($pop->categories->isNotEmpty())
-                @php
-                        $chunks = $pop->categories->pluck('name')->chunk(5);
-                        @endphp
-                    @foreach($chunks as $chunk)
-                    {{ $chunk->join(', ') }} <br>
-                    @endforeach
-                    @else
-                    No Category
-                @endif
-            </td>
-            <td><span class="badge bg-success">In Stock</span></td>
-            <td><span class="badge bg-success">Available</span></td>
-        </tr>
-        @endforeach
-    </tbody>
-
 </table>
 
 
@@ -239,5 +232,90 @@ document.getElementById('orderButton').addEventListener('click', function () {
             });
         </script>
 
+@push('scripts')
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var table = $('#pops-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('corporate_admin.orderposps') }}",
+                columns: [
+                    { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
+                    { data: 'name', name: 'name' },
+                    { data: 'image', name: 'image', orderable: false, searchable: false },
+                    { data: 'price', name: 'case_cost' },
+                    { data: 'categories', name: 'categories' },
+                    { data: 'stock_status', name: 'stock_status' },
+                    { data: 'availability', name: 'availability' },
+                    { data: 'created_at', name: 'created_at', visible: false }
+                ],
+                order: [[7, 'desc']], // Order by name ascending
+                language: {
+                    paginate: {
+                        next: '<i class="fa fa-angle-double-right"></i>',
+                        previous: '<i class="fa fa-angle-double-left"></i>'
+                    }
+                },
+                drawCallback: function(settings) {
+                    // Add custom classes to pagination elements
+                    $('.dataTables_paginate').addClass('paging_simple_numbers');
+                    $('.paginate_button').each(function() {
+                        if ($(this).hasClass('current')) {
+                            $(this).attr('aria-current', 'page');
+                        }
+                    });
+                }
+            });
+
+            // Handle "Check All" functionality
+            $('#checkAll').on('change', function() {
+                $('.pop-checkbox').prop('checked', $(this).prop('checked'));
+            });
+
+            // Order button click handler
+            $('#orderButton').on('click', function() {
+                let checkedItems = [];
+
+                $('.pop-checkbox:checked').each(function() {
+                    const row = $(this).closest('tr');
+                    const itemDetails = {
+                        id: $(this).val(),
+                        name: row.find('td:eq(1)').text().trim(),
+                        image: row.find('td:eq(2) img').attr('src') || 'No Image',
+                        price: row.find('td:eq(3)').text().trim(),
+                        category: row.find('td:eq(4)').text().trim(),
+                        quantity: 1
+                    };
+                    checkedItems.push(itemDetails);
+                });
+
+                if (checkedItems.length < 3) {
+                    alert("Please select at least three items to order.");
+                    return;
+                }
+
+                fetch("{{ route('corporate_admin.orderpops.confirm') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ ordered_items: checkedItems })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        console.error('Invalid response format:', data);
+                    }
+                })
+                .catch(error => console.error('Error occurred:', error));
+            });
+        });
+    </script>
+@endpush
 
 @endsection

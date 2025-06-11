@@ -150,22 +150,65 @@ class ViewOrdersController extends Controller
     }
 
 
-    public function orderposps(){
-        $currentMonth = strval(Carbon::now()->format('n')); // Get current month as single-digit (1-12)
+    public function orderposps()
+    {
+        if (request()->ajax()) {
+            $currentMonth = strval(Carbon::now()->format('n'));
+            
+            $pops = FgpItem::with('categories')
+                ->where('orderable', 1)
+                ->where('internal_inventory', '>', 0)
+                ->whereJsonContains('dates_available', $currentMonth);
 
-        // Fetch only items that are orderable, in stock, and available in the current month
-        $pops = FgpItem::where('orderable', 1)
-            ->where('internal_inventory', '>', 0) // Ensure the item is in stock
-            ->get()
-            ->filter(function ($pop) use ($currentMonth) {
-                $availableMonths = json_decode($pop->dates_available, true);
-                return in_array($currentMonth, $availableMonths ?? []);
-            });
+            return DataTables::of($pops)
+                ->addColumn('checkbox', function ($pop) {
+                    return '<div class="form-check checkbox-secondary">
+                        <input class="form-check-input pop-checkbox" type="checkbox" value="' . $pop->fgp_item_id . '" id="flexCheckDefault' . $pop->fgp_item_id . '">
+                        <label class="form-check-label" for="flexCheckDefault' . $pop->fgp_item_id . '"></label>
+                    </div>';
+                })
+                ->addColumn('image', function ($pop) {
+                    if ($pop->image1) {
+                        return '<img src="' . asset('storage/' . $pop->image1) . '" alt="Image" style="width: 50px; height: 50px; object-fit: contain;">';
+                    }
+                    return '<span>No Image</span>';
+                })
+                ->addColumn('price', function ($pop) {
+                    return '$' . number_format($pop->case_cost, 2);
+                })
+                ->addColumn('categories', function ($pop) {
+                    $formattedCategories = '';
+                    if($pop->categories->isNotEmpty()) {
+                            foreach($pop->categories as $category) {
+                                $formattedCategories .= '<span class="badge bg-primary me-2 mb-1">'.$category->name.'</span>';
+                            }
+                        } else {
+                            $formattedCategories = 'No Category';
+                        }
+                    return $formattedCategories;
+                })
+                ->filterColumn('categories', function ($query, $keyword) {
+                    $query->whereHas('categories', function ($q) use ($keyword) {
+                        $q->where('name', 'like', "%$keyword%");
+                    });
+                })
+                ->addColumn('stock_status', function ($pop) {
+                    return '<span class="badge bg-success">In Stock</span>';
+                })
+                ->addColumn('availability', function ($pop) {
+                    return '<span class="badge bg-success">Available</span>';
+                })
+                ->rawColumns(['checkbox', 'image', 'categories', 'stock_status', 'availability'])
+                ->make(true);
+        }
 
-        // Count total available flavor pops
-        $totalPops = $pops->count();
+        $currentMonth = strval(Carbon::now()->format('n'));
+        $totalPops = FgpItem::where('orderable', 1)
+            ->where('internal_inventory', '>', 0)
+            ->whereJsonContains('dates_available', $currentMonth)
+            ->count();
 
-        return view('corporate_admin.orderpops.index', compact('pops', 'totalPops'));
+        return view('corporate_admin.orderpops.index', compact('totalPops'));
     }
 
 
