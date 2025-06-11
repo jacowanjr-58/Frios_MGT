@@ -130,6 +130,11 @@ public function store(Request $request)
     public function destroy(Franchisee $franchise)
     {
         $franchise->delete();
+
+        if (request()->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
         return redirect()->route('corporate_admin.franchise.index')->with('success', 'Franchise deleted successfully.');
     }
 
