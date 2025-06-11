@@ -112,6 +112,7 @@
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <!-- Add SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @vite(['resources/js/app.js'])
     <script>
         $(document).ready(function() {
             $('#owners-table').DataTable({
@@ -133,27 +134,12 @@
                     }
                 },
                 drawCallback: function(settings) {
-                    // Reinitialize delete event listeners with SweetAlert2
-                    $('.delete-user').on('click', function(e) {
-                        e.preventDefault();
-                        const deleteForm = $(this).closest('form');
-                        
-                        Swal.fire({
-                            title: 'Are you sure?',
-                            text: "You won't be able to revert this!",
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#00ABC7',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: 'Yes, delete it!',
-                            customClass: {
-                                confirmButton: 'swal2-confirm'
-                            }
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                deleteForm.submit();
-                            }
-                        });
+                    // Initialize SweetAlert confirmation for delete buttons
+                    window.initSwalConfirm({
+                        triggerSelector: '.delete-user',
+                        title: 'Delete Owner',
+                        text: 'Are you sure you want to delete this owner? This action cannot be undone.',
+                        confirmButtonText: 'Yes, delete owner'
                     });
 
                     // Add custom classes to pagination elements
