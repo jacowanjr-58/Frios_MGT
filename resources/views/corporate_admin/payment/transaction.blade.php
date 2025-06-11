@@ -2,10 +2,6 @@
 
 @section('content')
 @push('styles')
-    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <!-- Add SweetAlert2 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
         .dataTables_paginate.paging_simple_numbers {
             margin: 15px 0;
@@ -28,6 +24,13 @@
         }
         .paginate_button:not(.disabled):hover {
             background-color: #f0f0f0;
+        }
+        /* Custom SweetAlert2 button styles */
+        .swal2-confirm {
+            background-color: #00ABC7 !important;
+        }
+        .swal2-cancel {
+            background-color: #FF3131 !important;
         }
     </style>
 @endpush
@@ -144,11 +147,6 @@
 @endsection
 
 @push('scripts')
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-    <!-- Add SweetAlert2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @vite(['resources/js/app.js'])
     <script>
         $(document).ready(function() {
             $('#transaction-table').DataTable({
@@ -156,13 +154,14 @@
                 serverSide: true,
                 ajax: "{{ route('corporate_admin.transaction') }}",
                 columns: [
-                    { data: 'cardholder_name', name: 'cardholder_name' },
+                    { data: 'order_id', name: 'order_id' },
                     { data: 'amount', name: 'amount' },
-                    { data: 'stripe_status', name: 'stripe_status' },
+                    { data: 'payment_method', name: 'payment_method' },
+                    { data: 'status', name: 'status' },
                     { data: 'action', name: 'action', orderable: false, searchable: false },
                     { data: 'created_at', name: 'created_at', visible: false }
                 ],
-                order: [[4, 'desc']], // Order by created_at column
+                order: [[5, 'desc']], // Order by created_at column
                 language: {
                     paginate: {
                         next: '<i class="fa fa-angle-double-right"></i>',
