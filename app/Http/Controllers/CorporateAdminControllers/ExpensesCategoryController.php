@@ -177,9 +177,36 @@ class ExpensesCategoryController extends Controller
     }
 
     public function customer() {
-        $data['customers'] = Customer::get();
+        if (request()->ajax()) {
+            $customers = Customer::query();
+
+            return DataTables::of($customers)
+                ->addColumn('franchise', function ($customer) {
+                    $franchisee = \App\Models\User::where('franchisee_id', $customer->franchisee_id)->first();
+                    return $franchisee->name ?? '-';
+                    return '-';
+                })
+                ->filterColumn('franchise', function ($query, $keyword) {
+                    $query->whereHas('franchisee', function ($q) use ($keyword) {
+                        $q->where('name', 'like', "%$keyword%");
+                    });
+                })
+                ->addColumn('action', function ($customer) {
+                    $viewUrl = route('corporate_admin.customer.view', $customer->customer_id);
+
+                    return '
+                    <div class="d-flex">
+                        <a href="'.$viewUrl.'" class="view-customer">
+                            <i class="ti ti-eye fs-20" style="color: #00ABC7;"></i>
+                        </a>
+                    </div>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
         $data['customerCount'] = Customer::count();
-        return view('corporate_admin.customer.index' ,$data);
+        return view('corporate_admin.customer.index', $data);
     }
 
     public function customerView($id) {
