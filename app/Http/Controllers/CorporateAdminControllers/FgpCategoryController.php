@@ -5,15 +5,44 @@ namespace App\Http\Controllers\CorporateAdminControllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\FgpCategory; // Import the model
+use Yajra\DataTables\Facades\DataTables;
 
 class FgpCategoryController extends Controller
 {
     // Display all categories
     public function index()
     {
-        $categories = FgpCategory::all();
-        $totalCategories = $categories->count();
-        return view('corporate_admin.fgp_category.index', compact('categories','totalCategories'));
+        $totalCategories = FgpCategory::count();
+        if (request()->ajax()) {
+            $categories = FgpCategory::query();
+
+            return DataTables::of($categories)
+                ->addColumn('created_at', function ($category) {
+                    return $category->formatted_created_at;
+                })
+                ->addColumn('action', function ($category) {
+                    $editUrl = route('corporate_admin.fgpcategory.edit', $category->category_ID);
+                    $deleteUrl = route('corporate_admin.fgpcategory.destroy', $category->category_ID);
+
+                    return '
+                    <div class="d-flex">
+                        <a href="'.$editUrl.'" class="edit-category">
+                            <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
+                        </a>
+                        <form action="'.$deleteUrl.'" method="POST">
+                            '.csrf_field().'
+                            '.method_field('DELETE').'
+                            <button type="submit" class="ms-4 delete-category">
+                                <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
+                            </button>
+                        </form>
+                    </div>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('corporate_admin.fgp_category.index', compact('totalCategories'));
     }
 
     // Show form to create a new category
