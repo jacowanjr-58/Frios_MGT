@@ -141,8 +141,10 @@
                     },
                     { data: 'description', name: 'description' },
                     { data: 'categories', name: 'categories' },
-                    { data: 'action', name: 'action', orderable: false, searchable: false }
+                    { data: 'action', name: 'action', orderable: false, searchable: false },
+                    { data: 'created_at', name: 'created_at', visible: false }
                 ],
+                order: [[6, 'desc']],
                 language: {
                     paginate: {
                         next: '<i class="fa fa-angle-double-right"></i>',

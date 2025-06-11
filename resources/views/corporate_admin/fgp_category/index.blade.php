@@ -125,9 +125,10 @@
                     { data: 'name', name: 'name' },
                     { data: 'type', name: 'type' },
                     { data: 'created_at', name: 'created_at' },
-                    { data: 'action', name: 'action', orderable: false, searchable: false }
+                    { data: 'action', name: 'action', orderable: false, searchable: false },
+                    { data: 'created_at', name: 'created_at', visible: false }
                 ],
-                order: [[2, 'desc']], // Order by created_at column by default
+                order: [[4, 'desc']], // Order by created_at column by default
                 language: {
                     paginate: {
                         next: '<i class="fa fa-angle-double-right"></i>',

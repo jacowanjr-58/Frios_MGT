@@ -115,9 +115,10 @@
                     { data: 'shipping_address', name: 'shipping_address' },
                     { data: 'items_count', name: 'items_count' },
                     { data: 'issues', name: 'issues' },
-                    { data: 'status', name: 'status' }
+                    { data: 'status', name: 'status' },
+                    { data: 'created_at', name: 'created_at', visible: false }
                 ],
-                order: [[1, 'desc']],
+                order: [[8, 'desc']],
                 language: {
                     paginate: {
                         next: '<i class="fa fa-angle-double-right"></i>',
