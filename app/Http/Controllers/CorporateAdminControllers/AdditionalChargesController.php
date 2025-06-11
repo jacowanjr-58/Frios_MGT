@@ -5,15 +5,55 @@ namespace App\Http\Controllers\CorporateAdminControllers;
 use App\Http\Controllers\Controller;
 use App\Models\AdditionalCharge;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 
 class AdditionalChargesController extends Controller
 {
     public function index()
     {
-        $additionalCharges = AdditionalCharge::all();
-        $totalCharges = $additionalCharges->count();
-    
-        return view('corporate_admin.additional_charges.index', compact('additionalCharges', 'totalCharges'));
+        if (request()->ajax()) {
+            $charges = AdditionalCharge::query();
+
+            return DataTables::of($charges)
+                ->addColumn('charge_amount', function ($charge) {
+                    if ($charge->charge_type === 'percentage') {
+                        return $charge->charge_price . '%';
+                    }
+                    return '$' . number_format($charge->charge_price, 2);
+                })
+                ->addColumn('charge_type', function ($charge) {
+                    if ($charge->charge_type === 'percentage') {
+                        return '<span>Percentage</span>';
+                    }
+                    return '<span>Fixed</span>';
+                })
+                ->addColumn('status', function ($charge) {
+                    return '<label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input" data-id="'.$charge->additionalcharges_id.'"
+                            '. ($charge->status ? 'checked' : '') .'>
+                        <span class="slider"></span>
+                    </label>';
+                })
+                ->addColumn('action', function ($charge) {
+                    return '<div class="d-flex">
+                        <a href="'.route('corporate_admin.additionalcharges.edit', $charge->additionalcharges_id).'" class="edit-user">
+                            <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
+                        </a>
+                        <form action="'.route('corporate_admin.additionalcharges.destroy', $charge->additionalcharges_id).'" method="POST" style="display:inline;">
+                            '.csrf_field().'
+                            '.method_field('DELETE').'
+                            <button type="submit" class="ms-4 delete-charge">
+                                <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
+                            </button>
+                        </form>
+                    </div>';
+                })
+                ->rawColumns(['charge_type', 'status', 'action'])
+                ->make(true);
+        }
+
+        $totalCharges = AdditionalCharge::count();
+        return view('corporate_admin.additional_charges.index', compact('totalCharges'));
     }
     
     public function create()

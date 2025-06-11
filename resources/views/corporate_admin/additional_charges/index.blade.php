@@ -1,6 +1,41 @@
 @extends('layouts.app')
 @section('content')
+
+@push('styles')
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Add SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
+        .dataTables_paginate.paging_simple_numbers {
+            margin: 15px 0;
+        }
+        .paginate_button {
+            padding: 8px 12px;
+            margin: 0 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #555;
+        }
+        .paginate_button.current {
+            background-color: #007bff;
+            color: white;
+        }
+        .paginate_button.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        .paginate_button:not(.disabled):hover {
+            background-color: #f0f0f0;
+        }
+        /* Custom SweetAlert2 button styles */
+        .swal2-confirm {
+            background-color: #00ABC7 !important;
+        }
+        .swal2-cancel {
+            background-color: #FF3131 !important;
+        }
         .toggle-switch {
             position: relative;
             display: inline-block;
@@ -56,21 +91,17 @@
             transform: translateX(20px);
         }
     </style>
+@endpush
 
-    <!--**********************************
-                                        Content body start
-                                    ***********************************-->
     <div class="content-body default-height">
-        <!-- row -->
         <div class="container-fluid">
-
             <div class="form-head mb-4 d-flex flex-wrap align-items-center">
                 <div class="me-auto">
                     <h2 class="font-w600 mb-0">Dashboard \</h2>
                     <p>Additional Charges List</p>
                 </div>
-
             </div>
+            
             <div class="row mb-4 align-items-center">
                 <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
                     <a href="{{ route('corporate_admin.additionalcharges.create') }}"
@@ -99,22 +130,18 @@
                                         <h3 class="mb-0 font-w600 fs-22">{{ $totalCharges }} categories</h3>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-
             <div class="row">
                 <div class="col-lg-12">
                     <div class="table-responsive rounded">
-                        <table id="example5" class="table customer-table display mb-4 fs-14 card-table">
+                        <table id="charges-table" class="table customer-table display mb-4 fs-14 card-table">
                             <thead>
                                 <tr>
-
-                                    {{-- <th>Sr No.</th> --}}
                                     <th>Charges Name</th>
                                     <th>Charges Amount</th>
                                     <th>Charges Type</th>
@@ -122,115 +149,80 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach ($additionalCharges as $additionalCharge)
-                                    <tr>
-
-                                        {{-- <td>{{ $loop->iteration }}
-                                        </td> --}}
-                                        <td>{{ $additionalCharge->charge_name }}</td>
-                                        <td>
-                                            @if ($additionalCharge->charge_type === 'percentage')
-                                                {{ $additionalCharge->charge_price }}%
-                                            @else
-                                                ${{ number_format($additionalCharge->charge_price, 2) }}
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($additionalCharge->charge_type === 'percentage')
-                                                <span class="">Percentage</span>
-                                            @else
-                                                <span class="">Fixed</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" class="toggle-input" data-id="{{$additionalCharge->additionalcharges_id}}"
-                                                    @checked($additionalCharge->status)>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex">
-                                                <!-- Edit Button -->
-                                                <a href="{{ route('corporate_admin.additionalcharges.edit', $additionalCharge->additionalcharges_id) }}"
-                                                    class="edit-user">
-                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                                        xmlns="http://www.w3.org/2000/svg">
-                                                        <path
-                                                            d="M17 3C17.2626 2.73735 17.5744 2.52901 17.9176 2.38687C18.2608 2.24473 18.6286 2.17157 19 2.17157C19.3714 2.17157 19.7392 2.24473 20.0824 2.38687C20.4256 2.52901 20.7374 2.73735 21 3C21.2626 3.26264 21.471 3.57444 21.6131 3.9176C21.7553 4.26077 21.8284 4.62856 21.8284 5C21.8284 5.37143 21.7553 5.73923 21.6131 6.08239C21.471 6.42555 21.2626 6.73735 21 7L7.5 20.5L2 22L3.5 16.5L17 3Z"
-                                                            stroke="#FF7B31" stroke-width="2" stroke-linecap="round"
-                                                            stroke-linejoin="round" />
-                                                    </svg>
-                                                </a>
-
-                                                <!-- Delete Form -->
-                                                <form
-                                                    action="{{ route('corporate_admin.additionalcharges.destroy', $additionalCharge->additionalcharges_id) }}"
-                                                    method="POST"
-                                                    onsubmit="return confirm('Are you sure you want to delete this charge?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="ms-4 delete-user">
-                                                        <svg width="24" height="24" viewBox="0 0 24 24"
-                                                            fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M3 6H5H21" stroke="#FF3131" stroke-width="2"
-                                                                stroke-linecap="round" stroke-linejoin="round" />
-                                                            <path
-                                                                d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"
-                                                                stroke="#FF3131" stroke-width="2" stroke-linecap="round"
-                                                                stroke-linejoin="round" />
-                                                        </svg>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
                         </table>
-
-
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
-    <!--**********************************
-                                        Content body end
-                                    ***********************************-->
 
+@push('scripts')
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Add SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @vite(['resources/js/app.js'])
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            document.querySelectorAll(".edit-franchisee").forEach(button => {
-                button.addEventListener("click", function() {
-                    let franchiseeId = this.getAttribute("data-id");
-                    window.location.href = `/franchisee/${franchiseeId}/edit`;
-                });
-            });
-        });
-
-        $('.toggle-input').change(function(e) {
-            e.preventDefault();
-
-            let status = $(this).is(':checked');
-            let id = $(this).attr('data-id');
-
-            $.ajax({
-                type: "PUT",
-                url: "{{ url('corporate_admin/additional-charges/status') }}",
-                headers: {
-                    'x-csrf-token': "{{ csrf_token() }}"
+        $(document).ready(function() {
+            var table = $('#charges-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('corporate_admin.additionalcharges.index') }}",
+                columns: [
+                    { data: 'charge_name', name: 'charge_name' },
+                    { data: 'charge_amount', name: 'charge_price' },
+                    { data: 'charge_type', name: 'charge_type' },
+                    { data: 'status', name: 'status' },
+                    { data: 'action', name: 'action', orderable: false, searchable: false },
+                    { data: 'created_at', name: 'created_at', visible: false }
+                ],
+                order: [[5, 'desc']],
+                language: {
+                    paginate: {
+                        next: '<i class="fa fa-angle-double-right"></i>',
+                        previous: '<i class="fa fa-angle-double-left"></i>'
+                    }
                 },
-                data: {
-                    chargesId: id,
-                    status: status,
-                },
-                success: function(response) {
-                    console.log(response);
+                drawCallback: function(settings) {
+                    $('.dataTables_paginate').addClass('paging_simple_numbers');
+                    $('.paginate_button').each(function() {
+                        if ($(this).hasClass('current')) {
+                            $(this).attr('aria-current', 'page');
+                        }
+                    });
+
+                    window.initSwalConfirm({
+                        triggerSelector: '.delete-charge',
+                        title: 'Delete Additional Charge',
+                        text: 'Are you sure you want to delete this additional charge? This action cannot be undone.',
+                        confirmButtonText: 'Yes, delete charge'
+                    });
+
+                    $('.toggle-input').change(function(e) {
+                        e.preventDefault();
+
+                        let status = $(this).is(':checked');
+                        let id = $(this).attr('data-id');
+
+                        $.ajax({
+                            type: "PUT",
+                            url: "{{ url('corporate_admin/additional-charges/status') }}",
+                            headers: {
+                                'x-csrf-token': "{{ csrf_token() }}"
+                            },
+                            data: {
+                                chargesId: id,
+                                status: status,
+                            },
+                            success: function(response) {
+                                console.log(response);
+                            }
+                        });
+                    });
                 }
             });
         });
     </script>
+@endpush
+
 @endsection
