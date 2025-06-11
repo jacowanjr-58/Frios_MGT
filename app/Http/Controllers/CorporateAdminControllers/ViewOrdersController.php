@@ -70,12 +70,7 @@ class ViewOrdersController extends Controller
         ]);
     }
 
-    public function showCustomer($customerId)
-{
-    $customer = \App\Models\Customer::findOrFail($customerId);
-
-    return view('corporate_admin.customer.view', compact('customer'));
-}
+   
 
     public function updateStatus(Request $request)
     {

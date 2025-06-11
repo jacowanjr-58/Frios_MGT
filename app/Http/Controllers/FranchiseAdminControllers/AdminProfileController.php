@@ -5,25 +5,26 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class AdminProfileController extends Controller
 {
     public function index()
     {
-        $user = auth()->user(); // Get logged-in admin's profile
+        $user = Auth::user(); // Get logged-in admin's profile
         return view('franchise_admin.profile.index', compact('user'));
     }
 
     public function edit()
     {
-        $user = auth()->user(); // Fetch the authenticated user
+        $user = Auth::user(); // Fetch the authenticated user
         return view('franchise_admin.profile.edit', compact('user'));
     }
 
-  
+
 public function update(Request $request)
 {
-    $user = auth()->user();
+    $user = Auth::user();
 
     $request->validate([
         'name' => 'required|string|max:255',
@@ -52,5 +53,11 @@ public function update(Request $request)
 
     return redirect()->route('profile.index')->with('success', 'Profile updated successfully.');
 }
-    
+
+public function show($profile)
+{
+    $user = User::where('user_id', $profile)->firstOrFail(); // Get the currently authenticated user
+    return view('franchise_admin.profile.show', compact('user'));
+}
+
 }

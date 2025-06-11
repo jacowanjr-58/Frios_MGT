@@ -8,16 +8,17 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Auth;
 
 class OwnerController extends Controller
 {
     public function index()
     {
         $totalUsers = User::where('role', 'franchise_admin')->count();
-        
+
         if (request()->ajax()) {
             $users = User::where('role', 'franchise_admin');
-            
+
             return DataTables::of($users)
                 ->addColumn('franchise_name', function ($user) {
                     return $user->franchisee ? $user->franchisee->business_name : 'No Franchise Assigned';
@@ -31,7 +32,7 @@ class OwnerController extends Controller
                 ->addColumn('action', function ($user) {
                     $editUrl = route('corporate_admin.owner.edit', $user->user_id);
                     $deleteUrl = route('corporate_admin.owner.destroy', $user->user_id);
-                    
+
                     return '
                     <div class="d-flex">
                         <a href="'.$editUrl.'" class="edit-user">
@@ -49,7 +50,7 @@ class OwnerController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        
+
         return view('corporate_admin.owners.index', compact('totalUsers'));
     }
 

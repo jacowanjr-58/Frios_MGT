@@ -48,6 +48,7 @@ Route::middleware('auth')->group(function () {
     // Profile routes
     Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile/create', [AdminProfileController::class, 'create'])->name('profile.create');
+    Route::get('/profile/{profile}', [AdminProfileController::class, 'show'])->name('profile.show');
     Route::post('/profile', [AdminProfileController::class, 'store'])->name('profile.store');
     Route::get('/profile/{profile}/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/{profile}', [AdminProfileController::class, 'update'])->name('profile.update');
