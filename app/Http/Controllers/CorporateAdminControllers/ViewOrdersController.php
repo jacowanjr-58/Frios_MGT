@@ -5,47 +5,80 @@ namespace App\Http\Controllers\CorporateAdminControllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\FgpOrder;
-use App\Models\User;
 use App\Models\FgpItem;
 use App\Models\Franchisee;
 use App\Models\AdditionalCharge;
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use DB;
-use Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Yajra\DataTables\Facades\DataTables;
+use App\Models\Customer;
 
 class ViewOrdersController extends Controller
 {
     public function index()
     {
-        $deliveredOrders = FgpOrder::where('status', 'Delivered')->get();
-        $shippedOrders = FgpOrder::where('status', 'Shipped')->count();
-        $paidOrders = FgpOrder::where('status', 'Paid')->count();
-        $pendingOrders = FgpOrder::where('status', 'Pending')->count();
+        if (request()->ajax()) {
+            $orders = FgpOrder::query()
+                ->with(['user', 'customer'])
+                ->select('fgp_orders.*');
 
+            return DataTables::of($orders)
+                ->addColumn('order_number', function ($order) {
+                    return '<a href="' . route('corporate_admin.vieworders.edit', ['orderId' => $order->fgp_ordersID]) . '" class="text-primary fs-12">' . 
+                           $order->getOrderNum() . '</a>';
+                })
+                ->addColumn('date_time', function ($order) {
+                    return Carbon::parse($order->date_transaction)->format('M d, Y h:i A');
+                })
+                ->addColumn('total_amount', function ($order) {
+                    $totalAmount = DB::table('fgp_order_details')
+                        ->where('fgp_order_id', $order->fgp_ordersID)
+                        ->selectRaw('SUM(unit_number * unit_cost) as total')
+                        ->value('total');
+                    return '$' . number_format($totalAmount, 2);
+                })
+                ->addColumn('ordered_by', function ($order) {
+                    $franchisee = Franchisee::where('franchisee_id', $order->user_ID)->first();
+                    $customer = Customer::where('customer_id', $order->customer_id)->first();
+                    
+                    if ($customer) {
+                        return '<a href="' . route('corporate_admin.customer.view', ['id' => $customer->customer_id]) . '" class="text-primary">' . 
+                               $customer->name . '</a>';
+                    } elseif ($franchisee) {
+                        return '<a href="' . route('profile.show', ['profile' => $franchisee->franchisee_id]) . '" class="text-primary">' . 
+                               $franchisee->business_name . '</a>';
+                    }
+                    return 'Unknown';
+                })
+                ->addColumn('shipping_address', function ($order) {
+                    return $order->fullShippingAddress();
+                })
+                ->addColumn('items_count', function ($order) {
+                    return '<span class="cursor-pointer text-primary order-detail-trigger" data-id="' . $order->fgp_ordersID . '">' .
+                           DB::table('fgp_order_details')->where('fgp_order_id', $order->fgp_ordersID)->count() . ' items</span>';
+                })
+                ->addColumn('issues', function ($order) {
+                    // return $order->orderDiscrepancies->count() > 0 
+                    //     ? '<span class="badge bg-danger text-white">Alert</span>'
+                    //     : '<span class="badge bg-success text-white">OK</span>';
+                })
+                ->addColumn('status', function ($order) {
+                    $statuses = ['Pending', 'Paid', 'Shipped', 'Delivered'];
+                    $select = '<select class="status-select" data-date="' . $order->date_transaction . '" data-fgp-orders-id="' . $order->fgp_ordersID . '" tabindex="null">';
+                    foreach ($statuses as $status) {
+                        $selected = $order->status == $status ? 'selected' : '';
+                        $select .= '<option value="' . $status . '" ' . $selected . '>' . $status . '</option>';
+                    }
+                    $select .= '</select>';
+                    return $select;
+                })
+                ->rawColumns(['order_number', 'ordered_by', 'items_count', 'issues', 'status'])
+                ->make(true);
+        }
 
-        // $orders = FgpOrder::where('user_ID', Auth::id())
-        // ->select(
-        //     'user_ID',
-        //     'date_transaction',
-        //     \DB::raw('SUM(unit_number) as total_quantity'),
-        //     \DB::raw('SUM(unit_number * unit_cost) as total_amount'),
-        //     'status'
-        // )
-        // ->groupBy('date_transaction', 'user_ID', 'status')
-        // ->orderBy('date_transaction', 'desc')
-        // ->with('user') // Eager load user information
-        // ->get()
-        // ->map(function ($order) {
-        //     $order->date_transaction = Carbon::parse($order->date_transaction);
-        //     return $order;
-        // });
-
-        $orders = FgpOrder::get();
-
-        $totalOrders = $orders->count();
-
-        return view('corporate_admin.view_orders.index', compact('deliveredOrders', 'shippedOrders', 'pendingOrders', 'paidOrders', 'orders', 'totalOrders'));
+        $totalOrders = FgpOrder::count();
+        return view('corporate_admin.view_orders.index', compact('totalOrders'));
     }
 
     public function viewordersDetail(Request $request)
@@ -74,46 +107,6 @@ class ViewOrdersController extends Controller
 
     public function updateStatus(Request $request)
     {
-        // try {
-        //     // Log the raw request data for debugging
-        //     \Log::info('Update status request data:', $request->all());
-
-        //     $validated = $request->validate([
-        //         'status' => 'required|string|in:Pending,Paid,Shipped,Delivered',
-        //         'date_transaction' => 'required|string',
-        //         'fgp_ordersID' => 'required|exists:fgp_orders,fgp_ordersID' // Validate fgp_ordersID
-        //     ]);
-
-        //     // Log that validation passed
-        //     \Log::info('Validation passed, proceeding with update');
-
-        //     // Query by fgp_ordersID
-        //     $order = DB::table('fgp_orders')->where('fgp_ordersID', $request->fgp_ordersID)->firstOrFail();
-
-        //     $order->status = $request->status;
-        //     $order->save();
-
-        //     \Log::info('Order updated successfully, fgp_ordersID: ' . $request->fgp_ordersID);
-
-        //     return response()->json([
-        //         'message' => 'Order status updated successfully!'
-        //     ]);
-        // } catch (ValidationException $e) {
-        //     // Log validation errors
-        //     \Log::error('Validation failed:', $e->errors());
-
-        //     return response()->json([
-        //         'message' => 'Validation failed',
-        //         'errors' => $e->errors()
-        //     ], 422);
-        // } catch (\Exception $e) {
-        //     // Log other errors
-        //     \Log::error('Exception in updateStatus: ' . $e->getMessage());
-
-        //     return response()->json([
-        //         'message' => $e->getMessage()
-        //     ], 500);
-        // }
             $order = DB::table('fgp_orders')->where('fgp_ordersID', $request->fgp_ordersID)->firstOrFail();
             if($order){
                 $updated = DB::table('fgp_orders')
@@ -194,10 +187,10 @@ class ViewOrdersController extends Controller
         try {
             $items = $request->input('ordered_items');
 
-            \Log::info('Received Order Data:', ['ordered_items' => $items]);
+            Log::info('Received Order Data:', ['ordered_items' => $items]);
 
             if (empty($items)) {
-                \Log::warning('No items received in order confirmation.');
+                Log::warning('No items received in order confirmation.');
                 return response()->json(['error' => 'No items selected for order.'], 400);
             }
 
@@ -212,7 +205,7 @@ class ViewOrdersController extends Controller
 
             return response()->json(['redirect' => route('corporate_admin.confirm.page')]);
         } catch (\Exception $e) {
-            \Log::error('Error in confirmOrder method: ' . $e->getMessage());
+            Log::error('Error in confirmOrder method: ' . $e->getMessage());
             return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
         }
     }
