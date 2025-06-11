@@ -39,7 +39,7 @@
                             <th class="text-center">
 
                                 <input type="number" id="global-wholesale-markup" class="form-control" value="100" min="0" max="1000"
-                                    style="width: 70px;">
+                                    style="width: 80px;">
 
                             </th>
                             <th class="text-center">Case</th>
@@ -47,7 +47,7 @@
 
                             <th class="text-center">
                                 <input type="number" id="global-retail-markup" class="form-control" value="250" min="0" max="1000"
-                                    style="width: 70px; ">
+                                    style="width: 80px; ">
 
                             </th>
                             <th class="text-center">Case</th>
