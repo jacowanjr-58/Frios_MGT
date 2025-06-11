@@ -19,6 +19,7 @@ use App\Models\FranchiseEventItem;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Auth;
 use Carbon\Carbon;
+use Yajra\DataTables\DataTables;
 
 
 class PaymentController extends Controller
@@ -26,6 +27,30 @@ class PaymentController extends Controller
 
 
     public function transaction(){
+        if (request()->ajax()) {
+            $transactions = OrderTransaction::query();
+
+            return DataTables::of($transactions)
+                ->addColumn('amount', function ($transaction) {
+                    return '$' . number_format($transaction->amount);
+                })
+                ->addColumn('action', function ($transaction) {
+                    $viewUrl = route('corporate_admin.pos.order', $transaction->id);
+                    $downloadUrl = route('corporate_admin.order.pos.download', $transaction->id);
+
+                    return '
+                    <div class="d-flex">
+                        <a href="'.$viewUrl.'" target="_blank" class="me-4">
+                            <i class="ti ti-eye fs-20" style="color: #00ABC7;"></i>
+                        </a>
+                        <a href="'.$downloadUrl.'">
+                            <i class="ti ti-file-download fs-20" style="color: #FF3131;"></i>
+                        </a>
+                    </div>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
 
         $today = Carbon::today();
         $startOfWeek = Carbon::now()->startOfWeek();
