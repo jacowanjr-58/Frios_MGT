@@ -22,4 +22,8 @@ class InventoryLocation extends Model
     {
         return $this->hasMany(InventoryMaster::class, 'franchisee_id', 'franchisee_id');
     }
+    public function franchisee()
+    {
+        return $this->belongsTo(Franchisee::class, 'franchisee_id', 'franchisee_id');
+    }
 }

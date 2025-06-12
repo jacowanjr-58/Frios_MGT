@@ -14,17 +14,17 @@
 
 
     <!--**********************************
-                            Content body start
-                        ***********************************-->
+                                    Content body start
+                                ***********************************-->
     <div class=" content-body default-height">
         <!-- row -->
         <div class="container-fluid">
             <!-- <div class="page-titles">
-                                    <ol class="breadcrumb">
-                                        <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
-                                        <li class="breadcrumb-item active"><a href="javascript:void(0)">Analytics</a></li>
-                                    </ol>
-                                </div> -->
+                                            <ol class="breadcrumb">
+                                                <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
+                                                <li class="breadcrumb-item active"><a href="javascript:void(0)">Analytics</a></li>
+                                            </ol>
+                                        </div> -->
             <div class="form-head mb-4 d-flex flex-wrap align-items-center">
                 <div class="me-auto">
                     <h2 class="font-w600 mb-0">Dashboard \</h2>
@@ -51,7 +51,8 @@
 
 
 
-                                            <form id="stripe-payment-form" action="{{ route('franchise.expense.store') }}"
+                                            <form id="stripe-payment-form"
+                                                action="{{ route('franchise.expense.store', ['franchisee' => request()->route('franchisee')]) }}"
                                                 method="POST">
                                                 @csrf
 
@@ -100,7 +101,8 @@
                                                             <option value="">Please Select</option>
                                                             @foreach ($ExpenseCategories as $ExpenseCategory)
                                                                 <option value="{{ $ExpenseCategory->id }}">
-                                                                    {{ $ExpenseCategory->category }}</option>
+                                                                    {{ $ExpenseCategory->category }}
+                                                                </option>
                                                             @endforeach
                                                         </select>
                                                         @error('category_id')
@@ -175,9 +177,10 @@
     </div>
 
 
-    {{-- <script src="https://js.stripe.com/v3/"></script>
+    {{--
+    <script src="https://js.stripe.com/v3/"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             const stripe = Stripe("{{ env('STRIPE_PUBLIC_KEY') }}");
             const elements = stripe.elements();
 
@@ -207,7 +210,7 @@
                 submitButton.disabled = !allComplete;
             }
 
-            cardNumber.on('change', function(event) {
+            cardNumber.on('change', function (event) {
                 cardComplete.number = event.complete;
                 if (event.error) {
                     errorElement.textContent = event.error.message;
@@ -217,19 +220,19 @@
                 updateButtonState();
             });
 
-            cardExpiry.on('change', function(event) {
+            cardExpiry.on('change', function (event) {
                 cardComplete.expiry = event.complete;
                 updateButtonState();
             });
 
-            cardCvc.on('change', function(event) {
+            cardCvc.on('change', function (event) {
                 cardComplete.cvc = event.complete;
                 updateButtonState();
             });
 
             cardholderName.addEventListener('input', updateButtonState);
 
-            form.addEventListener('submit', async function(e) {
+            form.addEventListener('submit', async function (e) {
                 e.preventDefault();
                 submitButton.disabled = true;
 
@@ -253,12 +256,12 @@
 
 
     <script>
-        $(document).ready(function() {
-            $('#sub_category_div').on('click', function() {
+        $(document).ready(function () {
+            $('#sub_category_div').on('click', function () {
                 $('#sub_category_list').toggle();
             });
 
-            $(document).on('click', '.sub_category_option', function() {
+            $(document).on('click', '.sub_category_option', function () {
                 var selectedText = $(this).text();
                 var selectedValue = $(this).data('id');
                 $('#sub_category_placeholder').text(selectedText);
@@ -266,24 +269,26 @@
                 $('#sub_category_list').hide();
             });
 
-            $('#category_id').on('change', function() {
+            $('#category_id').on('change', function () {
                 var categoryID = $(this).val();
+                var franchisee = '{{ $franchiseId }}'; 
+              
                 if (categoryID) {
                     $.ajax({
-                        url: '{{ url('franchise/get-subcategories') }}/' + categoryID,
+                        url: '/franchise/' + franchisee + '/get-subcategories/' + categoryID,
                         type: 'GET',
                         dataType: 'json',
-                        success: function(response) {
+                        success: function (response) {
                             $('#sub_category_list').empty();
-                            $.each(response.data, function(index, subCategory) {
+                            $.each(response.data, function (index, subCategory) {
                                 $('#sub_category_list').append(
                                     '<div class="dropdown-item sub_category_option" data-id="' +
                                     subCategory.id + '">' + subCategory
-                                    .sub_category + '</div>'
+                                        .sub_category + '</div>'
                                 );
                             });
                         },
-                        error: function() {
+                        error: function () {
                             alert('Failed to fetch sub-categories. Please try again.');
                         }
                     });
@@ -293,7 +298,7 @@
             });
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             var today = new Date().toISOString().split('T')[0];
             document.getElementById('date').value = today;
         });

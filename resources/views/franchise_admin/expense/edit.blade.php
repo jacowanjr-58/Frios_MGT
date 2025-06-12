@@ -50,7 +50,7 @@
 
 
 
-                                            <form action="{{ route('franchise.expense.update' , $expense->id) }}" method="POST">
+                                            <form action="{{ route('franchise.expense.update' , ['franchisee' => request()->route('franchisee'), 'id' => $expense->id]) }}" method="POST">
                                                 @method('PUT')
                                                 @csrf
 
@@ -171,15 +171,17 @@ $(document).ready(function() {
     // Fetch subcategories based on category selection
     $('#category_id').on('change', function() {
         var categoryID = $(this).val();
-
+        var franchisee = '{{ $franchiseId }}'; 
+        console.log(franchisee);
         // Reset sub-category selection if category changes
         $('#sub_category_id').val('');  // Clear the hidden input value
         $('#sub_category_placeholder').text('Please Select');  // Reset placeholder text
         $('#sub_category_list').empty();  // Clear the sub-category list
 
         if (categoryID) {
+          
             $.ajax({
-                url: '{{ url('franchise/get-subcategories') }}/' + categoryID,
+                url: '/franchise/' + franchisee + '/get-subcategories/' + categoryID,
                 type: 'GET',
                 dataType: 'json',
                 success: function(response) {
@@ -204,7 +206,8 @@ $(document).ready(function() {
     var selectedCategory = $('#category_id').val();
     if (selectedCategory) {
         $.ajax({
-            url: '{{ url('franchise/get-subcategories') }}/' + selectedCategory,
+
+            url: '/franchise/' + franchisee + '/get-subcategories/' + selectedCategory,
             type: 'GET',
             dataType: 'json',
             success: function(response) {

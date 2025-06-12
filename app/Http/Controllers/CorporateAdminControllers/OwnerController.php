@@ -61,13 +61,15 @@ class OwnerController extends Controller
         return view('corporate_admin.owners.index', compact('totalUsers'));
     }
 
-     // Show create form
+    // Show create form
 
-     public function create()
-     {
+    public function create()
+    {
+       
         $franchises = Franchisee::whereDoesntHave('users')->get();
+
         return view('corporate_admin.owners.create', compact('franchises'));
-     }
+    }
 
 
     public function store(Request $request)
@@ -89,7 +91,7 @@ class OwnerController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'role' => 'franchise_admin', // Storing role in the database
-            'franchisee_id' => $request->franchisee_id,
+            // 'franchisee_id' => $request->franchisee_id,
             // 'clearance' => $request->clearance,
             // 'security' => $request->security,
             'created_date' => Carbon::now()->toDateString(), // Storing the current date
@@ -97,15 +99,29 @@ class OwnerController extends Controller
 
         // Assign the role using Spatie Role Permission
         $user->assignRole('franchise_admin');
+        // Attach franchisee
+        $user->franchisees()->attach($request->franchisee_id);
 
         return redirect()->route('corporate_admin.owner.index')->with('success', 'Owner created successfully.');
     }
 
     public function edit(User $owner)
     {
-        $franchises = Franchisee::all(); // Fetch all franchises
+        // Get the franchisees assigned to this user
+        $assignedFranchiseIds = $owner->franchisees->pluck('franchisee_id');
+    
+        // Franchises not assigned to any user
+        $availableFranchises = Franchisee::whereDoesntHave('users')->get();
+    
+        // Franchises assigned to this user (should still appear in the dropdown)
+        $assignedFranchises = Franchisee::whereIn('franchisee_id', $assignedFranchiseIds)->get();
+    
+        // Merge both collections and remove duplicates
+        $franchises = $availableFranchises->merge($assignedFranchises)->unique('franchisee_id');
+    
         return view('corporate_admin.owners.edit', compact('owner', 'franchises'));
     }
+    
 
     public function update(Request $request, User $owner)
     {
@@ -121,7 +137,7 @@ class OwnerController extends Controller
         $owner->update([
             'name' => $request->name,
             'email' => $request->email,
-            'franchisee_id' => $request->franchisee_id,
+            // 'franchisee_id' => $request->franchisee_id,
             // 'clearance' => $request->clearance,
             // 'security' => $request->security,
         ]);
@@ -130,6 +146,7 @@ class OwnerController extends Controller
             $owner->update(['password' => bcrypt($request->password)]);
         }
 
+        $owner->franchisees()->sync($request->franchisee_id);
         return redirect()->route('corporate_admin.owner.index')->with('success', 'Owner updated successfully.');
     }
     public function destroy($id)

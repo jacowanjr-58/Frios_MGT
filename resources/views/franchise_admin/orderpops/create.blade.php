@@ -8,7 +8,7 @@
             <div class="container py-4">
                 <h1 class="mb-4 text-center">Build Your Pop Order</h1>
 
-                <form id="order-form" action="{{ route('franchise.orderpops.confirm') }}" method="POST">
+                <form id="order-form" action="{{ route('franchise.orderpops.confirm', ['franchisee' => request()->route('franchisee')]) }}" method="POST">
                     @csrf
                     {{-- Hidden payload --}}
                     <input type="hidden" name="ordered_items" id="ordered_items_input" value="">

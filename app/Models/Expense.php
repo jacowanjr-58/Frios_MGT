@@ -20,4 +20,12 @@ class Expense extends Model
     {
         return $this->belongsTo(Franchisee::class, 'franchisee_id', 'franchisee_id');
     }
+    // In App\Models\Expense.php
+
+public function subcategory()
+{
+    return $this->belongsTo(Subcategory::class);
+}
+
+
 }

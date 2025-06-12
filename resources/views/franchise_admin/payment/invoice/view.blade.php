@@ -12,7 +12,7 @@
     }
 </style>
 <div class="content-body default-height p-5 mt-5">
-    <div class="container-fluid rounded border p-5 bg-white">
+    <div class="container-fluid mt-5">
         <div class="row">
             <div class="col-md-12">
                 <div style="float: right;">
@@ -21,7 +21,7 @@
             </div>
         </div>
         <div class="d-flex justify-content-between">
-            <div class="container">
+            <div class="container-fluid p-0">
                 <h1 style="font-size: 28px; font-weight: bold">View Invoice</h1>
 
 

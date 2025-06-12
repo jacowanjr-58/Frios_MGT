@@ -7,12 +7,13 @@
     <div class=" content-body default-height">
         <!-- row -->
         <div class="container-fluid">
-            <!-- <div class="page-titles">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
-                            <li class="breadcrumb-item active"><a href="javascript:void(0)">Analytics</a></li>
-                        </ol>
-                    </div> -->
+            <div class="row page-titles">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ route('franchise.locations.index', ['franchisee' => request()->route('franchisee')]) }}">Location</a></li>
+                    <li class="breadcrumb-item active"><a href="javascript:void(0)">Create Location</a></li>
+                </ol>
+            </div>
+
             <div class="form-head mb-4 d-flex flex-wrap align-items-center">
                 <div class="me-auto">
                     <h2 class="font-w600 mb-0">Dashboard \</h2>
@@ -39,7 +40,7 @@
 
 
 
-                                            <form action="{{ route('franchise.locations.store') }}" method="POST">
+                                            <form action="{{ route('franchise.locations.store', ['franchisee' => request()->route('franchisee')]) }}" method="POST">
                                                 @csrf
                                                 <div class="row">
 
