@@ -41,7 +41,11 @@ class FranchiseAdminController extends Controller
         $user = auth()->user();
        
         $franchisees = $user->franchisees;
-        return view('franchise_admin.franchisee_select', compact('franchisees'));
+        if($franchisees->count() > 1){
+            return view('franchise_admin.franchisee_select', compact('franchisees'));
+          
+        }
+        return redirect("/franchise/{$franchisees->first()->franchisee_id}/dashboard");
     }
 
     public function setFranchisee(Request $request)
