@@ -25,7 +25,7 @@ class ViewOrdersController extends Controller
 
             return DataTables::of($orders)
                 ->addColumn('order_number', function ($order) {
-                    return '<a href="' . route('corporate_admin.vieworders.edit', ['orderId' => $order->fgp_ordersID]) . '" class="text-primary fs-12">' . 
+                    return '<a href="' . route('corporate_admin.vieworders.edit', ['orderId' => $order->fgp_ordersID]) . '" class="text-primary fs-12">' .
                            $order->getOrderNum() . '</a>';
                 })
                 ->addColumn('date_time', function ($order) {
@@ -41,12 +41,12 @@ class ViewOrdersController extends Controller
                 ->addColumn('ordered_by', function ($order) {
                     $franchisee = Franchisee::where('franchisee_id', $order->user_ID)->first();
                     $customer = Customer::where('customer_id', $order->customer_id)->first();
-                    
+
                     if ($customer) {
-                        return '<a href="' . route('corporate_admin.customer.view', ['id' => $customer->customer_id]) . '" class="text-primary">' . 
+                        return '<a href="' . route('corporate_admin.customer.view', ['id' => $customer->customer_id]) . '" class="text-primary">' .
                                $customer->name . '</a>';
                     } elseif ($franchisee) {
-                        return '<a href="' . route('profile.show', ['profile' => $franchisee->franchisee_id]) . '" class="text-primary">' . 
+                        return '<a href="' . route('profile.show', ['profile' => $franchisee->franchisee_id]) . '" class="text-primary">' .
                                $franchisee->business_name . '</a>';
                     }
                     return 'Unknown';
@@ -59,7 +59,7 @@ class ViewOrdersController extends Controller
                            DB::table('fgp_order_details')->where('fgp_order_id', $order->fgp_ordersID)->count() . ' items</span>';
                 })
                 ->addColumn('issues', function ($order) {
-                    return $order->orderDiscrepancies->count() > 0 
+                    return $order->orderDiscrepancies->count() > 0
                         ? '<span class="badge bg-danger text-white">Alert</span>'
                         : '<span class="badge bg-success text-white">OK</span>';
                 })
@@ -73,7 +73,13 @@ class ViewOrdersController extends Controller
                     $select .= '</select>';
                     return $select;
                 })
-                ->rawColumns(['order_number', 'ordered_by', 'items_count', 'issues', 'status'])
+                ->addColumn('ups_label', function ($order) {
+                    if ($order->status != 'Shipped') {
+                        return '<a href="' . url('/order/' . $order->fgp_ordersID . '/create-ups-label') . '" class="btn btn-primary btn-sm" target="_blank">Generate UPS Label</a>';
+                    }
+                    return '<span class="text-muted">Add Label and Tracking</span>';
+                })
+                ->rawColumns(['order_number', 'ordered_by', 'items_count', 'issues', 'status', 'ups_label'])
                 ->make(true);
         }
 
@@ -103,7 +109,7 @@ class ViewOrdersController extends Controller
         ]);
     }
 
-   
+
 
     public function updateStatus(Request $request)
     {
@@ -124,11 +130,11 @@ class ViewOrdersController extends Controller
 
     public function edit($orderId)
     {
-        $order = FgpOrder::find($orderId);
+        $order = FgpOrder::with('orderDetails','user')->find($orderId);
         $currentMonth = strval(Carbon::now()->format('n'));
 
         // Fetch only orderable, in-stock, and currently available items
-        $pops = FgpItem::where('orderable', 1)
+        $allItems = FgpItem::where('orderable', 1)
             ->where('internal_inventory', '>', 0) // Ensure item is in stock
             ->get()
             ->filter(function ($pop) use ($currentMonth) {
@@ -136,25 +142,88 @@ class ViewOrdersController extends Controller
                 return in_array($currentMonth, $availableMonths ?? []);
             });
 
-        $categorizedItems = [];
-        foreach ($pops as $pop) {
-            foreach ($pop->categories as $category) {
-                $types = json_decode($category->type, true); // Decode JSON types
-
-                foreach ($types as $type) {
-                    $categorizedItems[$type][$category->name][] = $pop;
-                }
-            }
-        }
-        return view('corporate_admin.view_orders.edit', compact('order', 'categorizedItems'));
+    return view('corporate_admin.view_orders.edit', compact('order', 'allItems'));
     }
+
+
+public function update(Request $request, $orderId)
+{
+    $order = FgpOrder::with('orderDetails')->findOrFail($orderId);
+
+    // Validate shipping and items
+    $validated = $request->validate([
+        'ship_to_name' => 'required|string|max:255',
+        'ship_to_address1' => 'required|string|max:255',
+        'ship_to_address2' => 'nullable|string|max:255',
+        'ship_to_city' => 'required|string|max:255',
+        'ship_to_state' => 'required|string|max:255',
+        'ship_to_zip' => 'required|string|max:20',
+        'items' => 'required|array',
+        'items.*.id' => 'nullable|integer|exists:fgp_order_details,id',
+        'items.*.fgp_item_id' => 'required|exists:fgp_items,fgp_item_id',
+        'items.*.unit_cost' => 'required|numeric|min:0',
+        'items.*.unit_number' => 'required|integer|min:1',
+    ]);
+
+    // Update shipping info
+    $order->update([
+        'ship_to_name' => $validated['ship_to_name'],
+        'ship_to_address1' => $validated['ship_to_address1'],
+        'ship_to_address2' => $validated['ship_to_address2'],
+        'ship_to_city' => $validated['ship_to_city'],
+        'ship_to_state' => $validated['ship_to_state'],
+        'ship_to_zip' => $validated['ship_to_zip'],
+    ]);
+
+    // Gather submitted detail IDs
+    $submittedDetailIds = collect($validated['items'])
+        ->pluck('id')
+        ->filter()
+        ->map(fn($id) => (int)$id)
+        ->toArray();
+
+    // Remove deleted items
+    $order->orderDetails()
+        ->whereNotIn('id', $submittedDetailIds)
+        ->delete();
+
+    // Update or create items
+    foreach ($validated['items'] as $item) {
+        if (!empty($item['id'])) {
+            // Update existing
+            $order->orderDetails()
+                ->where('id', $item['id'])
+                ->update([
+                    'unit_number' => $item['unit_number'],
+                    'unit_cost' => $item['unit_cost'],
+                    'fgp_item_id' => $item['fgp_item_id'],
+                    'date_transaction' => now(),
+                ]);
+        } else {
+            // Add new
+            $order->orderDetails()->create([
+                'fgp_item_id' => $item['fgp_item_id'],
+                'fgp_order_id' => $order->fgp_ordersID,
+                'unit_number' => $item['unit_number'],
+                'unit_cost' => $item['unit_cost'],
+                'date_transaction' => now(),
+            ]);
+        }
+    }
+
+    return redirect()
+    ->route('corporate_admin.vieworders.index')
+    ->with('success', 'Order #' . $order->getOrderNum() . ' updated successfully!');
+}
+
+
 
 
     public function orderposps()
     {
         if (request()->ajax()) {
             $currentMonth = strval(Carbon::now()->format('n'));
-            
+
             $pops = FgpItem::with('categories')
                 ->where('orderable', 1)
                 ->where('internal_inventory', '>', 0)

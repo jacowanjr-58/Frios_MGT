@@ -66,6 +66,7 @@
                                 <th>Items</th>
                                 <th>Issues</th>
                                 <th>Status</th>
+                                <th>UPS</th>
                             </tr>
                         </thead>
                     </table>
@@ -108,9 +109,10 @@
                     { data: 'items_count', name: 'items_count' },
                     { data: 'issues', name: 'issues' },
                     { data: 'status', name: 'status' },
+                    { data: 'ups_label', name: 'ups_label', orderable: false, searchable: false },
                     { data: 'created_at', name: 'created_at', visible: false }
                 ],
-                order: [[8, 'desc']],
+                order: [[1, 'desc']],
                 language: {
                     paginate: {
                         next: '<i class="fa fa-angle-double-right"></i>',
@@ -120,7 +122,7 @@
                 drawCallback: function(settings) {
                     // Initialize Bootstrap Select on new elements
                     $('.status-select').selectpicker();
-                    
+
                     // Add custom classes to pagination elements
                     $('.dataTables_paginate').addClass('paging_simple_numbers');
                     $('.paginate_button').each(function() {

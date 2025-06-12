@@ -59,7 +59,7 @@ return [
         'client_id' => env('UPS_CLIENT_ID'),
         'client_secret' => env('UPS_CLIENT_SECRET'),
         'account_number' => env('UPS_ACCOUNT_NUMBER'),
-        'base_url' => env('UPS_API_BASE', 'https://wwwcie.ups.com'),
+        'base_url' => env('UPS_API_BASE_URL', 'https://wwwcie.ups.com'),
     ],
 
 ];

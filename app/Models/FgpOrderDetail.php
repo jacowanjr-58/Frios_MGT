@@ -9,8 +9,11 @@ class FgpOrderDetail extends Model
     protected $guarded = [];
 
     protected $fillable = [
-        'order_id',
+        'fgp_order_id',
+        'fgp_item_id',
         'unit_number',
+        'unit_cost',
+        'date_transaction',
         'quantity_received',
         // …any others you want to mass‐assign
     ];

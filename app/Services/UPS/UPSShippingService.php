@@ -18,11 +18,22 @@ class UPSShippingService
 
     protected function authenticate()
     {
-        $res = Http::asForm()->post(config('ups.base_url') . '/security/v1/oauth/token', [
-            'grant_type' => 'client_credentials',
-            'client_id' => config('ups.client_id'),
-            'client_secret' => config('ups.client_secret'),
-        ]);
+        $basicAuth = base64_encode(config('services.ups.client_id') . ':' . config('services.ups.client_secret'));
+
+    $res = Http::asForm()
+        ->withHeaders([
+            'Authorization' => 'Basic ' . $basicAuth,
+        ])
+        ->post(
+            rtrim(config('services.ups.base_url'), '/') . '/security/v1/oauth/token',
+            [
+                'grant_type' => 'client_credentials',
+            ]
+        );
+
+        if ($res->failed() || !$res->json('access_token')) {
+            throw new \Exception('UPS Auth failed: ' . $res->body());
+        }
 
         $this->token = $res->json('access_token');
     }
@@ -30,7 +41,7 @@ class UPSShippingService
     public function validateAddress(array $address)
     {
         $res = Http::withToken($this->token)
-            ->post(config('ups.base_url') . '/api/addressvalidation/v1/validate', [
+            ->post(config('services.ups.base_url') . '/api/addressvalidation/v1/validate', [
                 'address' => $address,
             ]);
 
@@ -86,7 +97,7 @@ class UPSShippingService
         ];
 
         $res = Http::withToken($this->token)
-            ->post(config('ups.base_url') . '/api/shipments/v1/ship', $payload);
+            ->post(config('services.ups.base_url') . '/api/shipments/v1/ship', $payload);
 
         $data = $res->json();
 

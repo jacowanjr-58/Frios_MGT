@@ -171,7 +171,7 @@
 <div >
             <!-- Right Column: Payment Info -->
 
-                <div class="mb-3"> Optional Pay Now
+             {{--    <div class="mb-3"> Optional Pay Now
                 </div>
                 <div class="mb-3">
                     <label for="cardholder-name" class="form-label">Cardholder Name</label>
@@ -196,7 +196,7 @@
                 </div>
                 <div id="card-errors" class="text-danger mb-3"></div>
 
-        </div>
+        </div> --}}
 
                 <input type="hidden" name="is_paid" id="is_paid" value="0">
                             <div class="mt-4">
