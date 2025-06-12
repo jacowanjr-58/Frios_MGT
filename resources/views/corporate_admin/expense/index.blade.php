@@ -124,10 +124,7 @@
                 ],
                 order: [[7, 'desc']], // Order by created_at column
                 language: {
-                    paginate: {
-                        next: '<i class="fa fa-angle-double-right"></i>',
-                        previous: '<i class="fa fa-angle-double-left"></i>'
-                    }
+                  
                 },
                 drawCallback: function(settings) {
                     // Initialize SweetAlert confirmation for delete buttons

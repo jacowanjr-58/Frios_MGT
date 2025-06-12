@@ -125,21 +125,25 @@
                     { data: 'delivery_status', name: 'is_delivered' }
                 ],
                 order: [[1, 'desc']],
+                language: {
+                    paginate: {
+                        next: '<i class="fa fa-angle-double-right"></i>',
+                        previous: '<i class="fa fa-angle-double-left"></i>'
+                    }
+                },
                 pageLength: 25,
                 drawCallback: function (settings) {
-                    // Initialize delete button click handlers
-
 
                     // Add custom classes to pagination elements
                     $('.dataTables_paginate').addClass('paging_simple_numbers');
-                    $('.paginate_button').each(function () {
+                    $('.paginate_button').each(function() {
                         if ($(this).hasClass('current')) {
                             $(this).attr('aria-current', 'page');
                         }
                     });
                     $('.paginate_button.previous, .paginate_button.next').attr({
                         'role': 'link',
-                        'aria-disabled': function () {
+                        'aria-disabled': function() {
                             return $(this).hasClass('disabled') ? 'true' : 'false';
                         }
                     });
@@ -149,82 +153,3 @@
     </script>
 @endpush
 
-
-{{-- @extends('layouts.app')
-@section('content')
---}}
-{{-- <div class="content-body default-height">
-    <!-- row -->
-    <div class="container-fluid">
-        <div class="container mt-4">
-            <h2>Orders Overview</h2>
-            <p>Total Orders: {{ $totalOrders }}</p>
-
-            @foreach($orders as $order)
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>Order #: </strong> FGP-{{ $order->id }} <br>
-                        <strong>Date: </strong> {{ $order->date_transaction->format('M d, Y') }} <br>
-                        <strong>Paid:</strong>
-                        @if ($order->is_paid)
-                        <span class="badge bg-success">Yes</span>
-                        @else
-                        <span class="badge bg-danger">No</span>
-                        @endif
-                        <strong>Status: </strong> {{ ucfirst($order->status) }}
-                    </div>
-                    <div>
-                        @if (!$order->is_delivered)
-                        <form method="POST"
-                            action="{{ route('franchise.orderpops.markDelivered', ['order' => $order->fgp_ordersID]) }}"
-                            onsubmit="return confirm('Confirming Delivery will close out the order. Are you sure?');">
-                            @csrf
-                            <button type="submit" class="btn btn-sm btn-success">Confirm Delivery</button>
-                        </form>
-                        @else
-                        <span class="badge bg-secondary">Delivered</span>
-                        @endif
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6>Shipping Info</h6>
-                            <p>
-                                {{ $order->ship_to_name }}<br>
-                                {{ $order->ship_to_address1 }} {{ $order->ship_to_address2 }}<br>
-                                {{ $order->ship_to_city }}, {{ $order->ship_to_state }} {{ $order->ship_to_zip }}<br>
-                                Phone: {{ $order->ship_to_phone }}
-                            </p>
-                            @if($order->tracking_number)
-                            <p>
-                                <strong>Tracking:</strong>
-                                <a href="https://www.ups.com/track?tracknum={{ $order->tracking_number }}"
-                                    target="_blank">
-                                    {{ $order->tracking_number }}
-                                </a>
-                            </p>
-                            @endif
-                            @if($order->shipstation_order_id)
-                            <p><strong>ShipStation Order:</strong> {{ $order->shipstation_order_id }}</p>
-                            @endif
-                        </div>
-                        <div class="col-md-6">
-                            <h6>Order Details</h6>
-                            <p><strong>Total:</strong> ${{ number_format($order->items->sum(fn($i) => $i->unit_cost *
-                                $i->unit_number), 2) }}</p>
-                            <p>
-                                @foreach($order->items as $item)
-                                ({{ $item->unit_number }}) - {{ $item->flavor->name ?? 'Unknown Flavor' }};<br>
-                                @endforeach
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-</div>
-@endsection --}}

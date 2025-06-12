@@ -104,15 +104,15 @@ class OrderPopsController extends Controller
         $categoriesByType = FgpCategory::select('category_ID', 'name', 'type')
             ->with(['items' => function ($q) {
                 $q->select(
-                        'fgp_Items.fgp_item_id',
-                        'fgp_Items.name',
-                        'fgp_Items.image1',
-                        'fgp_Items.case_cost'
+                        'fgp_items.fgp_item_id',
+                        'fgp_items.name',
+                        'fgp_items.image1',
+                        'fgp_items.case_cost'
                     )
-                    ->where('fgp_Items.orderable', 1)
-                    ->where('fgp_Items.internal_inventory', '>', 0)
-                    ->whereJsonContains('fgp_Items.dates_available', (string) Carbon::now()->month)
-                    ->orderBy('fgp_Items.name');
+                    ->where('fgp_items.orderable', 1)
+                    ->where('fgp_items.internal_inventory', '>', 0)
+                    ->whereJsonContains('fgp_items.dates_available', (string) Carbon::now()->month)
+                    ->orderBy('fgp_items.name');
             }])
             ->orderBy('type')
             ->get()
