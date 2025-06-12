@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 class ExpensesCategoryController extends Controller
 {
     public function index(){
+        
         if (request()->ajax()) {
             $expenseSubCategories = ExpenseSubCategory::query();
 
@@ -216,10 +217,40 @@ class ExpensesCategoryController extends Controller
 
 
 
-    public function indexExpense(){
-        $data['expenseSubCategories'] = ExpenseSubCategory::where('franchisee_id' , Auth::user()->franchisee_id)->orderBy('created_at' , 'DESC')->get();
-        $data['expenseSubCategoryCount'] = ExpenseSubCategory::where('franchisee_id' , Auth::user()->franchisee_id)->count();
-        return view('franchise_admin.expense.category.index' , $data);
+    public function indexExpense($franchisee){
+        if (request()->ajax()) {
+            $expenseSubCategories = ExpenseSubCategory::where('franchisee_id', $franchisee)
+                ->with('category'); // Eager load the category relationship
+
+            return DataTables::of($expenseSubCategories)
+                ->addColumn('main_category', function ($subCategory) {
+                    return $subCategory->category->category ?? '-';
+                })
+                ->addColumn('action', function ($subCategory) use ($franchisee) {
+                    return '
+                    <div class="d-flex">
+                        <a href="'.route('franchise.expense-category.edit', ['franchisee' => $franchisee, 'id' => $subCategory->id]).'" class="edit-expenseSubCategory">
+                            <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
+                        </a>
+                        <form action="'.route('franchise.expense-sub-category.delete', ['franchisee' => $franchisee, 'id' => $subCategory->id]).'" method="POST" class="delete-form">
+                            '.csrf_field().'
+                            '.method_field('DELETE').'
+                            <button type="button" class="ms-4 delete-expense-category" 
+                                data-id="'.$subCategory->id.'"
+                                data-name="'.$subCategory->sub_category.'">
+                                <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
+                            </button>
+                        </form>
+                    </div>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        $data['expenseSubCategories'] = ExpenseSubCategory::where('franchisee_id', $franchisee)->orderBy('created_at', 'DESC')->get();
+        $data['expenseSubCategoryCount'] = ExpenseSubCategory::where('franchisee_id', $franchisee)->count();
+        $data['franchisee'] = Franchisee::findOrFail($franchisee);
+        return view('franchise_admin.expense.category.index', $data);
     }
 
 
@@ -228,9 +259,12 @@ class ExpensesCategoryController extends Controller
         return view('franchise_admin.expense.category.create' , $data);
     }
 
-    public function editExpense($id){
-        $data['ExpenseCategories'] = ExpenseCategory::where('franchisee_id' , Auth::user()->franchisee_id)->get();
+    public function editExpense($franchisee,$id){
+        
+        $data['franchiseId'] = intval($franchisee);
+        $data['ExpenseCategories'] = ExpenseCategory::where('franchisee_id' , $franchisee)->get();
         $data['expenseSubCategory'] = ExpenseSubCategory::where('id' , $id)->first();
+       
         return view('franchise_admin.expense.category.edit' , $data);
     }
 
@@ -267,23 +301,32 @@ class ExpensesCategoryController extends Controller
         return redirect()->route('franchise.expense-category')->with('success' , 'Expense Sub Category created successfully');
     }
 
-    public function updateExpense(Request $request , $id){
+    public function updateExpense(Request $request, $franchisee, $id)
+    {
+        // Validate input
         $request->validate([
-            'category_id' => 'required',
-            'sub_category' => 'string|max:191',
-            'sub_category_description' => 'string|max:191',
+            'category_id' => 'required|exists:expense_categories,id',
+            'sub_category' => 'required|string|max:191',
+            'sub_category_description' => 'nullable|string|max:191',
         ]);
+    
+        // Update the sub-category
+        ExpenseSubCategory::where('id', $id)
+            ->where('franchisee_id', $franchisee) // Optional safety check
+            ->update([
+                'category_id' => $request->category_id,
+                'sub_category' => $request->sub_category,
+                'sub_category_description' => $request->sub_category_description,
+            ]);
+            return redirect()->to("franchise/{$franchisee}/expense-category")
+    ->with('success', 'Expense Sub Category updated successfully');
 
-        $subCategory = ExpenseSubCategory::where('id',$id)->update([
-            'category_id' => $request->category_id,
-            'sub_category' => $request->sub_category,
-            'franchisee_id' => Auth::user()->franchisee_id,
-            'sub_category_description' => $request->sub_category_description,
-        ]);
-
-
-        return redirect()->route('franchise.expense-category')->with('success' , 'Expense Sub Category updated successfully');
+    
+        // return redirect()
+        //     ->route('expense-category', ['franchisee' => $franchisee])
+        //     ->with('success', 'Expense Sub Category updated successfully');
     }
+    
 
     public function deleteExpense($id){
         $category = ExpenseSubCategory::where('id' , $id)->delete();

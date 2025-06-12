@@ -115,8 +115,8 @@
                         <span class="nav-text">Orders</span>
                     </a>
                     <ul aria-expanded="{{ Request::routeIs('franchise.orderpops.*') ? 'true' : 'false' }}" class="{{ Request::routeIs('franchise.orderpops.*') ? 'mm-collapse mm-show' : '' }}">
-                        <li><a href="{{ route('franchise.orderpops.create') }}">Order Pops</a></li>
-                        <li><a href="{{ route('franchise.orderpops.view') }}">View Orders</a></li>
+                        <li><a href="{{ route('franchise.orderpops.index', ['franchisee' => request()->route('franchisee')]) }}">Order Pops</a></li>
+                        <li><a href="{{ route('franchise.orderpops.view', ['franchisee' => request()->route('franchisee')]) }}">View Orders</a></li>
                     </ul>
                 </li>
                 <li class="{{ Request::routeIs('franchise.invoice.*', 'franchise.transaction') ? 'mm-active' : '' }}">
@@ -126,9 +126,9 @@
                     </a>
                     <ul aria-expanded="{{ Request::routeIs('franchise.invoice.*', 'franchise.transaction') ? 'true' : 'false' }}" class="{{ Request::routeIs('franchise.invoice.*', 'franchise.transaction') ? 'mm-collapse mm-show' : '' }}">
                         {{-- <li><a href="{{ route('franchise.account.index') }}">Accounts</a></li> --}}
-                        <li><a href="{{ route('franchise.invoice.index') }}">Invoices</a></li>
+                        <li><a href="{{ route('franchise.invoice.index', ['franchisee' => request()->route('franchisee')]) }}">Invoices</a></li>
                         {{-- <li><a href="sales.html">Sales</a></li> --}}
-                        <li><a href="{{ route('franchise.transaction') }}">Transactions</a></li>
+                        <li><a href="{{ route('franchise.transaction', ['franchisee' => request()->route('franchisee')]) }}">Transactions</a></li>
                     </ul>
                 </li>
                 <li class="{{ Request::routeIs('franchise.expense', 'franchise.expense-category') ? 'mm-active' : '' }}">

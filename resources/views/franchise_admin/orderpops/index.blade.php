@@ -2,8 +2,8 @@
 @section('content')
 
     <!--**********************************
-                Content body start
-            ***********************************-->
+                        Content body start
+                    ***********************************-->
     <div class="content-body default-height">
         <!-- row -->
         <div class="container-fluid">
@@ -16,7 +16,7 @@
 
             </div>
             <div class="row mb-4 align-items-center">
-                
+
                 <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
                     <button id="orderButton" class="btn btn-secondary btn-lg btn-block rounded text-white">Place
                         Order</button>
@@ -58,7 +58,7 @@
                         <!-- New Order Button -->
 
                         <!-- Pops Table -->
-                        <table id="example5" class="table customer-table display mb-4 fs-14 card-table">
+                        <table id="popsTable" class="table customer-table display mb-4 fs-14 card-table">
                             <thead>
                                 <tr>
                                     <th>
@@ -75,112 +75,10 @@
                                     <th>Availability</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach ($pops as $pop)
-                                    <tr>
-                                        <td>
-                                            <div class="form-check checkbox-secondary">
-                                                <input class="form-check-input pop-checkbox" type="checkbox"
-                                                    value="{{ $pop->fgp_item_id }}"
-                                                    id="flexCheckDefault{{ $pop->fgp_item_id }}">
-                                                <label class="form-check-label"
-                                                    for="flexCheckDefault{{ $pop->fgp_item_id }}"></label>
-                                            </div>
-                                        </td>
-                                        <td class="item-name">{{ $pop->name }}</td>
-                                        <td class="item-image">
-                                            @if ($pop->image1)
-                                                <img src="{{ asset('storage/' . $pop->image1) }}" alt="Image"
-                                                    style="width: 50px; height: 50px; object-fit: contain;">
-                                            @else
-                                                <span>No Image</span>
-                                            @endif
-                                        </td>
-                                        <td class="item-price">${{ number_format($pop->case_cost, 2) }}</td>
-                                        <td class="item-category">
-                                            @if($pop->categories->isNotEmpty())
-                                                @php
-                                                    $chunks = $pop->categories->pluck('name')->chunk(5);
-                                                @endphp
-                                                @foreach($chunks as $chunk)
-                                                    {{ $chunk->join(', ') }} <br>
-                                                @endforeach
-                                            @else
-                                                No Category
-                                            @endif
-                                        </td>
-                                        <td><span class="badge bg-success">In Stock</span></td>
-                                        <td><span class="badge bg-success">Available</span></td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-
                         </table>
 
 
-                        <script>
-                            document.getElementById('orderButton').addEventListener('click', function () {
-                                console.log("Confirm Order button clicked");
 
-                                let checkedItems = [];
-
-                                document.querySelectorAll('.pop-checkbox:checked').forEach((checkbox) => {
-                                    const row = checkbox.closest('tr');
-
-                                    const itemDetails = {
-                                        id: checkbox.value,
-                                        name: row.querySelector('.item-name').innerText.trim(),
-                                        image: row.querySelector('.item-image img') ? row.querySelector('.item-image img').src : 'No Image',
-                                        price: row.querySelector('.item-price').innerText.trim(),
-                                        category: row.querySelector('.item-category').innerText.trim(),
-                                        quantity: 1
-                                    };
-
-                                    console.log("Collected item details:", itemDetails);
-                                    checkedItems.push(itemDetails);
-                                });
-
-                                console.log("Checked Items:", checkedItems);
-
-                                if (checkedItems.length < 3) {
-                                    alert("Please select at least three items to order.");
-                                    console.log("Less than three items selected, alert displayed.");
-                                    return;
-                                }
-
-
-                                console.log("Sending request to server with checked items...");
-
-                                const url = "{{ route('franchise.orderpops.confirm') }}";
-
-                                fetch(url, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // Make sure to include CSRF token for Laravel
-                                    },
-                                    body: JSON.stringify({ ordered_items: checkedItems })
-                                })
-                                    .then(response => {
-                                        if (!response.ok) {
-                                            throw new Error(`HTTP error! Status: ${response.status}`);
-                                        }
-                                        return response.json();
-                                    })
-                                    .then(data => {
-                                        console.log("Parsed Response Data:", data);
-
-                                        if (data.redirect) {
-                                            console.log("Redirecting to:", data.redirect);
-                                            window.location.href = data.redirect;
-                                        } else {
-                                            console.error('Invalid response format:', data);
-                                        }
-                                    })
-                                    .catch(error => console.error('Error occurred:', error));
-                            });
-
-                        </script>
 
 
 
@@ -217,8 +115,8 @@
         </div>
     </td> --}}
     <!--**********************************
-                Content body end
-            ***********************************-->
+                        Content body end
+                    ***********************************-->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
@@ -251,5 +149,107 @@
         });
     </script>
 
+    @push('scripts')
+        <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+        <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    @endpush
+    <script>
+        $(document).ready(function () {
+            var table = $('#popsTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('franchise.orderpops.index', ['franchisee' => request()->route('franchisee')]) }}",
+                columns: [
+                    { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
+                    { data: 'name', name: 'name' },
+                    { data: 'image', name: 'image', orderable: false, searchable: false },
+                    { data: 'price', name: 'case_cost' },
+                    { data: 'categories', name: 'categories', orderable: false },
+                    { data: 'stock_status', name: 'stock_status', orderable: false },
+                    { data: 'availability', name: 'availability', orderable: false }
+                ],
+                order: [[1, 'asc']],
+                drawCallback: function (settings) {
+                    // Reinitialize checkAll functionality after each draw
+                    $('#checkAll').on('change', function () {
+                        $('.pop-checkbox').prop('checked', $(this).prop('checked'));
+                    });
+                    $('.dataTables_paginate').addClass('paging_simple_numbers');
+                    $('.paginate_button').each(function () {
+                        if ($(this).hasClass('current')) {
+                            $(this).attr('aria-current', 'page');
+                        }
+                    });
+                    $('.paginate_button.previous, .paginate_button.next').attr({
+                        'role': 'link',
+                        'aria-disabled': function () {
+                            return $(this).hasClass('disabled') ? 'true' : 'false';
+                        }
+                    });
+                }
+            });
 
+            // Order button click handler
+            $('#orderButton').on('click', function () {
+                console.log("Confirm Order button clicked");
+
+                let checkedItems = [];
+
+                $('.pop-checkbox:checked').each(function () {
+                    const row = $(this).closest('tr');
+
+                    const itemDetails = {
+                        id: $(this).val(),
+                        name: row.find('td:eq(1)').text().trim(),
+                        image: row.find('td:eq(2) img').length ? row.find('td:eq(2) img').attr('src') : 'No Image',
+                        price: row.find('td:eq(3)').text().trim(),
+                        category: row.find('td:eq(4)').text().trim(),
+                        quantity: 1
+                    };
+
+                    console.log("Collected item details:", itemDetails);
+                    checkedItems.push(itemDetails);
+                });
+
+                console.log("Checked Items:", checkedItems);
+
+                if (checkedItems.length < 3) {
+                    alert("Please select at least three items to order.");
+                    console.log("Less than three items selected, alert displayed.");
+                    return;
+                }
+
+                console.log("Sending request to server with checked items...");
+
+                const url = "{{ route('franchise.orderpops.confirm', ['franchisee' => request()->route('franchisee')]) }}";
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ ordered_items: checkedItems })
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log("Parsed Response Data:", data);
+
+                        if (data.redirect) {
+                            console.log("Redirecting to:", data.redirect);
+                            window.location.href = data.redirect;
+                        } else {
+                            console.error('Invalid response format:', data);
+                        }
+                    })
+                    .catch(error => console.error('Error occurred:', error));
+            });
+        });
+    </script>
 @endsection

@@ -35,4 +35,9 @@ class InventoryAllocation extends Model
     {
         return $this->belongsTo(InventoryLocation::class, 'location_id', 'locations_ID');
     }
+
+    public function flavor()
+    {
+        return $this->belongsTo(FGPItem::class, 'fgp_item_id', 'fgp_item_id');
+    }
 }

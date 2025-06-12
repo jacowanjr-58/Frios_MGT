@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="content-body default-height">
+    <div class="content-body default-height">
         <!-- row -->
         <div class="container-fluid">
 
@@ -11,8 +11,8 @@
                         <div class="card-header border-0 pb-0">
                             <div class="d-flex align-items-center">
                                 <h2 class="chart-num font-w600 mb-0">${{ number_format($totalAmount['daily']) }}</h2>
-                                <svg class="ms-2 primary-icon" width="19" height="12" viewBox="0 0 19 12"
-                                    fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <svg class="ms-2 primary-icon" width="19" height="12" viewBox="0 0 19 12" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
                                     <path
                                         d="M2.00401 11.1924C0.222201 11.1924 -0.670134 9.0381 0.589795 7.77817L7.78218 0.585786C8.56323 -0.195262 9.82956 -0.195262 10.6106 0.585786L17.803 7.77817C19.0629 9.0381 18.1706 11.1924 16.3888 11.1924H2.00401Z"
                                         fill="#0E8A74" />
@@ -51,8 +51,8 @@
                         <div class="card-header border-0 pb-0">
                             <div class="d-flex align-items-center">
                                 <h2 class="chart-num font-w600 mb-0">${{ number_format($totalAmount['monthly']) }}</h2>
-                                <svg class="ms-2 primary-icon" width="19" height="12" viewBox="0 0 19 12"
-                                    fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <svg class="ms-2 primary-icon" width="19" height="12" viewBox="0 0 19 12" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
                                     <path
                                         d="M2.00401 11.1924C0.222201 11.1924 -0.670134 9.0381 0.589795 7.77817L7.78218 0.585786C8.56323 -0.195262 9.82956 -0.195262 10.6106 0.585786L17.803 7.77817C19.0629 9.0381 18.1706 11.1924 16.3888 11.1924H2.00401Z"
                                         fill="#0E8A74" />
@@ -71,8 +71,8 @@
                         <div class="card-header border-0 pb-0">
                             <div class="d-flex align-items-center">
                                 <h2 class="chart-num font-w600 mb-0">${{ number_format($totalAmount['yearly']) }}</h2>
-                                <svg class="ms-2 primary-icon" width="19" height="12" viewBox="0 0 19 12"
-                                    fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <svg class="ms-2 primary-icon" width="19" height="12" viewBox="0 0 19 12" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
                                     <path
                                         d="M2.00401 11.1924C0.222201 11.1924 -0.670134 9.0381 0.589795 7.77817L7.78218 0.585786C8.56323 -0.195262 9.82956 -0.195262 10.6106 0.585786L17.803 7.77817C19.0629 9.0381 18.1706 11.1924 16.3888 11.1924H2.00401Z"
                                         fill="#0E8A74" />
@@ -90,83 +90,23 @@
             </div>
 
 
-            {{-- <div class="row card pt-4">
-                <h4 class="card-title">Expense Transaction</h4>
-                <div class="col-lg-12 pt-4">
-                    <div class="table-responsive rounded">
-                        <table id="example5" class="table customer-table display mb-4 fs-14 card-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Cardholder Name</th>
-                                    <th>Amonut</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($expenseTransactions as $expenseTransaction)
-                                    <tr>
-                                        <td>{{ $expenseTransaction->expense->name ?? '-' }}</td>
-                                        <td>{{ $expenseTransaction->cardholder_name ?: '-' }}</td>
-                                        <td>${{ number_format($expenseTransaction->amount) ?: '-' }}</td>
-                                        <td>{{ $expenseTransaction->stripe_status ?: '-' }}</td>
-                                        <td>
-                                            <div class="d-flex">
-                                                <a target="_blank" href="{{ route('franchise.pos.expense',$expenseTransaction->id) }}" class="me-4">
-                                                    <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M9 4.45962C9.91153 4.16968 10.9104 4 12 4C16.1819 4 19.028 6.49956 20.7251 8.70433C21.575 9.80853 22 10.3606 22 12C22 13.6394 21.575 14.1915 20.7251 15.2957C19.028 17.5004 16.1819 20 12 20C7.81811 20 4.97196 17.5004 3.27489 15.2957C2.42496 14.1915 2 13.6394 2 12C2 10.3606 2.42496 9.80853 3.27489 8.70433C3.75612 8.07914 4.32973 7.43025 5 6.82137" stroke="#00ABC7" stroke-width="1.5" stroke-linecap="round"></path> <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="#00ABC7" stroke-width="1.5"></path> </g></svg>
-                                                </a>
-                                                <a href="{{ route('franchise.expenses.pos.download', $expenseTransaction->id) }}" >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" aria-label="PDF" role="img" viewBox="0 0 512 512" width="24px" height="24px" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><rect width="512" height="512" rx="15%" fill="#c80a0a"></rect><path fill="#ffffff" d="M413 302c-9-10-29-15-56-15-16 0-33 2-53 5a252 252 0 0 1-52-69c10-30 17-59 17-81 0-17-6-44-30-44-7 0-13 4-17 10-10 18-6 58 13 100a898 898 0 0 1-50 117c-53 22-88 46-91 65-2 9 4 24 25 24 31 0 65-45 91-91a626 626 0 0 1 92-24c38 33 71 38 87 38 32 0 35-23 24-35zM227 111c8-12 26-8 26 16 0 16-5 42-15 72-18-42-18-75-11-88zM100 391c3-16 33-38 80-57-26 44-52 72-68 72-10 0-13-9-12-15zm197-98a574 574 0 0 0-83 22 453 453 0 0 0 36-84 327 327 0 0 0 47 62zm13 4c32-5 59-4 71-2 29 6 19 41-13 33-23-5-42-18-58-31z"></path></g></svg>
-                                                </a>
 
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-
-                    </div>
-                </div>
-            </div> --}}
 
 
             <div class="row card pt-4">
                 <h4 class="card-title">Invoice Transaction</h4>
                 <div class="col-lg-12 pt-4">
                     <div class="table-responsive rounded">
-                        <table id="example8" class="table customer-table display mb-4 fs-14 card-table">
+                        <table id="invoice-table" class="table customer-table display mb-4 fs-14 card-table">
                             <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th>Amonut</th>
+                                    <th>Amount</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach ($invoiceTransactions as $index=>$invoiceTransaction)
-                                    <tr>
-                                        <td>{{ $invoiceTransaction->invoice->name ?: '-' }}</td>
-                                        <td>${{ number_format($invoiceTransaction->amount) ?: '-' }}</td>
-                                        <td>{{ $invoiceTransaction->status ?: '-' }}</td>
-                                        <td>
-                                            <div class="d-flex">
-                                                <a target="_blank" href="{{ route('franchise.invoice.show', $invoiceTransaction->invoice_id) }}" class="me-4">
-                                                    <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M9 4.45962C9.91153 4.16968 10.9104 4 12 4C16.1819 4 19.028 6.49956 20.7251 8.70433C21.575 9.80853 22 10.3606 22 12C22 13.6394 21.575 14.1915 20.7251 15.2957C19.028 17.5004 16.1819 20 12 20C7.81811 20 4.97196 17.5004 3.27489 15.2957C2.42496 14.1915 2 13.6394 2 12C2 10.3606 2.42496 9.80853 3.27489 8.70433C3.75612 8.07914 4.32973 7.43025 5 6.82137" stroke="#00ABC7" stroke-width="1.5" stroke-linecap="round"></path> <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="#00ABC7" stroke-width="1.5"></path> </g></svg>
-                                                </a>
-                                                <a href="{{ route('franchise.invoice.pos.download', $invoiceTransaction->invoice_id) }}" >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" aria-label="PDF" role="img" viewBox="0 0 512 512" width="24px" height="24px" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><rect width="512" height="512" rx="15%" fill="#c80a0a"></rect><path fill="#ffffff" d="M413 302c-9-10-29-15-56-15-16 0-33 2-53 5a252 252 0 0 1-52-69c10-30 17-59 17-81 0-17-6-44-30-44-7 0-13 4-17 10-10 18-6 58 13 100a898 898 0 0 1-50 117c-53 22-88 46-91 65-2 9 4 24 25 24 31 0 65-45 91-91a626 626 0 0 1 92-24c38 33 71 38 87 38 32 0 35-23 24-35zM227 111c8-12 26-8 26 16 0 16-5 42-15 72-18-42-18-75-11-88zM100 391c3-16 33-38 80-57-26 44-52 72-68 72-10 0-13-9-12-15zm197-98a574 574 0 0 0-83 22 453 453 0 0 0 36-84 327 327 0 0 0 47 62zm13 4c32-5 59-4 71-2 29 6 19 41-13 33-23-5-42-18-58-31z"></path></g></svg>
-                                                </a>
-
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
                         </table>
-
                     </div>
                 </div>
             </div>
@@ -176,36 +116,16 @@
                 <h4 class="card-title">Order Transaction</h4>
                 <div class="col-lg-12 pt-4">
                     <div class="table-responsive rounded">
-                        <table id="example7" class="table customer-table display mb-4 fs-14 card-table">
+                        <table id="order-table" class="table customer-table display mb-4 fs-14 card-table">
                             <thead>
                                 <tr>
                                     <th>Cardholder Name</th>
-                                    <th>Amonut</th>
+                                    <th>Amount</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach ($orderTransactions as $orderTransaction)
-                                    <tr>
-                                        <td>{{ $orderTransaction->cardholder_name ?: '-' }}</td>
-                                        <td>${{ number_format($orderTransaction->amount) ?: '-' }}</td>
-                                        <td>{{ $orderTransaction->stripe_status ?: '-' }}</td>
-                                        <td>
-                                            <div class="d-flex">
-                                                <a target="_blank" href="{{ route('franchise.pos.order' , $orderTransaction->id) }}" class="me-4">
-                                                    <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M9 4.45962C9.91153 4.16968 10.9104 4 12 4C16.1819 4 19.028 6.49956 20.7251 8.70433C21.575 9.80853 22 10.3606 22 12C22 13.6394 21.575 14.1915 20.7251 15.2957C19.028 17.5004 16.1819 20 12 20C7.81811 20 4.97196 17.5004 3.27489 15.2957C2.42496 14.1915 2 13.6394 2 12C2 10.3606 2.42496 9.80853 3.27489 8.70433C3.75612 8.07914 4.32973 7.43025 5 6.82137" stroke="#00ABC7" stroke-width="1.5" stroke-linecap="round"></path> <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="#00ABC7" stroke-width="1.5"></path> </g></svg>
-                                                </a>
-                                                <a href="{{ route('franchise.order.pos.download', $orderTransaction->id) }}" >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" aria-label="PDF" role="img" viewBox="0 0 512 512" width="24px" height="24px" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><rect width="512" height="512" rx="15%" fill="#c80a0a"></rect><path fill="#ffffff" d="M413 302c-9-10-29-15-56-15-16 0-33 2-53 5a252 252 0 0 1-52-69c10-30 17-59 17-81 0-17-6-44-30-44-7 0-13 4-17 10-10 18-6 58 13 100a898 898 0 0 1-50 117c-53 22-88 46-91 65-2 9 4 24 25 24 31 0 65-45 91-91a626 626 0 0 1 92-24c38 33 71 38 87 38 32 0 35-23 24-35zM227 111c8-12 26-8 26 16 0 16-5 42-15 72-18-42-18-75-11-88zM100 391c3-16 33-38 80-57-26 44-52 72-68 72-10 0-13-9-12-15zm197-98a574 574 0 0 0-83 22 453 453 0 0 0 36-84 327 327 0 0 0 47 62zm13 4c32-5 59-4 71-2 29 6 19 41-13 33-23-5-42-18-58-31z"></path></g></svg>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
                         </table>
-
                     </div>
                 </div>
             </div>
@@ -216,3 +136,93 @@
 
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        $(document).ready(function () {
+            $('#invoice-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '{{ route("franchise.transaction", request()->route("franchisee")) }}',
+                    data: function (d) {
+                        d.table = 'invoice';
+                    }
+                },
+                columns: [
+                    { data: 'name', name: 'name' },
+                    { data: 'amount', name: 'amount' },
+                    { data: 'status', name: 'status' },
+                    { data: 'action', name: 'action', orderable: false, searchable: false }
+                ],
+                language: {
+                    paginate: {
+                        next: '<i class="fa fa-angle-double-right"></i>',
+                        previous: '<i class="fa fa-angle-double-left"></i>'
+                    },
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search records..."
+                },
+                dom: '<"top"f>rt<"bottom"lip><"clear">',
+                order: [[0, 'asc']],
+                pageLength: 10,
+                drawCallback: function (settings) {
+                    $('.dataTables_paginate').addClass('paging_simple_numbers');
+                    $('.paginate_button').each(function () {
+                        if ($(this).hasClass('current')) {
+                            $(this).attr('aria-current', 'page');
+                        }
+                    });
+                    $('.paginate_button.previous, .paginate_button.next').attr({
+                        'role': 'link',
+                        'aria-disabled': function () {
+                            return $(this).hasClass('disabled') ? 'true' : 'false';
+                        }
+                    });
+                }
+            });
+
+            $('#order-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '{{ route("franchise.transaction", request()->route("franchisee")) }}',
+                    data: function (d) {
+                        d.table = 'order';
+                    }
+                },
+                columns: [
+                    { data: 'cardholder_name', name: 'cardholder_name' },
+                    { data: 'amount', name: 'amount' },
+                    { data: 'status', name: 'status' },
+                    { data: 'action', name: 'action', orderable: false, searchable: false }
+                ],
+                language: {
+                    paginate: {
+                        next: '<i class="fa fa-angle-double-right"></i>',
+                        previous: '<i class="fa fa-angle-double-left"></i>'
+                    },
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search records..."
+                },
+                dom: '<"top"f>rt<"bottom"lip><"clear">',
+                order: [[0, 'asc']],
+                pageLength: 10,
+                drawCallback: function (settings) {
+                    $('.dataTables_paginate').addClass('paging_simple_numbers');
+                    $('.paginate_button').each(function () {
+                        if ($(this).hasClass('current')) {
+                            $(this).attr('aria-current', 'page');
+                        }
+                    });
+                    $('.paginate_button.previous, .paginate_button.next').attr({
+                        'role': 'link',
+                        'aria-disabled': function () {
+                            return $(this).hasClass('disabled') ? 'true' : 'false';
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+@endpush
