@@ -14,38 +14,48 @@ return new class extends Migration {
             if (!Schema::hasColumn('inventory_allocations', 'inventory_id')) {
                 $table->unsignedBigInteger('inventory_id')->after('id');
             }
-
+    
             if (!Schema::hasColumn('inventory_allocations', 'location_id')) {
                 $table->unsignedBigInteger('location_id')->after('inventory_id');
             }
-
+    
             if (!Schema::hasColumn('inventory_allocations', 'allocated_quantity')) {
                 $table->integer('allocated_quantity')->after('location_id');
             }
-
+    
             if (!Schema::hasColumns('inventory_allocations', ['created_at', 'updated_at'])) {
                 $table->timestamps();
             }
         });
-
-        // Separate block for foreign keys (after columns are created)
+    
+        // Ensure no invalid data before applying foreign keys
+        DB::table('inventory_allocations')
+            ->whereNotNull('inventory_id')
+            ->whereNotIn('inventory_id', function ($query) {
+                $query->select('inventory_id')->from('inventory_master');
+            })
+            ->delete();
+    
+        DB::table('inventory_allocations')
+            ->whereNotNull('location_id')
+            ->whereNotIn('location_id', function ($query) {
+                $query->select('locations_ID')->from('locations');
+            })
+            ->delete();
+    
+        // Add foreign keys
         Schema::table('inventory_allocations', function (Blueprint $table) {
-            // Check if foreign keys don't already exist (optional check for robustness)
-            try {
-                $table->foreign('inventory_id')
-                    ->references('inventory_id')
-                    ->on('inventory_master')
-                    ->onDelete('cascade');
-
-                $table->foreign('location_id')
-                    ->references('locations_ID')
-                    ->on('locations')
-                    ->onDelete('cascade');
-            } catch (\Illuminate\Database\QueryException $e) {
-                // Log or report the error if needed
-                info("Foreign key creation failed: " . $e->getMessage());
-            }
+            $table->foreign('inventory_id')
+                  ->references('inventory_id')
+                  ->on('inventory_master')
+                  ->onDelete('cascade');
+    
+            $table->foreign('location_id')
+                  ->references('locations_ID')
+                  ->on('locations')
+                  ->onDelete('cascade');
         });
     }
+    
 
 };
