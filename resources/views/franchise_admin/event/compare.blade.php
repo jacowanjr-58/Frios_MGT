@@ -7,7 +7,7 @@
                     Compare Events
                 </h1>
 
-                <a href="{{ route('franchise.events.index') }}" class="btn btn-primary">
+                <a href="{{ route('franchise.events.index', ['franchisee' => request()->route('franchisee')]) }}" class="btn btn-primary">
                     Go Back
                 </a>
             </div>

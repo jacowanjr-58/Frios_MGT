@@ -14,7 +14,7 @@
                 <!-- 1) Select Location -->
                 <div class="mb-4">
                     <label for="location-select" class="form-label"><strong>Select Location</strong></label>
-                    <select id="location-select" class="form-select">
+                    <select id="location-select" class="form-select form-control">
                         @foreach($locations as $loc)
                         <option value="{{ $loc->name }}">{{ $loc->name }}</option>
                         @endforeach
@@ -224,7 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 8) Submit all allocations via AJAX
     submitBtn.addEventListener("click", () => {
-        fetch("{{ route('franchise.inventory.allocate-inventory') }}", {
+        fetch("{{ route('franchise.inventory.allocate-inventory' , ['franchisee' => request()->route('franchisee')]) }}", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

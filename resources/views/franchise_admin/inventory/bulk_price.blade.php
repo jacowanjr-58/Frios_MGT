@@ -3,10 +3,10 @@
 
 @section('content')
 <div class="content-body default-height">
-    <div class="container-fluid">
-        <form method="POST" action="{{ route('franchise.inventory.bulk_price.update') }}">
+  
+        <form method="POST" action="{{ route('franchise.inventory.bulk_price.update', ['franchisee' => request()->route('franchisee')]) }}">
             @csrf
-            <div class="container">
+            <div class="container-fluid">
                 <div class="form-head mb-4 d-flex flex-wrap align-items-center">
                     <div class="me-auto">
                         <h2 class="font-w600 mb-0">Bulk Price Adjustment</h2>
@@ -152,3 +152,9 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 @endpush
+
+<style scoped>
+    .btn-primary {
+        background-color: #00abc7 !important;
+    }
+</style>

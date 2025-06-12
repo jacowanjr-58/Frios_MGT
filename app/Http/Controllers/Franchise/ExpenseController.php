@@ -15,111 +15,92 @@ use App\Mail\ExpensePaidMail;
 use Illuminate\Support\Facades\Mail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\Facades\DataTables;
+use Carbon\Carbon;
 
 class ExpenseController extends Controller
 {
-    public function index() {
-        $data['expenses'] = Expense::where('franchisee_id' , Auth::user()->franchisee_id)->get();
-        $data['expenseCount'] = Expense::where('franchisee_id' , Auth::user()->franchisee_id)->count();
-        return view('franchise_admin.expense.index' ,$data);
+    public function index($franchisee) {
+        if (request()->ajax()) {
+            $expenses = Expense::where('franchisee_id', $franchisee)
+                ->with(['category', 'sub_category']);
+
+            return DataTables::of($expenses)
+                ->addColumn('category_name', function ($expense) {
+                    return $expense->category->category ?? '-';
+                })
+                ->addColumn('subcategory_name', function ($expense) {
+                    return $expense->sub_category->sub_category ?? '-';
+                })
+                ->addColumn('formatted_amount', function ($expense) {
+                    return '$' . number_format($expense->amount, 2);
+                })
+                ->addColumn('formatted_date', function ($expense) {
+                    return Carbon::parse($expense->date)->format('M d, Y');
+                })
+                ->addColumn('action', function ($expense) {
+                    $editUrl = route('franchise.expense.edit', ['franchisee' => request()->route('franchisee'), 'id' => $expense->id]);
+                    $deleteUrl = route('franchise.expense.delete', ['franchisee' => request()->route('franchisee'), 'id' => $expense->id]);
+                    
+                    return '
+                    <div class="d-flex">
+                        <a href="'.$editUrl.'" class="ms-4 edit-expense">
+                            <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
+                        </a>
+                        <form action="'.$deleteUrl.'" method="POST">
+                            '.csrf_field().'
+                            '.method_field('DELETE').'
+                            <button type="submit" class="ms-4 delete-expense">
+                                <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
+                            </button>
+                        </form>
+                    </div>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        $data['expenseCount'] = Expense::where('franchisee_id', $franchisee)->count();
+        return view('franchise_admin.expense.index', $data);
     }
 
-    public function create() {
+    public function create($franchisee) {
+        $data['franchiseId'] = intval($franchisee);
         $data['ExpenseCategories'] = ExpenseCategory::get();
-        return view('franchise_admin.expense.create' ,$data);
+       
+        return view('franchise_admin.expense.create', $data);
     }
 
-public function store(Request $request)
-{
-    $request->validate([
-        'category_id' => 'required|integer',
-        'sub_category_id' => 'required|integer',
-        'name' => 'required|string|max:191',
-        'amount' => 'required|numeric|min:0.5',
-        'date' => 'required|date',
-        // 'stripeToken' => 'required',
-    ]);
+    public function store(Request $request, $franchisee) {
+        $request->validate([
+            'category_id' => 'required|integer',
+            'sub_category_id' => 'required|integer',
+            'name' => 'required|string|max:191',
+            'amount' => 'required|numeric|min:0.5',
+            'date' => 'required|date',
+        ]);
 
-    // Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
+        $expense = Expense::create([
+            'franchisee_id' => $franchisee,
+            'category_id' => $request->category_id,
+            'sub_category_id' => $request->sub_category_id,
+            'name' => $request->name,
+            'amount' => $request->amount,
+            'date' => $request->date,
+        ]);
 
-    // try {
-    //     $amountInCents = $request->amount * 100;
+        return redirect()->route('franchise.expense', ['franchisee' => $franchisee])->with('success', 'Expense created successfully!');
+    }
 
-    //     $charge = Charge::create([
-    //         'amount' => $amountInCents,
-    //         'currency' => 'usd',
-    //         'description' => 'Expense Payment for: ' . $request->name,
-    //         'source' => $request->stripeToken,
-    //         'metadata' => [
-    //             'franchise_id' => Auth::user()->franchisee_id,
-    //             'category_id' => $request->category_id,
-    //             'sub_category_id' => $request->sub_category_id,
-    //         ],
-    //     ]);
-    // } catch (\Exception $e) {
-    //     return redirect()->back()->with('success', $e->getMessage());
-    // }
-
-    $expense = Expense::create([
-        'franchisee_id' => Auth::user()->franchisee_id,
-        'category_id' => $request->category_id,
-        'sub_category_id' => $request->sub_category_id,
-        'name' => $request->name,
-        'amount' => $request->amount,
-        'date' => $request->date,
-    ]);
-
-    // ExpenseTransaction::create([
-    //     'franchisee_id' => Auth::user()->franchisee_id,
-    //     'expense_id' => $expense->id,
-    //     'cardholder_name' => $request->cardholder_name,
-    //     'amount' => $request->amount,
-    //     'stripe_payment_intent_id' => $charge->id,
-    //     'stripe_payment_method' => $charge->payment_method ?? null,
-    //     'stripe_currency' => $charge->currency,
-    //     'stripe_client_secret' => $charge->client_secret ?? null,
-    //     'stripe_status' => $charge->status,
-    // ]);
-
-    // $expenseTransaction = ExpenseTransaction::where('expense_id', $expense->id)->firstOrFail();
-    // $expenseCategory = ExpenseCategory::where('id', $expense->category_id)->firstOrFail();
-    // $expenseSubCategory = ExpenseSubCategory::where('id', $expense->sub_category_id)->firstOrFail();
-
-    // $pdf = Pdf::loadView('franchise_admin.payment.pdf.expense-pos', [
-    //     'expenseTransaction' => $expenseTransaction,
-    //     'expense' => $expense,
-    //     'expenseCategory' => $expenseCategory,
-    //     'expenseSubCategory' => $expenseSubCategory,
-    // ]);
-
-    // $pdfPath = storage_path('app/public/expense_invoice_' . $expense->id . '.pdf');
-    // $pdf->save($pdfPath);
-
-    // $corporateAdmin = User::where('user_id', 17)->first();
-
-    // if (!$corporateAdmin) {
-    //     return redirect()->back()->with('error', 'Corporate admin not found');
-    // }
-
-
-    // if ($corporateAdmin) {
-    //     Mail::to($corporateAdmin->email)->send(new ExpensePaidMail($corporateAdmin, $expense, $pdfPath));
-    // }
-
-    // unlink($pdfPath);
-
-    return redirect()->route('franchise.expense')->with('success', 'Expense created successfully!');
-}
-
-
-
-    public function edit($id) {
-        $data['expense'] = Expense::where('id' , $id)->first();
+    public function edit($franchisee, $id) {
+      
+        $data['expense'] = Expense::where('id', $id)->first();
+        $data['franchiseId'] = intval($franchisee);
         $data['ExpenseCategories'] = ExpenseCategory::get();
-        return view('franchise_admin.expense.edit' ,$data);
+        return view('franchise_admin.expense.edit', $data);
     }
 
-    public function update(Request $request , $id){
+    public function update(Request $request, $franchisee, $id) {
         $request->validate([
             'category_id' => 'required',
             'sub_category_id' => 'required',
@@ -128,8 +109,8 @@ public function store(Request $request)
             'date' => 'required',
         ]);
 
-        $expense = Expense::where('id',$id)->update([
-            'franchisee_id' => Auth::user()->franchisee_id,
+        $expense = Expense::where('id', $id)->update([
+            'franchisee_id' => $franchisee,
             'category_id' => $request->category_id,
             'sub_category_id' => $request->sub_category_id,
             'name' => $request->name,
@@ -137,24 +118,19 @@ public function store(Request $request)
             'date' => $request->date,
         ]);
 
-
-        return redirect()->route('franchise.expense')->with('success' , 'Expense updated successfully');
+        return redirect()->route('franchise.expense', ['franchisee' => $franchisee])->with('success', 'Expense updated successfully');
     }
 
-    public function getSubCategories($category_id)
-    {
-        $subCategories = ExpenseSubCategory::where('category_id', $category_id)->get();
-
+    public function getSubCategories($franchisee, $category_id) {
+       
+        $subCategories = ExpenseSubCategory::where('franchisee_id', $franchisee)->where('category_id', $category_id)->get();
         return response()->json([
             'data' => $subCategories,
         ]);
     }
 
-    public function delete($id){
-        $expense = Expense::where('id',$id)->delete();
-
-        return redirect()->route('franchise.expense')->with('success' , 'Expense deleted successfully');
-
-
+    public function delete($franchisee, $id) {
+        $expense = Expense::where('id', $id)->delete();
+        return redirect()->route('franchise.expense', ['franchisee' => $franchisee])->with('success', 'Expense deleted successfully');
     }
 }

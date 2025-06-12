@@ -16,6 +16,9 @@ class InventoryAllocation extends Model
     protected $fillable = [
         'inventory_id',
         'location_id',
+        'location',
+        'franchise_id',
+        'quantity',
         'allocated_quantity',
         'allocated_cases',
         'allocated_units',
@@ -31,5 +34,10 @@ class InventoryAllocation extends Model
     public function location()
     {
         return $this->belongsTo(InventoryLocation::class, 'location_id', 'locations_ID');
+    }
+
+    public function flavor()
+    {
+        return $this->belongsTo(FGPItem::class, 'fgp_item_id', 'fgp_item_id');
     }
 }

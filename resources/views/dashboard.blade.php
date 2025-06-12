@@ -2,7 +2,29 @@
 
 @section('content')
     <x-notify::notify />
-
+    @php
+                        $user = auth()->user();
+                        $franchisees = $user->franchisees ?? collect();
+                        $selectedFranchiseeId = $franchiseeId ?? null;
+                    @endphp
+                    @if($user->hasRole('franchise_admin') && $franchisees->count() > 1)
+                        <div class="mb-3">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <label for="franchisee_id" class="form-label mb-0 me-2">Select Franchisee:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <select name="franchisee_id" id="franchisee_id" class="form-select form-control" onchange="if(this.value) window.location.href='/franchise/' + this.value + '/dashboard'">
+                                        @foreach($franchisees as $franchisee)
+                                            <option value="{{ $franchisee->franchisee_id }}" {{ $selectedFranchiseeId == $franchisee->franchisee_id ? 'selected' : '' }}>
+                                                {{ $franchisee->business_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
     <!--**********************************
                                         Content body start
                                     ***********************************-->
@@ -14,7 +36,9 @@
                     <div class="me-auto">
                         <h2 class="font-w600 mb-0">Dashboard</h2>
                         <!-- <p>Lorem ipsum  dolor sit amet </p> -->
+                         
                     </div>
+                  
                 </div>
                 <div class="row">
                     <div class="col-xl-12">
@@ -393,6 +417,8 @@
             </div>
         </div>
     @endif
+
+   
 
     <script>
         let page = 1;

@@ -28,7 +28,7 @@
     <script src="{{ asset('assets/vendor/fullcalendar/js/main.min.js') }}"></script>
     <script src="{{ asset('assets/js/plugins-init/fullcalendar-init.js') }}"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -108,10 +108,12 @@
             <div class="flex">
                 <!-- Sidebar -->
                 @include('layouts.sidebar')
-
+               
                 <!-- Main Content -->
-                <div class="flex-1 p-6" style="max-width: 100%" >
+                <div class="flex-1 p-6" style="max-width: 100%">
+                  
                     <x-notify::notify />
+
                     @yield('content')
 
                 </div>
@@ -158,9 +160,10 @@
     <script src="{{ asset('assets/js/deznav-init.js') }}"></script>
     <script src="{{ asset('assets/js/demo.js') }}"></script>
 
-    {{-- <script src="{{ asset('assets/js/styleSwitcher.js') }}"></script> --}}
+    {{--
+    <script src="{{ asset('assets/js/styleSwitcher.js') }}"></script> --}}
     <script>
-        $(function() {
+        $(function () {
             $("#datepicker").datepicker({
                 autoclose: true,
                 todayHighlight: true
@@ -184,7 +187,7 @@
     @endif
 
     <script>
-        jQuery(document).ready(function() {
+        jQuery(document).ready(function () {
             const Toast = Swal.mixin({
                 toast: true,
                 position: 'top-end', // Toast appears at the top-right corner
@@ -201,7 +204,7 @@
             @if (session('success'))
                 let successMessage = "{{ session('success') }}".toLowerCase();
                 successMessage = successMessage.charAt(0).toUpperCase() + successMessage.slice(
-                1); // Capitalize the first letter
+                    1); // Capitalize the first letter
 
                 Toast.fire({
                     icon: 'success',
@@ -209,38 +212,38 @@
                 });
             @endif
 
-            // Check for error message
-            @if ($errors->any())
-                let errorMessage = "There were some errors with your submission!".toLowerCase();
-                errorMessage = errorMessage.charAt(0).toUpperCase() + errorMessage.slice(1);
+                // Check for error message
+                @if ($errors->any())
+                    let errorMessage = "There were some errors with your submission!".toLowerCase();
+                    errorMessage = errorMessage.charAt(0).toUpperCase() + errorMessage.slice(1);
 
-                Toast.fire({
-                    icon: 'error',
-                    title: errorMessage
-                });
-            @endif
+                    Toast.fire({
+                        icon: 'error',
+                        title: errorMessage
+                    });
+                @endif
 
-            // Check for info message
-            @if (session('info'))
-                let infoMessage = "{{ session('info') }}".toLowerCase();
-                infoMessage = infoMessage.charAt(0).toUpperCase() + infoMessage.slice(1);
+                // Check for info message
+                @if (session('info'))
+                    let infoMessage = "{{ session('info') }}".toLowerCase();
+                    infoMessage = infoMessage.charAt(0).toUpperCase() + infoMessage.slice(1);
 
-                Toast.fire({
-                    icon: 'info',
-                    title: infoMessage
-                });
-            @endif
+                    Toast.fire({
+                        icon: 'info',
+                        title: infoMessage
+                    });
+                @endif
 
-            // Check for warning message
-            @if (session('warning'))
-                let warningMessage = "{{ session('warning') }}".toLowerCase();
-                warningMessage = warningMessage.charAt(0).toUpperCase() + warningMessage.slice(1);
+                // Check for warning message
+                @if (session('warning'))
+                    let warningMessage = "{{ session('warning') }}".toLowerCase();
+                    warningMessage = warningMessage.charAt(0).toUpperCase() + warningMessage.slice(1);
 
-                Toast.fire({
-                    icon: 'warning',
-                    title: warningMessage
-                });
-            @endif
+                    Toast.fire({
+                        icon: 'warning',
+                        title: warningMessage
+                    });
+                @endif
         });
     </script>
 

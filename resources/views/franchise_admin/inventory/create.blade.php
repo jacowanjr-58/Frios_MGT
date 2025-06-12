@@ -3,17 +3,17 @@
 @php use Illuminate\Support\Facades\Storage; @endphp
 
 @section('content')
-<form id="inventoryForm" action="{{ route('franchise.inventory.store') }}" method="POST" enctype="multipart/form-data">
+<form id="inventoryForm" action="{{ route('franchise.inventory.store', ['franchisee' => request()->route('franchisee')]) }}" method="POST" enctype="multipart/form-data">
     @csrf
 
     <div class="content-body default-height">
-      <div class="container">
+      <div class="container-fluid">
 
         {{-- Page Header --}}
         <div class="row mb-4">
           <div class="col"><h3>Create Inventory Record</h3></div>
           <div class="col text-end">
-            <a href="{{ route('franchise.inventory.index') }}" class="btn btn-secondary">← Back to List</a>
+            <a href="{{ route('franchise.inventory.index', ['franchisee' => request()->route('franchisee')]) }}" class="btn btn-secondary">← Back to List</a>
           </div>
         </div>
 
@@ -266,3 +266,10 @@ document.addEventListener('DOMContentLoaded', function () {
 @endpush
 
 @endsection
+
+<style scoped>
+  .btn-primary {
+    background-color: #00abc7 !important;
+  
+  }
+</style>
