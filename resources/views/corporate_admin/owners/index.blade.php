@@ -112,7 +112,7 @@
                 ajax: "{{ route('corporate_admin.owner.index') }}",
                 columns: [
                     { data: 'name', name: 'name' },
-                    { data: 'franchise_name', name: 'franchise_name' },
+                    { data: 'franchisee', name: 'franchisee' },
                     { data: 'email', name: 'email' },
                     { data: 'formatted_role', name: 'formatted_role' },
                     { data: 'formatted_date', name: 'formatted_date' },

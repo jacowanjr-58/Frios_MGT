@@ -20,8 +20,15 @@ class OwnerController extends Controller
             $users = User::where('role', 'franchise_admin');
 
             return DataTables::of($users)
-                ->addColumn('franchise_name', function ($user) {
-                    return $user->franchisee ? $user->franchisee->business_name : 'No Franchise Assigned';
+                ->addColumn('franchisee', function ($user) {
+                    $franchises = $user->franchisees;
+                    if ($franchises->isEmpty()) {
+                        return '<span class="badge bg-danger">No Franchise Assigned</span>';
+                    }
+                    
+                    return $franchises->map(function($franchise) {
+                        return '<span class="badge bg-primary me-1">' . $franchise->business_name . '</span>';
+                    })->implode(' ');
                 })
                 ->addColumn('formatted_role', function ($user) {
                     return ucwords(str_replace('_', ' ', $user->role));
@@ -47,7 +54,7 @@ class OwnerController extends Controller
                         </form>
                     </div>';
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'franchisee'])
                 ->make(true);
         }
 

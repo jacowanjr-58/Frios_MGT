@@ -79,5 +79,11 @@ class User extends Authenticatable
         return $this->belongsTo(Franchisee::class, 'franchisee_id', 'franchisee_id');
     }
 
-
+    /**
+     * Define many-to-many relationship with Franchisee through user_franchisees
+     */
+    public function franchisees()
+    {
+        return $this->belongsToMany(Franchisee::class, 'user_franchisees', 'user_id', 'franchisee_id');
+    }
 }
