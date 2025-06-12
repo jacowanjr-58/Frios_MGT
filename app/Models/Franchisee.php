@@ -41,6 +41,14 @@ class Franchisee extends Model
     
 
 
+    /**
+     * Define many-to-many relationship with User through user_franchisees
+     */
+    public function franchiseUsers()
+    {
+        return $this->belongsToMany(User::class, 'user_franchisees', 'franchisee_id', 'user_id');
+    }
+
     public function inventoryMasters()
     {
         return $this->hasMany(InventoryMaster::class, 'franchisee_id', 'franchisee_id');
