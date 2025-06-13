@@ -48,6 +48,9 @@ class User extends Authenticatable
         'clearance',
         'security',
         'stripe_account_id',
+        'ein_ssn_hash',
+        'contract_document_path',
+        'date_joined',
     ];
 
     /**
@@ -58,6 +61,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        // 'ein_ssn_hash', // Hide the hashed EIN/SSN from serialization
     ];
 
     /**
@@ -69,6 +73,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'created_date' => 'date',
+        'date_joined' => 'date',
     ];
 
     /**
@@ -84,7 +89,36 @@ class User extends Authenticatable
         return $this->belongsToMany(Franchisee::class, 'user_franchisees', 'user_id', 'franchisee_id');
     }
 
+    /**
+     * Set the EIN/SSN hash
+     */
+    public function setEinSsnAttribute($value)
+    {
+        if (!empty($value)) {
+            $this->attributes['ein_ssn_hash'] = encrypt($value); // Correct: encrypt, not decrypt
+        }
+    }
 
+
+    /**
+     * Check if the provided EIN/SSN matches the stored hash
+     */
+    public function getEinSsnAttribute()
+    {
+        if (!empty($this->attributes['ein_ssn_hash'])) {
+            return decrypt($this->attributes['ein_ssn_hash']);
+        }
+
+        return null;
+    }
+    public function verifyEinSsn($einSsn)
+    {
+        if (empty($this->ein_ssn_hash)) {
+            return false;
+        }
+
+        return decrypt($this->ein_ssn_hash) === $einSsn;
+    }
 
 
 }

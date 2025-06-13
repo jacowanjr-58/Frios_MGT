@@ -69,6 +69,8 @@ public function store(Request $request)
     // Validate Input Fields
     $request->validate([
         'business_name' => 'required|string|max:255',
+        'contact_number' => 'required|string|max:20',
+        'frios_territory_name' => 'nullable|string|max:255',
         'address1' => 'required|string|max:255',
         'city' => 'required|string|max:255',
         'zip_code' => 'required|string|regex:/^\d{5}$/',
@@ -105,6 +107,8 @@ public function store(Request $request)
     {
         $request->validate([
             'business_name' => 'required|string|max:255',
+            'contact_number' => 'required|string|max:20',
+            'frios_territory_name' => 'nullable|string|max:255',
             'address1' => 'required|string|max:255',
             'city' => 'required|string|max:255',
             'zip_code' => 'required|string|regex:/^\d{5}$/',

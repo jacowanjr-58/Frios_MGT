@@ -15,17 +15,17 @@
 
 
     <!--**********************************
-                    Content body start
-                ***********************************-->
+                            Content body start
+                        ***********************************-->
     <div class=" content-body default-height">
         <!-- row -->
         <div class="container-fluid">
             <!-- <div class="page-titles">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
-                                <li class="breadcrumb-item active"><a href="javascript:void(0)">Analytics</a></li>
-                            </ol>
-                        </div> -->
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
+                                        <li class="breadcrumb-item active"><a href="javascript:void(0)">Analytics</a></li>
+                                    </ol>
+                                </div> -->
             <div class="form-head mb-4 d-flex flex-wrap align-items-center">
                 <div class="me-auto">
                     <h2 class="font-w600 mb-0">Dashboard \</h2>
@@ -48,11 +48,8 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="basic-form">
-
                                             <!-- Display Success Message -->
-
-
-                                            <form action="{{ route('corporate_admin.owner.store') }}" method="POST">
+                                            <form action="{{ route('corporate_admin.owner.store') }}" method="POST" enctype="multipart/form-data">
                                                 @csrf
 
                                                 <div class="row">
@@ -98,7 +95,8 @@
                                                             <option value="">Select Franchise</option>
                                                             @foreach ($franchises as $franchise)
                                                                 <option value="{{ $franchise->franchisee_id }}">
-                                                                    {{ $franchise->business_name }}</option>
+                                                                {{ $franchise->business_name ?? 'N/A' }} - {{ $franchise->frios_territory_name ?? 'N/A' }}
+                                                                </option>
                                                             @endforeach
                                                         </select>
                                                         @error('franchisee_id')
@@ -106,32 +104,42 @@
                                                         @enderror
                                                     </div>
 
-                                                    {{-- <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Clearance</label>
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">EIN/SSN</label>
                                                         <input type="text"
-                                                            class="form-control @error('clearance') is-invalid @enderror"
-                                                            name="clearance" value="{{ old('clearance') }}"
-                                                            placeholder="Clearance">
-                                                        @error('clearance')
-                                                        <div class="text-danger">{{ $message }}</div>
+                                                            class="form-control @error('ein_ssn') is-invalid @enderror"
+                                                            name="ein_ssn" value="{{ old('ein_ssn') }}" 
+                                                            placeholder="Enter EIN or SSN">
+                                                        @error('ein_ssn')
+                                                            <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
 
                                                     <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Security</label>
-                                                        <input type="text"
-                                                            class="form-control @error('security') is-invalid @enderror"
-                                                            name="security" value="{{ old('security') }}"
-                                                            placeholder="Security">
-                                                        @error('security')
-                                                        <div class="text-danger">{{ $message }}</div>
+                                                        <label class="form-label">Date Joined</label>
+                                                        <input type="date"
+                                                            class="form-control @error('date_joined') is-invalid @enderror"
+                                                            name="date_joined" value="{{ old('date_joined') }}">
+                                                        @error('date_joined')
+                                                            <div class="text-danger">{{ $message }}</div>
                                                         @enderror
-                                                    </div> --}}
+                                                    </div>
+
+                                                    <div class="mb-3 col-md-12">
+                                                        <label class="form-label">Franchise Contract Document 
+                                                            <small class="text-muted">(PDF, DOC, DOCX - Max 10MB)</small>
+                                                        </label>
+                                                        <input type="file"
+                                                            class="form-control @error('contract_document') is-invalid @enderror"
+                                                            name="contract_document" accept=".pdf,.doc,.docx">
+                                                        @error('contract_document')
+                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
                                                 </div>
 
                                                 <button type="submit" class="btn btn-primary bg-primary">Add Owner</button>
                                             </form>
-
                                         </div>
                                     </div>
                                 </div>
@@ -146,8 +154,8 @@
         </div>
     </div>
     <!--**********************************
-                    Content body end
-                ***********************************-->
+                            Content body end
+                        ***********************************-->
 
 
 @endsection

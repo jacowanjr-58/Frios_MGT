@@ -14,6 +14,8 @@ class Franchisee extends Model
     protected $fillable = [
         'user_id',
         'business_name',
+        'contact_number',
+        'frios_territory_name',
         'address1',
         'address2',
         'city',
@@ -52,6 +54,17 @@ class Franchisee extends Model
     public function inventoryMasters()
     {
         return $this->hasMany(InventoryMaster::class, 'franchisee_id', 'franchisee_id');
+    }
+
+    // Parent-child franchise relationships
+    public function parentFranchise()
+    {
+        return $this->belongsTo(Franchisee::class, 'parent_franchise_id', 'franchisee_id');
+    }
+
+    public function childFranchises()
+    {
+        return $this->hasMany(Franchisee::class, 'parent_franchise_id', 'franchisee_id');
     }
 
 }
