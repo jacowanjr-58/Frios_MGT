@@ -67,6 +67,24 @@
                                                             @enderror
                                                         </div>
                                                         <div class="mb-3">
+                                                            <label class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                                            <input type="text" class="form-control @error('contact_number') is-invalid @enderror"
+                                                                name="contact_number" value="{{ old('contact_number', $franchise->contact_number) }}"
+                                                                placeholder="Contact Number">
+                                                            @error('contact_number')
+                                                                <div class="text-danger">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Frios Territory Name</label>
+                                                            <input type="text" class="form-control @error('frios_territory_name') is-invalid @enderror"
+                                                                name="frios_territory_name" value="{{ old('frios_territory_name', $franchise->frios_territory_name) }}"
+                                                                placeholder="Frios Territory Name">
+                                                            @error('frios_territory_name')
+                                                                <div class="text-danger">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                        <div class="mb-3">
                                                             <label class="form-label">Address 1 <span class="text-danger">*</span></label>
                                                             <input type="text" class="form-control @error('address1') is-invalid @enderror"
                                                                 name="address1" value="{{ old('address1', $franchise->address1) }}"

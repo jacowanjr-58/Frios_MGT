@@ -78,21 +78,47 @@
                         $franchiseeId = $franchiseeId ?? null;
                     @endphp
                     @if($user->hasRole('franchise_admin') && $franchisees->count() > 1)
-                        <div class="">
-                            <div class="row align-items-center">
-                                <div class="col-auto">
-                                    <label for="franchisee_id" class="form-label mb-0 me-2">Select Franchisee</label>
-                                </div>
-                                <div class="col-auto">
-                                    <select name="franchisee_id" id="franchisee_id" class="form-select form-control"
-                                        onchange="if(this.value) window.location.href='/franchise/' + this.value + '/dashboard'">
-                                        @foreach($franchisees as $franchisee)
-                                            <option value="{{ $franchisee->franchisee_id }}" {{ $selectedFranchiseeId == $franchisee->franchisee_id ? 'selected' : '' }}>
-                                                {{ $franchisee->business_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+
+                        <div class="w-100 ml-32">
+                            <div class="d-flex align-items-center gap-3">
+                                <label for="franchisee_id" class="form-label mb-0 text-nowrap fw-semibold">Select
+                                    Franchisee:</label>
+                                <select name="franchisee_id" id="franchisee_id" class="form-select select2 flex-grow-1"
+                                    onchange="if(this.value) window.location.href='/franchise/' + this.value + '/dashboard'">
+                                    @foreach($franchisees as $franchisee)
+                                        <option value="{{ $franchisee->franchisee_id }}" {{ $selectedFranchiseeId == $franchisee->franchisee_id ? 'selected' : '' }}>
+                                            {{ $franchisee->business_name ?? 'N/A' }} -
+                                            {{ $franchisee->frios_territory_name ?? 'N/A' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    @endif
+                    @php
+                        $user = auth()->user();
+                        $franchisees = $user->franchisees ?? collect();
+                        $selectedFranchiseeId = $franchiseeId ?? null;
+                        $franchiseeId = $franchiseeId ?? null;
+                    @endphp
+                    @if($user->hasRole('corporate_admin') && request()->routeIs('dashboard'))
+                        @php
+                            // Corporate admins should see all franchises, not just assigned ones
+                            $allFranchisees = App\Models\Franchisee::all();
+                        @endphp
+                        <div class="w-100 ml-32">
+                            <div class="d-flex align-items-center gap-3">
+                                <label for="franchisee_id" class="form-label mb-0 text-nowrap fw-semibold">Select
+                                    Franchisee:</label>
+                                <select name="franchisee_id" id="franchisee_id" class="form-select select2 flex-grow-1"
+                                    onchange="if(this.value) window.location.href='/franchise/' + this.value + '/dashboard'">
+                                    @foreach($allFranchisees as $franchisee)
+                                        <option value="{{ $franchisee->franchisee_id }}" {{ $selectedFranchiseeId == $franchisee->franchisee_id ? 'selected' : '' }}>
+                                            {{ $franchisee->business_name ?? 'N/A' }} -
+                                            {{ $franchisee->frios_territory_name ?? 'N/A' }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     @endif
@@ -142,7 +168,8 @@
                             </a>
                             @endrole
                             @role('franchise_admin')
-                            <a href="{{ route('franchise.staff.index' , ['franchise' => $franchiseeId]) }}" class="dropdown-item ai-icon d-flex">
+                            <a href="{{ route('franchise.staff.index', ['franchise' => $franchiseeId]) }}"
+                                class="dropdown-item ai-icon d-flex">
                                 <i class="bi bi-people-fill text-primary"></i>
                                 <span class="ms-2">Manage Users</span>
                             </a>
@@ -152,7 +179,8 @@
                             </a>
                             @endrole
                             @role('franchise_manager')
-                            <a href="{{ route('franchise.staff.index' , ['franchise' => $franchiseeId]) }}" class="dropdown-item ai-icon d-flex">
+                            <a href="{{ route('franchise.staff.index', ['franchise' => $franchiseeId]) }}"
+                                class="dropdown-item ai-icon d-flex">
                                 <i class="bi bi-people-fill text-primary"></i>
                                 <span class="ms-2">Manage Users</span>
                             </a>
@@ -183,3 +211,77 @@
 <!--**********************************
             Header end ti-comment-alt
         ***********************************-->
+<style scoped>
+    .ml-32 {
+        margin-left: -32px;
+    }
+
+    /* Fix dropdown overflow issues */
+    .header-content {
+        overflow: visible !important;
+    }
+
+    .navbar-collapse {
+        overflow: visible !important;
+    }
+
+    .header-left {
+        overflow: visible !important;
+        position: relative;
+        z-index: 1000;
+    }
+
+    /* Ensure Select2 dropdown appears properly */
+    .select2-container {
+        z-index: 9999 !important;
+    }
+
+    .select2-dropdown {
+        z-index: 9999 !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.375rem !important;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    }
+
+    /* Improve select appearance */
+    .select2-container--default .select2-selection--single {
+        height: 38px !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.375rem !important;
+        padding: 6px 12px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 24px !important;
+        padding-left: 0 !important;
+        /* color: #495057 !important; */
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px !important;
+        right: 10px !important;
+    }
+
+    .position-relative {
+        position: relative !important;
+        /* background: red; */
+        /* width: 253px; */
+    }
+
+    .select2-results__option[role=option] {
+    margin: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    color: black;
+}
+    .header-left input {
+    background: #fff;
+    min-width: 124px !important;
+    min-height: 40px;
+    border-color: transparent;
+    color: #6e6e6e !important;
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+    box-shadow: none;
+}
+</style>

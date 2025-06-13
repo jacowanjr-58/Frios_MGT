@@ -10,10 +10,12 @@ use Carbon\Carbon;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
 
+
 class OwnerController extends Controller
 {
     public function index()
     {
+       
         $totalUsers = User::where('role', 'franchise_admin')->count();
 
         if (request()->ajax()) {
@@ -79,23 +81,45 @@ class OwnerController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
             'franchisee_id' => 'required|exists:franchisees,franchisee_id',
+            'ein_ssn' => 'nullable|string|max:255',
+            'contract_document' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // 10MB max
+            'date_joined' => 'nullable|date',
             // 'clearance' => 'nullable|string',
             // 'security' => 'nullable|string',
         ], [
             'franchisee_id.required' => 'Franchise is required.', // Custom error message
             'franchisee_id.exists' => 'Selected franchise does not exist.', // Custom error message for invalid franchise
+            'contract_document.mimes' => 'Contract document must be a PDF, DOC, or DOCX file.',
+            'contract_document.max' => 'Contract document must not exceed 10MB.',
         ]);
 
-        $user = User::create([
+        // Handle file upload
+        $contractDocumentPath = null;
+        if ($request->hasFile('contract_document')) {
+            $file = $request->file('contract_document');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            
+            // Store file directly in public/contracts directory
+            $file->move(public_path('contracts'), $filename);
+            $contractDocumentPath = 'contracts/' . $filename;
+        }
+
+        $userData = [
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'role' => 'franchise_admin', // Storing role in the database
-            // 'franchisee_id' => $request->franchisee_id,
-            // 'clearance' => $request->clearance,
-            // 'security' => $request->security,
+            'contract_document_path' => $contractDocumentPath,
+            'date_joined' => $request->date_joined,
             'created_date' => Carbon::now()->toDateString(), // Storing the current date
-        ]);
+        ];
+
+        // Handle EIN/SSN hashing if provided
+        if ($request->filled('ein_ssn')) {
+            $userData['ein_ssn_hash'] = encrypt($request->ein_ssn);
+        }
+
+        $user = User::create($userData);
 
         // Assign the role using Spatie Role Permission
         $user->assignRole('franchise_admin');
@@ -130,17 +154,45 @@ class OwnerController extends Controller
             'email' => 'required|email|unique:users,email,' . $owner->user_id . ',user_id', // Corrected validation
             'password' => 'nullable|min:6',
             'franchisee_id' => 'nullable|exists:franchisees,franchisee_id',
+            'ein_ssn' => 'nullable|string|max:255',
+            'contract_document' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // 10MB max
+            'date_joined' => 'nullable|date',
             // 'clearance' => 'nullable|string',
             // 'security' => 'nullable|string',
+        ], [
+            'contract_document.mimes' => 'Contract document must be a PDF, DOC, or DOCX file.',
+            'contract_document.max' => 'Contract document must not exceed 10MB.',
         ]);
 
-        $owner->update([
+        // Handle file upload
+        $contractDocumentPath = $owner->contract_document_path; // Keep existing path if no new file
+        if ($request->hasFile('contract_document')) {
+            // Delete old file if exists
+            if ($owner->contract_document_path && file_exists(public_path($owner->contract_document_path))) {
+                unlink(public_path($owner->contract_document_path));
+            }
+            
+            $file = $request->file('contract_document');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            
+            // Store file directly in public/contracts directory
+            $file->move(public_path('contracts'), $filename);
+            $contractDocumentPath = 'contracts/' . $filename;
+        }
+
+        $updateData = [
             'name' => $request->name,
             'email' => $request->email,
-            // 'franchisee_id' => $request->franchisee_id,
-            // 'clearance' => $request->clearance,
-            // 'security' => $request->security,
-        ]);
+            'contract_document_path' => $contractDocumentPath,
+            'date_joined' => $request->date_joined,
+        ];
+
+        // Handle EIN/SSN hashing if provided
+        if ($request->filled('ein_ssn')) {
+            $updateData['ein_ssn_hash'] = encrypt($request->ein_ssn);
+        }
+
+        $owner->update($updateData);
 
         if ($request->filled('password')) {
             $owner->update(['password' => bcrypt($request->password)]);
@@ -153,6 +205,12 @@ class OwnerController extends Controller
     {
         try {
             $user = User::where('user_id', $id)->firstOrFail(); // Find user by user_id
+            
+            // Delete contract document if exists
+            if ($user->contract_document_path && file_exists(public_path($user->contract_document_path))) {
+                unlink(public_path($user->contract_document_path));
+            }
+            
             $user->delete();
 
             return redirect()->route('corporate_admin.owner.index')->with('success', 'User deleted successfully.');
