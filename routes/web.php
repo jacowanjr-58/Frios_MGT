@@ -321,8 +321,8 @@ require __DIR__ . '/auth.php';
 
 
 
-Route::prefix('franchise-admin')->name('franchise.')->middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard');
+Route::prefix('franchise')->name('franchise.')->middleware(['auth'])->group(function () {
+    Route::get('{franchisee}/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard');
 
     // Location routes
     Route::prefix('{franchisee}/locations')->name('locations.')->group(function () {
