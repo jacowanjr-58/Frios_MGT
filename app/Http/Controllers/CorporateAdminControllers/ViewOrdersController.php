@@ -8,6 +8,7 @@ use App\Models\FgpOrder;
 use App\Models\FgpItem;
 use App\Models\Franchisee;
 use App\Models\AdditionalCharge;
+use App\Models\UpsShipment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -216,7 +217,21 @@ public function update(Request $request, $orderId)
     ->with('success', 'Order #' . $order->getOrderNum() . ' updated successfully!');
 }
 
+public function createPackingList($orderId)
+{
+    // Fetch the order and its shipments
+    $order = FgpOrder::findOrFail($orderId);
+    $shipments = UpsShipment::where('fgp_ordersID', $orderId)->get();
 
+    // Decode box_contents for each shipment
+    foreach ($shipments as $shipment) {
+        $shipment->box_contents = is_string($shipment->box_contents)
+            ? json_decode($shipment->box_contents, true)
+            : $shipment->box_contents;
+    }
+
+    return view('corporate_admin.view_orders.packinglist', compact('order', 'shipments'));
+}
 
 
     public function orderposps()

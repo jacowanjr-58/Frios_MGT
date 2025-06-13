@@ -80,7 +80,7 @@ Route::middleware(['auth', 'role:corporate_admin'])->prefix('corporate_admin')->
     Route::get('/vieworders', [ViewOrdersController::class, 'index'])->name('vieworders.index');
     Route::post('/vieworders/update-status', [ViewOrdersController::class, 'updateStatus'])->name('vieworders.updateStatus');
     Route::get('/vieworders/customersorder/{customer_id}', [ViewOrdersController::class, 'showCustomer'])->name('customersorder.show');
-
+    Route::get('/vieworders/{orderId}/packing-list', [ViewOrdersController::class, 'createPackingList'])->name('corporate_admin.vieworders.packing_list');
 
     Route::get('orderpops' , [ViewOrdersController::class , 'orderposps'])->name('orderposps');
     Route::get('orderpops/confirm/page' , [ViewOrdersController::class , 'confirmPage'])->name('confirm.page');
