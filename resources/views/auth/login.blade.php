@@ -7,7 +7,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {{-- @notifyCss --}}
-    <link href="{{ asset('assets/vendor/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/vendor/chartist/css/chartist.min.css') }}">
     <link href="{{ asset('assets/vendor/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css') }}"
         rel="stylesheet">
@@ -119,7 +118,7 @@
 
     </script>
     <script src="{{ asset('assets/vendor/global/global.min.js') }}"></script>
-    <script src="{{ asset('assets/vendor/bootstrap-select/js/bootstrap-select.min.js') }}"></script>
+  
     <script src="{{ asset('assets/js/deznav-init.js') }}"></script>
     <script src="{{ asset('assets/js/jquery.localizationTool.js') }}"></script>
     <script src="{{ asset('assets/js/translator.js') }}"></script>
@@ -127,6 +126,30 @@
     <script src="{{ asset('assets/js/demo.js') }}"></script>
     <script src="{{ asset('assets/js/styleSwitcher.js') }}"></script>
     {{-- @notifyJs --}}
+
+    <!-- SweetAlert2 for toaster messages -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        @if (session('error'))
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end', // Toast appears at the top-right corner
+                showConfirmButton: false,
+                timer: 3000, // Automatically close after 3 seconds
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+
+            Toast.fire({
+                icon: 'error',
+                // title: 'Error',
+                text: '{{ addslashes(session('error')) }}'
+            });
+        @endif
+    </script>
 </body>
 
 </html>

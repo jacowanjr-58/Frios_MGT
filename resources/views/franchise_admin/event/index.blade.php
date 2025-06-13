@@ -75,7 +75,7 @@
 
 
                             <td>
-                                <a href="{{ route('franchise.events.view', ['id' => $event->id, 'franchisee' => request()->route('franchisee')]) }}" style="color: inherit; text-decoration: none;" onmouseover="this.style.color='blue'" onmouseout="this.style.color='inherit'">
+                                <a href="{{ route('franchise.events.view', ['franchisee' => request()->route('franchisee'), 'id' => $event->id]) }}" style="color: inherit; text-decoration: none;" onmouseover="this.style.color='blue'" onmouseout="this.style.color='inherit'">
                                     {{ $event->event_name }}
                                 </a>
 

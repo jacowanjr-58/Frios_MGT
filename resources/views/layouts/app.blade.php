@@ -17,7 +17,7 @@
         href="https://friospops.wpenginepowered.com/wp-content/uploads/2022/04/Frios-Logo-2022-light-yellow-orange-pop-01.png">
 
     <!-- Styles -->
-    <link href="{{ asset('assets/vendor/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet">
+    <!-- <link href="{{ asset('assets/vendor/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet"> -->
     <link rel="stylesheet" href="{{ asset('assets/vendor/chartist/css/chartist.min.css') }}">
     <link href="{{ asset('assets/vendor/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css') }}"
         rel="stylesheet">
@@ -33,10 +33,12 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <!-- jQuery (Always load first) -->
+    <link rel="stylesheet" href="/vendor/select2/select2.css">
 
+    <!-- jQuery (Always load first) -->
+    
     <!-- Select2 CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" /> -->
     @notifyCss
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
@@ -44,7 +46,7 @@
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 
     <!-- Bootstrap Select JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script> -->
     @vite(['resources/js/app.js'])
     <style>
         .custom-hover:hover {
@@ -108,10 +110,10 @@
             <div class="flex">
                 <!-- Sidebar -->
                 @include('layouts.sidebar')
-               
+
                 <!-- Main Content -->
                 <div class="flex-1 p-6" style="max-width: 100%">
-                  
+
                     <x-notify::notify />
 
                     @yield('content')
@@ -136,7 +138,7 @@
     <script src="{{ asset('assets/vendor/chartjs/chart.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/vendor/bootstrap-datetimepicker/js/moment.js') }}"></script>
     <script src="{{ asset('assets/vendor/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js') }}"></script>
-    <script src="{{ asset('assets/vendor/bootstrap-select/js/bootstrap-select.min.js') }}"></script>
+    <!-- <script src="{{ asset('assets/vendor/bootstrap-select/js/bootstrap-select.min.js') }}"></script> -->
 
     <!-- Chart piety plugin files -->
     <script src="{{ asset('assets/vendor/peity/jquery.peity.min.js') }}"></script>
@@ -159,10 +161,24 @@
     <script src="{{ asset('assets/js/custom.min.js') }}"></script>
     <script src="{{ asset('assets/js/deznav-init.js') }}"></script>
     <script src="{{ asset('assets/js/demo.js') }}"></script>
-
+    <script src="/vendor/select2/select2.js"></script>
     {{--
     <script src="{{ asset('assets/js/styleSwitcher.js') }}"></script> --}}
     <script>
+        jQuery(document).ready(function() {
+            select2 = $('.select2');
+            if (select2.length) {
+                select2.each(function () {
+                    var $this = $(this);
+                    $this.wrap('<div class="position-relative"></div>').select2({
+                        placeholder: 'Select value',
+                        dropdownParent: $this.parent(),
+                        allowClear: true,
+                        width: '100%'
+                    });
+                });
+            }
+        });
         $(function () {
             $("#datepicker").datepicker({
                 autoclose: true,
