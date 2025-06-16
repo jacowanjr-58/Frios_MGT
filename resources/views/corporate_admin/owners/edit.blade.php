@@ -95,7 +95,7 @@
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">EIN/SSN</label>
                                                        
-                                                        <input type="password" class="form-control @error('ein_ssn') is-invalid @enderror" 
+                                                        <input type="text" class="form-control @error('ein_ssn') is-invalid @enderror" 
                                                                name="ein_ssn" value="{{  $owner->ein_ssn  }}" 
                                                                placeholder="Enter EIN or SSN (leave empty to keep current)">
                                                         @error('ein_ssn') <div class="text-danger">{{ $message }}</div> @enderror

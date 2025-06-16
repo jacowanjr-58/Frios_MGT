@@ -44,17 +44,11 @@ Route::middleware(StripeMiddleware::class)->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-
-
-    // Profile routes
+    // General profile routes for corporate admins
     Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
-    Route::get('/profile/create', [AdminProfileController::class, 'create'])->name('profile.create');
     Route::get('/profile/{profile}', [AdminProfileController::class, 'show'])->name('profile.show');
-    Route::post('/profile', [AdminProfileController::class, 'store'])->name('profile.store');
     Route::get('/profile/{profile}/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/{profile}', [AdminProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile/{profile}', [AdminProfileController::class, 'destroy'])->name('profile.destroy');
-
 });
 
 
@@ -66,13 +60,25 @@ Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallb
 Route::middleware(['auth', 'role:franchise_admin|franchise_manager', StripeMiddleware::class])->prefix('franchise')->name('franchise.')->group(function () {
     Route::get('/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard');
 
-    // Staff routes
-    Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
-    Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create');
-    Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
-    Route::get('/staff/{staff}/edit', [StaffController::class, 'edit'])->name('staff.edit');
-    Route::put('/staff/{staff}', [StaffController::class, 'update'])->name('staff.update');
-    Route::delete('/staff/{staff}', [StaffController::class, 'destroy'])->name('staff.destroy');
+    Route::prefix('{franchisee}')->group(function () {
+        // Profile routes
+        Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
+        Route::get('/profile/create', [AdminProfileController::class, 'create'])->name('profile.create');
+        Route::get('/profile/{profile}', [AdminProfileController::class, 'show'])->name('profile.show');
+        Route::post('/profile', [AdminProfileController::class, 'store'])->name('profile.store');
+        Route::get('/profile/{profile}/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile/{profile}', [AdminProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile/{profile}', [AdminProfileController::class, 'destroy'])->name('profile.destroy');
+
+        // Staff routes
+        Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
+        Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create');
+        Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
+        Route::get('/staff/{staff}/edit', [StaffController::class, 'edit'])->name('staff.edit');
+        Route::put('/staff/{staff}', [StaffController::class, 'update'])->name('staff.update');
+        Route::delete('/staff/{staff}', [StaffController::class, 'destroy'])->name('staff.destroy');
+    });
+
 
     Route::prefix('{franchisee}')->group(function () {
         // Order pops routes

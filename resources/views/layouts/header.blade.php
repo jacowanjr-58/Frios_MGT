@@ -157,7 +157,7 @@
                             </a>
                             @endrole
                             @role('franchise_admin')
-                            <a href="{{ route('profile.index') }}" class="dropdown-item ai-icon d-flex">
+                            <a href="{{ route('franchise.profile.index', ['franchisee' => request()->route('franchisee') ?: Auth::user()->franchisee_id]) }}" class="dropdown-item ai-icon d-flex">
                                 <svg id="icon-user1" xmlns="http://www.w3.org/2000/svg" class="text-primary" width="18"
                                     height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round">
@@ -168,7 +168,7 @@
                             </a>
                             @endrole
                             @role('franchise_admin')
-                            <a href="{{ route('franchise.staff.index', ['franchise' => $franchiseeId]) }}"
+                            <a href="{{ route('franchise.staff.index', ['franchisee' => request()->route('franchisee') ?: Auth::user()->franchisee_id]) }}"
                                 class="dropdown-item ai-icon d-flex">
                                 <i class="bi bi-people-fill text-primary"></i>
                                 <span class="ms-2">Manage Users</span>

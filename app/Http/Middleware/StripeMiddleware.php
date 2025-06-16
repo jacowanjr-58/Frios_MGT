@@ -23,7 +23,7 @@ class StripeMiddleware
 
             // $franchiseeId = Auth::user()->franchisee_id;
             $user = Auth::user();
-          
+           
             // $franchiseeId =  $user->load('franchisees');
             // $user = User::where('franchisee_id', $franchiseeId)->first();
             if ($user->stripe_account_id == null) {

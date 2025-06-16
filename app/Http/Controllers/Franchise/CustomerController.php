@@ -50,7 +50,7 @@ class CustomerController extends Controller
     }
 
     public function create($franchisee) {
-        return view('franchise_admin.customer.create');
+        return view('franchise_admin.customer.create', compact('franchisee'));
     }
 
     public function store(Request $request, $franchisee) {

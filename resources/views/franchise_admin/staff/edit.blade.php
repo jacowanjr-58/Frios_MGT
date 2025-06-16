@@ -52,10 +52,10 @@
                                             <!-- Display Success Message -->
 
                                             @role('franchise_admin')
-                                            <form action="{{ route('franchise.staff.update', $staff->user_id) }}" method="POST">
+                                            <form action="{{ route('franchise.staff.update', ['franchisee' => $franchisee, 'staff' => $staff->user_id]) }}" method="POST">
                                             @endrole
                                             @role('franchise_manager')
-                                            <form action="{{ route('franchise.staff.update', $staff->user_id) }}" method="POST">
+                                            <form action="{{ route('franchise.staff.update', ['franchisee' => $franchisee, 'staff' => $staff->user_id]) }}" method="POST">
                                             @endrole
                                                 @csrf
                                                 @method('PUT')

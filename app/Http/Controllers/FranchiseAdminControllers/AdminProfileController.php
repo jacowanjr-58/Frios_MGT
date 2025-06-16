@@ -9,22 +9,38 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminProfileController extends Controller
 {
-    public function index()
+    public function index( $franchisee=null )
     {
+        $franchisee = request()->route('franchisee');
         $user = Auth::user(); // Get logged-in admin's profile
-        return view('franchise_admin.profile.index', compact('user'));
+       
+        return view('franchise_admin.profile.index', compact('user', 'franchisee'));
     }
 
-    public function edit()
+    public function edit($franchisee = null, $user = null)
     {
+        // If called from general route (corporate admin), franchisee will be the user ID
+        if ($user === null) {
+            $user = $franchisee ?: Auth::user()->user_id;
+            $franchisee = null;
+        } else {
+            $franchisee = request()->route('franchisee');
+        }
+       
         $user = Auth::user(); // Fetch the authenticated user
-        return view('franchise_admin.profile.edit', compact('user'));
+        return view('franchise_admin.profile.edit', compact('user', 'franchisee'));
     }
 
 
-public function update(Request $request)
+public function update(Request $request, $franchisee = null, $profile = null)
 {
-    $user = Auth::user();
+    // If called from general route (corporate admin), franchisee will be the user ID
+    if ($profile === null) {
+        $profile = $franchisee ?: Auth::user()->user_id;
+        $franchisee = null;
+    }
+
+    $user = User::where('user_id', $profile)->firstOrFail();
 
     $request->validate([
         'name' => 'required|string|max:255',
@@ -51,13 +67,23 @@ public function update(Request $request)
         'phone_number' => $request->phone_number,
     ]);
 
-    return redirect()->route('profile.index')->with('success', 'Profile updated successfully.');
+    if ($franchisee) {
+        return redirect()->route('franchise.profile.index', $franchisee)->with('success', 'Profile updated successfully.');
+    } else {
+        return redirect()->route('profile.index')->with('success', 'Profile updated successfully.');
+    }
 }
 
-public function show($profile)
+public function show($franchisee = null, $profile = null)
 {
-    $user = User::where('user_id', $profile)->firstOrFail(); // Get the currently authenticated user
-    return view('franchise_admin.profile.show', compact('user'));
+    // If called from general route (corporate admin), franchisee will be the user ID
+    if ($profile === null) {
+        $profile = $franchisee ?: Auth::user()->user_id;
+        $franchisee = null;
+    }
+
+    $user = User::where('user_id', $profile)->firstOrFail(); // Get the user by profile ID
+    return view('franchise_admin.profile.show', compact('user', 'franchisee'));
 }
 
 }
