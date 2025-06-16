@@ -36,11 +36,15 @@ class Franchisee extends Model
     // {
     //     return $this->hasMany(User::class, 'franchisee_id');
     // }
+    // public function users()
+    // {
+    //     return $this->belongsToMany(User::class, 'user_franchisees', 'franchisee_id', 'user_id');
+    // }
+
     public function users()
     {
         return $this->belongsToMany(User::class, 'user_franchisees', 'franchisee_id', 'user_id');
     }
-    
 
 
     /**

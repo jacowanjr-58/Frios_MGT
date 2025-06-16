@@ -14,8 +14,10 @@ class DashboardController extends Controller
 {
     public function dashboard($franchisee = null)
     {
-        
+       
+
         $user = Auth::user();
+    
         if($user->role == 'franchise_admin' || $user->role == 'franchise_manager' || $user->role == 'franchise_staff'){
             return redirect('/franchise/select');
         }
@@ -69,6 +71,7 @@ class DashboardController extends Controller
                 ->groupBy(DB::raw("MONTH(created_at), MONTHNAME(created_at)"))
                 ->pluck('count', 'month');
         }
+       
         return view('dashboard', $data);
     }
 

@@ -24,7 +24,7 @@ class AdminProfileController extends Controller
             $user = $franchisee ?: Auth::user()->user_id;
             $franchisee = null;
         } else {
-            $franchisee = request()->route('franchisee');
+        $franchisee = request()->route('franchisee');
         }
        
         $user = Auth::user(); // Fetch the authenticated user
@@ -70,8 +70,8 @@ public function update(Request $request, $franchisee = null, $profile = null)
     if ($franchisee) {
         return redirect()->route('franchise.profile.index', $franchisee)->with('success', 'Profile updated successfully.');
     } else {
-        return redirect()->route('profile.index')->with('success', 'Profile updated successfully.');
-    }
+    return redirect()->route('profile.index')->with('success', 'Profile updated successfully.');
+}
 }
 
 public function show($franchisee = null, $profile = null)

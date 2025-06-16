@@ -42,7 +42,7 @@
                                             @if($franchisee)
                                                 <form action="{{ route('franchise.profile.update', [$franchisee, $user->user_id]) }}" method="POST">
                                             @else
-                                                <form action="{{ route('profile.update', $user->user_id) }}" method="POST">
+                                            <form action="{{ route('profile.update', $user->user_id) }}" method="POST">
                                             @endif
                                                 @csrf
                                                 @method('PUT')

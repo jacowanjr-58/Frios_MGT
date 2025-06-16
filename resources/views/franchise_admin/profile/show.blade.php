@@ -46,7 +46,7 @@
                                         @if($franchisee)
                                             <a href="{{ route('franchise.profile.edit', [$franchisee, $user->user_id]) }}" class="btn btn-primary mt-3">
                                         @else
-                                            <a href="{{ route('profile.edit', $user->user_id) }}" class="btn btn-primary mt-3">
+                                        <a href="{{ route('profile.edit', $user->user_id) }}" class="btn btn-primary mt-3">
                                         @endif
                                             Edit Profile
                                         </a>

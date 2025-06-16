@@ -16,6 +16,8 @@ use App\Http\Controllers\CorporateAdminControllers\FgpCategoryController;
 
 use App\Http\Controllers\CorporateAdminControllers\AdditionalChargesController;
 use App\Http\Controllers\CorporateAdminControllers\PaymentController as CorpPaymentController;
+use App\Http\Controllers\CorporateAdminControllers\RolePermissionController;
+use App\Http\Controllers\CorporateAdminControllers\UserManagementController;
 use App\Http\Controllers\Franchise\EventController;
 
 Route::middleware(['auth', 'role:corporate_admin'])->prefix('corporate_admin')->name('corporate_admin.')->group(function () {
@@ -117,4 +119,26 @@ Route::middleware(['auth', 'role:corporate_admin'])->prefix('corporate_admin')->
     Route::get('pos/order/{id}/download', [CorpPaymentController::class, 'posOrderDownloadPDF'])->name('order.pos.download');
     Route::get('pos/{id}/event' , [CorpPaymentController::class , 'posEvent'])->name('pos.event');
     Route::get('pos/event/{id}/download', [CorpPaymentController::class, 'posEventDownloadPDF'])->name('event.pos.download');
+
+    // Roles & Permissions Management (Restricted to corporate_admin only)
+    Route::prefix('roles')->name('roles.')->group(function () {
+        Route::get('/', [RolePermissionController::class, 'index'])->name('index');
+        Route::get('/create', [RolePermissionController::class, 'create'])->name('create');
+        Route::post('/', [RolePermissionController::class, 'store'])->name('store');
+        Route::get('/{role}/edit', [RolePermissionController::class, 'edit'])->name('edit');
+        Route::put('/{role}', [RolePermissionController::class, 'update'])->name('update');
+        Route::delete('/{role}', [RolePermissionController::class, 'destroy'])->name('destroy');
+        Route::get('/{role}/permissions', [RolePermissionController::class, 'getPermissions'])->name('permissions');
+    });
+
+    // User Management (Restricted to corporate_admin only)
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/', [UserManagementController::class, 'index'])->name('index');
+        Route::get('/create', [UserManagementController::class, 'create'])->name('create');
+        Route::post('/', [UserManagementController::class, 'store'])->name('store');
+        Route::get('/{user}', [UserManagementController::class, 'show'])->name('show');
+        Route::get('/{user}/edit', [UserManagementController::class, 'edit'])->name('edit');
+        Route::put('/{user}', [UserManagementController::class, 'update'])->name('update');
+        Route::delete('/{user}', [UserManagementController::class, 'destroy'])->name('destroy');
+    });
 });

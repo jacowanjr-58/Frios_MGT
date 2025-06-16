@@ -212,6 +212,7 @@ class ExpensesCategoryController extends Controller
 
     public function customerView($id) {
         $data['customer'] = Customer::where('customer_id' , $id)->firstorfail();
+   
         return view('corporate_admin.customer.view' ,$data);
     }
 
