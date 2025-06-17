@@ -11,6 +11,7 @@ use App\Models\AdditionalCharge;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 use App\Models\Customer;
 
@@ -65,19 +66,30 @@ class ViewOrdersController extends Controller
                 })
                 ->addColumn('status', function ($order) {
                     $statuses = ['Pending', 'Paid', 'Shipped', 'Delivered'];
-                    $select = '<select class="status-select" data-date="' . $order->date_transaction . '" data-fgp-orders-id="' . $order->fgp_ordersID . '" tabindex="null">';
-                    foreach ($statuses as $status) {
-                        $selected = $order->status == $status ? 'selected' : '';
-                        $select .= '<option value="' . $status . '" ' . $selected . '>' . $status . '</option>';
+                    
+                    // Check permission for status updates
+                    if (Auth::check() && Auth::user()->can('franchise_orders.edit')) {
+                        $select = '<select class="status-select" data-date="' . $order->date_transaction . '" data-fgp-orders-id="' . $order->fgp_ordersID . '" tabindex="null">';
+                        foreach ($statuses as $status) {
+                            $selected = $order->status == $status ? 'selected' : '';
+                            $select .= '<option value="' . $status . '" ' . $selected . '>' . $status . '</option>';
+                        }
+                        $select .= '</select>';
+                        return $select;
+                    } else {
+                        // Show status as read-only badge
+                        return '<span class="badge bg-secondary">' . ($order->status ?? 'Unknown') . '</span>';
                     }
-                    $select .= '</select>';
-                    return $select;
                 })
                 ->addColumn('ups_label', function ($order) {
-                    if ($order->status != 'Shipped') {
-                        return '<a href="' . url('/order/' . $order->fgp_ordersID . '/create-ups-label') . '" class="btn btn-primary btn-sm" target="_blank">Generate UPS Label</a>';
+                    if (Auth::check() && Auth::user()->can('franchise_orders.edit')) {
+                        if ($order->status != 'Shipped') {
+                            return '<a href="' . url('/order/' . $order->fgp_ordersID . '/create-ups-label') . '" class="btn btn-primary btn-sm" target="_blank">Generate UPS Label</a>';
+                        }
+                        return '<span class="text-muted">Add Label and Tracking</span>';
+                    } else {
+                        return '<span class="text-muted">No Access</span>';
                     }
-                    return '<span class="text-muted">Add Label and Tracking</span>';
                 })
                 ->rawColumns(['order_number', 'ordered_by', 'items_count', 'issues', 'status', 'ups_label'])
                 ->make(true);

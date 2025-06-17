@@ -151,10 +151,13 @@ document.getElementById('roleForm').addEventListener('submit', function(e) {
         return;
     }
     
+    // Optional: Warn if no permissions are selected (but still allow update)
     if (!giveAllPermissions && selectedPermissions === 0) {
-        e.preventDefault();
-        alert('Please select at least one permission or check "Give All Permissions".');
-        return;
+        const confirmUpdate = confirm('You are updating this role to have no permissions. Users with this role will have no access. Do you want to continue?');
+        if (!confirmUpdate) {
+            e.preventDefault();
+            return;
+        }
     }
 });
 

@@ -50,7 +50,9 @@
 				</div>
                 <div class="row mb-4 align-items-center">
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                        <a href="{{ route('corporate_admin.fgpcategory.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Category</a>
+                        @can('frios_flavors.categories')
+                            <a href="{{ route('corporate_admin.fgpcategory.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Category</a>
+                        @endcan
                     </div>
                     <div class="col-xl-9 col-lg-8">
                         <div class="card m-0">
@@ -80,7 +82,9 @@
                                         <th>Name</th>
                                         <th>Type</th>
                                         <th>Created Date</th>
-                                        <th>Actions</th>
+                                        @can('frios_flavors.categories')
+                                            <th>Actions</th>
+                                        @endcan
                                     </tr>
                                 </thead>
                             </table>

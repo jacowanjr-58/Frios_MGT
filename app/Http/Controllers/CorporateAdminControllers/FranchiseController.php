@@ -5,6 +5,7 @@ namespace App\Http\Controllers\CorporateAdminControllers;
 use App\Http\Controllers\Controller;
 use App\Models\Franchisee;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class FranchiseController extends Controller
@@ -35,19 +36,29 @@ class FranchiseController extends Controller
                     $editUrl = route('corporate_admin.franchise.edit', $franchisee->franchisee_id);
                     $deleteUrl = route('corporate_admin.franchise.destroy', $franchisee->franchisee_id);
 
-                    return '
-                    <div class="d-flex">
-                        <a href="'.$editUrl.'" class="edit-franchisee">
+                    $actions = '<div class="d-flex">';
+                    
+                    // Edit button - check permission
+                    if (Auth::check() && Auth::user()->can('franchises.edit')) {
+                        $actions .= '<a href="'.$editUrl.'" class="edit-franchisee">
                             <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
-                        </a>
-                        <form action="'.$deleteUrl.'" method="POST">
+                        </a>';
+                    }
+                    
+                    // Delete button - check permission
+                    if (Auth::check() && Auth::user()->can('franchises.delete')) {
+                        $actions .= '<form action="'.$deleteUrl.'" method="POST">
                             '.csrf_field().'
                             '.method_field('DELETE').'
                             <button type="submit" class="ms-4 delete-franchisee">
                                 <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
                             </button>
-                        </form>
-                    </div>';
+                        </form>';
+                    }
+                    
+                    $actions .= '</div>';
+                    
+                    return $actions;
                 })
                 ->rawColumns(['action', 'location_zip'])
                 ->make(true);

@@ -22,55 +22,55 @@ class SystemModulePermissionsSeeder extends Seeder
                 'view'
             ],
             'franchises' => [
-                'view', 'create', 'edit', 'delete', 'list'
+                'view', 'create', 'edit', 'delete'
             ],
             'owners' => [
-                'view', 'create', 'edit', 'delete', 'list'
+                'view', 'create', 'edit', 'delete'
             ],
             'frios_flavors' => [
-                'view', 'create', 'edit', 'delete', 'list', 'availability', 'categories'
+                'view', 'create', 'edit', 'delete', 'availability', 'categories'
             ],
             'franchise_orders' => [
-                'view', 'create', 'edit', 'delete', 'list', 'edit_charges'
+                'view', 'create', 'edit', 'delete', 'edit_charges'
             ],
             'payments' => [
                 'view', 'create', 'edit', 'delete', 'by_franchisee'
             ],
             'expenses' => [
-                'view', 'create', 'edit', 'delete', 'list', 'by_category', 'by_franchisee', 'categories'
+                'view', 'create', 'edit', 'delete', 'by_category', 'by_franchisee', 'categories'
             ],
             'customers' => [
-                'view', 'create', 'edit', 'delete', 'list', 'by_franchisee'
+                'view', 'create', 'edit', 'delete', 'by_franchisee'
             ],
             'events' => [
-                'view', 'create', 'edit', 'delete', 'list', 'calendar', 'report'
+                'view', 'create', 'edit', 'delete', 'calendar', 'report'
             ],
             'inventory' => [
-                'view', 'create', 'edit', 'delete', 'list', 'bulk_adjust', 'bulk_price_adjust', 'allocate', 'locations'
+                'view', 'create', 'edit', 'delete', 'bulk_adjust', 'bulk_price_adjust', 'allocate', 'locations'
             ],
             'orders' => [
-                'view', 'create', 'edit', 'delete', 'list', 'pops'
+                'view', 'create', 'edit', 'delete', 'pops'
             ],
             'invoices' => [
-                'view', 'create', 'edit', 'delete', 'list'
+                'view', 'create', 'edit', 'delete'
             ],
             'transactions' => [
-                'view', 'create', 'edit', 'delete', 'list'
+                'view', 'create', 'edit', 'delete'
             ],
             'pos' => [
                 'view', 'create', 'edit', 'delete', 'access'
             ],
             'sales' => [
-                'view', 'create', 'edit', 'delete', 'list'
+                'view', 'create', 'edit', 'delete'
             ],
             'flavors' => [
-                'view', 'list'
+                'view'
             ],
             'staff' => [
-                'view', 'create', 'edit', 'delete', 'list'
+                'view', 'create', 'edit', 'delete'
             ],
             'locations' => [
-                'view', 'create', 'edit', 'delete', 'list'
+                'view', 'create', 'edit', 'delete'
             ],
             'roles' => [
                 'view', 'create', 'edit', 'delete'
@@ -157,7 +157,7 @@ class SystemModulePermissionsSeeder extends Seeder
                             }
                             elseif ($roleName === 'franchise_staff') {
                                 // Franchise staff gets mostly view permissions plus specific create/edit for their modules
-                                if ($action === 'view' || $action === 'list' || $action === 'access' || $action === 'calendar' || $action === 'report') {
+                                if ($action === 'view' || $action == || $action === 'access' || $action === 'calendar' || $action === 'report') {
                                     $role->givePermissionTo($permission);
                                 } elseif (in_array($module, ['pos', 'sales', 'customers']) && in_array($action, ['create', 'edit'])) {
                                     $role->givePermissionTo($permission);

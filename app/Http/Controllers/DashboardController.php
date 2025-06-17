@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\OrderTransaction;
 use App\Models\InvoiceTransaction;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,11 +15,13 @@ class DashboardController extends Controller
 {
     public function dashboard($franchisee = null)
     {
-       
+
+
 
         $user = Auth::user();
-    
-        if($user->role == 'franchise_admin' || $user->role == 'franchise_manager' || $user->role == 'franchise_staff'){
+
+        // dd($user->getAllPermissions());
+        if ($user->hasRole('franchise_admin')) {
             return redirect('/franchise/select');
         }
         // If franchisee is provided, authorize and use it
@@ -32,46 +35,47 @@ class DashboardController extends Controller
         }
         $startOfMonth = Carbon::now()->startOfMonth();
 
-        if ($user->role == 'franchise_admin' || $user->role == 'franchise_manager' || $user->role == 'franchise_staff') {
-            $data['eventCount'] = Event::where('franchisee_id' , $franchiseeId)->whereMonth('created_at', Carbon::now()->month)
+        if ($user->hasRole('corporate_admin')) {
+            $data['eventCount'] = Event::where('franchisee_id', $franchiseeId)->whereMonth('created_at', Carbon::now()->month)
                 ->count();
-            $data['saleCount'] = InvoiceTransaction::where('franchisee_id' , $franchiseeId)->whereMonth('created_at', Carbon::now()->month)
+            $data['saleCount'] = InvoiceTransaction::where('franchisee_id', $franchiseeId)->whereMonth('created_at', Carbon::now()->month)
                 ->count();
-            $data['events'] = Event::where('franchisee_id' , $franchiseeId)->orderBy('created_at', 'DESC')->take(3)->get();
+            $data['events'] = Event::where('franchisee_id', $franchiseeId)->orderBy('created_at', 'DESC')->take(3)->get();
             $data['orderAmount'] = [
-                'monthly' => OrderTransaction::where('franchisee_id' , $franchiseeId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
+                'monthly' => OrderTransaction::where('franchisee_id', $franchiseeId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
             ];
             $data['inoviceAmount'] = [
-            'monthly' => InvoiceTransaction::where('franchisee_id' , $franchiseeId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
+                'monthly' => InvoiceTransaction::where('franchisee_id', $franchiseeId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
             ];
             $data['totalAmount'] = [
                 'monthly' => $data['orderAmount']['monthly'] + $data['inoviceAmount']['monthly'],
             ];
-            $data['salesData'] = InvoiceTransaction::where('franchisee_id' , $franchiseeId)->whereYear('created_at', Carbon::now()->year)
+            $data['salesData'] = InvoiceTransaction::where('franchisee_id', $franchiseeId)->whereYear('created_at', Carbon::now()->year)
                 ->select(DB::raw("COUNT(*) as count"), DB::raw("MONTHNAME(created_at) as month"))
                 ->groupBy(DB::raw("MONTH(created_at), MONTHNAME(created_at)"))
                 ->pluck('count', 'month');
-        } elseif ($user->role == 'corporate_admin') {
-            $data['eventCount'] = Event::where('franchisee_id' , $franchiseeId)->whereMonth('created_at', Carbon::now()->month)
+        } else {
+            $data['eventCount'] = Event::where('franchisee_id', $franchiseeId)->whereMonth('created_at', Carbon::now()->month)
                 ->count();
-            $data['saleCount'] = InvoiceTransaction::where('franchisee_id' , $franchiseeId)->whereMonth('created_at', Carbon::now()->month)
+            $data['saleCount'] = InvoiceTransaction::where('franchisee_id', $franchiseeId)->whereMonth('created_at', Carbon::now()->month)
                 ->count();
-            $data['events'] = Event::where('franchisee_id' , $franchiseeId)->orderBy('created_at', 'DESC')->take(3)->get();
+            $data['events'] = Event::where('franchisee_id', $franchiseeId)->orderBy('created_at', 'DESC')->take(3)->get();
             $data['orderAmount'] = [
-                'monthly' => OrderTransaction::where('franchisee_id' , $franchiseeId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
+                'monthly' => OrderTransaction::where('franchisee_id', $franchiseeId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
             ];
             $data['inoviceAmount'] = [
-                'monthly' => InvoiceTransaction::where('franchisee_id' , $franchiseeId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
+                'monthly' => InvoiceTransaction::where('franchisee_id', $franchiseeId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
             ];
             $data['totalAmount'] = [
                 'monthly' => $data['orderAmount']['monthly'] + $data['inoviceAmount']['monthly'],
             ];
-            $data['salesData'] = InvoiceTransaction::where('franchisee_id' , $franchiseeId)->whereYear('created_at', Carbon::now()->year)
+            $data['salesData'] = InvoiceTransaction::where('franchisee_id', $franchiseeId)->whereYear('created_at', Carbon::now()->year)
                 ->select(DB::raw("COUNT(*) as count"), DB::raw("MONTHNAME(created_at) as month"))
                 ->groupBy(DB::raw("MONTH(created_at), MONTHNAME(created_at)"))
                 ->pluck('count', 'month');
         }
-       
+
+        // dd($data);
         return view('dashboard', $data);
     }
 
@@ -82,7 +86,7 @@ class DashboardController extends Controller
             $events = Event::where('franchisee_id', Auth::user()->franchisee_id)
                 ->orderBy('created_at', 'DESC')
                 ->paginate(3, ['*'], 'page', $page);
-        } elseif(Auth::user()->role == 'corporate_admin') {
+        } elseif (Auth::user()->role == 'corporate_admin') {
             $events = Event::orderBy('created_at', 'DESC')
                 ->paginate(3, ['*'], 'page', $page);
         }

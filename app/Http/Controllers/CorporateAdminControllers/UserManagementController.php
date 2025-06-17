@@ -13,12 +13,7 @@ use Carbon\Carbon;
 
 class UserManagementController extends Controller
 {
-    public function __construct()
-    {
-         $this->middleware(['auth', 'role:corporate_admin']);
-    }
-
-    /**
+     /**
      * Display a listing of users
      */
     public function index()
@@ -52,12 +47,25 @@ class UserManagementController extends Controller
                     $viewUrl = route('corporate_admin.users.show', $user->user_id);
 
                     $html = '<div class="d-flex gap-1">';
-                    $html .= '<a href="'.$viewUrl.'" class="btn btn-info btn-sm" title="View User"><i class="fa fa-eye"></i></a>';
-                    $html .= '<a href="'.$editUrl.'" class="btn btn-primary btn-sm" title="Edit User"><i class="fa fa-edit"></i></a>';
-                    $html .= '<form action="'.$deleteUrl.'" method="POST" style="display: inline;" class="delete-form">';
-                    $html .= csrf_field() . method_field('DELETE');
-                    $html .= '<button type="submit" class="btn btn-danger btn-sm delete-user" title="Delete User"><i class="fa fa-trash"></i></button>';
-                    $html .= '</form>';
+                    
+                    // View button - check permission
+                    if (Auth::check() && Auth::user()->can('users.view')) {
+                        $html .= '<a href="'.$viewUrl.'" class="btn btn-info btn-sm" title="View User"><i class="fa fa-eye"></i></a>';
+                    }
+                    
+                    // Edit button - check permission  
+                    if (Auth::check() && Auth::user()->can('users.edit')) {
+                        $html .= '<a href="'.$editUrl.'" class="btn btn-primary btn-sm" title="Edit User"><i class="fa fa-edit"></i></a>';
+                    }
+                    
+                    // Delete button - check permission
+                    if (Auth::check() && Auth::user()->can('users.delete')) {
+                        $html .= '<form action="'.$deleteUrl.'" method="POST" style="display: inline;" class="delete-form">';
+                        $html .= csrf_field() . method_field('DELETE');
+                        $html .= '<button type="submit" class="btn btn-danger btn-sm delete-user" title="Delete User"><i class="fa fa-trash"></i></button>';
+                        $html .= '</form>';
+                    }
+                    
                     $html .= '</div>';
                     
                     return $html;

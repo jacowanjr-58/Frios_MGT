@@ -136,10 +136,13 @@
                 return;
             }
 
+            // Optional: Warn if no permissions are selected (but still allow creation)
             if (!giveAllPermissions && selectedPermissions === 0) {
-                e.preventDefault();
-                alert('Please select at least one permission or check "Give All Permissions".');
-                return;
+                const confirmCreate = confirm('You are creating a role with no permissions. Users with this role will have no access. Do you want to continue?');
+                if (!confirmCreate) {
+                    e.preventDefault();
+                    return;
+                }
             }
         });
 

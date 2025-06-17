@@ -156,19 +156,29 @@ class ExpensesCategoryController extends Controller
                     $editUrl = route('franchise.expense.edit', $expense->id);
                     $deleteUrl = route('franchise.expense.delete', $expense->id);
 
-                    return '
-                    <div class="d-flex">
-                        <a href="'.$editUrl.'" class="edit-expense">
+                    $actions = '<div class="d-flex">';
+                    
+                    // Edit button - check permission
+                    if (auth()->check() && auth()->user()->can('expenses.by_franchisee')) {
+                        $actions .= '<a href="'.$editUrl.'" class="edit-expense">
                             <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
-                        </a>
-                        <form action="'.$deleteUrl.'" method="POST" class="delete-form">
+                        </a>';
+                    }
+                    
+                    // Delete button - check permission
+                    if (auth()->check() && auth()->user()->can('expenses.by_franchisee')) {
+                        $actions .= '<form action="'.$deleteUrl.'" method="POST" class="delete-form">
                             '.csrf_field().'
                             '.method_field('DELETE').'
                             <button type="submit" class="ms-4 delete-expense">
                                 <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
                             </button>
-                        </form>
-                    </div>';
+                        </form>';
+                    }
+                    
+                    $actions .= '</div>';
+                    
+                    return $actions;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -195,12 +205,18 @@ class ExpensesCategoryController extends Controller
                 ->addColumn('action', function ($customer) {
                     $viewUrl = route('corporate_admin.customer.view', $customer->customer_id);
 
-                    return '
-                    <div class="d-flex">
-                        <a href="'.$viewUrl.'" class="view-customer">
+                    $actions = '<div class="d-flex">';
+                    
+                    // View button - check permission
+                    if (auth()->check() && auth()->user()->can('customers.by_franchisee')) {
+                        $actions .= '<a href="'.$viewUrl.'" class="view-customer">
                             <i class="ti ti-eye fs-20" style="color: #00ABC7;"></i>
-                        </a>
-                    </div>';
+                        </a>';
+                    }
+                    
+                    $actions .= '</div>';
+                    
+                    return $actions;
                 })
                 ->rawColumns(['action'])
                 ->make(true);

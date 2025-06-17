@@ -7,6 +7,7 @@ use App\Models\FgpCategory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
 
 class FgpItemsController extends Controller
@@ -38,19 +39,29 @@ class FgpItemsController extends Controller
                     $editUrl = route('corporate_admin.fgpitem.edit', $item->fgp_item_id);
                     $deleteUrl = route('corporate_admin.fgpitem.destroy', $item->fgp_item_id);
 
-                    return '
-                    <div class="d-flex">
-                        <a href="'.$editUrl.'" class="edit-user">
+                    $actions = '<div class="d-flex">';
+                    
+                    // Edit button - check permission
+                    if (Auth::check() && Auth::user()->can('frios_flavors.edit')) {
+                        $actions .= '<a href="'.$editUrl.'" class="edit-user">
                             <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
-                        </a>
-                        <form action="'.$deleteUrl.'" method="POST">
+                        </a>';
+                    }
+                    
+                    // Delete button - check permission
+                    if (Auth::check() && Auth::user()->can('frios_flavors.delete')) {
+                        $actions .= '<form action="'.$deleteUrl.'" method="POST">
                             '.csrf_field().'
                             '.method_field('DELETE').'
                             <button type="submit" class="ms-4 delete-fgpitem">
                                 <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
                             </button>
-                        </form>
-                    </div>';
+                        </form>';
+                    }
+                    
+                    $actions .= '</div>';
+                    
+                    return $actions;
                 })
                 ->rawColumns(['action', 'categories'])
                 ->make(true);

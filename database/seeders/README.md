@@ -60,37 +60,37 @@ php artisan db:seed --class=PermissionManagementSeeder
 ## System Modules and Permissions
 
 ### Corporate Admin Modules
-- **Franchises**: `franchises.view`, `franchises.create`, `franchises.edit`, `franchises.delete`, `franchises.list`
-- **Owners**: `owners.view`, `owners.create`, `owners.edit`, `owners.delete`, `owners.list`
-- **Frios Flavors**: `frios_flavors.view`, `frios_flavors.create`, `frios_flavors.edit`, `frios_flavors.delete`, `frios_flavors.list`, `frios_flavors.availability`, `frios_flavors.categories`
-- **Franchise Orders**: `franchise_orders.view`, `franchise_orders.create`, `franchise_orders.edit`, `franchise_orders.delete`, `franchise_orders.list`, `franchise_orders.edit_charges`
+- **Franchises**: `franchises.view`, `franchises.create`, `franchises.edit`, `franchises.delete`
+- **Owners**: `owners.view`, `owners.create`, `owners.edit`, `owners.delete`
+- **Frios Flavors**: `frios_flavors.view`, `frios_flavors.create`, `frios_flavors.edit`, `frios_flavors.delete`, `frios_flavors.availability`, `frios_flavors.categories`
+- **Franchise Orders**: `franchise_orders.view`, `franchise_orders.create`, `franchise_orders.edit`, `franchise_orders.delete`,  `franchise_orders.edit_charges`
 - **Payments**: `payments.view`, `payments.create`, `payments.edit`, `payments.delete`, `payments.by_franchisee`
 - **Role Management**: `roles.view`, `roles.create`, `roles.edit`, `roles.delete`, `permissions.assign`, `permissions.view`
 
 ### Franchise Admin Modules
-- **Inventory**: `inventory.view`, `inventory.create`, `inventory.edit`, `inventory.delete`, `inventory.list`, `inventory.bulk_adjust`, `inventory.bulk_price_adjust`, `inventory.allocate`, `inventory.locations`
-- **Orders**: `orders.view`, `orders.create`, `orders.edit`, `orders.delete`, `orders.list`, `orders.pops`
-- **Invoices**: `invoices.view`, `invoices.create`, `invoices.edit`, `invoices.delete`, `invoices.list`
-- **Transactions**: `transactions.view`, `transactions.create`, `transactions.edit`, `transactions.delete`, `transactions.list`
-- **Staff Management**: `staff.view`, `staff.create`, `staff.edit`, `staff.delete`, `staff.list`
+- **Inventory**: `inventory.view`, `inventory.create`, `inventory.edit`, `inventory.delete`, `inventory.bulk_adjust`, `inventory.bulk_price_adjust`, `inventory.allocate`, `inventory.locations`
+- **Orders**: `orders.view`, `orders.create`, `orders.edit`, `orders.delete`,  `orders.pops`
+- **Invoices**: `invoices.view`, `invoices.create`, `invoices.edit`, `invoices.delete`
+- **Transactions**: `transactions.view`, `transactions.create`, `transactions.edit`, `transactions.delete`
+- **Staff Management**: `staff.view`, `staff.create`, `staff.edit`, `staff.delete`
 
 ### Franchise Manager Modules
-- **Inventory**: Limited to `inventory.view`, `inventory.edit`, `inventory.list`, `inventory.locations`
-- **Locations**: `locations.view`, `locations.create`, `locations.edit`, `locations.delete`, `locations.list`
-- **Orders**: `orders.view`, `orders.create`, `orders.edit`, `orders.delete`, `orders.list`, `orders.pops`
-- **Staff Management**: `staff.view`, `staff.create`, `staff.edit`, `staff.delete`, `staff.list`
+- **Inventory**: Limited to `inventory.view`, `inventory.edit`, `inventory.locations`
+- **Locations**: `locations.view`, `locations.create`, `locations.edit`, `locations.delete`
+- **Orders**: `orders.view`, `orders.create`, `orders.edit`, `orders.delete`, `orders.pops`
+- **Staff Management**: `staff.view`, `staff.create`, `staff.edit`, `staff.delete`
 
 ### Franchise Staff Modules
 - **POS**: `pos.view`, `pos.create`, `pos.edit`, `pos.delete`, `pos.access`
-- **Sales**: `sales.view`, `sales.create`, `sales.edit`, `sales.delete`, `sales.list`
-- **Flavors**: `flavors.view`, `flavors.list`
-- **Customers**: `customers.view`, `customers.create`, `customers.edit`, `customers.list`
+- **Sales**: `sales.view`, `sales.create`, `sales.edit`, `sales.delete`
+- **Flavors**: `flavors.view`
+- **Customers**: `customers.view`, `customers.create`, `customers.edit`
 
 ### Shared Modules (All Roles)
 - **Dashboard**: `dashboard.view`
-- **Customers**: `customers.view`, `customers.create`, `customers.edit`, `customers.delete`, `customers.list`, `customers.by_franchisee`
-- **Events**: `events.view`, `events.create`, `events.edit`, `events.delete`, `events.list`, `events.calendar`, `events.report`
-- **Expenses**: `expenses.view`, `expenses.create`, `expenses.edit`, `expenses.delete`, `expenses.list`, `expenses.by_category`, `expenses.by_franchisee`, `expenses.categories`
+- **Customers**: `customers.view`, `customers.create`, `customers.edit`, `customers.delete`,  `customers.by_franchisee`
+- **Events**: `events.view`, `events.create`, `events.edit`, `events.delete`, `events.calendar`, `events.report`
+- **Expenses**: `expenses.view`, `expenses.create`, `expenses.edit`, `expenses.delete`, `expenses.by_category`, `expenses.by_franchisee`, `expenses.categories`
 
 ## Permission Assignment Logic
 

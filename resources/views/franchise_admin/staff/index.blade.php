@@ -17,14 +17,10 @@
             </div>
             <div class="row mb-4 align-items-center">
                 <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                    @role('franchise_admin')
-                    <a href="{{ route('franchise.staff.create', ['franchisee' => $franchiseeId]) }}"
-                        class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Staff</a>
-                    @endrole
-                    @role('franchise_manager')
-                    <a href="{{ route('franchise.staff.create', ['franchisee' => $franchiseeId]) }}"
-                        class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Staff</a>
-                    @endrole
+                    @can('staff.create')
+                        <a href="{{ route('franchise.staff.create', ['franchisee' => $franchiseeId]) }}"
+                            class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Staff</a>
+                    @endcan
                 </div>
                 <div class="col-xl-9 col-lg-8">
                     <div class="card m-0">
@@ -70,7 +66,9 @@
                                     <th>Role</th>
                                     <th>Phone no</th>
                                     <th>Created Date</th>
-                                    <th>Actions</th>
+                                    @canany(['staff.edit', 'staff.delete'])
+                                        <th>Actions</th>
+                                    @endcanany
                                 </tr>
                             </thead>
                             <tbody>
@@ -96,44 +94,29 @@
                                         </td>
                                         <td>{{ $user->created_date ? \Carbon\Carbon::parse($user->created_date)->format('d/m/Y') : 'N/A' }}
                                         </td>
-                                        <td>
-                                            @role('franchise_admin')
-                                            <div class="d-flex">
-                                                <a href="{{ route('franchise.staff.edit', ['franchisee' => $franchiseeId, 'staff' => $user->user_id]) }}" class="edit-user">
-                                                    <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
-                                                </a>
+                                        @canany(['staff.edit', 'staff.delete'])
+                                            <td>
+                                                <div class="d-flex">
+                                                    @can('staff.edit')
+                                                        <a href="{{ route('franchise.staff.edit', ['franchisee' => $franchiseeId, 'staff' => $user->user_id]) }}" class="edit-user">
+                                                            <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
+                                                        </a>
+                                                    @endcan
 
-                                                <form action="{{ route('franchise.staff.destroy', ['franchisee' => $franchiseeId, 'staff' => $user->user_id]) }}"
-                                                    method="POST"
-                                                    onsubmit="return confirm('Are you sure you want to delete this user?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="ms-4 delete-user">
-                                                        <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
-                                                    </button>
-                                                </form>
-
-                                            </div>
-                                            @endrole
-                                            @role('franchise_manager')
-                                            <div class="d-flex">
-                                                <a href="{{ route('franchise.staff.edit', ['franchisee' => $franchiseeId, 'staff' => $user->user_id]) }}" class="edit-user">
-                                                    <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
-                                                </a>
-
-                                                <form action="{{ route('franchise.staff.destroy', ['franchisee' => $franchiseeId, 'staff' => $user->user_id]) }}"
-                                                    method="POST"
-                                                    onsubmit="return confirm('Are you sure you want to delete this user?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="ms-4 delete-user">
-                                                        <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
-                                                    </button>
-                                                </form>
-
-                                            </div>
-                                            @endrole
-                                        </td>
+                                                    @can('staff.delete')
+                                                        <form action="{{ route('franchise.staff.destroy', ['franchisee' => $franchiseeId, 'staff' => $user->user_id]) }}"
+                                                            method="POST"
+                                                            onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="ms-4 delete-user">
+                                                                <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
+                                                            </button>
+                                                        </form>
+                                                    @endcan
+                                                </div>
+                                            </td>
+                                        @endcanany
                                     </tr>
                                 @endforeach
                             </tbody>

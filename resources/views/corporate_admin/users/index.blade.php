@@ -53,8 +53,10 @@
 				</div>
                 <div class="row mb-4 align-items-center">
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                        <a href="{{ route('corporate_admin.users.create') }}"
-                            class="btn btn-secondary btn-lg btn-block rounded text-white">+ Add User</a>
+                        @can('users.create')
+                            <a href="{{ route('corporate_admin.users.create') }}"
+                                class="btn btn-secondary btn-lg btn-block rounded text-white">+ Add User</a>
+                        @endcan
                     </div>
                     <div class="col-xl-9 col-lg-8">
                         <div class="card m-0">
@@ -96,7 +98,9 @@
                                         <th>Phone Number</th>
                                         <th>Role</th>
                                         <th>Created Date</th>
-                                        <th>Actions</th>
+                                        @canany(['users.view', 'users.edit', 'users.delete'])
+                                            <th>Actions</th>
+                                        @endcanany
                                     </tr>
                                 </thead>
                                 <tbody>

@@ -20,125 +20,146 @@ use App\Http\Controllers\CorporateAdminControllers\RolePermissionController;
 use App\Http\Controllers\CorporateAdminControllers\UserManagementController;
 use App\Http\Controllers\Franchise\EventController;
 
-Route::middleware(['auth', 'role:corporate_admin'])->prefix('corporate_admin')->name('corporate_admin.')->group(function () {
-    Route::get('/corporate/dashboard', [CorporateAdminController::class, 'dashboard']);
+Route::middleware(['auth'])->prefix('corporate_admin')->name('corporate_admin.')->group(function () {
+    Route::get('/corporate/dashboard', [CorporateAdminController::class, 'dashboard'])->middleware('permission:dashboard.view');
 
      // Franchise routes
-     Route::get('/franchisee', [FranchiseController::class, 'index'])->name('franchise.index');
-     Route::get('/franchisee/create', [FranchiseController::class, 'create'])->name('franchise.create');
-     Route::post('/franchisee', [FranchiseController::class, 'store'])->name('franchise.store');
-     Route::get('/franchisee/{franchise}', [FranchiseController::class, 'show'])->name('franchise.show');
-     Route::get('/franchisee/{franchise}/edit', [FranchiseController::class, 'edit'])->name('franchise.edit');
-     Route::put('/franchisee/{franchise}', [FranchiseController::class, 'update'])->name('franchise.update');
-     Route::delete('/franchisee/{franchise}', [FranchiseController::class, 'destroy'])->name('franchise.destroy');
+     Route::middleware('permission:franchises.view')->group(function () {
+         Route::get('/franchisee', [FranchiseController::class, 'index'])->name('franchise.index');
 
+         Route::get('/franchisee/create', [FranchiseController::class, 'create'])->name('franchise.create')->middleware('permission:franchises.create');
+         Route::post('/franchisee', [FranchiseController::class, 'store'])->name('franchise.store')->middleware('permission:franchises.create');
+         Route::get('/franchisee/{franchise}/edit', [FranchiseController::class, 'edit'])->name('franchise.edit')->middleware('permission:franchises.edit');
+         Route::put('/franchisee/{franchise}', [FranchiseController::class, 'update'])->name('franchise.update')->middleware('permission:franchises.edit');
+         Route::delete('/franchisee/{franchise}', [FranchiseController::class, 'destroy'])->name('franchise.destroy')->middleware('permission:franchises.delete');
+    
+         Route::get('/franchisee/{franchise}', [FranchiseController::class, 'show'])->name('franchise.show');
+     });
+     
+   
     // Owner routes
-    Route::get('/owner', [OwnerController::class, 'index'])->name('owner.index');
-    Route::get('/owner/create', [OwnerController::class, 'create'])->name('owner.create');
-    Route::post('/owner', [OwnerController::class, 'store'])->name('owner.store');
-    Route::get('/owner/{owner}', [OwnerController::class, 'edit'])->name('owner.show');
-    Route::get('/owner/{owner}/edit', [OwnerController::class, 'edit'])->name('owner.edit');
-    Route::put('/owner/{owner}', [OwnerController::class, 'update'])->name('owner.update');
-    Route::delete('/owner/{owner}', [OwnerController::class, 'destroy'])->name('owner.destroy');
+    Route::middleware('permission:owners.view')->group(function () {
+        Route::get('/owner', [OwnerController::class, 'index'])->name('owner.index');
 
+        Route::get('/owner/create', [OwnerController::class, 'create'])->name('owner.create')->middleware('permission:owners.create');
+        Route::post('/owner', [OwnerController::class, 'store'])->name('owner.store')->middleware('permission:owners.create');
+        Route::get('/owner/{owner}/edit', [OwnerController::class, 'edit'])->name('owner.edit')->middleware('permission:owners.edit');
+        Route::put('/owner/{owner}', [OwnerController::class, 'update'])->name('owner.update')->middleware('permission:owners.edit');
+        Route::delete('/owner/{owner}', [OwnerController::class, 'destroy'])->name('owner.destroy')->middleware('permission:owners.delete');
+    });
+    
+  
     // fgp Category routes
-    Route::get('/fgpcategory', [FgpCategoryController::class, 'index'])->name('fgpcategory.index');
-    Route::get('/fgpcategory/create', [FgpCategoryController::class, 'create'])->name('fgpcategory.create');
-    Route::post('/fgpcategory', [FgpCategoryController::class, 'store'])->name('fgpcategory.store');
-    Route::get('/fgpcategory/{fgpcategory}/edit', [FgpCategoryController::class, 'edit'])->name('fgpcategory.edit');
-    Route::put('/fgpcategory/{fgpcategory}', [FgpCategoryController::class, 'update'])->name('fgpcategory.update');
-    Route::delete('/fgpcategory/{fgpcategory}', [FgpCategoryController::class, 'destroy'])->name('fgpcategory.destroy');
+    Route::middleware('permission:frios_flavors.categories')->group(function () {
+        Route::get('/fgpcategory', [FgpCategoryController::class, 'index'])->name('fgpcategory.index');
+        Route::get('/fgpcategory/create', [FgpCategoryController::class, 'create'])->name('fgpcategory.create');
+        Route::post('/fgpcategory', [FgpCategoryController::class, 'store'])->name('fgpcategory.store');
+        Route::get('/fgpcategory/{fgpcategory}/edit', [FgpCategoryController::class, 'edit'])->name('fgpcategory.edit');
+        Route::put('/fgpcategory/{fgpcategory}', [FgpCategoryController::class, 'update'])->name('fgpcategory.update');
+        Route::delete('/fgpcategory/{fgpcategory}', [FgpCategoryController::class, 'destroy'])->name('fgpcategory.destroy');
+    });
 
-    // fgp items routes
-    Route::get('/fgpitem', [FgpItemsController::class, 'index'])->name('fgpitem.index');
-    Route::get('/fgpitem/create', [FgpItemsController::class, 'create'])->name('fgpitem.create');
-    Route::post('/fgpitem', [FgpItemsController::class, 'store'])->name('fgpitem.store');
-    Route::get('/fgpitem/{fgpitem}/edit', [FgpItemsController::class, 'edit'])->name('fgpitem.edit');
-    Route::put('/fgpitem/{fgpitem}', [FgpItemsController::class, 'update'])->name('fgpitem.update');
-    Route::delete('/fgpitem/{fgpitem}', [FgpItemsController::class, 'destroy'])->name('fgpitem.destroy');
-    Route::post('/fgpitem/update-orderable', [FgpItemsController::class, 'updateOrderable'])->name('fgpitem.updateOrderable');
-    Route::get('/fgpitemavailability', [FgpItemsController::class, 'availability'])->name('fgpitem.availability');
-    Route::post('/fgpitem/update-status/{id}', [FgpItemsController::class, 'updateStatus'])->name('fgpitem.updateStatus');
-    Route::post('/fgpitem/update-month/{id}', [FgpItemsController::class, 'updateMonth']);
+    // fgp items routes (Frios Flavors)
+    Route::middleware('permission:frios_flavors.view')->group(function () {
+        Route::get('/fgpitem', [FgpItemsController::class, 'index'])->name('fgpitem.index');
+        Route::get('/fgpitemavailability', [FgpItemsController::class, 'availability'])->name('fgpitem.availability');
+    });
+    
+    Route::get('/fgpitem/create', [FgpItemsController::class, 'create'])->name('fgpitem.create')->middleware('permission:frios_flavors.create');
+    Route::post('/fgpitem', [FgpItemsController::class, 'store'])->name('fgpitem.store')->middleware('permission:frios_flavors.create');
+    Route::get('/fgpitem/{fgpitem}/edit', [FgpItemsController::class, 'edit'])->name('fgpitem.edit')->middleware('permission:frios_flavors.edit');
+    Route::put('/fgpitem/{fgpitem}', [FgpItemsController::class, 'update'])->name('fgpitem.update')->middleware('permission:frios_flavors.edit');
+    Route::delete('/fgpitem/{fgpitem}', [FgpItemsController::class, 'destroy'])->name('fgpitem.destroy')->middleware('permission:frios_flavors.delete');
+    Route::post('/fgpitem/update-orderable', [FgpItemsController::class, 'updateOrderable'])->name('fgpitem.updateOrderable')->middleware('permission:frios_flavors.availability');
+    Route::post('/fgpitem/update-status/{id}', [FgpItemsController::class, 'updateStatus'])->name('fgpitem.updateStatus')->middleware('permission:frios_flavors.availability');
+    Route::post('/fgpitem/update-month/{id}', [FgpItemsController::class, 'updateMonth'])->middleware('permission:frios_flavors.availability');
 
     // Additional charges routes
-    Route::put('/additional-charges/status', [AdditionalChargesController::class, 'changeStatus']);
-
-    Route::get('/additionalcharges', [AdditionalChargesController::class, 'index'])->name('additionalcharges.index');
-    Route::get('/additionalcharges/create', [AdditionalChargesController::class, 'create'])->name('additionalcharges.create');
-    Route::post('/additionalcharges', [AdditionalChargesController::class, 'store'])->name('additionalcharges.store');
-    Route::get('/additionalcharges/{additionalcharges}/edit', [AdditionalChargesController::class, 'edit'])->name('additionalcharges.edit');
-    Route::put('/additionalcharges/{additionalcharges}', [AdditionalChargesController::class, 'update'])->name('additionalcharges.update');
-    Route::delete('/additionalcharges/{additionalcharges}', [AdditionalChargesController::class, 'destroy'])->name('additionalcharges.destroy');
+    Route::middleware('permission:franchise_orders.edit_charges')->group(function () {
+        Route::put('/additional-charges/status', [AdditionalChargesController::class, 'changeStatus']);
+        Route::get('/additionalcharges', [AdditionalChargesController::class, 'index'])->name('additionalcharges.index');
+        Route::get('/additionalcharges/create', [AdditionalChargesController::class, 'create'])->name('additionalcharges.create');
+        Route::post('/additionalcharges', [AdditionalChargesController::class, 'store'])->name('additionalcharges.store');
+        Route::get('/additionalcharges/{additionalcharges}/edit', [AdditionalChargesController::class, 'edit'])->name('additionalcharges.edit');
+        Route::put('/additionalcharges/{additionalcharges}', [AdditionalChargesController::class, 'update'])->name('additionalcharges.update');
+        Route::delete('/additionalcharges/{additionalcharges}', [AdditionalChargesController::class, 'destroy'])->name('additionalcharges.destroy');
+    });
 
     // View Orders routes
-    Route::get('/vieworders', [ViewOrdersController::class, 'index'])->name('vieworders.index');
-    Route::get('/vieworders/create', [ViewOrdersController::class, 'create'])->name('vieworders.create');
-    Route::post('/vieworders', [ViewOrdersController::class, 'store'])->name('vieworders.store');
-    Route::get('/vieworders/detail', [ViewOrdersController::class, 'viewordersDetail'])->name('vieworders.detail');
-    Route::get('/vieworders/{orderId}/edit', [ViewOrdersController::class, 'edit'])->name('vieworders.edit');
-    Route::put('/vieworders/{vieworders}', [ViewOrdersController::class, 'update'])->name('vieworders.update');
-    Route::delete('/vieworders/{vieworders}', [ViewOrdersController::class, 'destroy'])->name('vieworders.destroy');
-    Route::get('/vieworders', [ViewOrdersController::class, 'index'])->name('vieworders.index');
-    Route::post('/vieworders/update-status', [ViewOrdersController::class, 'updateStatus'])->name('vieworders.updateStatus');
-    Route::get('/vieworders/customersorder/{customer_id}', [ViewOrdersController::class, 'showCustomer'])->name('customersorder.show');
-
-
-    Route::get('orderpops' , [ViewOrdersController::class , 'orderposps'])->name('orderposps');
-    Route::get('orderpops/confirm/page' , [ViewOrdersController::class , 'confirmPage'])->name('confirm.page');
-    Route::post('/orderpops/confirm', [ViewOrdersController::class, 'confirmOrder'])->name('orderpops.confirm');
-    Route::post('/orderpops/store', [ViewOrdersController::class, 'store'])->name('orderpops.store');
-    Route::get('get-customer/{customer_id}', [OrderPopsController::class, 'customer'])->name('orderpops.customer');
+    Route::middleware('permission:franchise_orders.view')->group(function () {
+        Route::get('/vieworders', [ViewOrdersController::class, 'index'])->name('vieworders.index');
+        Route::get('/vieworders/detail', [ViewOrdersController::class, 'viewordersDetail'])->name('vieworders.detail');
+        Route::get('/vieworders/customersorder/{customer_id}', [ViewOrdersController::class, 'showCustomer'])->name('customersorder.show');
+        Route::get('orderpops' , [ViewOrdersController::class , 'orderposps'])->name('orderposps');
+        Route::get('orderpops/confirm/page' , [ViewOrdersController::class , 'confirmPage'])->name('confirm.page');
+        Route::get('get-customer/{customer_id}', [OrderPopsController::class, 'customer'])->name('orderpops.customer');
+    });
+    
+    Route::get('/vieworders/create', [ViewOrdersController::class, 'create'])->name('vieworders.create')->middleware('permission:franchise_orders.create');
+    Route::post('/vieworders', [ViewOrdersController::class, 'store'])->name('vieworders.store')->middleware('permission:franchise_orders.create');
+    Route::get('/vieworders/{orderId}/edit', [ViewOrdersController::class, 'edit'])->name('vieworders.edit')->middleware('permission:franchise_orders.edit');
+    Route::put('/vieworders/{vieworders}', [ViewOrdersController::class, 'update'])->name('vieworders.update')->middleware('permission:franchise_orders.edit');
+    Route::delete('/vieworders/{vieworders}', [ViewOrdersController::class, 'destroy'])->name('vieworders.destroy')->middleware('permission:franchise_orders.delete');
+    Route::post('/vieworders/update-status', [ViewOrdersController::class, 'updateStatus'])->name('vieworders.updateStatus')->middleware('permission:franchise_orders.edit');
+    Route::post('/orderpops/confirm', [ViewOrdersController::class, 'confirmOrder'])->name('orderpops.confirm')->middleware('permission:franchise_orders.create');
+    Route::post('/orderpops/store', [ViewOrdersController::class, 'store'])->name('orderpops.store')->middleware('permission:franchise_orders.create');
 
     // Event
-    Route::get('/events/calender', [EventController::class, 'eventCalenderAdmin'])->name('events.calender');
-    Route::get('/events/report', [EventController::class, 'eventReportAdmin'])->name('events.report');
-    Route::get('/events/{id}/view', [EventController::class, 'viewAdmin'])->name('events.view');
-
+    Route::middleware('permission:events.view')->group(function () {
+        Route::get('/events/calender', [EventController::class, 'eventCalenderAdmin'])->name('events.calender');
+        Route::get('/events/report', [EventController::class, 'eventReportAdmin'])->name('events.report');
+        Route::get('/events/{id}/view', [EventController::class, 'viewAdmin'])->name('events.view');
+    });
 
     // Expense Category
-    Route::get('expense-category' , [ExpensesCategoryController::class , 'index'])->name('expense-category');
-    Route::get('expense-category/create' , [ExpensesCategoryController::class , 'create'])->name('expense-category.create');
-    Route::get('expense-category/{id}/edit' , [ExpensesCategoryController::class , 'edit'])->name('expense-category.edit');
-    Route::put('expense-category/{id}/update' , [ExpensesCategoryController::class , 'update'])->name('expense-category.update');
-    Route::post('expense-category/store' , [ExpensesCategoryController::class , 'store'])->name('expense-category.store');
-    Route::post('expense-sub-category/store' , [ExpensesCategoryController::class , 'Substore'])->name('expense-sub-category.store');
-    Route::delete('expense-sub-category/{id}/delete' , [ExpensesCategoryController::class , 'delete'])->name('expense-sub-category.delete');
+    Route::middleware('permission:expenses.categories')->group(function () {
+        Route::get('expense-category' , [ExpensesCategoryController::class , 'index'])->name('expense-category');
+        Route::get('expense-category/create' , [ExpensesCategoryController::class , 'create'])->name('expense-category.create');
+        Route::get('expense-category/{id}/edit' , [ExpensesCategoryController::class , 'edit'])->name('expense-category.edit');
+        Route::put('expense-category/{id}/update' , [ExpensesCategoryController::class , 'update'])->name('expense-category.update');
+        Route::post('expense-category/store' , [ExpensesCategoryController::class , 'store'])->name('expense-category.store');
+        Route::post('expense-sub-category/store' , [ExpensesCategoryController::class , 'Substore'])->name('expense-sub-category.store');
+        Route::delete('expense-sub-category/{id}/delete' , [ExpensesCategoryController::class , 'delete'])->name('expense-sub-category.delete');
+    });
 
-    Route::get('expense' , [ExpensesCategoryController::class , 'expense'])->name('expense.franchisee');
+    Route::get('expense' , [ExpensesCategoryController::class , 'expense'])->name('expense.franchisee')->middleware('permission:expenses.by_franchisee');
 
     // Customer
-    Route::get('customer' , [ExpensesCategoryController::class , 'customer'])->name('customer');
-    Route::get('customer/{id}/view' , [ExpensesCategoryController::class , 'customerView'])->name('customer.view');
+    Route::middleware('permission:customers.by_franchisee')->group(function () {
+        Route::get('customer' , [ExpensesCategoryController::class , 'customer'])->name('customer');
+        Route::get('customer/{id}/view' , [ExpensesCategoryController::class , 'customerView'])->name('customer.view');
+    });
 
     // Payment
-    Route::get('transactions' , [CorpPaymentController::class , 'transaction'])->name('transaction');
-    Route::get('pos/{id}/expense' , [CorpPaymentController::class , 'posExpense'])->name('pos.expense');
-    Route::get('pos/expenses/{id}/download', [CorpPaymentController::class, 'posDownloadPDF'])->name('expenses.pos.download');
-    Route::get('pos/{id}/order' , [CorpPaymentController::class , 'posOrder'])->name('pos.order');
-    Route::get('pos/order/{id}/download', [CorpPaymentController::class, 'posOrderDownloadPDF'])->name('order.pos.download');
-    Route::get('pos/{id}/event' , [CorpPaymentController::class , 'posEvent'])->name('pos.event');
-    Route::get('pos/event/{id}/download', [CorpPaymentController::class, 'posEventDownloadPDF'])->name('event.pos.download');
+    Route::middleware('permission:payments.view,pos.expense,pos.order,pos.event')->group(function () {
+        Route::get('transactions' , [CorpPaymentController::class , 'transaction'])->name('transaction');
+        Route::get('pos/{id}/expense' , [CorpPaymentController::class , 'posExpense'])->name('pos.expense');
+        Route::get('pos/expenses/{id}/download', [CorpPaymentController::class, 'posDownloadPDF'])->name('expenses.pos.download');
+        Route::get('pos/{id}/order' , [CorpPaymentController::class , 'posOrder'])->name('pos.order');
+        Route::get('pos/order/{id}/download', [CorpPaymentController::class, 'posOrderDownloadPDF'])->name('order.pos.download');
+        Route::get('pos/{id}/event' , [CorpPaymentController::class , 'posEvent'])->name('pos.event');
+        Route::get('pos/event/{id}/download', [CorpPaymentController::class, 'posEventDownloadPDF'])->name('event.pos.download');
+    });
 
     // Roles & Permissions Management (Restricted to corporate_admin only)
-    Route::prefix('roles')->name('roles.')->group(function () {
+    Route::prefix('roles')->name('roles.')->middleware('permission:roles.view|roles.create|roles.edit|roles.delete|permissions.view')->group(function () {
         Route::get('/', [RolePermissionController::class, 'index'])->name('index');
-        Route::get('/create', [RolePermissionController::class, 'create'])->name('create');
-        Route::post('/', [RolePermissionController::class, 'store'])->name('store');
-        Route::get('/{role}/edit', [RolePermissionController::class, 'edit'])->name('edit');
-        Route::put('/{role}', [RolePermissionController::class, 'update'])->name('update');
-        Route::delete('/{role}', [RolePermissionController::class, 'destroy'])->name('destroy');
-        Route::get('/{role}/permissions', [RolePermissionController::class, 'getPermissions'])->name('permissions');
+        Route::get('/create', [RolePermissionController::class, 'create'])->name('create')->middleware('permission:roles.create');
+        Route::post('/', [RolePermissionController::class, 'store'])->name('store')->middleware('permission:roles.create');
+        Route::get('/{role}/edit', [RolePermissionController::class, 'edit'])->name('edit')->middleware('permission:roles.edit');
+        Route::put('/{role}', [RolePermissionController::class, 'update'])->name('update')->middleware('permission:roles.edit');
+        Route::delete('/{role}', [RolePermissionController::class, 'destroy'])->name('destroy')->middleware('permission:roles.delete');
+        Route::get('/{role}/permissions', [RolePermissionController::class, 'getPermissions'])->name('permissions')->middleware('permission:permissions.view');
     });
 
     // User Management (Restricted to corporate_admin only)
-    Route::prefix('users')->name('users.')->group(function () {
+    Route::prefix('users')->name('users.')->middleware('permission:users.view|users.create|users.edit|users.delete')->group(function () {
         Route::get('/', [UserManagementController::class, 'index'])->name('index');
-        Route::get('/create', [UserManagementController::class, 'create'])->name('create');
-        Route::post('/', [UserManagementController::class, 'store'])->name('store');
-        Route::get('/{user}', [UserManagementController::class, 'show'])->name('show');
-        Route::get('/{user}/edit', [UserManagementController::class, 'edit'])->name('edit');
-        Route::put('/{user}', [UserManagementController::class, 'update'])->name('update');
-        Route::delete('/{user}', [UserManagementController::class, 'destroy'])->name('destroy');
+        Route::get('/{user}', [UserManagementController::class, 'show'])->name('show')->middleware('permission:users.view');
+        Route::get('/create', [UserManagementController::class, 'create'])->name('create')->middleware('permission:users.create');
+        Route::post('/', [UserManagementController::class, 'store'])->name('store')->middleware('permission:users.create');
+        Route::get('/{user}/edit', [UserManagementController::class, 'edit'])->name('edit')->middleware('permission:users.edit');
+        Route::put('/{user}', [UserManagementController::class, 'update'])->name('update')->middleware('permission:users.edit');
+        Route::delete('/{user}', [UserManagementController::class, 'destroy'])->name('destroy')->middleware('permission:users.delete');
     });
 });

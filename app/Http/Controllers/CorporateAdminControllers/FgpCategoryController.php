@@ -24,19 +24,29 @@ class FgpCategoryController extends Controller
                     $editUrl = route('corporate_admin.fgpcategory.edit', $category->category_ID);
                     $deleteUrl = route('corporate_admin.fgpcategory.destroy', $category->category_ID);
 
-                    return '
-                    <div class="d-flex">
-                        <a href="'.$editUrl.'" class="edit-category">
+                    $actions = '<div class="d-flex">';
+                    
+                    // Edit button - check permission
+                    if (auth()->check() && auth()->user()->can('frios_flavors.categories')) {
+                        $actions .= '<a href="'.$editUrl.'" class="edit-category">
                             <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
-                        </a>
-                        <form action="'.$deleteUrl.'" method="POST">
+                        </a>';
+                    }
+                    
+                    // Delete button - check permission
+                    if (auth()->check() && auth()->user()->can('frios_flavors.categories')) {
+                        $actions .= '<form action="'.$deleteUrl.'" method="POST">
                             '.csrf_field().'
                             '.method_field('DELETE').'
                             <button type="submit" class="ms-4 delete-category">
                                 <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
                             </button>
-                        </form>
-                    </div>';
+                        </form>';
+                    }
+                    
+                    $actions .= '</div>';
+                    
+                    return $actions;
                 })
                 ->rawColumns(['action'])
                 ->make(true);

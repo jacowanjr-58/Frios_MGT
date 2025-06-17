@@ -63,14 +63,19 @@ class RolePermissionController extends Controller
                     $isProtected = in_array($role->name, $protectedRoles);
 
                     $html = '<div class="d-flex gap-1">';
-                    $html .= '<a href="'.$editUrl.'" class="btn btn-primary btn-sm" title="Edit Role"><i class="fa fa-edit"></i></a>';
                     
-                    if(!$isProtected) {
+                    // Edit button - check permission
+                    if (auth()->check() && auth()->user()->can('roles.edit')) {
+                        $html .= '<a href="'.$editUrl.'" class="btn btn-primary btn-sm" title="Edit Role"><i class="fa fa-edit"></i></a>';
+                    }
+                    
+                    // Delete button - check permission and role protection
+                    if (auth()->check() && auth()->user()->can('roles.delete') && !$isProtected) {
                         $html .= '<form action="'.$deleteUrl.'" method="POST" style="display: inline;" class="delete-form">';
                         $html .= csrf_field() . method_field('DELETE');
                         $html .= '<button type="submit" class="btn btn-danger btn-sm delete-role" title="Delete Role"><i class="fa fa-trash"></i></button>';
                         $html .= '</form>';
-                    } else {
+                    } elseif ($isProtected) {
                         $html .= '<button class="btn btn-secondary btn-sm" title="System role cannot be deleted" disabled><i class="fa fa-trash"></i></button>';
                     }
                     
@@ -98,9 +103,13 @@ class RolePermissionController extends Controller
      */
     public function store(Request $request)
     {
+       
+
         $request->validate([
             'name' => 'required|string|max:255|unique:roles,name',
-            'permissions' => 'array'
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'exists:permissions,id',
+            'give_all_permissions' => 'nullable|boolean'
         ]);
 
         DB::beginTransaction();
@@ -108,21 +117,25 @@ class RolePermissionController extends Controller
             // Create the role
             $role = Role::create(['name' => $request->name]);
 
-            // Assign permissions if provided
-            if ($request->has('permissions')) {
+            // Check if "Give All Permissions" is checked first
+            if ($request->has('give_all_permissions') && $request->give_all_permissions) {
+                // Assign all permissions
+                $role->givePermissionTo(Permission::all());
+            } elseif ($request->has('permissions') && is_array($request->permissions) && !empty($request->permissions)) {
+                // Assign only the selected permissions
                 $permissions = Permission::whereIn('id', $request->permissions)->get();
                 $role->givePermissionTo($permissions);
             }
-
-            // If "Give All Permissions" is checked, assign all permissions
-            if ($request->has('give_all_permissions')) {
-                $role->givePermissionTo(Permission::all());
-            }
+            // If neither condition is met, the role is created with no permissions
 
             DB::commit();
 
+            $message = $request->has('give_all_permissions') && $request->give_all_permissions 
+                ? 'Role created successfully with all permissions assigned.'
+                : 'Role created successfully with selected permissions assigned.';
+
             return redirect()->route('corporate_admin.roles.index')
-                ->with('success', 'Role created successfully with permissions assigned.');
+                ->with('success', $message);
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -148,9 +161,12 @@ class RolePermissionController extends Controller
      */
     public function update(Request $request, Role $role)
     {
+       
         $request->validate([
             'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
-            'permissions' => 'array'
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'exists:permissions,id',
+            'give_all_permissions' => 'nullable|boolean'
         ]);
 
         DB::beginTransaction();
@@ -158,18 +174,27 @@ class RolePermissionController extends Controller
             // Update role name
             $role->update(['name' => $request->name]);
 
-            // Sync permissions
-            if ($request->has('give_all_permissions')) {
+            // Sync permissions based on user selection
+            if ($request->has('give_all_permissions') && $request->give_all_permissions) {
+                // Assign all permissions
                 $role->syncPermissions(Permission::all());
-            } else {
-                $permissions = $request->permissions ? Permission::whereIn('id', $request->permissions)->get() : [];
+            } elseif ($request->has('permissions') && is_array($request->permissions) && !empty($request->permissions)) {
+                // Assign only the selected permissions
+                $permissions = Permission::whereIn('id', $request->permissions)->get();
                 $role->syncPermissions($permissions);
+            } else {
+                // Remove all permissions if none selected
+                $role->syncPermissions([]);
             }
 
             DB::commit();
 
+            $message = $request->has('give_all_permissions') && $request->give_all_permissions 
+                ? 'Role updated successfully with all permissions assigned.'
+                : 'Role updated successfully with selected permissions assigned.';
+
             return redirect()->route('corporate_admin.roles.index')
-                ->with('success', 'Role updated successfully.');
+                ->with('success', $message);
 
         } catch (\Exception $e) {
             DB::rollback();

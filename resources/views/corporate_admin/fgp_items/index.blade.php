@@ -51,7 +51,9 @@
 				</div>
                 <div class="row mb-4 align-items-center">
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                        <a href="{{ route('corporate_admin.fgpitem.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Item</a>
+                        @can('frios_flavors.create')
+                            <a href="{{ route('corporate_admin.fgpitem.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Item</a>
+                        @endcan
                     </div>
                     <div class="col-xl-9 col-lg-8">
                         <div class="card m-0">
@@ -93,7 +95,9 @@
                                         <th>Description</th>
                                         <th>Categories</th>
                                         {{-- <th>Orderable</th> --}}
-                                        <th>Actions</th>
+                                        @canany(['frios_flavors.edit', 'frios_flavors.delete'])
+                                            <th>Actions</th>
+                                        @endcanany
                                     </tr>
                                 </thead>
 							</table>

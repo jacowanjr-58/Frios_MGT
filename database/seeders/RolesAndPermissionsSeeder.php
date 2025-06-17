@@ -45,26 +45,28 @@ class RolesAndPermissionsSeeder extends Seeder
             'permissions.assign',
             'permissions.view',
 
+            // User Management (for corporate_admin to assign permissions)
+            'users.view',
+            'users.create',
+            'users.edit',
+            'users.delete',
+
             // Franchises Management (Corporate Admin)
             'franchises.view',
             'franchises.create',
             'franchises.edit',
             'franchises.delete',
-            'franchises.list',
-
             // Franchisee/Owner Management (Corporate Admin)
             'owners.view',
             'owners.create',
             'owners.edit',
             'owners.delete',
-            'owners.list',
 
             // Frios Flavors Management (Corporate Admin)
             'frios_flavors.view',
             'frios_flavors.create',
             'frios_flavors.edit',
             'frios_flavors.delete',
-            'frios_flavors.list',
             'frios_flavors.availability',
             'frios_flavors.categories',
 
@@ -73,7 +75,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'franchise_orders.create',
             'franchise_orders.edit',
             'franchise_orders.delete',
-            'franchise_orders.list',
             'franchise_orders.edit_charges',
 
             // Payments Management (Corporate Admin)
@@ -88,7 +89,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'expenses.create',
             'expenses.edit',
             'expenses.delete',
-            'expenses.list',
             'expenses.by_category',
             'expenses.by_franchisee',
             'expenses.categories',
@@ -98,7 +98,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'customers.create',
             'customers.edit',
             'customers.delete',
-            'customers.list',
             'customers.by_franchisee',
 
             // Events Management (All roles)
@@ -106,7 +105,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'events.create',
             'events.edit',
             'events.delete',
-            'events.list',
             'events.calendar',
             'events.report',
 
@@ -115,7 +113,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'inventory.create',
             'inventory.edit',
             'inventory.delete',
-            'inventory.list',
             'inventory.bulk_adjust',
             'inventory.bulk_price_adjust',
             'inventory.allocate',
@@ -126,7 +123,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'orders.create',
             'orders.edit',
             'orders.delete',
-            'orders.list',
             'orders.pops',
 
             // Get Paid/Invoices (Franchise Admin)
@@ -134,14 +130,14 @@ class RolesAndPermissionsSeeder extends Seeder
             'invoices.create',
             'invoices.edit',
             'invoices.delete',
-            'invoices.list',
+           
 
             // Transactions (Franchise Admin)
             'transactions.view',
             'transactions.create',
             'transactions.edit',
             'transactions.delete',
-            'transactions.list',
+           
 
             // POS System (Franchise Staff)
             'pos.view',
@@ -155,36 +151,27 @@ class RolesAndPermissionsSeeder extends Seeder
             'sales.create',
             'sales.edit',
             'sales.delete',
-            'sales.list',
+           
 
             // Flavors (Franchise Staff)
             'flavors.view',
-            'flavors.list',
+           
 
             // Staff Management (Franchise Admin & Manager)
             'staff.view',
             'staff.create',
             'staff.edit',
             'staff.delete',
-            'staff.list',
+          
 
             // Locations (Franchise Admin & Manager)
             'locations.view',
             'locations.create',
             'locations.edit',
             'locations.delete',
-            'locations.list',
 
-
-            // users
-            'users.view',
-            'users.create',
-            'users.edit',
-            'users.delete',
-            'users.list',
 
             // Sidebar-specific permissions for permission-based access control
-            'manage-users',
             'manage-franchises', 
             'manage-flavors',
             'manage-franchise-orders',
@@ -196,13 +183,13 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage-orders',
             'manage-invoices',
             'manage-expenses',
-            'manage-customers',
             'manage-events',
             'view-inventory',
             'view-orders',
             'view-sales',
             'use-pos',
             'view-flavors',
+            'manage-customers',
 
         ];
 
@@ -217,16 +204,16 @@ class RolesAndPermissionsSeeder extends Seeder
         // Assign permissions to franchise_admin
         $franchiseAdminPermissions = [
             'dashboard.view',
-            'inventory.view', 'inventory.create', 'inventory.edit', 'inventory.delete', 'inventory.list',
+            'inventory.view', 'inventory.create', 'inventory.edit', 'inventory.delete',
             'inventory.bulk_adjust', 'inventory.bulk_price_adjust', 'inventory.allocate', 'inventory.locations',
-            'orders.view', 'orders.create', 'orders.edit', 'orders.delete', 'orders.list', 'orders.pops',
-            'invoices.view', 'invoices.create', 'invoices.edit', 'invoices.delete', 'invoices.list',
-            'transactions.view', 'transactions.create', 'transactions.edit', 'transactions.delete', 'transactions.list',
-            'expenses.view', 'expenses.create', 'expenses.edit', 'expenses.delete', 'expenses.list', 'expenses.categories',
-            'customers.view', 'customers.create', 'customers.edit', 'customers.delete', 'customers.list',
-            'events.view', 'events.create', 'events.edit', 'events.delete', 'events.list', 'events.calendar', 'events.report',
-            'staff.view', 'staff.create', 'staff.edit', 'staff.delete', 'staff.list',
-            'locations.view', 'locations.create', 'locations.edit', 'locations.delete', 'locations.list',
+            'orders.view', 'orders.create', 'orders.edit', 'orders.delete', 'orders.pops',
+            'invoices.view', 'invoices.create', 'invoices.edit', 'invoices.delete', 
+            'transactions.view', 'transactions.create', 'transactions.edit', 'transactions.delete', 
+            'expenses.view', 'expenses.create', 'expenses.edit', 'expenses.delete',  'expenses.categories',
+            'customers.view', 'customers.create', 'customers.edit', 'customers.delete', 
+            'events.view', 'events.create', 'events.edit', 'events.delete', 'events.calendar', 'events.report',
+            'staff.view', 'staff.create', 'staff.edit', 'staff.delete', 
+            'locations.view', 'locations.create', 'locations.edit', 'locations.delete', 
             // Sidebar permissions for franchise admin
             'manage-inventory', 'manage-orders', 'manage-invoices', 'manage-expenses', 'manage-customers', 'manage-events',
         ];
@@ -235,13 +222,13 @@ class RolesAndPermissionsSeeder extends Seeder
         // Assign permissions to franchise_manager
         $franchiseManagerPermissions = [
             'dashboard.view',
-            'inventory.view', 'inventory.edit', 'inventory.list', 'inventory.locations',
-            'locations.view', 'locations.create', 'locations.edit', 'locations.delete', 'locations.list',
-            'orders.view', 'orders.create', 'orders.edit', 'orders.delete', 'orders.list', 'orders.pops',
-            'expenses.view', 'expenses.create', 'expenses.edit', 'expenses.delete', 'expenses.list', 'expenses.categories',
-            'customers.view', 'customers.create', 'customers.edit', 'customers.delete', 'customers.list',
-            'events.view', 'events.create', 'events.edit', 'events.delete', 'events.list', 'events.calendar', 'events.report',
-            'staff.view', 'staff.create', 'staff.edit', 'staff.delete', 'staff.list',
+            'inventory.view', 'inventory.edit', 'inventory.locations',
+            'locations.view', 'locations.create', 'locations.edit', 'locations.delete',
+            'orders.view', 'orders.create', 'orders.edit', 'orders.delete',  'orders.pops',
+            'expenses.view', 'expenses.create', 'expenses.edit', 'expenses.delete',  'expenses.categories',
+            'customers.view', 'customers.create', 'customers.edit', 'customers.delete', 
+            'events.view', 'events.create', 'events.edit', 'events.delete', 'events.calendar', 'events.report',
+            'staff.view', 'staff.create', 'staff.edit', 'staff.delete', 
             // Sidebar permissions for franchise manager (view-only access)
             'view-inventory', 'view-orders', 'view-expenses', 'view-customers', 'view-events',
         ];
@@ -251,9 +238,9 @@ class RolesAndPermissionsSeeder extends Seeder
         $franchiseStaffPermissions = [
             'dashboard.view',
             'pos.view', 'pos.create', 'pos.edit', 'pos.delete', 'pos.access',
-            'flavors.view', 'flavors.list',
-            'customers.view', 'customers.create', 'customers.edit', 'customers.list',
-            'sales.view', 'sales.create', 'sales.edit', 'sales.delete', 'sales.list',
+            'flavors.view', 
+            'customers.view', 'customers.create', 'customers.edit', 
+            'sales.view', 'sales.create', 'sales.edit', 'sales.delete', 
             'events.view', 'events.calendar', 'events.report',
             // Sidebar permissions for franchise staff
             'use-pos', 'view-flavors', 'manage-customers', 'view-sales', 'view-events',
