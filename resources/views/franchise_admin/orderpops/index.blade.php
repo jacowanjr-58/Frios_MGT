@@ -125,24 +125,23 @@
                 let orderableValue = $(this).val();
 
                 $.ajax({
-                    url: "{{ route('corporate_admin.fgpitem.updateOrderable') }}",
+                    url: "{{ route('fgpitem.updateOrderable') }}",
                     type: "POST",
                     data: {
-                        _token: "{{ csrf_token() }}",
-                        id: itemId,
-                        orderable: orderableValue
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        item_id: itemId,
+                        pop_orderable: orderableValue
                     },
                     success: function (response) {
-                        console.log(response); // Debugging: Check response in console
                         if (response.success) {
-                            // location.reload();
+                            toastr.success('Item updated successfully');
                         } else {
-                            alert("Error: " + response.message);
+                            toastr.error('Failed to update item');
                         }
                     },
                     error: function (xhr, status, error) {
-                        console.error(xhr.responseText);
-                        alert("AJAX Error: " + xhr.responseText);
+                        toastr.error('An error occurred');
+                        console.error('Error:', error);
                     }
                 });
             });

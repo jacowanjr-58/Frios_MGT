@@ -55,18 +55,16 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="table-responsive rounded">
-                    <table id="orders-table" class="table customer-table display mb-4 fs-14 card-table">
+                    <table id="orders-table" class="table customer-table display mb-4 card-table">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Date/Time</th>
-                                <th>$</th>
-                                <th>By</th>
-                                <th>Ship To</th>
-                                <th>Items</th>
-                                <th>Issues</th>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Franchise</th>
+                                <th>Total Amount</th>
                                 <th>Status</th>
-                                <th>UPS</th>
+                                <th>Order Date</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                     </table>
@@ -96,116 +94,98 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            var table = $('#orders-table').DataTable({
+            $('#orders-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('corporate_admin.vieworders.index') }}",
+                ajax: "{{ route('vieworders.index') }}",
                 columns: [
-                    { data: 'order_number', name: 'order_number' },
-                    { data: 'date_time', name: 'date_transaction' },
-                    { data: 'total_amount', name: 'total_amount' },
-                    { data: 'ordered_by', name: 'ordered_by' },
-                    { data: 'shipping_address', name: 'shipping_address' },
-                    { data: 'items_count', name: 'items_count' },
-                    { data: 'issues', name: 'issues' },
-                    { data: 'status', name: 'status' },
-                    { data: 'ups_label', name: 'ups_label', orderable: false, searchable: false },
-                    { data: 'created_at', name: 'created_at', visible: false }
-                ],
-                order: [[1, 'desc']],
-                language: {
-                    paginate: {
-                        next: '<i class="fa fa-angle-double-right"></i>',
-                        previous: '<i class="fa fa-angle-double-left"></i>'
-                    }
-                },
-                drawCallback: function(settings) {
-                    // Initialize Bootstrap Select on new elements
-                    $('.status-select').selectpicker();
-
-                    // Add custom classes to pagination elements
-                    $('.dataTables_paginate').addClass('paging_simple_numbers');
-                    $('.paginate_button').each(function() {
-                        if ($(this).hasClass('current')) {
-                            $(this).attr('aria-current', 'page');
+                    {data: 'order_id', name: 'order_id'},
+                    {data: 'customer_name', name: 'customer_name'},
+                    {data: 'franchise_name', name: 'franchise_name'},
+                    {data: 'total_amount', name: 'total_amount'},
+                    {
+                        data: 'status',
+                        name: 'status',
+                        render: function(data, type, row) {
+                            var badgeClass = 'bg-secondary';
+                            switch(data) {
+                                case 'pending': badgeClass = 'bg-warning'; break;
+                                case 'confirmed': badgeClass = 'bg-info'; break;
+                                case 'processing': badgeClass = 'bg-primary'; break;
+                                case 'shipped': badgeClass = 'bg-success'; break;
+                                case 'delivered': badgeClass = 'bg-success'; break;
+                                case 'cancelled': badgeClass = 'bg-danger'; break;
+                            }
+                            return '<span class="badge ' + badgeClass + '">' + data.charAt(0).toUpperCase() + data.slice(1) + '</span>';
                         }
-                    });
-                }
-            });
-
-            // Order details modal handler
-            $(document).on('click', '.order-detail-trigger', function() {
-                const orderId = $(this).data('id');
-                $.ajax({
-                    url: '{{ route('corporate_admin.vieworders.detail') }}',
-                    method: 'GET',
-                    data: { id: orderId },
-                    success: function(response) {
-                        let orderDetails = response.orderDetails;
-                        let detailsHtml = `
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Item</th>
-                                        <th scope="col">Unit Cost</th>
-                                        <th scope="col">Quantity</th>
-                                        <th scope="col">Transaction Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                        `;
-
-                        orderDetails.forEach(function(detail) {
-                            detailsHtml += `
-                                <tr>
-                                    <td>${detail.name}</td>
-                                    <td>$${detail.unit_cost}</td>
-                                    <td>${detail.unit_number}</td>
-                                    <td>${detail.formatted_date}</td>
-                                </tr>
-                            `;
-                        });
-
-                        detailsHtml += `</tbody></table>`;
-                        $('#orderModal .modal-body').html(detailsHtml);
-                        $('#orderModal').modal('show');
                     },
-                    error: function() {
-                        alert('Error loading order details.');
+                    {data: 'created_at', name: 'created_at'},
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            var actions = '<div class="dropdown">';
+                            actions += '<button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">';
+                            actions += '<i class="fa fa-cog"></i>';
+                            actions += '</button>';
+                            actions += '<ul class="dropdown-menu">';
+                            actions += '<li><a class="dropdown-item" href="javascript:void(0)" onclick="viewOrderDetails(' + row.order_id + ')"><i class="fa fa-eye me-2"></i>View Details</a></li>';
+                            actions += '<li><a class="dropdown-item" href="/vieworders/' + row.order_id + '/edit"><i class="fa fa-edit me-2"></i>Edit</a></li>';
+                            actions += '<li><hr class="dropdown-divider"></li>';
+                            actions += '<li><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="changeOrderStatus(' + row.order_id + ', \'cancelled\')"><i class="fa fa-times me-2"></i>Cancel Order</a></li>';
+                            actions += '</ul>';
+                            actions += '</div>';
+                            return actions;
+                        }
                     }
-                });
-            });
-
-            // Status update handler
-            $(document).on('change', '.status-select', function() {
-                let select = $(this);
-                let dateTransaction = select.data('date');
-                let newStatus = select.val();
-                let fgpOrdersId = select.data('fgp-orders-id');
-
-                const data = {
-                    date_transaction: dateTransaction,
-                    status: newStatus,
-                    fgp_ordersID: fgpOrdersId
-                };
-
-                $.ajax({
-                    url: "{{ route('corporate_admin.vieworders.updateStatus') }}",
-                    method: "POST",
-                    data: JSON.stringify(data),
-                    contentType: "application/json",
-                    headers: {
-                        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        console.log('Success:', response);
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        console.error('Error:', errorThrown);
-                    }
-                });
+                ],
+                order: [[0, 'desc']],
+                pageLength: 25
             });
         });
+
+        function viewOrderDetails(orderId) {
+                $.ajax({
+                url: '{{ route('vieworders.detail') }}',
+                    method: 'GET',
+                data: { order_id: orderId },
+                    success: function(response) {
+                    // Handle order details display
+                        $('#orderModal').modal('show');
+                    $('#orderModal .modal-body').html(response);
+                    },
+                    error: function() {
+                    toastr.error('Failed to load order details');
+                }
+            });
+        }
+
+        function changeOrderStatus(orderId, status) {
+            if (confirm('Are you sure you want to change the order status?')) {
+                $.ajax({
+                    url: "{{ route('vieworders.updateStatus') }}",
+                    method: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        order_id: orderId,
+                        status: status
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success('Order status updated successfully');
+                            $('#orders-table').DataTable().ajax.reload();
+                        } else {
+                            toastr.error('Failed to update order status');
+                        }
+                    },
+                    error: function() {
+                        toastr.error('An error occurred while updating order status');
+                    }
+                });
+            }
+        }
     </script>
 @endpush
 

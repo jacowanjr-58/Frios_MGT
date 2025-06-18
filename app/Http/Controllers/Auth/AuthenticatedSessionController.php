@@ -30,27 +30,23 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = auth()->user();
-
-        $franchisee = Franchisee::where('franchisee_id', $user->franchisee_id)->first();
-
+        $franchisees = $user->franchisees;
+      
         // Check the role and redirect accordingly, with a success message
         if ($user->hasRole('corporate_admin')) {
             return redirect()->intended(route('dashboard', absolute: false))
                 ->with('success', 'Welcome Back, ' . $user->name);
         } elseif ($user->hasRole('franchise_admin')) {
            
-            $franchisees = $user->franchisees;
+            
            
             if ($franchisees->count() > 1) {
                 return redirect()->route('franchise.select_franchisee');
             } elseif ($franchisees->count() === 1) {
                 return redirect("/franchise/{$franchisees->first()->franchisee_id}/dashboard")->with('success', 'Welcome Back, ' . $user->name);
             }
-        } elseif ($user->hasRole('franchise_manager')) {
-            return redirect()->intended(route('dashboard', absolute: false))
-                ->with('success', 'Welcome Back, ' . $user->name);
-        } elseif ($user->hasRole('franchise_staff')) {
-            return redirect()->intended(route('dashboard', absolute: false))
+        }  else {
+            return  redirect("/franchise/{$franchisees->first()->franchisee_id}/dashboard")
                 ->with('success', 'Welcome Back, ' . $user->name);
         }
 

@@ -26,7 +26,7 @@ class ViewOrdersController extends Controller
 
             return DataTables::of($orders)
                 ->addColumn('order_number', function ($order) {
-                    return '<a href="' . route('corporate_admin.vieworders.edit', ['orderId' => $order->fgp_ordersID]) . '" class="text-primary fs-12">' .
+                    return '<a href="' . route('vieworders.edit', ['orderId' => $order->fgp_ordersID]) . '" class="text-primary fs-12">' .
                            $order->getOrderNum() . '</a>';
                 })
                 ->addColumn('date_time', function ($order) {
@@ -44,7 +44,7 @@ class ViewOrdersController extends Controller
                     $customer = Customer::where('customer_id', $order->customer_id)->first();
 
                     if ($customer) {
-                        return '<a href="' . route('corporate_admin.customer.view', ['id' => $customer->customer_id]) . '" class="text-primary">' .
+                        return '<a href="' . route('customer.view', ['id' => $customer->customer_id]) . '" class="text-primary">' .
                                $customer->name . '</a>';
                     } elseif ($franchisee) {
                         return '<a href="' . route('profile.show', ['profile' => $franchisee->franchisee_id]) . '" class="text-primary">' .
@@ -69,13 +69,13 @@ class ViewOrdersController extends Controller
                     
                     // Check permission for status updates
                     if (Auth::check() && Auth::user()->can('franchise_orders.edit')) {
-                        $select = '<select class="status-select" data-date="' . $order->date_transaction . '" data-fgp-orders-id="' . $order->fgp_ordersID . '" tabindex="null">';
-                        foreach ($statuses as $status) {
-                            $selected = $order->status == $status ? 'selected' : '';
-                            $select .= '<option value="' . $status . '" ' . $selected . '>' . $status . '</option>';
-                        }
-                        $select .= '</select>';
-                        return $select;
+                    $select = '<select class="status-select" data-date="' . $order->date_transaction . '" data-fgp-orders-id="' . $order->fgp_ordersID . '" tabindex="null">';
+                    foreach ($statuses as $status) {
+                        $selected = $order->status == $status ? 'selected' : '';
+                        $select .= '<option value="' . $status . '" ' . $selected . '>' . $status . '</option>';
+                    }
+                    $select .= '</select>';
+                    return $select;
                     } else {
                         // Show status as read-only badge
                         return '<span class="badge bg-secondary">' . ($order->status ?? 'Unknown') . '</span>';
@@ -83,10 +83,10 @@ class ViewOrdersController extends Controller
                 })
                 ->addColumn('ups_label', function ($order) {
                     if (Auth::check() && Auth::user()->can('franchise_orders.edit')) {
-                        if ($order->status != 'Shipped') {
-                            return '<a href="' . url('/order/' . $order->fgp_ordersID . '/create-ups-label') . '" class="btn btn-primary btn-sm" target="_blank">Generate UPS Label</a>';
-                        }
-                        return '<span class="text-muted">Add Label and Tracking</span>';
+                    if ($order->status != 'Shipped') {
+                        return '<a href="' . url('/order/' . $order->fgp_ordersID . '/create-ups-label') . '" class="btn btn-primary btn-sm" target="_blank">Generate UPS Label</a>';
+                    }
+                    return '<span class="text-muted">Add Label and Tracking</span>';
                     } else {
                         return '<span class="text-muted">No Access</span>';
                     }
@@ -224,7 +224,7 @@ public function update(Request $request, $orderId)
     }
 
     return redirect()
-    ->route('corporate_admin.vieworders.index')
+    ->route('vieworders.index')
     ->with('success', 'Order #' . $order->getOrderNum() . ' updated successfully!');
 }
 
@@ -327,7 +327,7 @@ public function update(Request $request, $orderId)
             // Store items in the session for retrieval on the confirmation page
             session(['ordered_items' => $items]);
 
-            return response()->json(['redirect' => route('corporate_admin.confirm.page')]);
+            return response()->json(['redirect' => route('confirm.page')]);
         } catch (\Exception $e) {
             Log::error('Error in confirmOrder method: ' . $e->getMessage());
             return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
@@ -380,6 +380,6 @@ public function update(Request $request, $orderId)
             ]);
         }
 
-        return redirect()->route('corporate_admin.vieworders.index')->with('success', 'Order placed successfully!');
+        return redirect()->route('vieworders.index')->with('success', 'Order placed successfully!');
     }
 }

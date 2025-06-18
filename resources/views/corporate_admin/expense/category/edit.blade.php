@@ -41,7 +41,7 @@
                                             <!-- Display Success Message -->
 
 
-                                            <form action="{{ route('corporate_admin.expense-category.store') }}" method="POST">
+                                            <form action="{{ route('expense-category.store') }}" method="POST">
                                                 @csrf
 
                                                 <div class="row">
@@ -88,7 +88,7 @@
 
 
 
-                                            <form action="{{ route('corporate_admin.expense-category.update' , $expenseSubCategory->id) }}" method="POST">
+                                            <form action="{{ route('expense-category.update' , $expenseSubCategory->id) }}" method="POST">
                                                 @method('PUT')
                                                 @csrf
 

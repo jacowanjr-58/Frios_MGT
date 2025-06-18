@@ -142,7 +142,7 @@
 
                                 console.log("Sending request to server with checked items...");
 
-                                const url = "{{ route('corporate_admin.orderpops.confirm') }}";
+                                const url = "{{ route('orderpops.confirm') }}";
 
                                 fetch(url, {
                                     method: 'POST',
@@ -218,7 +218,7 @@
                 let orderableValue = $(this).val();
 
                 $.ajax({
-                    url: "{{ route('corporate_admin.fgpitem.updateOrderable') }}",
+                    url: "{{ route('fgpitem.updateOrderable') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -248,7 +248,7 @@
                 var table = $('#pops-table').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "{{ route('corporate_admin.orderposps') }}",
+                    ajax: "{{ route('orderposps') }}",
                     columns: [
                         { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
                         { data: 'name', name: 'name' },
@@ -312,7 +312,7 @@
                         return;
                     }
 
-                    fetch("{{ route('corporate_admin.orderpops.confirm') }}", {
+                    fetch("{{ route('orderpops.confirm') }}", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

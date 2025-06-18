@@ -29,7 +29,7 @@ class OwnerController extends Controller
                     }
                     
                     return $franchises->map(function($franchise) {
-                        return '<span class="badge bg-primary me-1">' . $franchise->business_name . '</span>';
+                        return '<span class="badge bg-primary me-1">' . $franchise->business_name ?? 'N/A' . '</span>';
                     })->implode(' ');
                 })
                 ->addColumn('formatted_role', function ($user) {
@@ -39,8 +39,8 @@ class OwnerController extends Controller
                     return $user->created_date ? Carbon::parse($user->created_date)->format('d/m/Y') : 'N/A';
                 })
                 ->addColumn('action', function ($user) {
-                    $editUrl = route('corporate_admin.owner.edit', $user->user_id);
-                    $deleteUrl = route('corporate_admin.owner.destroy', $user->user_id);
+                    $editUrl = route('owner.edit', $user->user_id);
+                    $deleteUrl = route('owner.destroy', $user->user_id);
 
                     $actions = '<div class="d-flex">';
                     
@@ -136,7 +136,7 @@ class OwnerController extends Controller
         // Attach franchisee
         $user->franchisees()->attach($request->franchisee_id);
 
-        return redirect()->route('corporate_admin.owner.index')->with('success', 'Owner created successfully.');
+        return redirect()->route('owner.index')->with('success', 'Owner created successfully.');
     }
 
     public function edit(User $owner)
@@ -209,7 +209,7 @@ class OwnerController extends Controller
         }
 
         $owner->franchisees()->sync($request->franchisee_id);
-        return redirect()->route('corporate_admin.owner.index')->with('success', 'Owner updated successfully.');
+        return redirect()->route('owner.index')->with('success', 'Owner updated successfully.');
     }
     public function destroy($id)
     {
@@ -223,9 +223,9 @@ class OwnerController extends Controller
             
             $user->delete();
 
-            return redirect()->route('corporate_admin.owner.index')->with('success', 'User deleted successfully.');
+            return redirect()->route('owner.index')->with('success', 'User deleted successfully.');
         } catch (\Exception $e) {
-            return redirect()->route('corporate_admin.owner.index')->with('error', 'Failed to delete user.');
+            return redirect()->route('owner.index')->with('error', 'Failed to delete user.');
         }
     }
 

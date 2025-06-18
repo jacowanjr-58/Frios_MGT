@@ -67,7 +67,7 @@
                 }),
                 eventClick: function(info) {
                     // Redirect to the correct URL
-                    window.location.href = '/corporate_admin/events/' + info.event.id + '/view';
+                    window.location.href = '/events/' + info.event.id + '/view';
                 }
 
 
@@ -85,7 +85,7 @@
             <div class="row">
             <div class="col-md-12">
                 <div style="float: right;">
-                    <a href="{{ route('corporate_admin.events.report') }}" class="mb-3 btn btn-secondary btn-sm">Report</a>
+                    <a href="{{ route('events.report') }}" class="mb-3 btn btn-secondary btn-sm">Report</a>
                 </div>
             </div>
                 <div style="display: none;" class="col-xl-3 col-xxl-4">

@@ -51,7 +51,7 @@
 				</div>
                 <div class="row mb-4 align-items-center">
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                        <a href="{{ route('corporate_admin.expense-category.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Category</a>
+                        <a href="{{ route('expense-category.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Category</a>
                     </div>
                     <div class="col-xl-9 col-lg-8">
                         <div class="card m-0">
@@ -101,7 +101,7 @@
             $('#category-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('corporate_admin.expense-category') }}",
+                ajax: "{{ route('expense-category') }}",
                 columns: [
                     { data: 'category', name: 'category' },
                     { data: 'sub_category', name: 'sub_category' },

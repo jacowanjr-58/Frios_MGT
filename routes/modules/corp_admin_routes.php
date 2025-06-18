@@ -20,7 +20,7 @@ use App\Http\Controllers\CorporateAdminControllers\RolePermissionController;
 use App\Http\Controllers\CorporateAdminControllers\UserManagementController;
 use App\Http\Controllers\Franchise\EventController;
 
-Route::middleware(['auth'])->prefix('corporate_admin')->name('corporate_admin.')->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/corporate/dashboard', [CorporateAdminController::class, 'dashboard'])->middleware('permission:dashboard.view');
 
      // Franchise routes
@@ -97,12 +97,12 @@ Route::middleware(['auth'])->prefix('corporate_admin')->name('corporate_admin.')
     
     Route::get('/vieworders/create', [ViewOrdersController::class, 'create'])->name('vieworders.create')->middleware('permission:franchise_orders.create');
     Route::post('/vieworders', [ViewOrdersController::class, 'store'])->name('vieworders.store')->middleware('permission:franchise_orders.create');
-    Route::get('/vieworders/{orderId}/edit', [ViewOrdersController::class, 'edit'])->name('vieworders.edit')->middleware('permission:franchise_orders.edit');
-    Route::put('/vieworders/{vieworders}', [ViewOrdersController::class, 'update'])->name('vieworders.update')->middleware('permission:franchise_orders.edit');
-    Route::delete('/vieworders/{vieworders}', [ViewOrdersController::class, 'destroy'])->name('vieworders.destroy')->middleware('permission:franchise_orders.delete');
     Route::post('/vieworders/update-status', [ViewOrdersController::class, 'updateStatus'])->name('vieworders.updateStatus')->middleware('permission:franchise_orders.edit');
     Route::post('/orderpops/confirm', [ViewOrdersController::class, 'confirmOrder'])->name('orderpops.confirm')->middleware('permission:franchise_orders.create');
     Route::post('/orderpops/store', [ViewOrdersController::class, 'store'])->name('orderpops.store')->middleware('permission:franchise_orders.create');
+    Route::get('/vieworders/{orderId}/edit', [ViewOrdersController::class, 'edit'])->name('vieworders.edit')->middleware('permission:franchise_orders.edit');
+    Route::put('/vieworders/{vieworders}', [ViewOrdersController::class, 'update'])->name('vieworders.update')->middleware('permission:franchise_orders.edit');
+    Route::delete('/vieworders/{vieworders}', [ViewOrdersController::class, 'destroy'])->name('vieworders.destroy')->middleware('permission:franchise_orders.delete');
 
     // Event
     Route::middleware('permission:events.view')->group(function () {
@@ -115,10 +115,10 @@ Route::middleware(['auth'])->prefix('corporate_admin')->name('corporate_admin.')
     Route::middleware('permission:expenses.categories')->group(function () {
         Route::get('expense-category' , [ExpensesCategoryController::class , 'index'])->name('expense-category');
         Route::get('expense-category/create' , [ExpensesCategoryController::class , 'create'])->name('expense-category.create');
-        Route::get('expense-category/{id}/edit' , [ExpensesCategoryController::class , 'edit'])->name('expense-category.edit');
-        Route::put('expense-category/{id}/update' , [ExpensesCategoryController::class , 'update'])->name('expense-category.update');
         Route::post('expense-category/store' , [ExpensesCategoryController::class , 'store'])->name('expense-category.store');
         Route::post('expense-sub-category/store' , [ExpensesCategoryController::class , 'Substore'])->name('expense-sub-category.store');
+        Route::get('expense-category/{id}/edit' , [ExpensesCategoryController::class , 'edit'])->name('expense-category.edit');
+        Route::put('expense-category/{id}/update' , [ExpensesCategoryController::class , 'update'])->name('expense-category.update');
         Route::delete('expense-sub-category/{id}/delete' , [ExpensesCategoryController::class , 'delete'])->name('expense-sub-category.delete');
     });
 
@@ -126,8 +126,8 @@ Route::middleware(['auth'])->prefix('corporate_admin')->name('corporate_admin.')
 
     // Customer
     Route::middleware('permission:customers.by_franchisee')->group(function () {
-        Route::get('customer' , [ExpensesCategoryController::class , 'customer'])->name('customer');
-        Route::get('customer/{id}/view' , [ExpensesCategoryController::class , 'customerView'])->name('customer.view');
+        Route::get('franchise_customer' , [ExpensesCategoryController::class , 'customer'])->name('franchise_customer');
+        Route::get('franchise_customer/{id}/view' , [ExpensesCategoryController::class , 'customerView'])->name('franchise_customer.view');
     });
 
     // Payment
@@ -146,6 +146,7 @@ Route::middleware(['auth'])->prefix('corporate_admin')->name('corporate_admin.')
         Route::get('/', [RolePermissionController::class, 'index'])->name('index');
         Route::get('/create', [RolePermissionController::class, 'create'])->name('create')->middleware('permission:roles.create');
         Route::post('/', [RolePermissionController::class, 'store'])->name('store')->middleware('permission:roles.create');
+        Route::get('/{role}', [RolePermissionController::class, 'show'])->name('show')->middleware('permission:roles.view');
         Route::get('/{role}/edit', [RolePermissionController::class, 'edit'])->name('edit')->middleware('permission:roles.edit');
         Route::put('/{role}', [RolePermissionController::class, 'update'])->name('update')->middleware('permission:roles.edit');
         Route::delete('/{role}', [RolePermissionController::class, 'destroy'])->name('destroy')->middleware('permission:roles.delete');
@@ -155,9 +156,9 @@ Route::middleware(['auth'])->prefix('corporate_admin')->name('corporate_admin.')
     // User Management (Restricted to corporate_admin only)
     Route::prefix('users')->name('users.')->middleware('permission:users.view|users.create|users.edit|users.delete')->group(function () {
         Route::get('/', [UserManagementController::class, 'index'])->name('index');
-        Route::get('/{user}', [UserManagementController::class, 'show'])->name('show')->middleware('permission:users.view');
         Route::get('/create', [UserManagementController::class, 'create'])->name('create')->middleware('permission:users.create');
         Route::post('/', [UserManagementController::class, 'store'])->name('store')->middleware('permission:users.create');
+        Route::get('/{user}', [UserManagementController::class, 'show'])->name('show')->middleware('permission:users.view');
         Route::get('/{user}/edit', [UserManagementController::class, 'edit'])->name('edit')->middleware('permission:users.edit');
         Route::put('/{user}', [UserManagementController::class, 'update'])->name('update')->middleware('permission:users.edit');
         Route::delete('/{user}', [UserManagementController::class, 'destroy'])->name('destroy')->middleware('permission:users.delete');

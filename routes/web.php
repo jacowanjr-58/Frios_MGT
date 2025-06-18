@@ -63,8 +63,8 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     Route::prefix('{franchisee}')->group(function () {
         // Profile routes
         Route::middleware('permission:profiles.view')->group(function () {
-            Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
-            Route::get('/profile/{profile}', [AdminProfileController::class, 'show'])->name('profile.show');
+        Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
+        Route::get('/profile/{profile}', [AdminProfileController::class, 'show'])->name('profile.show');
         });
         
         Route::get('/profile/create', [AdminProfileController::class, 'create'])->name('profile.create')->middleware('permission:profiles.create');
@@ -75,7 +75,7 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
 
         // Staff routes
         Route::middleware('permission:staff.view')->group(function () {
-            Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
+        Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
         });
         
         Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create')->middleware('permission:staff.create');
@@ -89,7 +89,7 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     Route::prefix('{franchisee}')->group(function () {
         // Order pops routes
         Route::middleware('permission:orders.view')->group(function () {
-            Route::get('/orderpops', [OrderPopsController::class, 'index'])->name('orderpops.index');
+        Route::get('/orderpops', [OrderPopsController::class, 'index'])->name('orderpops.index');
             Route::get('/orderpops/view', [OrderPopsController::class, 'viewOrders'])->name('orderpops.view');
             Route::get('/orderpops/confirm/page', [OrderPopsController::class, 'showConfirmPage'])->name('orderpops.confirm.page');
         });
@@ -109,11 +109,11 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     Route::prefix('{franchisee}/events')->group(function () {
         // Events view routes
         Route::middleware('permission:events.view')->group(function () {
-            Route::get('/', [EventController::class, 'index'])->name('events.index');
-            Route::get('/calender', [EventController::class, 'eventCalender'])->name('events.calender');
-            Route::get('/{id}/view', [EventController::class, 'view'])->name('events.view');
-            Route::get('/report', [EventController::class, 'report'])->name('events.report');
-            Route::get('/{event}/compare', [EventController::class, 'compare'])->name('events.compare');
+        Route::get('/', [EventController::class, 'index'])->name('events.index');
+        Route::get('/calender', [EventController::class, 'eventCalender'])->name('events.calender');
+        Route::get('/{id}/view', [EventController::class, 'view'])->name('events.view');
+        Route::get('/report', [EventController::class, 'report'])->name('events.report');
+        Route::get('/{event}/compare', [EventController::class, 'compare'])->name('events.compare');
         });
         
         Route::get('/create', [EventController::class, 'create'])->name('events.create')->middleware('permission:events.create');
@@ -126,8 +126,8 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     Route::prefix('{franchisee}')->group(function () {
         // Expense view routes
         Route::middleware('permission:expenses.view')->group(function () {
-            Route::get('expense', [ExpenseController::class, 'index'])->name('expense');
-            Route::get('get-subcategories/{category_id}', [ExpenseController::class, 'getSubCategories'])->name('getSubCategories');
+        Route::get('expense', [ExpenseController::class, 'index'])->name('expense');
+        Route::get('get-subcategories/{category_id}', [ExpenseController::class, 'getSubCategories'])->name('getSubCategories');
         });
         
         Route::get('expense-create', [ExpenseController::class, 'create'])->name('expense.create')->middleware('permission:expenses.create');
@@ -141,8 +141,8 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     Route::prefix('{franchisee}')->group(function () {
         // Customer view routes
         Route::middleware('permission:customers.view')->group(function () {
-            Route::get('customer', [CustomerController::class, 'index'])->name('customer');
-            Route::get('customer/{id}/view', [CustomerController::class, 'view'])->name('customer.view');
+        Route::get('customer', [CustomerController::class, 'index'])->name('customer');
+        Route::get('customer/{id}/view', [CustomerController::class, 'view'])->name('customer.view');
         });
         
         Route::get('customer-create', [CustomerController::class, 'create'])->name('customer.create')->middleware('permission:customers.create');
@@ -155,21 +155,21 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     Route::prefix('{franchisee}')->group(function () {
         // Payment routes
         Route::middleware('permission:payments.view')->group(function () {
-            Route::get('transactions', [PaymentController::class, 'transaction'])->name('transaction');
-            Route::get('pos/{id}/expense', [PaymentController::class, 'posExpense'])->name('pos.expense');
-            Route::get('pos/expenses/{id}/download', [PaymentController::class, 'posDownloadPDF'])->name('expenses.pos.download');
-            Route::get('pos/{id}/order', [PaymentController::class, 'posOrder'])->name('pos.order');
-            Route::get('pos/order/{id}/download', [PaymentController::class, 'posOrderDownloadPDF'])->name('order.pos.download');
-            Route::get('pos/{id}/event', [PaymentController::class, 'posEvent'])->name('pos.event');
-            Route::get('pos/event/{id}/download', [PaymentController::class, 'posEventDownloadPDF'])->name('event.pos.download');
-            Route::get('pos/invoice/{id}/download', [PaymentController::class, 'posInvoiceDownloadPDF'])->name('invoice.pos.download');
+        Route::get('transactions', [PaymentController::class, 'transaction'])->name('transaction');
+        Route::get('pos/{id}/expense', [PaymentController::class, 'posExpense'])->name('pos.expense');
+        Route::get('pos/expenses/{id}/download', [PaymentController::class, 'posDownloadPDF'])->name('expenses.pos.download');
+        Route::get('pos/{id}/order', [PaymentController::class, 'posOrder'])->name('pos.order');
+        Route::get('pos/order/{id}/download', [PaymentController::class, 'posOrderDownloadPDF'])->name('order.pos.download');
+        Route::get('pos/{id}/event', [PaymentController::class, 'posEvent'])->name('pos.event');
+        Route::get('pos/event/{id}/download', [PaymentController::class, 'posEventDownloadPDF'])->name('event.pos.download');
+        Route::get('pos/invoice/{id}/download', [PaymentController::class, 'posInvoiceDownloadPDF'])->name('invoice.pos.download');
         });
     });
     // Location
     Route::prefix('{franchisee}/locations')->name('franchise.locations.')->group(function () {
         // Location view routes
         Route::middleware('permission:locations.view')->group(function () {
-            Route::get('/', [InventoryLocationController::class, 'index'])->name('index');
+        Route::get('/', [InventoryLocationController::class, 'index'])->name('index');
         });
         
         Route::get('/create', [InventoryLocationController::class, 'create'])->name('create')->middleware('permission:locations.create');
@@ -184,11 +184,11 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
         // Invoice view routes
         Route::middleware('permission:invoices.view')->group(function () {
             Route::get('invoice', [InvoiceController::class, 'index'])->name('invoice.index');
-            Route::get('invoice/{id}/view', [InvoiceController::class, 'view'])->name('invoice.view');
-            Route::get('invoice/{id}/show', [InvoiceController::class, 'show'])->name('invoice.show');
-            Route::get('invoice/{id}/download', [InvoiceController::class, 'download'])->name('invoice.download');
+        Route::get('invoice/{id}/view', [InvoiceController::class, 'view'])->name('invoice.view');
+        Route::get('invoice/{id}/show', [InvoiceController::class, 'show'])->name('invoice.show');
+        Route::get('invoice/{id}/download', [InvoiceController::class, 'download'])->name('invoice.download');
         });
-        
+
         Route::get('invoice/create', [InvoiceController::class, 'create'])->name('invoice.create')->middleware('permission:invoices.create');
         Route::post('invoice', [InvoiceController::class, 'store'])->name('invoice.store')->middleware('permission:invoices.create');
         Route::get('invoice/{id}/edit', [InvoiceController::class, 'edit'])->name('invoice.edit')->middleware('permission:invoices.edit');
@@ -203,13 +203,13 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     Route::prefix('{franchisee}')->group(function () {
         // Expense Category routes
         Route::middleware('permission:expenses.categories')->group(function () {
-            Route::get('expense-category', [ExpensesCategoryController::class, 'indexExpense'])->name('expense-category');
-            Route::get('expense-category/create', [ExpensesCategoryController::class, 'createExpense'])->name('expense-category.create');
-            Route::get('expense-category/{id}/edit', [ExpensesCategoryController::class, 'editExpense'])->name('expense-category.edit');
-            Route::put('expense-category/{id}/update', [ExpensesCategoryController::class, 'updateExpense'])->name('expense-category.update');
-            Route::post('expense-category/store', [ExpensesCategoryController::class, 'storeExpense'])->name('expense-category.store');
-            Route::post('expense-sub-category/store', [ExpensesCategoryController::class, 'SubstoreExpense'])->name('expense-sub-category.store');
-            Route::delete('expense-sub-category/{id}/delete', [ExpensesCategoryController::class, 'deleteExpense'])->name('expense-sub-category.delete');
+        Route::get('expense-category', [ExpensesCategoryController::class, 'indexExpense'])->name('expense-category');
+        Route::get('expense-category/create', [ExpensesCategoryController::class, 'createExpense'])->name('expense-category.create');
+        Route::get('expense-category/{id}/edit', [ExpensesCategoryController::class, 'editExpense'])->name('expense-category.edit');
+        Route::put('expense-category/{id}/update', [ExpensesCategoryController::class, 'updateExpense'])->name('expense-category.update');
+        Route::post('expense-category/store', [ExpensesCategoryController::class, 'storeExpense'])->name('expense-category.store');
+        Route::post('expense-sub-category/store', [ExpensesCategoryController::class, 'SubstoreExpense'])->name('expense-sub-category.store');
+        Route::delete('expense-sub-category/{id}/delete', [ExpensesCategoryController::class, 'deleteExpense'])->name('expense-sub-category.delete');
         });
     });
 
@@ -367,7 +367,7 @@ Route::prefix('franchise')->name('franchise.')->middleware(['auth'])->group(func
     Route::prefix('{franchisee}/locations')->name('locations.')->group(function () {
         // Location view routes
         Route::middleware('permission:locations.view')->group(function () {
-            Route::get('/', [InventoryLocationController::class, 'index'])->name('index');
+        Route::get('/', [InventoryLocationController::class, 'index'])->name('index');
         });
         
         Route::get('/create', [InventoryLocationController::class, 'create'])->name('create')->middleware('permission:locations.create');

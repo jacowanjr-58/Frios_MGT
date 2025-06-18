@@ -51,7 +51,7 @@
                 <div class="row mb-4 align-items-center">
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
                         @can('frios_flavors.categories')
-                            <a href="{{ route('corporate_admin.fgpcategory.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Category</a>
+                            <a href="{{ route('fgpcategory.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Category</a>
                         @endcan
                     </div>
                     <div class="col-xl-9 col-lg-8">
@@ -117,7 +117,7 @@
             var table = $('#category-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('corporate_admin.fgpcategory.index') }}",
+                ajax: "{{ route('fgpcategory.index') }}",
                 columns: [
                     { data: 'name', name: 'name' },
                     { data: 'type', name: 'type' },

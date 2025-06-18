@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CorporateAdminControllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Franchisee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -19,12 +20,11 @@ class UserManagementController extends Controller
     public function index()
     {
         // Only count users not assigned to any franchise
-        $totalUsers = User::whereDoesntHave('franchisees')->count();
+        $totalUsers = User::with('franchisees')->count();
 
         if (request()->ajax()) {
             // Only get users who are not assigned to any franchise
-            $users = User::with('roles')
-                        ->whereDoesntHave('franchisees');
+            $users = User::with('roles','franchisees');
 
             return DataTables::of($users)
                 ->addColumn('role_display', function ($user) {
@@ -42,9 +42,9 @@ class UserManagementController extends Controller
                     return $user->created_at ? $user->created_at->format('d/m/Y') : 'N/A';
                 })
                 ->addColumn('action', function ($user) {
-                    $editUrl = route('corporate_admin.users.edit', $user->user_id);
-                    $deleteUrl = route('corporate_admin.users.destroy', $user->user_id);
-                    $viewUrl = route('corporate_admin.users.show', $user->user_id);
+                    $editUrl = route('users.edit', $user->user_id);
+                    $deleteUrl = route('users.destroy', $user->user_id);
+                    $viewUrl = route('users.show', $user->user_id);
 
                     $html = '<div class="d-flex gap-1">';
                     
@@ -82,8 +82,9 @@ class UserManagementController extends Controller
      */
     public function create()
     {
-        $roles = Role::all();
-        return view('corporate_admin.users.create', compact('roles'));
+        $roles = Role::whereNotIn('id', [1, 2])->get();
+        $franchises = Franchisee::all();
+        return view('corporate_admin.users.create', compact('roles', 'franchises'));
     }
 
     /**
@@ -95,12 +96,24 @@ class UserManagementController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'phone_number' => 'nullable|string|regex:/^\(\d{3}\) \d{3}-\d{4}$/',
-            'role' => 'required|exists:roles,name',
+            'role' => [
+                'required',
+                'exists:roles,name',
+                function ($attribute, $value, $fail) {
+                    $role = Role::where('name', $value)->first();
+                    if ($role && in_array($role->id, [1, 2])) {
+                        $fail('The selected role is not allowed.');
+                    }
+                },
+            ],
             'password' => 'required|min:8|confirmed',
+            'franchisee_id' => 'required|exists:franchisees,franchisee_id',
         ], [
             'phone_number.regex' => 'Phone number must be in format (123) 456-7890',
             'role.required' => 'Please select a role for the user',
             'role.exists' => 'Selected role is invalid',
+            'franchisee_id.required' => 'Please select a franchise',
+            'franchisee_id.exists' => 'Selected franchise is invalid',
         ]);
 
         try {
@@ -116,7 +129,12 @@ class UserManagementController extends Controller
             // Assign role using Spatie
             $user->assignRole($request->role);
 
-            return redirect()->route('corporate_admin.users.index')
+            // Attach franchise
+            if ($request->franchisee_id) {
+                $user->franchisees()->attach($request->franchisee_id);
+            }
+
+            return redirect()->route('users.index')
                 ->with('success', 'User created successfully.');
 
         } catch (\Exception $e) {
@@ -131,7 +149,7 @@ class UserManagementController extends Controller
      */
     public function show(User $user)
     {
-        $user->load('roles');
+        $user->load('roles', 'franchisees');
         return view('corporate_admin.users.show', compact('user'));
     }
 
@@ -140,9 +158,10 @@ class UserManagementController extends Controller
      */
     public function edit(User $user)
     {
-        $roles = Role::all();
-        $user->load('roles');
-        return view('corporate_admin.users.edit', compact('user', 'roles'));
+        $roles = Role::whereNotIn('id', [1, 2])->get();
+        $franchises = Franchisee::all();
+        $user->load('roles', 'franchisees');
+        return view('corporate_admin.users.edit', compact('user', 'roles', 'franchises'));
     }
 
     /**
@@ -154,12 +173,24 @@ class UserManagementController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->user_id . ',user_id',
             'phone_number' => 'nullable|string|regex:/^\(\d{3}\) \d{3}-\d{4}$/',
-            'role' => 'required|exists:roles,name',
+            'role' => [
+                'required',
+                'exists:roles,name',
+                function ($attribute, $value, $fail) {
+                    $role = Role::where('name', $value)->first();
+                    if ($role && in_array($role->id, [1, 2])) {
+                        $fail('The selected role is not allowed.');
+                    }
+                },
+            ],
             'password' => 'nullable|min:8|confirmed',
+            'franchisee_id' => 'required|exists:franchisees,franchisee_id',
         ], [
             'phone_number.regex' => 'Phone number must be in format (123) 456-7890',
             'role.required' => 'Please select a role for the user',
             'role.exists' => 'Selected role is invalid',
+            'franchisee_id.required' => 'Please select a franchise',
+            'franchisee_id.exists' => 'Selected franchise is invalid',
         ]);
 
         try {
@@ -180,7 +211,12 @@ class UserManagementController extends Controller
             // Update role using Spatie
             $user->syncRoles([$request->role]);
 
-            return redirect()->route('corporate_admin.users.index')
+            // Sync franchise (single franchise)
+            if ($request->franchisee_id) {
+                $user->franchisees()->sync([$request->franchisee_id]);
+            }
+
+            return redirect()->route('users.index')
                 ->with('success', 'User updated successfully.');
 
         } catch (\Exception $e) {
@@ -198,17 +234,17 @@ class UserManagementController extends Controller
         try {
             // Prevent deleting the current user
             if ($user->user_id === Auth::user()->user_id) {
-                return redirect()->route('corporate_admin.users.index')
+                return redirect()->route('users.index')
                     ->with('error', 'You cannot delete your own account.');
             }
 
             $user->delete();
 
-            return redirect()->route('corporate_admin.users.index')
+            return redirect()->route('users.index')
                 ->with('success', 'User deleted successfully.');
 
         } catch (\Exception $e) {
-            return redirect()->route('corporate_admin.users.index')
+            return redirect()->route('users.index')
                 ->with('error', 'Error deleting user: ' . $e->getMessage());
         }
     }

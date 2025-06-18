@@ -31,7 +31,7 @@
                             </div>
                         @endif
 
-                        <form id="edit-order-form" action="{{ route('corporate_admin.vieworders.update', $order->fgp_ordersID) }}" method="POST">
+                        <form id="edit-order-form" action="{{ route('vieworders.update', $order->fgp_ordersID) }}" method="POST">
                             @csrf
                             @method('PUT')
 

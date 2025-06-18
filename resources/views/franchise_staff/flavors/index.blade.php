@@ -365,24 +365,18 @@
                 let orderableValue = $(this).val();
 
                 $.ajax({
-                    url: "{{ route('corporate_admin.fgpitem.updateOrderable') }}",
+                    url: "{{ route('fgpitem.updateOrderable') }}",
                     type: "POST",
                     data: {
-                        _token: "{{ csrf_token() }}",
-                        id: itemId,
-                        orderable: orderableValue
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        item_id: itemId,
+                        pop_orderable: orderableValue
                     },
                     success: function(response) {
-                        console.log(response);
-                        if (response.success) {
-                            // location.reload();
-                        } else {
-                            alert("Error: " + response.message);
-                        }
+                        console.log('Success:', response);
                     },
                     error: function(xhr, status, error) {
-                        console.error(xhr.responseText);
-                        alert("AJAX Error: " + xhr.responseText);
+                        console.error('Error:', error);
                     }
                 });
             });

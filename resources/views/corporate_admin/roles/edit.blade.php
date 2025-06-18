@@ -9,7 +9,7 @@
                     <div class="card-header">
                         <h4 class="card-title">Update Role</h4>
                         <div class="card-header-right">
-                            <a href="{{ route('corporate_admin.roles.index') }}" class="btn btn-secondary btn-sm">
+                            <a href="{{ route('roles.index') }}" class="btn btn-secondary btn-sm">
                                 <i class="fa fa-arrow-left"></i> Back to Roles
                             </a>
                         </div>
@@ -26,7 +26,7 @@
                             </div>
                         @endif
 
-                        <form action="{{ route('corporate_admin.roles.update', $role) }}" method="POST" id="roleForm">
+                        <form action="{{ route('roles.update', $role) }}" method="POST" id="roleForm">
                             @csrf
                             @method('PUT')
                             
@@ -101,7 +101,7 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fa fa-save"></i> Update Role
                                 </button>
-                                <a href="{{ route('corporate_admin.roles.index') }}" class="btn btn-secondary">
+                                <a href="{{ route('roles.index') }}" class="btn btn-secondary">
                                     <i class="fa fa-times"></i> Cancel
                                 </a>
                             </div>
@@ -155,8 +155,8 @@ document.getElementById('roleForm').addEventListener('submit', function(e) {
     if (!giveAllPermissions && selectedPermissions === 0) {
         const confirmUpdate = confirm('You are updating this role to have no permissions. Users with this role will have no access. Do you want to continue?');
         if (!confirmUpdate) {
-            e.preventDefault();
-            return;
+        e.preventDefault();
+        return;
         }
     }
 });

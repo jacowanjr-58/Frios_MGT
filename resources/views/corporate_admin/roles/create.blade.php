@@ -1,16 +1,27 @@
 @extends('layouts.app')
 
+@section('title', 'Create Role')
+
 @section('content')
-    <div class="content-body">
         <div class="container-fluid">
+        <div class="page-titles">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('roles.index') }}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Roles
+                </a></li>
+                <li class="breadcrumb-item active">Create Role</li>
+            </ol>
+        </div>
+
             <div class="row">
-                <div class="col-12">
+            <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4 class="card-title">Create Role</h4>
-                            <div class="card-header-right">
-                                <a href="{{ route('corporate_admin.roles.index') }}" class="btn btn-secondary btn-sm">
-                                    <i class="fa fa-arrow-left"></i> Back to Roles
+                        <h4 class="card-title">Create New Role</h4>
+                        <div class="card-action">
+                            <a href="{{ route('roles.index') }}" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Roles
                                 </a>
                             </div>
                         </div>
@@ -26,51 +37,43 @@
                                 </div>
                             @endif
 
-                            <form action="{{ route('corporate_admin.roles.store') }}" method="POST" id="roleForm">
+                        <form action="{{ route('roles.store') }}" method="POST" id="roleForm">
                                 @csrf
 
-                                <!-- Role Name -->
-                                <div class="mb-4">
-                                    <label for="role_name" class="form-label">Role Name <span
-                                            class="text-danger">*</span></label>
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Role Name <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                        id="role_name" name="name" value="{{ old('name') }}" placeholder="Enter role name"
-                                        required>
+                                       id="name" name="name" value="{{ old('name') }}" required>
                                     @error('name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <!-- Permissions -->
-                                <div class="mb-4">
-                                    <label class="form-label">Permissions <span class="text-danger">*</span></label>
-
                                     <div class="mb-3">
+                                <label class="form-label">Permissions</label>
+                                <div class="row">
+                                    @foreach($permissions->groupBy(function($permission) { return explode('.', $permission->name)[0]; }) as $module => $modulePermissions)
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="card">
+                                            <div class="card-header py-2">
+                                                <h6 class="mb-0">{{ ucfirst(str_replace('_', ' ', $module)) }}</h6>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="give_all_permissions"
-                                                name="give_all_permissions" onchange="toggleAllPermissions()">
-                                            <label class="form-check-label fw-bold" for="give_all_permissions">
-                                                Give All Permissions
+                                                    <input class="form-check-input module-checkbox" type="checkbox" 
+                                                           id="module_{{ $module }}" data-module="{{ $module }}">
+                                                    <label class="form-check-label" for="module_{{ $module }}">
+                                                        Select All
                                             </label>
                                         </div>
                                     </div>
-
-                                    <div class="row" id="permissions-container">
-                                        @foreach($permissions as $module => $modulePermissions)
-                                            <div class="col-md-4 mb-4">
-                                                <div class="card border">
-                                                    <div class="card-header bg-light py-2">
-                                                        <h6 class="mb-0 fw-semibold">{{ $module }}</h6>
-                                                    </div>
-                                                    <div class="card-body py-3">
+                                            <div class="card-body py-2">
                                                         @foreach($modulePermissions as $permission)
-                                                            <div class="form-check form-switch mb-2">
+                                                <div class="form-check">
                                                                 <input class="form-check-input permission-checkbox" type="checkbox"
-                                                                    id="permission_{{ $permission['id'] }}" name="permissions[]"
-                                                                    value="{{ $permission['id'] }}">
-                                                                <label class="form-check-label"
-                                                                    for="permission_{{ $permission['id'] }}">
-                                                                    {{ $permission['display_name'] }}
+                                                           value="{{ $permission->name }}" id="permission_{{ $permission->id }}" 
+                                                           name="permissions[]" data-module="{{ $module }}"
+                                                           {{ in_array($permission->name, old('permissions', [])) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="permission_{{ $permission->id }}">
+                                                        {{ ucfirst(str_replace(['_', '.'], [' ', ' '], $permission->name)) }}
                                                                 </label>
                                                             </div>
                                                         @endforeach
@@ -79,102 +82,60 @@
                                             </div>
                                         @endforeach
                                     </div>
+                                @error('permissions')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                                 </div>
 
-                                <!-- Submit Button -->
-                                <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fa fa-save"></i> Create Role
-                                    </button>
-                                    <a href="{{ route('corporate_admin.roles.index') }}" class="btn btn-secondary">
-                                        <i class="fa fa-times"></i> Cancel
-                                    </a>
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary">Create Role</button>
+                                <a href="{{ route('roles.index') }}" class="btn btn-secondary ms-2">Cancel</a>
                                 </div>
                             </form>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@endsection
 
-@push('scripts')
     <script>
-        function toggleAllPermissions() {
-            const giveAllCheckbox = document.getElementById('give_all_permissions');
-            const permissionCheckboxes = document.querySelectorAll('.permission-checkbox');
-            const permissionsContainer = document.getElementById('permissions-container');
-
-            if (giveAllCheckbox.checked) {
-                // Hide individual permissions and check all
-                permissionsContainer.style.opacity = '0.5';
-                permissionsContainer.style.pointerEvents = 'none';
-                permissionCheckboxes.forEach(checkbox => {
-                    checkbox.checked = true;
-                    checkbox.disabled = true;
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle module checkbox changes
+        document.querySelectorAll('.module-checkbox').forEach(function(moduleCheckbox) {
+            moduleCheckbox.addEventListener('change', function() {
+                const module = this.dataset.module;
+                const isChecked = this.checked;
+                
+                document.querySelectorAll(`.permission-checkbox[data-module="${module}"]`).forEach(function(permissionCheckbox) {
+                    permissionCheckbox.checked = isChecked;
                 });
-            } else {
-                // Show individual permissions and enable selection
-                permissionsContainer.style.opacity = '1';
-                permissionsContainer.style.pointerEvents = 'auto';
-                permissionCheckboxes.forEach(checkbox => {
-                    checkbox.disabled = false;
-                });
-            }
-        }
-
-        // Form validation
-        document.getElementById('roleForm').addEventListener('submit', function (e) {
-            const roleName = document.getElementById('role_name').value.trim();
-            const giveAllPermissions = document.getElementById('give_all_permissions').checked;
-            const selectedPermissions = document.querySelectorAll('.permission-checkbox:checked').length;
-
-            if (!roleName) {
-                e.preventDefault();
-                alert('Please enter a role name.');
-                return;
-            }
-
-            // Optional: Warn if no permissions are selected (but still allow creation)
-            if (!giveAllPermissions && selectedPermissions === 0) {
-                const confirmCreate = confirm('You are creating a role with no permissions. Users with this role will have no access. Do you want to continue?');
-                if (!confirmCreate) {
-                    e.preventDefault();
-                    return;
-                }
-            }
+            });
         });
 
-        // Add module toggle functionality
-        document.addEventListener('DOMContentLoaded', function () {
-            // Add "Select All" checkboxes to each module
-            const modules = document.querySelectorAll('#permissions-container .card');
-
-            modules.forEach(module => {
-                const header = module.querySelector('.card-header h6');
-                const checkboxes = module.querySelectorAll('.permission-checkbox');
-
-                if (checkboxes.length > 1) {
-                    const selectAllCheckbox = document.createElement('input');
-                    selectAllCheckbox.type = 'checkbox';
-                    selectAllCheckbox.className = 'form-check-input me-2';
-                    selectAllCheckbox.style.transform = 'scale(0.8)';
-
-                    selectAllCheckbox.addEventListener('change', function () {
-                        checkboxes.forEach(checkbox => {
-                            if (!checkbox.disabled) {
-                                checkbox.checked = this.checked;
-                            }
-                        });
-                    });
-
-                    header.insertBefore(selectAllCheckbox, header.firstChild);
+        // Handle individual permission checkbox changes
+        document.querySelectorAll('.permission-checkbox').forEach(function(permissionCheckbox) {
+            permissionCheckbox.addEventListener('change', function() {
+                const module = this.dataset.module;
+                const moduleCheckbox = document.querySelector(`.module-checkbox[data-module="${module}"]`);
+                const modulePermissions = document.querySelectorAll(`.permission-checkbox[data-module="${module}"]`);
+                const checkedPermissions = document.querySelectorAll(`.permission-checkbox[data-module="${module}"]:checked`);
+                
+                // Update module checkbox state
+                if (checkedPermissions.length === modulePermissions.length) {
+                    moduleCheckbox.checked = true;
+                    moduleCheckbox.indeterminate = false;
+                } else if (checkedPermissions.length > 0) {
+                    moduleCheckbox.checked = false;
+                    moduleCheckbox.indeterminate = true;
+                } else {
+                    moduleCheckbox.checked = false;
+                    moduleCheckbox.indeterminate = false;
                 }
+            });
             });
         });
     </script>
-@endpush
+@endsection
 
 @push('styles')
     <style scoped>

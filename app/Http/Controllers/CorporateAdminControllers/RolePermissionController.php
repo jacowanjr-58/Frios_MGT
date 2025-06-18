@@ -8,6 +8,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Auth;
 
 class RolePermissionController extends Controller
 {
@@ -56,8 +57,8 @@ class RolePermissionController extends Controller
                     }
                 })
                 ->addColumn('action', function ($role) {
-                    $editUrl = route('corporate_admin.roles.edit', $role);
-                    $deleteUrl = route('corporate_admin.roles.destroy', $role);
+                    $editUrl = route('roles.edit', $role);
+                    $deleteUrl = route('roles.destroy', $role);
                     
                     $protectedRoles = ['corporate_admin', 'franchise_admin', 'franchise_manager', 'franchise_staff'];
                     $isProtected = in_array($role->name, $protectedRoles);
@@ -134,7 +135,7 @@ class RolePermissionController extends Controller
                 ? 'Role created successfully with all permissions assigned.'
                 : 'Role created successfully with selected permissions assigned.';
 
-            return redirect()->route('corporate_admin.roles.index')
+            return redirect()->route('roles.index')
                 ->with('success', $message);
 
         } catch (\Exception $e) {
@@ -193,7 +194,7 @@ class RolePermissionController extends Controller
                 ? 'Role updated successfully with all permissions assigned.'
                 : 'Role updated successfully with selected permissions assigned.';
 
-            return redirect()->route('corporate_admin.roles.index')
+            return redirect()->route('roles.index')
                 ->with('success', $message);
 
         } catch (\Exception $e) {
@@ -213,16 +214,16 @@ class RolePermissionController extends Controller
         $protectedRoles = ['corporate_admin', 'franchise_admin', 'franchise_manager', 'franchise_staff'];
         
         if (in_array($role->name, $protectedRoles)) {
-            return redirect()->route('corporate_admin.roles.index')
+            return redirect()->route('roles.index')
                 ->with('error', 'Cannot delete system role: ' . $role->name);
         }
 
         try {
             $role->delete();
-            return redirect()->route('corporate_admin.roles.index')
+            return redirect()->route('roles.index')
                 ->with('success', 'Role deleted successfully.');
         } catch (\Exception $e) {
-            return redirect()->route('corporate_admin.roles.index')
+            return redirect()->route('roles.index')
                 ->with('error', 'Error deleting role: ' . $e->getMessage());
         }
     }

@@ -41,7 +41,7 @@
                                             <!-- Display Success Message -->
 
 
-                                            <form action="{{ route('corporate_admin.fgpcategory.store') }}" method="POST">
+                                            <form action="{{ route('fgpcategory.store') }}" method="POST">
                                                 @csrf
 
                                                 <div class="row">

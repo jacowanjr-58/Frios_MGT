@@ -152,7 +152,7 @@
             $('#transaction-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('corporate_admin.transaction') }}",
+                ajax: "{{ route('transaction') }}",
                 columns: [
                     { data: 'cardholder_name', name: 'cardholder_name' },
                     { data: 'amount', name: 'amount' },

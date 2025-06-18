@@ -111,7 +111,7 @@
             $('#expense-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('corporate_admin.expense.franchisee') }}",
+                ajax: "{{ route('expense.franchisee') }}",
                 columns: [
                     { data: 'franchise', name: 'franchise' },
                     { data: 'name', name: 'name' },

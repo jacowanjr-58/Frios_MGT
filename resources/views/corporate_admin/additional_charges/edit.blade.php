@@ -40,7 +40,7 @@
 
                                             <!-- Display Success Message -->
 
-                                            <form action="{{ route('corporate_admin.additionalcharges.update', $additionalcharges->additionalcharges_id) }}" method="POST">
+                                            <form action="{{ route('additionalcharges.update', $additionalcharges->additionalcharges_id) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
 

@@ -78,6 +78,7 @@ class FranchiseStaffController extends Controller
 
 
     public function index() {
+       
         $data['customers'] = Customer::where('franchisee_id' , Auth::user()->franchisee_id)->get();
         $data['customerCount'] = Customer::where('franchisee_id' , Auth::user()->franchisee_id)->count();
         return view('franchise_staff.customer.index' ,$data);

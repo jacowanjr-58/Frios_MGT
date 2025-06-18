@@ -54,7 +54,7 @@
                 <div class="row mb-4 align-items-center">
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
                         @can('users.create')
-                            <a href="{{ route('corporate_admin.users.create') }}"
+                            <a href="{{ route('users.create') }}"
                                 class="btn btn-secondary btn-lg btn-block rounded text-white">+ Add User</a>
                         @endcan
                     </div>
@@ -121,7 +121,7 @@
             $('#users-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('corporate_admin.users.index') }}",
+                ajax: "{{ route('users.index') }}",
                 columns: [
                     { data: 'name', name: 'name' },
                     { data: 'email', name: 'email' },

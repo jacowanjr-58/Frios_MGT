@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CorporateAdminControllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Franchisee;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
@@ -13,6 +14,7 @@ class FranchiseController extends Controller
     // Show all franchises
     public function index()
     {
+      
         $totalFranchises = Franchisee::count();
         if (request()->ajax()) {
             $franchisees = Franchisee::query();
@@ -32,9 +34,17 @@ class FranchiseController extends Controller
                 ->filterColumn('location_zip', function ($query, $keyword) {
                     $query->where('location_zip', 'like', "%$keyword%");
                 })
+                ->addColumn('customer_count', function ($franchisee) {
+                    $customerCount = Customer::where('franchisee_id', $franchisee->franchisee_id)->count();
+                    $franchiseCustomerUrl = route('franchise_customer', ['franchise_filter' => $franchisee->franchisee_id]);
+                    
+                    return '<a href="' . $franchiseCustomerUrl . '" class="text-primary fw-bold text-decoration-none">
+                                <span class="badge bg-info fs-12">' . $customerCount . ' Customers</span>
+                            </a>';
+                })
                 ->addColumn('action', function ($franchisee) {
-                    $editUrl = route('corporate_admin.franchise.edit', $franchisee->franchisee_id);
-                    $deleteUrl = route('corporate_admin.franchise.destroy', $franchisee->franchisee_id);
+                    $editUrl = route('franchise.edit', $franchisee->franchisee_id);
+                    $deleteUrl = route('franchise.destroy', $franchisee->franchisee_id);
 
                     $actions = '<div class="d-flex">';
                     
@@ -60,7 +70,7 @@ class FranchiseController extends Controller
                     
                     return $actions;
                 })
-                ->rawColumns(['action', 'location_zip'])
+                ->rawColumns(['action', 'location_zip', 'customer_count'])
                 ->make(true);
         }
 
@@ -74,7 +84,6 @@ class FranchiseController extends Controller
     }
 
     // Store franchise
-
 public function store(Request $request)
 {
     // Validate Input Fields
@@ -101,9 +110,8 @@ public function store(Request $request)
     notify()->success('Franchise created successfully.');
 
     // Redirect to Index Page
-    return redirect()->route('corporate_admin.franchise.index');
+        return redirect()->route('franchise.index');
 }
-
 
     // Show edit form
     public function edit(Franchisee $franchise)
@@ -111,7 +119,6 @@ public function store(Request $request)
         $franchise->location_zip = explode(',', $franchise->location_zip ?? '');
         return view('corporate_admin.franchise.edit', compact('franchise'));
     }
-
 
     // Update franchise
     public function update(Request $request, Franchisee $franchise)
@@ -137,9 +144,8 @@ public function store(Request $request)
 
         $franchise->update($requestData);
 
-        return redirect()->route('corporate_admin.franchise.index')->with('success', 'Franchise updated successfully.');
+        return redirect()->route('franchise.index')->with('success', 'Franchise updated successfully.');
     }
-
 
     // Delete franchise
     public function destroy(Franchisee $franchise)
@@ -150,7 +156,7 @@ public function store(Request $request)
             return response()->json(['success' => true]);
         }
 
-        return redirect()->route('corporate_admin.franchise.index')->with('success', 'Franchise deleted successfully.');
+        return redirect()->route('franchise.index')->with('success', 'Franchise deleted successfully.');
     }
 
     public function show(Franchisee $franchise)
@@ -160,5 +166,4 @@ public function store(Request $request)
 
     return view('corporate_admin.franchise.view', compact('franchise'));
 }
-
 }

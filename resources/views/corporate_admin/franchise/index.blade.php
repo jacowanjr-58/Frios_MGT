@@ -43,7 +43,7 @@
 
     {{-- <div class="container">
         <h1>Franchise List</h1>
-        <a href="{{ route('corporate_admin.franchise.create') }}" class="btn btn-primary">Add Franchise</a>
+        <a href="{{ route('franchise.create') }}" class="btn btn-primary">Add Franchise</a>
 
         @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -67,9 +67,9 @@
                     <td>{{ $franchise->state }}</td>
                     <td>{{ $franchise->zip_code }}</td>
                     <td>
-                        <a href="{{ route('corporate_admin.franchise.edit', $franchise->franchisee_id) }}"
+                        <a href="{{ route('franchise.edit', $franchise->franchisee_id) }}"
                             class="btn btn-warning">Edit</a>
-                        <form action="{{ route('corporate_admin.franchise.destroy', $franchise->franchisee_id) }}"
+                        <form action="{{ route('franchise.destroy', $franchise->franchisee_id) }}"
                             method="POST" style="display:inline;">
                             @csrf @method('DELETE')
                             <button type="submit" class="btn btn-danger"
@@ -98,7 +98,7 @@
             <div class="row mb-4 align-items-center">
                 <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
                     @can('franchises.create')
-                        <a href="{{ route('corporate_admin.franchise.create') }}"
+                        <a href="{{ route('franchise.create') }}"
                             class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Franchise</a>
                     @endcan
                 </div>
@@ -130,6 +130,9 @@
                                     {{-- <th>Sr No.</th> --}}
                                     <th>Business Name</th>
                                     <th>Contact Number</th>
+                                    <th>
+                                        <a href="javascript:void(0)" class="text-decoration-none">Total Customers</a>
+                                    </th>
                                     <th>Frios Territory Name</th>
                                     <th>City</th>
                                     <th>State</th>
@@ -160,7 +163,7 @@
                 $('#franchise-table').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "{{ route('corporate_admin.franchise.index') }}",
+                    ajax: "{{ route('franchise.index') }}",
                     columns: [
                         { data: 'business_name', name: 'business_name' },
                         {
@@ -170,6 +173,7 @@
                                 return data && data.trim() !== '' ? data : 'N/A';
                             }
                         },
+                        { data: 'customer_count', name: 'customer_count', orderable: false, searchable: false },
                         {
                             data: 'frios_territory_name',
                             name: 'frios_territory_name',

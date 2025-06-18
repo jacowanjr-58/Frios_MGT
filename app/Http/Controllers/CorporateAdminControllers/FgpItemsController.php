@@ -36,8 +36,8 @@ class FgpItemsController extends Controller
                     });
                 })
                 ->addColumn('action', function ($item) {
-                    $editUrl = route('corporate_admin.fgpitem.edit', $item->fgp_item_id);
-                    $deleteUrl = route('corporate_admin.fgpitem.destroy', $item->fgp_item_id);
+                    $editUrl = route('fgpitem.edit', $item->fgp_item_id);
+                    $deleteUrl = route('fgpitem.destroy', $item->fgp_item_id);
 
                     $actions = '<div class="d-flex">';
                     

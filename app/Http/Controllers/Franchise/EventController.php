@@ -248,41 +248,54 @@ class EventController extends Controller
 
     public function eventCalenderAdmin()
     {
-        $events = Event::get();
-        $badgeEvents = Event::orderBy('created_at', 'DESC')
-            ->get();
+        $events = Event::with(['franchise', 'items.item'])
+            ->get()
+            ->map(function ($event) {
+                return [
+                    'id' => $event->id,
+                    'title' => $event->event_name,
+                    'start' => $event->event_date . 'T' . $event->start_time,
+                    'end' => $event->event_date . 'T' . $event->end_time,
+                    'backgroundColor' => $this->getEventColor($event->status),
+                    'borderColor' => $this->getEventColor($event->status),
+                    'textColor' => '#ffffff',
+                    'allDay' => false,
+                ];
+            });
 
-        // Group by year and month
-        $distinctEvents = $badgeEvents->groupBy(function ($event) {
-            return Carbon::parse($event->created_at)->format('Y-m'); // Group by Year-Month (e.g., 2025-05)
-        });
+        $uniqueEvents = Event::with('franchise')->get();
 
-        // Take the first event of each group
-        $uniqueEvents = $distinctEvents->map(function ($group) {
-            return $group->first(); // Get the first event in each group
-        });
         return view('corporate_admin.event.calender', compact('events', 'uniqueEvents'));
     }
 
     public function viewAdmin($id)
     {
-        $event = Event::where('id', $id)->firstorfail();
-        $eventItems = FranchiseEventItem::where('event_id', $event->id)->get();
+        $event = Event::with(['franchise', 'items.item'])->findOrFail($id);
+        $eventItems = $event->items()->with('item')->get();
+
         return view('corporate_admin.event.view', compact('event', 'eventItems'));
     }
 
-    public function eventReportAdmin(Request $request)
+    private function getEventColor($status)
     {
-        $monthYear = $request->input('month_year', Carbon::now()->format('Y-m'));
+        switch ($status) {
+            case 'pending':
+                return '#ffc107'; // Yellow
+            case 'confirmed':
+                return '#28a745'; // Green
+            case 'cancelled':
+                return '#dc3545'; // Red
+            case 'completed':
+                return '#007bff'; // Blue
+            default:
+                return '#6c757d'; // Gray
+        }
+    }
 
-        // Extract year and month from the provided monthYear
-        $year = Carbon::parse($monthYear)->year;
-        $month = Carbon::parse($monthYear)->month;
+    public function eventReportAdmin()
+    {
+        $eventItems = EventItem::with(['event.franchise', 'item'])->get();
 
-        // Fetch the data based on the selected or default month/year
-        $eventItems = FranchiseEventItem::whereYear('created_at', $year)
-            ->whereMonth('created_at', $month)
-            ->get();
         return view('corporate_admin.event.report', compact('eventItems'));
     }
 }

@@ -61,7 +61,7 @@
                                             <div class="col-lg-12">
                                                 <div class="table-responsive rounded">
                                                     @if (!empty($items))
-                                                    <form action="{{ route('corporate_admin.orderpops.store') }}" method="POST">
+                                                    <form action="{{ route('orderpops.store') }}" method="POST">
                                                         <div class="row">
                                                             <div class="mb-3 col-md-6">
                                                                 <label class="form-label">Franchise <span class="text-danger">*</span></label>

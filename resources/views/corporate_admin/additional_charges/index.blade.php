@@ -100,7 +100,7 @@
             
             <div class="row mb-4 align-items-center">
                 <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                    <a href="{{ route('corporate_admin.additionalcharges.create') }}"
+                    <a href="{{ route('additionalcharges.create') }}"
                         class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Charges</a>
                 </div>
                 <div class="col-xl-9 col-lg-8">
@@ -158,7 +158,7 @@
             var table = $('#charges-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('corporate_admin.additionalcharges.index') }}",
+                ajax: "{{ route('additionalcharges.index') }}",
                 columns: [
                     { data: 'charge_name', name: 'charge_name' },
                     { data: 'charge_amount', name: 'charge_price' },

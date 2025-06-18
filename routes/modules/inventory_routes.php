@@ -44,27 +44,33 @@ Route::middleware(['auth'])
     // View inventory routes
     Route::middleware('permission:inventory.view')->group(function () {
         Route::get('/', [InventoryController::class, 'index'])
-             ->name('index');
+             ->name('index')->middleware('permission:inventory.view');
     });
 
-    Route::get('create', [InventoryController::class, 'create'])
-         ->name('create')->middleware('permission:inventory.create');
+    Route::middleware('permission:inventory.create')->group(function () {
+        Route::get('create', [InventoryController::class, 'create'])
+            ->name('create');
 
-    Route::post('store', [InventoryController::class, 'store'])
-         ->name('store')->middleware('permission:inventory.create');
+        Route::post('store', [InventoryController::class, 'store'])
+            ->name('store');
+    });
 
     // (If you need a "show" page for a single master line, uncomment next two lines)
     // Route::get('{inventoryMaster}', [InventoryController::class, 'show'])
     //      ->name('show')->middleware('permission:inventory.view');
 
-    Route::get('{inventoryMaster}/edit', [InventoryController::class, 'edit'])
-         ->name('edit')->middleware('permission:inventory.edit');
+    Route::middleware('permission:inventory.edit')->group(function () {
+        Route::get('{inventoryMaster}/edit', [InventoryController::class, 'edit'])
+            ->name('edit');
 
-    Route::put('{inventoryMaster}', [InventoryController::class, 'update'])
-         ->name('update')->middleware('permission:inventory.edit');
+        Route::put('{inventoryMaster}', [InventoryController::class, 'update'])
+            ->name('update');
+    });
 
-    Route::delete('{inventoryMaster}', [InventoryController::class, 'destroy'])
-         ->name('destroy')->middleware('permission:inventory.delete');
+    Route::middleware('permission:inventory.delete')->group(function () {
+         Route::delete('{inventoryMaster}', [InventoryController::class, 'destroy'])
+            ->name('destroy');
+    });
 
 
     /**

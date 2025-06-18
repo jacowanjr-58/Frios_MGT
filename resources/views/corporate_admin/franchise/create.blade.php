@@ -49,7 +49,7 @@
                                     <div class="card-body">
                                         <div class="basic-form">
                                             <!-- Display Success Message -->
-                                            <form action="{{ route('corporate_admin.franchise.store') }}" method="POST">
+                                            <form action="{{ route('franchise.store') }}" method="POST">
                                                 @csrf
                                                 <div class="row">
                                                     <!-- Left Side Fields -->

@@ -48,8 +48,8 @@ class PaymentController extends Controller
                     return '<span class="badge bg-'.$statusClass.'">' . ucfirst($transaction->stripe_status) . '</span>';
                 })
                 ->addColumn('action', function ($transaction) {
-                    $viewUrl = route('corporate_admin.pos.order', $transaction->id);
-                    $downloadUrl = route('corporate_admin.order.pos.download', $transaction->id);
+                    $viewUrl = route('pos.order', $transaction->id);
+                    $downloadUrl = route('order.pos.download', $transaction->id);
 
                     return '
                     <div class="d-flex">

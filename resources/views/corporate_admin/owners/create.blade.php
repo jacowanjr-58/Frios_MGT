@@ -49,7 +49,7 @@
                                     <div class="card-body">
                                         <div class="basic-form">
                                             <!-- Display Success Message -->
-                                            <form action="{{ route('corporate_admin.owner.store') }}" method="POST" enctype="multipart/form-data">
+                                            <form action="{{ route('owner.store') }}" method="POST" enctype="multipart/form-data">
                                                 @csrf
 
                                                 <div class="row">

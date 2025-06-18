@@ -40,7 +40,7 @@
                                             <!-- Display Success Message -->
 
 
-                                            <form action="{{ route('corporate_admin.fgpcategory.update', $fgpcategory->category_ID) }}" method="POST">
+                                            <form action="{{ route('fgpcategory.update', $fgpcategory->category_ID) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
 

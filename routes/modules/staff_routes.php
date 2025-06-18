@@ -9,25 +9,25 @@ use App\Http\Controllers\Franchise\PaymentController;
 Route::middleware(['auth'])->group(function () {
     Route::get('/staff/dashboard', [FranchiseStaffController::class, 'dashboard'])->middleware('permission:dashboard.view');
 
-    Route::prefix('franchise_staff')->name('franchise_staff.')->group(function (){
+    Route::name('franchise_staff.')->group(function (){
 
         // Events routes
         Route::middleware('permission:events.view')->group(function () {
-            Route::get('calendar' , [FranchiseStaffController::class , 'calendar'])->name('events.calendar');
-            Route::get('report' , [FranchiseStaffController::class , 'report'])->name('events.report');
-            Route::get('events/{id}/view' , [FranchiseStaffController::class , 'eventView'])->name('events.view');
+            Route::get('calendar' , [FranchiseStaffController::class , 'calendar'])->name('events.calendar')->middleware('permission:events.view');
+            Route::get('report' , [FranchiseStaffController::class , 'report'])->name('events.report')->middleware('permission:events.view');
+            Route::get('events/{id}/view' , [FranchiseStaffController::class , 'eventView'])->name('events.view')->middleware('permission:events.view');
         });
 
         // Flavors routes
         Route::middleware('permission:flavors.view')->group(function () {
-            Route::get('flavors' , [FranchiseStaffController::class , 'flavors'])->name('flavors');
-            Route::get('/flavors/detail', [FranchiseStaffController::class, 'flavorsDetail'])->name('flavors.detail');
+            Route::get('flavors' , [FranchiseStaffController::class , 'flavors'])->name('flavors')->middleware('permission:flavors.view');
+            Route::get('/flavors/detail', [FranchiseStaffController::class, 'flavorsDetail'])->name('flavors.detail')->middleware('permission:flavors.view');
         });
 
         // Customer routes
         Route::middleware('permission:customers.view')->group(function () {
-            Route::get('customer' , [FranchiseStaffController::class , 'index'])->name('customer');
-            Route::get('customer/{id}/view' , [FranchiseStaffController::class , 'view'])->name('customer.view');
+            Route::get('customer' , [FranchiseStaffController::class , 'index'])->name('customer')->middleware('permission:customers.view');
+            Route::get('customer/{id}/view' , [FranchiseStaffController::class , 'view'])->name('customer.view')->middleware('permission:customers.view');
         });
         
         Route::get('customer-create' , [FranchiseStaffController::class , 'create'])->name('customer.create')->middleware('permission:customers.create');
@@ -38,9 +38,9 @@ Route::middleware(['auth'])->group(function () {
 
         // Sales routes
         Route::middleware('permission:sales.view')->group(function () {
-            Route::get('sales', [SaleController::class, 'index'])->name('sales.index');
-            Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
-            Route::get('pos/sales/{id}/download', [PaymentController::class, 'posInvoiceDownloadPDF'])->name('sales.pos.download');
+            Route::get('sales', [SaleController::class, 'index'])->name('sales.index')->middleware('permission:sales.view');
+            Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show')->middleware('permission:sales.view');
+            Route::get('pos/sales/{id}/download', [PaymentController::class, 'posInvoiceDownloadPDF'])->name('sales.pos.download')->middleware('permission:sales.view');
         });
         
         Route::get('sales/create', [SaleController::class, 'create'])->name('sales.create')->middleware('permission:sales.create');

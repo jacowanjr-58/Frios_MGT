@@ -52,7 +52,7 @@
                                             <!-- Display Success Message -->
 
 
-                                            <form action="{{ route('corporate_admin.owner.update', $owner->user_id) }}" method="POST" enctype="multipart/form-data">
+                                            <form action="{{ route('owner.update', $owner->user_id) }}" method="POST" enctype="multipart/form-data">
                                                 @csrf
                                                 @method('PUT')
 

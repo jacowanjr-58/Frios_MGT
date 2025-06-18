@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Roles & Permissions')
+
 @push('styles')
     <style>
         .dataTables_paginate.paging_simple_numbers {
@@ -53,6 +55,12 @@
     <div class="content-body default-height">
         <!-- row -->
         <div class="container-fluid">
+            <div class="page-titles">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Roles & Permissions</li>
+                </ol>
+            </div>
             <div class="form-head mb-4 d-flex flex-wrap align-items-center">
                 <div class="me-auto">
                     <h2 class="font-w600 mb-0">Dashboard \</h2>
@@ -62,7 +70,7 @@
             <div class="row mb-4 align-items-center">
                 <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
                     @can('roles.create')
-                        <a href="{{ route('corporate_admin.roles.create') }}"
+                        <a href="{{ route('roles.create') }}"
                             class="btn btn-secondary btn-lg btn-block rounded text-white">+ Add Role</a>
                     @endcan
                 </div>
@@ -145,7 +153,7 @@
                 $('#roles-table').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "{{ route('corporate_admin.roles.index') }}",
+                    ajax: "{{ route('roles.index') }}",
                     columns: [
                         { data: 'id', name: 'id' },
                         { data: 'formatted_name', name: 'name' },
@@ -185,7 +193,7 @@
             });
 
             function showAllPermissions(roleId) {
-                fetch(`/corporate-admin/roles/${roleId}/permissions`)
+                fetch(`/roles/${roleId}/permissions`)
                     .then(response => response.json())
                     .then(data => {
                         const permissionsList = document.getElementById('permissions-list');

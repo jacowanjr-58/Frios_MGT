@@ -52,7 +52,7 @@
                 <div class="row mb-4 align-items-center">
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
                         @can('frios_flavors.create')
-                            <a href="{{ route('corporate_admin.fgpitem.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Item</a>
+                            <a href="{{ route('fgpitem.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Item</a>
                         @endcan
                     </div>
                     <div class="col-xl-9 col-lg-8">
@@ -123,7 +123,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('corporate_admin.fgpitem.index') }}",
+                    url: "{{ route('fgpitem.index') }}",
                     error: function(xhr, error, thrown) {
                         console.error('DataTables error:', error);
                         if (xhr.responseJSON) {
@@ -186,7 +186,7 @@
                 let orderableValue = $(this).val();
 
                 $.ajax({
-                    url: "{{ route('corporate_admin.fgpitem.updateOrderable') }}",
+                    url: "{{ route('fgpitem.updateOrderable') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",

@@ -40,7 +40,7 @@
 
                                             <!-- Display Success Message -->
 
-                                            <form action="{{ route('corporate_admin.additionalcharges.store') }}" method="POST">
+                                            <form action="{{ route('additionalcharges.store') }}" method="POST">
                                                 @csrf
 
                                                 <div class="row">

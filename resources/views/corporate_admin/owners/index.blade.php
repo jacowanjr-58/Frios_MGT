@@ -50,7 +50,7 @@
                 <div class="row mb-4 align-items-center">
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
                         @can('owners.create')
-                            <a href="{{ route('corporate_admin.owner.create') }}"
+                            <a href="{{ route('owner.create') }}"
                                 class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Owner</a>
                         @endcan
                     </div>
@@ -92,7 +92,7 @@
                                         <th>Role</th>
                                         <th>Created Date</th>
                                         @canany(['owners.edit', 'owners.delete'])
-                                            <th>Actions</th>
+                                        <th>Actions</th>
                                         @endcanany
                                     </tr>
                                 </thead>
@@ -114,7 +114,7 @@
             $('#owners-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('corporate_admin.owner.index') }}",
+                ajax: "{{ route('owner.index') }}",
                 columns: [
                     { data: 'name', name: 'name' },
                     { data: 'franchisee', name: 'franchisee' },

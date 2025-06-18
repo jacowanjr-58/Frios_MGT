@@ -17,7 +17,7 @@
                     </a>
                 @else
                 <a class="text-black"
-                     href="{{ route('corporate_admin.events.view', $event->id) }}">{{ $event->event_name }}</a>
+                     href="{{ route('events.view', $event->id) }}">{{ $event->event_name }}</a>
                 @endif
                     </h6>
 
