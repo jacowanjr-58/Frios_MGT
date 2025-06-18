@@ -17,7 +17,9 @@
 				</div>
                 <div class="row mb-4 align-items-center">
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                        <a href="{{ route('franchise.account.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Account</a>
+                        @can('accounts.create')
+                            <a href="{{ route('franchise.account.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Account</a>
+                        @endcan
                     </div>
                     <div class="col-xl-9 col-lg-8">
                         <div class="card m-0">
@@ -79,17 +81,21 @@
                                         </td>
                                         <td>
                                             <div class="d-flex">
-                                                <a href="{{ route('franchise.account.edit', $account->id) }}" class="ms-4 edit-account">
-                                                    <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
-                                                </a>
+                                                @can('accounts.edit')
+                                                    <a href="{{ route('franchise.account.edit', $account->id) }}" class="ms-4 edit-account">
+                                                        <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
+                                                    </a>
+                                                @endcan
 
-                                                <form action="{{ route('franchise.account.destroy', $account->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this Account?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="ms-4 delete-account">
-                                                        <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
-                                                    </button>
-                                                </form>
+                                                @can('accounts.delete')
+                                                    <form action="{{ route('franchise.account.destroy', $account->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this Account?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="ms-4 delete-account">
+                                                            <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
+                                                        </button>
+                                                    </form>
+                                                @endcan
                                             </div>
                                         </td>
                                     </tr>

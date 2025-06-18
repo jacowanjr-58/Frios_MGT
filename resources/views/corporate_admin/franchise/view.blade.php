@@ -73,9 +73,11 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <a href="{{ route('franchise.edit', $franchise->franchisee_id) }}" class="btn btn-primary mt-3">
-                                            Edit Franchise
-                                        </a>
+                                        @can('franchises.edit')
+                                            <a href="{{ route('franchise.edit', $franchise->franchisee_id) }}" class="btn btn-primary mt-3">
+                                                Edit Franchise
+                                            </a>
+                                        @endcan
                                     </div>
                                 </div>
                             </div>

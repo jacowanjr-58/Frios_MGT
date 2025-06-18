@@ -59,9 +59,11 @@
                         class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Order</a>
                 </div> --}}
                 <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                    <a href="{{ route('franchise.invoice.create', ['franchisee' => request()->route('franchisee')]) }}"
-                        class="btn btn-secondary btn-lg btn-block rounded text-white">Create
-                        Invoice</a>
+                    @can('invoices.create')
+                        <a href="{{ route('franchise.invoice.create', ['franchisee' => request()->route('franchisee')]) }}"
+                            class="btn btn-secondary btn-lg btn-block rounded text-white">Create
+                            Invoice</a>
+                    @endcan
                 </div>
                 <div class="col-xl-9 col-lg-8">
                     <div class="card m-0">

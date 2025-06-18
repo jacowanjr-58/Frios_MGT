@@ -93,6 +93,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'expenses.by_franchisee',
             'expenses.categories',
 
+            // Expense Categories Management (Corporate Admin)
+            'expense_categories.view',
+            'expense_categories.create',
+            'expense_categories.edit',
+            'expense_categories.delete',
+
             // Customers Management (All roles)
             'customers.view',
             'customers.create',
@@ -170,6 +176,17 @@ class RolesAndPermissionsSeeder extends Seeder
             'locations.edit',
             'locations.delete',
 
+            // Accounts Management (Franchise Admin)
+            'accounts.view',
+            'accounts.create',
+            'accounts.edit',
+            'accounts.delete',
+
+            // Additional Charges Management (Corporate Admin)
+            'additional_charges.view',
+            'additional_charges.create',
+            'additional_charges.edit',
+            'additional_charges.delete',
 
             // Sidebar-specific permissions for permission-based access control
             'manage-franchises', 
@@ -213,7 +230,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'customers.view', 'customers.create', 'customers.edit', 'customers.delete', 
             'events.view', 'events.create', 'events.edit', 'events.delete', 'events.calendar', 'events.report',
             'staff.view', 'staff.create', 'staff.edit', 'staff.delete', 
-            'locations.view', 'locations.create', 'locations.edit', 'locations.delete', 
+            'locations.view', 'locations.create', 'locations.edit', 'locations.delete',
+            'accounts.view', 'accounts.create', 'accounts.edit', 'accounts.delete',
             // Sidebar permissions for franchise admin
             'manage-inventory', 'manage-orders', 'manage-invoices', 'manage-expenses', 'manage-customers', 'manage-events',
         ];

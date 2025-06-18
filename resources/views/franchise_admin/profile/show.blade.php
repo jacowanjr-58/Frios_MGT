@@ -43,13 +43,15 @@
                                                 <div class="form-control-plaintext">{{ $user->phone_number }}</div>
                                             </div>
                                         </div>
-                                        @if($franchisee)
-                                            <a href="{{ route('franchise.profile.edit', [$franchisee, $user->user_id]) }}" class="btn btn-primary mt-3">
-                                        @else
-                                        <a href="{{ route('profile.edit', $user->user_id) }}" class="btn btn-primary mt-3">
-                                        @endif
-                                            Edit Profile
-                                        </a>
+                                        @can('profile.edit')
+                                            @if($franchisee)
+                                                <a href="{{ route('franchise.profile.edit', [$franchisee, $user->user_id]) }}" class="btn btn-primary mt-3">
+                                            @else
+                                            <a href="{{ route('profile.edit', $user->user_id) }}" class="btn btn-primary mt-3">
+                                            @endif
+                                                Edit Profile
+                                            </a>
+                                        @endcan
                                     </div>
                                 </div>
                             </div>

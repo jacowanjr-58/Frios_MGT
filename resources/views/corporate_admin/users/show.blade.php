@@ -27,9 +27,11 @@
                                         <div class="card-header d-flex justify-content-between align-items-center">
                                             <h4 class="card-title">User Details: {{ $user->name }}</h4>
                                             <div>
-                                                <a href="{{ route('users.edit', $user->user_id) }}" class="btn btn-primary btn-sm">
-                                                    <i class="fa fa-edit me-1"></i> Edit User
-                                                </a>
+                                                @can('users.edit')
+                                                    <a href="{{ route('users.edit', $user->user_id) }}" class="btn btn-primary btn-sm">
+                                                        <i class="fa fa-edit me-1"></i> Edit User
+                                                    </a>
+                                                @endcan
                                             </div>
                                         </div>
                                         <div class="card-body">
@@ -129,9 +131,11 @@
                                             </div>
 
                                             <div class="mt-4">
-                                                <a href="{{ route('users.edit', $user->user_id) }}" class="btn btn-primary">
-                                                    <i class="fa fa-edit me-1"></i> Edit User
-                                                </a>
+                                                @can('users.edit')
+                                                    <a href="{{ route('users.edit', $user->user_id) }}" class="btn btn-primary">
+                                                        <i class="fa fa-edit me-1"></i> Edit User
+                                                    </a>
+                                                @endcan
                                                 <a href="{{ route('users.index') }}" class="btn btn-secondary ms-2">
                                                     <i class="fa fa-list me-1"></i> Back to Users
                                                 </a>

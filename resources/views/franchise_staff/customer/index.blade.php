@@ -17,7 +17,9 @@
 				</div>
                 <div class="row mb-4 align-items-center">
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                        <a href="{{ route('franchise_staff.customer.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Customer</a>
+                        @can('customers.create')
+                            <a href="{{ route('franchise_staff.customer.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Customer</a>
+                        @endcan
                     </div>
                     <div class="col-xl-9 col-lg-8">
                         <div class="card m-0">
@@ -73,21 +75,27 @@
                                         <td>{{ $customer->zip_code ?: '-' }}</td>
                                         <td>
                                             <div class="d-flex">
-                                                <a href="{{ route('franchise_staff.customer.view', $customer->customer_id) }}">
-                                                    <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M9 4.45962C9.91153 4.16968 10.9104 4 12 4C16.1819 4 19.028 6.49956 20.7251 8.70433C21.575 9.80853 22 10.3606 22 12C22 13.6394 21.575 14.1915 20.7251 15.2957C19.028 17.5004 16.1819 20 12 20C7.81811 20 4.97196 17.5004 3.27489 15.2957C2.42496 14.1915 2 13.6394 2 12C2 10.3606 2.42496 9.80853 3.27489 8.70433C3.75612 8.07914 4.32973 7.43025 5 6.82137" stroke="#00ABC7" stroke-width="1.5" stroke-linecap="round"></path> <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="#00ABC7" stroke-width="1.5"></path> </g></svg>
-                                                </a>
+                                                @can('customers.view')
+                                                    <a href="{{ route('franchise_staff.customer.view', $customer->customer_id) }}">
+                                                        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M9 4.45962C9.91153 4.16968 10.9104 4 12 4C16.1819 4 19.028 6.49956 20.7251 8.70433C21.575 9.80853 22 10.3606 22 12C22 13.6394 21.575 14.1915 20.7251 15.2957C19.028 17.5004 16.1819 20 12 20C7.81811 20 4.97196 17.5004 3.27489 15.2957C2.42496 14.1915 2 13.6394 2 12C2 10.3606 2.42496 9.80853 3.27489 8.70433C3.75612 8.07914 4.32973 7.43025 5 6.82137" stroke="#00ABC7" stroke-width="1.5" stroke-linecap="round"></path> <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="#00ABC7" stroke-width="1.5"></path> </g></svg>
+                                                    </a>
+                                                @endcan
 
-                                                <a href="{{ route('franchise_staff.customer.edit', $customer->customer_id) }}" class="ms-4 edit-customer">
-                                                    <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
-                                                </a>
+                                                @can('customers.edit')
+                                                    <a href="{{ route('franchise_staff.customer.edit', $customer->customer_id) }}" class="ms-4 edit-customer">
+                                                        <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
+                                                    </a>
+                                                @endcan
 
-                                                <form action="{{ route('franchise_staff.customer.delete', $customer->customer_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this Customer?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="ms-4 delete-customer">
-                                                        <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
-                                                    </button>
-                                                </form>
+                                                @can('customers.delete')
+                                                    <form action="{{ route('franchise_staff.customer.delete', $customer->customer_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this Customer?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="ms-4 delete-customer">
+                                                            <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
+                                                        </button>
+                                                    </form>
+                                                @endcan
                                             </div>
                                         </td>
                                     </tr>
