@@ -30,6 +30,22 @@ class FgpItem extends Model
         'split_factor',
     ];
 
+    protected static function booted()
+    {
+        static::creating(function ($fgpItem) {
+            if (Auth::check()) {
+                $fgpItem->created_by = Auth::id();
+                $fgpItem->updated_by = Auth::id();
+            }
+        });
+
+        static::updating(function ($fgpItem) {
+            if (Auth::check()) {
+                $fgpItem->updated_by = Auth::id();
+            }
+        });
+    }
+
     /**
      * All inventory_master rows for this FGP item.
      */
