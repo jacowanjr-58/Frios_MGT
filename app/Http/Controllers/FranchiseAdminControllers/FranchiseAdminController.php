@@ -34,7 +34,9 @@ class FranchiseAdminController extends Controller
             ->groupBy(\DB::raw("MONTH(created_at), MONTHNAME(created_at)"))
             ->pluck('count', 'month');
         $data['franchiseeId'] = $franchiseeId;
-       
+
+        session(['franchisee_id' => $franchiseeId]);
+        
         return view('dashboard', $data);
     }
 
