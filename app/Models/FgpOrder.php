@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class FgpOrder extends Model
@@ -25,6 +26,25 @@ class FgpOrder extends Model
         'is_delivered' => 'boolean',
         'is_paid' => 'boolean',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($fgpOrder) {
+            if (Auth::check()) {
+                $fgpOrder->created_by = Auth::id();
+                $fgpOrder->updated_by = Auth::id();
+                $fgpOrder->franchisee_id = session('franchisee_id') ?? null;
+            }
+        });
+
+        static::updating(function ($fgpOrder) {
+            if (Auth::check()) {
+                $fgpOrder->updated_by = Auth::id();
+                $fgpOrder->franchisee_id = session('franchisee_id') ?? null;
+            }
+        });
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_ID', 'user_id');

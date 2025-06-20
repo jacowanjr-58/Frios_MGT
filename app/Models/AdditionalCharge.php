@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class AdditionalCharge extends Model
 {
@@ -18,6 +19,24 @@ class AdditionalCharge extends Model
         'charge_type',
         'status'
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($additionalCharge) {
+            if (Auth::check()) {
+                $additionalCharge->created_by = Auth::id();
+                $additionalCharge->updated_by = Auth::id();
+                $additionalCharge->franchisee_id = session('franchisee_id') ?? null;
+            }
+        });
+
+        static::updating(function ($additionalCharge) {
+            if (Auth::check()) {
+                $additionalCharge->updated_by = Auth::id();
+                $additionalCharge->franchisee_id = session('franchisee_id') ?? null;
+            }
+        });
+    }
 
     protected $casts = [
         'charge_price' => 'decimal:2',

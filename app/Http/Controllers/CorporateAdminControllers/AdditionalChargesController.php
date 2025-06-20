@@ -13,8 +13,8 @@ class AdditionalChargesController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $charges = AdditionalCharge::query();
-
+            $franchiseeID = session('franchisee_id');
+            $charges = AdditionalCharge::where('franchisee_id', $franchiseeID);
             return DataTables::of($charges)
                 ->addColumn('charge_amount', function ($charge) {
                     if ($charge->charge_type === 'percentage') {

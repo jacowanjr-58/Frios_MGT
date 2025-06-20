@@ -10,7 +10,7 @@ use Yajra\DataTables\Facades\DataTables;
 class FgpCategoryController extends Controller
 {
     // Display all categories
-    public function index()
+    public function index($franchisee)
     {
         // Check permission for viewing flavor categories
         if (!auth()->check() || !auth()->user()->can('flavor_category.view')) {
@@ -19,7 +19,7 @@ class FgpCategoryController extends Controller
 
         $totalCategories = FgpCategory::count();
         if (request()->ajax()) {
-            $categories = FgpCategory::query();
+            $categories = FgpCategory::where('franchisee_id', $franchisee);
 
             return DataTables::of($categories)
                 ->addColumn('created_at', function ($category) {

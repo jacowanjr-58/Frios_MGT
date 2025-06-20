@@ -18,7 +18,7 @@ class ExpensesCategoryController extends Controller
     {
 
         if (request()->ajax()) {
-            $expenseSubCategories = ExpenseSubCategory::where('franchisee_id', $franchisee)->get();
+            $expenseSubCategories = ExpenseSubCategory::where('franchisee_id', $franchisee);
 
             return DataTables::of($expenseSubCategories)
                 ->addColumn('category', function ($subCategory) {
@@ -201,10 +201,9 @@ class ExpensesCategoryController extends Controller
 
     public function customer($franchisee)
     {
-      
         if (request()->ajax()) {
             $user = Auth::user();
-            $customers = Customer::query();
+            $customers = Customer::where('franchisee_id', $franchisee);
 
             // Apply franchise filter from URL parameter first, then check for request filter
             if ($franchisee) {

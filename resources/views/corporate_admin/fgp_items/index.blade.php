@@ -59,7 +59,7 @@
                 @can('frios_flavors.create')
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
 
-                        <a href="{{ route('fgpitem.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+
+                        <a href="{{ route('franchise.fgpitem.create', ['franchisee' => request()->route('franchisee')]) }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+
                             New Item</a>
                     </div>
                     <div class="col-xl-9 col-lg-8">

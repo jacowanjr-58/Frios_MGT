@@ -18,7 +18,7 @@ class FgpItemsController extends Controller
         $franchisee = Franchisee::find($franchisee);
         $totalItems = FgpItem::count();
         if (request()->ajax()) {
-            $items = FgpItem::with('categories');
+            $items = FgpItem::where('franchisee_id', $franchisee)->with('categories');
 
             return DataTables::of($items)
                 ->addColumn('categories', function ($item) {
@@ -85,11 +85,10 @@ class FgpItemsController extends Controller
             'Allergen' => FgpCategory::whereJsonContains('type', 'Allergen')->get()
         ];
 
-        return view('corporate_admin.fgp_items.create', compact('categorizedCategories'));
+        $categories = FgpCategory::all();
+
+        return view('corporate_admin.fgp_items.create', compact('categorizedCategories', 'categories'));
     }
-
-
-
 
     public function store(Request $request)
     {
