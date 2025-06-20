@@ -202,7 +202,7 @@
                         </li>
                         {{-- <li><a href="sales.html">Sales</a></li> --}}
                         <li><a
-                                href="{{ route('franchise.transaction', ['franchisee' => $franchiseeId]) }}">Transactions</a>
+                                href="{{ route('transaction', ['franchisee' => $franchiseeId]) }}">Transactions</a>
                         </li>
                     </ul>
                 </li>
@@ -217,12 +217,12 @@
                         <i class="bi bi-cup-hot-fill"></i>
                         <span class="nav-text">Expenses</span>
                     </a>
-                    <ul aria-expanded="{{ Request::routeIs('franchise.expense', 'franchise.expense-category') ? 'true' : 'false' }}"
-                        class="{{ Request::routeIs('franchise.expense', 'franchise.expense-category') ? 'mm-collapse mm-show' : '' }}">
-                        <li><a href="{{ route('franchise.expense', ['franchisee' => $franchiseeId]) }}">Expenses
+                    <ul aria-expanded="{{ Request::routeIs('expense', 'expense-category') ? 'true' : 'false' }}"
+                        class="{{ Request::routeIs('expense', 'expense-category') ? 'mm-collapse mm-show' : '' }}">
+                        <li><a href="{{ route('expense.franchisee', ['franchisee' => $franchiseeId]) }}">Expenses
                                 List</a></li>
                         <li><a
-                                href="{{ route('franchise.expense-category', ['franchisee' => $franchiseeId]) }}">Expense
+                                href="{{ route('expense-category', ['franchisee' => $franchiseeId]) }}">Expense
                                 Categories</a></li>
                     </ul>
                 </li>

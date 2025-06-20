@@ -85,7 +85,9 @@ class FgpItemsController extends Controller
             'Allergen' => FgpCategory::whereJsonContains('type', 'Allergen')->get()
         ];
 
-        return view('corporate_admin.fgp_items.create', compact('categorizedCategories'));
+        $categories = FgpCategory::all();
+
+        return view('corporate_admin.fgp_items.create', compact('categorizedCategories', 'categories'));
     }
 
     public function store(Request $request)

@@ -52,7 +52,7 @@
                 <div class="row mb-4 align-items-center">
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
                         @can('expense_categories.create')
-                            <a href="{{ route('expense-category.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Category</a>
+                            <a href="{{ route('expense-category.create', ['franchisee' => $franchiseeId]) }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Category</a>
                         @endcan
                     </div>
                     <div class="col-xl-9 col-lg-8">

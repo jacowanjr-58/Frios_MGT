@@ -74,9 +74,9 @@
                                                                 id="category_id" name="category_id" required>
                                                             <option value="">Select Category</option>
                                                             @foreach($categories as $category)
-                                                                <option value="{{ $category->fgp_category_id }}" 
-                                                                    {{ old('category_id') == $category->fgp_category_id ? 'selected' : '' }}>
-                                                                    {{ $category->category_name }}
+                                                                <option value="{{ $category->category_ID }}" 
+                                                                    {{ old('category_ID') == $category->category_ID ? 'selected' : '' }}>
+                                                                    {{ $category->name }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
