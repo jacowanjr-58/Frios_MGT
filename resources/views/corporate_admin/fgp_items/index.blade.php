@@ -136,7 +136,7 @@
                         processing: true,
                         serverSide: true,
                         ajax: {
-                            url: "{{ route('fgpitem.index') }}",
+                            url: "{{ route('franchise.fgpitem.index', ['franchisee' => request()->route('franchisee')]) }}",
                             error: function (xhr, error, thrown) {
                                 console.error('DataTables error:', error);
                                 if (xhr.responseJSON) {
@@ -199,7 +199,7 @@
                         let orderableValue = $(this).val();
 
                         $.ajax({
-                            url: "{{ route('fgpitem.updateOrderable') }}",
+                            url: "{{ route('franchise.fgpitem.updateOrderable', ['franchisee' => request()->route('franchisee')]) }}",
                             type: "POST",
                             data: {
                                 _token: "{{ csrf_token() }}",

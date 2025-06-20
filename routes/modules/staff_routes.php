@@ -9,7 +9,7 @@ use App\Http\Controllers\Franchise\PaymentController;
 Route::middleware(['auth'])->group(function () {
     Route::get('/staff/dashboard', [FranchiseStaffController::class, 'dashboard'])->middleware('permission:dashboard.view');
 
-    Route::name('franchise_staff.')->group(function (){
+    Route::prefix('franchise/{franchisee}')->name('franchise_staff.')->group(function (){
 
         // Events routes
         Route::middleware('permission:events.view')->group(function () {

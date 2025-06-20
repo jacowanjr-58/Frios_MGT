@@ -41,7 +41,7 @@
                                             <!-- Display Success Message -->
 
 
-                                            <form action="{{ route('fgpitem.store') }}" method="POST" enctype="multipart/form-data">
+                                            <form action="{{ route('franchise.fgpitem.store', ['franchisee' => request()->route('franchisee')]) }}" method="POST" enctype="multipart/form-data">
                                                 @csrf
 
                                                 <div class="row">

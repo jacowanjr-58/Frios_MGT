@@ -51,18 +51,24 @@
 
             @endcan
             @canany(['frios_flavors.view', 'frios_flavors.create', 'frios_flavors.edit', 'frios_flavors.delete', 'frios_flavors.categories'])
-            <li class="{{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'mm-active' : '' }}">
-                <a class="has-arrow ai-icon {{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'active' : '' }}"
+            <li class="{{ Request::routeIs('franchise.fgpitem.*', 'franchise.fgpcategory.*') ? 'mm-active' : '' }}">
+                <a class="has-arrow ai-icon {{ Request::routeIs('franchise.fgpitem.*', 'franchise.fgpcategory.*') ? 'active' : '' }}"
                     href="javascript:void()"
-                    aria-expanded="{{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'true' : 'false' }}">
+                    aria-expanded="{{ Request::routeIs('franchise.fgpitem.*', 'franchise.fgpcategory.*') ? 'true' : 'false' }}">
                     <i class="bi bi-basket3-fill"></i>
                     <span class="nav-text">Frios Flavors</span>
                 </a>
-                <ul aria-expanded="{{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'true' : 'false' }}"
-                    class="{{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'mm-collapse mm-show' : '' }}">
-                    <li><a href="{{ route('fgpitem.index') }}">Flavor List</a></li>
-                    <li><a href="{{ route('fgpitem.availability') }}">Availability</a></li>
-                    <li><a href="{{ route('fgpcategory.index') }}">Edit Flavor Categories</a></li>
+                <ul aria-expanded="{{ Request::routeIs('franchise.fgpitem.*', 'franchise.fgpcategory.*') ? 'true' : 'false' }}"
+                    class="{{ Request::routeIs('franchise.fgpitem.*', 'franchise.fgpcategory.*') ? 'mm-collapse mm-show' : '' }}">
+                    <li><a
+                            href="{{ route('franchise.fgpitem.index', ['franchisee' => request()->route('franchisee')]) }}">Flavor
+                            List</a></li>
+                    <li><a
+                            href="{{ route('franchise.fgpitem.availability', ['franchisee' => request()->route('franchisee')]) }}">Availability</a>
+                    </li>
+                    <li><a
+                            href="{{ route('franchise.fgpcategory.index', ['franchisee' => request()->route('franchisee')]) }}">Edit
+                            Flavor Categories</a></li>
                 </ul>
             </li>
             @endcan
@@ -249,7 +255,8 @@
             @canany(['pos.view'])
             <li class="{{ Request::routeIs('franchise_staff.pos') ? 'mm-active' : '' }}">
                 <a class="ai-icon {{ Request::routeIs('franchise_staff.pos') ? 'active' : '' }}"
-                    href="{{ route('franchise_staff.pos') }}" aria-expanded="false">
+                    href="{{ route('franchise_staff.pos', ['franchisee' => request()->route('franchisee')]) }}"
+                    aria-expanded="false">
                     <i class="bi bi-cart-check-fill"></i>
                     <span class="nav-text">POS</span>
                 </a>
@@ -258,7 +265,7 @@
             @can('flavors.view')
                 <li class="{{ Request::routeIs('franchise.flavors') ? 'mm-active' : '' }}">
                     <a class="ai-icon {{ Request::routeIs('franchise.flavors') ? 'active' : '' }}"
-                        href="{{ route('franchise.flavors', ['franchisee' =>  request()->route('franchisee')]) }}">
+                        href="{{ route('franchise.flavors', ['franchisee' => request()->route('franchisee')]) }}">
                         <i class="bi bi-basket3-fill"></i>
                         <span class="nav-text">Flavors</span>
                     </a>
@@ -268,16 +275,26 @@
 
 
             @canany('customers.by_franchisee')
-            <li class="{{ Request::routeIs('franchise.franchise_customer') ? 'mm-active' : '' }}">
-                <a class="has-arrow ai-icon {{ Request::routeIs('franchise.franchise_customer') ? 'active' : '' }}"
-                    href="javascript:void()"
-                    aria-expanded="{{ Request::routeIs('franchise.franchise_customer') ? 'true' : 'false' }}">
-                    <i class="bi bi-person-fill-add"></i>
-                    <span class="nav-text">Customers</span>
-                </a>
-                <ul aria-expanded="{{ Request::routeIs('franchise.franchise_customer') ? 'true' : 'false' }}"
-                    class="{{ Request::routeIs('franchise.franchise_customer') ? 'mm-collapse mm-show' : '' }}">
-                    <li><a href="{{ route('franchise.franchise_customer', ['franchisee' => request()->route('franchisee')]) }}">Customers (Franchise) </a></li>
+                <li class="{{ Request::routeIs('franchise.franchise_customer') ? 'mm-active' : '' }}">
+                    <a class="has-arrow ai-icon {{ Request::routeIs('franchise.franchise_customer') ? 'active' : '' }}"
+                        href="javascript:void()"
+                        aria-expanded="{{ Request::routeIs('franchise.franchise_customer') ? 'true' : 'false' }}">
+                        <i class="bi bi-person-fill-add"></i>
+                        <span class="nav-text">Customers</span>
+                    </a>
+                    <ul aria-expanded="{{ Request::routeIs('franchise.franchise_customer') ? 'true' : 'false' }}"
+                        class="{{ Request::routeIs('franchise.franchise_customer') ? 'mm-collapse mm-show' : '' }}">
+                        <li>
+                            @role('super_admin')
+                            <a
+                                href="">Customers
+                                (Franchise) </a>
+                        @else
+                            <a
+                                href="{{ route('franchise.franchise_customer', ['franchisee' => request()->route('franchisee')]) }}">Customers
+                            (Franchise) </a>
+                        @endrole
+                    </li>
                 </ul>
             </li>
             @endcan
@@ -306,7 +323,8 @@
             @canany(['sales.view', 'sales.create', 'sales.edit', 'sales.delete'])
             <li class="{{ Request::routeIs('franchise_staff.sales.*') ? 'mm-active' : '' }}">
                 <a class="ai-icon {{ Request::routeIs('franchise_staff.sales.*') ? 'active' : '' }}"
-                    href="{{ route('franchise_staff.sales.index') }}" aria-expanded="false">
+                    href="{{ route('franchise_staff.sales.index', ['franchisee' => request()->route('franchisee')]) }}"
+                    aria-expanded="false">
                     <i class="bi bi-coin"></i>
                     <span class="nav-text">Sales</span>
                 </a>
@@ -322,7 +340,7 @@
                 </a>
                 <ul aria-expanded="{{ Request::routeIs('franchise_staff.events.*') ? 'true' : 'false' }}"
                     class="{{ Request::routeIs('franchise_staff.events.*') ? 'mm-collapse mm-show' : '' }}">
-                    <li><a href="{{ route('franchise_staff.events.calendar') }}">Calender</a></li>
+                    <li><a href="{{ route('franchise_staff.events.calendar', ['franchisee' => request()->route('franchisee')]) }}">Calender</a></li>
                     <li><a
                             href="{{ route('franchise_staff.events.report', ['franchisee' => request()->route('franchisee')]) }}">Report</a>
                     </li>

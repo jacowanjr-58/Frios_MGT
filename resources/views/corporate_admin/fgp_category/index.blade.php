@@ -59,7 +59,7 @@
 
                     @can('flavor_category.create')
                         <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                            <a href="{{ route('fgpcategory.create') }}"
+                            <a href="{{ route('franchise.fgpcategory.create', ['franchisee' => request()->route('franchisee')]) }}"
                                 class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Category</a>
                         </div>
 
@@ -165,7 +165,7 @@
                     var table = $('#category-table').DataTable({
                         processing: true,
                         serverSide: true,
-                        ajax: "{{ route('fgpcategory.index') }}",
+                        ajax: "{{ route('franchise.fgpcategory.index', ['franchisee' => request()->route('franchisee')]) }}",
                         columns: columns,
                         order: [[sortColumnIndex, 'desc']], // Order by created_at column by default
                         language: {

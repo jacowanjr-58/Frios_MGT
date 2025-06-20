@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CorporateAdminControllers;
 
 use App\Models\FgpItem;
 use App\Models\FgpCategory;
+use App\Models\Franchisee;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
@@ -12,9 +13,9 @@ use Yajra\DataTables\DataTables;
 
 class FgpItemsController extends Controller
 {
-    public function index()
+    public function index( $franchisee)
     {
-     
+        $franchisee = Franchisee::find($franchisee);
         $totalItems = FgpItem::count();
         if (request()->ajax()) {
             $items = FgpItem::with('categories');
@@ -136,7 +137,7 @@ class FgpItemsController extends Controller
 
 
 
-    public function edit(FgpItem $fgpitem)
+    public function edit(FgpItem $fgpitem, $franchisee)
 {
     $categorizedCategories = [
         'Availability' => FgpCategory::whereJsonContains('type', 'Availability')->get(),

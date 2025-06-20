@@ -26,8 +26,8 @@ class FgpCategoryController extends Controller
                     return $category->formatted_created_at;
                 })
                 ->addColumn('action', function ($category) {
-                    $editUrl = route('fgpcategory.edit', $category->category_ID);
-                    $deleteUrl = route('fgpcategory.destroy', $category->category_ID);
+                    $editUrl = route('franchise.fgpcategory.edit', ['franchisee' => request()->route('franchisee'), 'fgpcategory' => $category->category_ID]);
+                    $deleteUrl = route('franchise.fgpcategory.destroy', ['franchisee' => request()->route('franchisee'), 'fgpcategory' => $category->category_ID]);
 
                     $actions = '<div class="d-flex">';
                     

@@ -18,7 +18,7 @@
                 <div class="row mb-4 align-items-center">
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
                         @can('customers.create')
-                            <a href="{{ route('franchise_staff.customer.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Customer</a>
+                            <a href="{{ route('franchise_staff.customer.create', ['franchisee' => request()->route('franchisee')]) }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Customer</a>
                         @endcan
                     </div>
                     <div class="col-xl-9 col-lg-8">
