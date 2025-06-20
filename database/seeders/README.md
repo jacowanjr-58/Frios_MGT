@@ -62,7 +62,7 @@ php artisan db:seed --class=PermissionManagementSeeder
 ### Corporate Admin Modules
 - **Franchises**: `franchises.view`, `franchises.create`, `franchises.edit`, `franchises.delete`
 - **Owners**: `owners.view`, `owners.create`, `owners.edit`, `owners.delete`
-- **Frios Flavors**: `frios_flavors.view`, `frios_flavors.create`, `frios_flavors.edit`, `frios_flavors.delete`, `frios_flavors.availability`, `frios_flavors.categories`
+- **Frios Flavors**: `frios_flavors.view`, `frios_flavors.create`, `frios_flavors.edit`, `frios_flavors.delete`, `frios_flavors.categories`
 - **Franchise Orders**: `franchise_orders.view`, `franchise_orders.create`, `franchise_orders.edit`, `franchise_orders.delete`,  `franchise_orders.edit_charges`
 - **Payments**: `payments.view`, `payments.create`, `payments.edit`, `payments.delete`, `payments.by_franchisee`
 - **Role Management**: `roles.view`, `roles.create`, `roles.edit`, `roles.delete`, `permissions.assign`, `permissions.view`

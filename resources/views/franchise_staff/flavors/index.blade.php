@@ -159,9 +159,9 @@
                                 @endphp
                                 <tr style="text-wrap: no-wrap;">
                                     @php
-                                        $franchisee = App\Models\user::where('franchisee_id' , $order->user_ID)->first();
+                                        $franchisee = App\Models\Franchisee::where('franchisee_id' , $order->franchisee_id  ?? $franchisee_id)->first();
                                     @endphp
-                                    <td>{{ $franchisee->name ?? 'N/A' }}</td>
+                                    <td>{{ $franchisee->business_name ?? 'N/A' }}</td>
                                     <td>
                                         <span class="cursor-pointer text-primary order-detail-trigger" data-id="{{ $order->fgp_ordersID }}">
                                             {{ \DB::table('fgp_order_details')->where('fgp_order_id', $order->fgp_ordersID)->count() }} items
@@ -416,7 +416,7 @@ $(document).ready(function () {
         const orderId = $(this).data('id'); // Get the order ID from the data-id attribute
 
         $.ajax({
-            url: '{{ route('franchise_staff.flavors.detail') }}', // Backend route to fetch order details
+            url: '{{ route('franchise.flavors.detail', ['franchisee' => $franchisee_id]) }}', // Backend route to fetch order details
             method: 'GET',
             data: { id: orderId }, // Pass orderId to backend
             success: function (response) {

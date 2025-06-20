@@ -58,9 +58,9 @@
                     <table id="orders-table" class="table customer-table display mb-4 card-table">
                         <thead>
                             <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Franchise</th>
+                                <th>Order Number</th>
+                                <th>Ordered By</th>
+                                <th>Shipping Address</th>
                                 <th>Total Amount</th>
                                 <th>Status</th>
                                 <th>Order Date</th>
@@ -99,47 +99,13 @@
                 serverSide: true,
                 ajax: "{{ route('vieworders.index') }}",
                 columns: [
-                    {data: 'order_id', name: 'order_id'},
-                    {data: 'customer_name', name: 'customer_name'},
-                    {data: 'franchise_name', name: 'franchise_name'},
+                    {data: 'order_number', name: 'fgp_orders.fgp_ordersID'},
+                    {data: 'ordered_by', name: 'ordered_by'},
+                    {data: 'shipping_address', name: 'shipping_address'},
                     {data: 'total_amount', name: 'total_amount'},
-                    {
-                        data: 'status',
-                        name: 'status',
-                        render: function(data, type, row) {
-                            var badgeClass = 'bg-secondary';
-                            switch(data) {
-                                case 'pending': badgeClass = 'bg-warning'; break;
-                                case 'confirmed': badgeClass = 'bg-info'; break;
-                                case 'processing': badgeClass = 'bg-primary'; break;
-                                case 'shipped': badgeClass = 'bg-success'; break;
-                                case 'delivered': badgeClass = 'bg-success'; break;
-                                case 'cancelled': badgeClass = 'bg-danger'; break;
-                            }
-                            return '<span class="badge ' + badgeClass + '">' + data.charAt(0).toUpperCase() + data.slice(1) + '</span>';
-                        }
-                    },
-                    {data: 'created_at', name: 'created_at'},
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false,
-                        render: function(data, type, row) {
-                            var actions = '<div class="dropdown">';
-                            actions += '<button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">';
-                            actions += '<i class="fa fa-cog"></i>';
-                            actions += '</button>';
-                            actions += '<ul class="dropdown-menu">';
-                            actions += '<li><a class="dropdown-item" href="javascript:void(0)" onclick="viewOrderDetails(' + row.order_id + ')"><i class="fa fa-eye me-2"></i>View Details</a></li>';
-                            actions += '<li><a class="dropdown-item" href="/vieworders/' + row.order_id + '/edit"><i class="fa fa-edit me-2"></i>Edit</a></li>';
-                            actions += '<li><hr class="dropdown-divider"></li>';
-                            actions += '<li><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="changeOrderStatus(' + row.order_id + ', \'cancelled\')"><i class="fa fa-times me-2"></i>Cancel Order</a></li>';
-                            actions += '</ul>';
-                            actions += '</div>';
-                            return actions;
-                        }
-                    }
+                    {data: 'status', name: 'fgp_orders.status'},
+                    {data: 'date_time', name: 'fgp_orders.date_transaction'},
+                    {data: 'action', name: 'action', orderable: false, searchable: false}
                 ],
                 order: [[0, 'desc']],
                 pageLength: 25
@@ -147,17 +113,29 @@
         });
 
         function viewOrderDetails(orderId) {
-                $.ajax({
+            console.log('Loading order details for ID:', orderId); // Debug log
+            
+            $.ajax({
                 url: '{{ route('vieworders.detail') }}',
-                    method: 'GET',
-                data: { order_id: orderId },
-                    success: function(response) {
-                    // Handle order details display
-                        $('#orderModal').modal('show');
+                method: 'GET',
+                data: { id: orderId },
+                beforeSend: function() {
+                    // Show loading indicator
+                    $('#orderModal .modal-body').html('<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div><p class="mt-2">Loading order details...</p></div>');
+                    $('#orderModal .modal-title').text('Order Details - Loading...');
+                    $('#orderModal').modal('show');
+                },
+                success: function(response) {
+                    console.log('Order details loaded successfully'); // Debug log
+                    // Handle HTML response and display in modal
                     $('#orderModal .modal-body').html(response);
-                    },
-                    error: function() {
-                    toastr.error('Failed to load order details');
+                    $('#orderModal .modal-title').text('Order Details');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading order details:', error);
+                    console.error('Response:', xhr.responseText);
+                    $('#orderModal .modal-body').html('<div class="alert alert-danger"><i class="fa fa-exclamation-triangle me-2"></i>Error loading order details. Please try again.<br><small>Error: ' + error + '</small></div>');
+                    $('#orderModal .modal-title').text('Error Loading Order Details');
                 }
             });
         }
@@ -169,7 +147,7 @@
                     method: 'POST',
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),
-                        order_id: orderId,
+                        fgp_ordersID: orderId,
                         status: status
                     },
                     success: function(response) {
@@ -190,3 +168,9 @@
 @endpush
 
 @endsection
+<style script>
+ .btn.btn-primary {
+    background: #00ABC7;
+    color: white;
+}
+</style>

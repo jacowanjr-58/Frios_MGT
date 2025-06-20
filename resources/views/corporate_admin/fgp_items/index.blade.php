@@ -1,72 +1,88 @@
 @extends('layouts.app')
 @section('content')
 
-@push('styles')
-    <style>
-        .dataTables_paginate.paging_simple_numbers {
-            margin: 15px 0;
-        }
-        .paginate_button {
-            padding: 8px 12px;
-            margin: 0 4px;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            color: #555;
-        }
-        .paginate_button.current {
-            background-color: #007bff;
-            color: white;
-        }
-        .paginate_button.disabled {
-            color: #ccc;
-            cursor: not-allowed;
-        }
-        .paginate_button:not(.disabled):hover {
-            background-color: #f0f0f0;
-        }
-        /* Custom SweetAlert2 button styles */
-        .swal2-confirm {
-            background-color: #00ABC7 !important;
-        }
-        .swal2-cancel {
-            background-color: #FF3131 !important;
-        }
-    </style>
-@endpush
+    @push('styles')
+        <style>
+            .dataTables_paginate.paging_simple_numbers {
+                margin: 15px 0;
+            }
 
-<!--**********************************
-            Content body start
-        ***********************************-->
-        <div class="content-body default-height">
-            <!-- row -->
-			<div class="container-fluid">
+            .paginate_button {
+                padding: 8px 12px;
+                margin: 0 4px;
+                border-radius: 4px;
+                cursor: pointer;
+                text-decoration: none;
+                color: #555;
+            }
 
-				<div class="form-head mb-4 d-flex flex-wrap align-items-center">
-					<div class="me-auto">
-						<h2 class="font-w600 mb-0">Dashboard \</h2>
-						<p>Flover Items List</p>
-					</div>
+            .paginate_button.current {
+                background-color: #007bff;
+                color: white;
+            }
 
-				</div>
-                <div class="row mb-4 align-items-center">
+            .paginate_button.disabled {
+                color: #ccc;
+                cursor: not-allowed;
+            }
+
+            .paginate_button:not(.disabled):hover {
+                background-color: #f0f0f0;
+            }
+
+            /* Custom SweetAlert2 button styles */
+            .swal2-confirm {
+                background-color: #00ABC7 !important;
+            }
+
+            .swal2-cancel {
+                background-color: #FF3131 !important;
+            }
+        </style>
+    @endpush
+
+    <!--**********************************
+                    Content body start
+                ***********************************-->
+    <div class="content-body default-height">
+        <!-- row -->
+        <div class="container-fluid">
+
+            <div class="form-head mb-4 d-flex flex-wrap align-items-center">
+                <div class="me-auto">
+                    <h2 class="font-w600 mb-0">Dashboard \</h2>
+                    <p>Flover Items List</p>
+                </div>
+
+            </div>
+            <div class="row mb-4 align-items-center">
+                @can('frios_flavors.create')
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                        @can('frios_flavors.create')
-                            <a href="{{ route('fgpitem.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Item</a>
-                        @endcan
+
+                        <a href="{{ route('fgpitem.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+
+                            New Item</a>
                     </div>
                     <div class="col-xl-9 col-lg-8">
+                @else
+                        <div class="col-xl-12">
+                    @endcan
+
+
+
                         <div class="card m-0">
                             <div class="card-body py-3 py-md-2">
                                 <div class="d-sm-flex d-block align-items-center">
                                     <div class="d-flex mb-sm-0 mb-3 me-auto align-items-center">
-                                        <svg class="me-2 user-ico mb-1" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <svg class="me-2 user-ico mb-1" width="24" height="24" viewBox="0 0 24 24"
+                                            fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <g clip-path="url(#clip0)">
-                                                <path d="M21 24H3C2.73478 24 2.48043 23.8946 2.29289 23.7071C2.10536 23.5196 2 23.2652 2 23V22.008C2.00287 20.4622 2.52021 18.9613 3.47044 17.742C4.42066 16.5227 5.74971 15.6544 7.248 15.274C7.46045 15.2219 7.64959 15.1008 7.78571 14.9296C7.92182 14.7583 7.9972 14.5467 8 14.328V13.322L6.883 12.206C6.6032 11.9313 6.38099 11.6036 6.22937 11.2419C6.07776 10.8803 5.99978 10.4921 6 10.1V5.96201C6.01833 4.41693 6.62821 2.93765 7.70414 1.82861C8.78007 0.719572 10.2402 0.0651427 11.784 5.16174e-06C12.5992 -0.00104609 13.4067 0.158488 14.1603 0.469498C14.9139 0.780509 15.5989 1.2369 16.1761 1.81263C16.7533 2.38835 17.2114 3.07213 17.5244 3.82491C17.8373 4.5777 17.999 5.38476 18 6.20001V10.1C17.9997 10.4949 17.9204 10.8857 17.7666 11.2495C17.6129 11.6132 17.388 11.9426 17.105 12.218L16 13.322V14.328C16.0029 14.5469 16.0784 14.7586 16.2147 14.9298C16.351 15.1011 16.5404 15.2221 16.753 15.274C18.251 15.6548 19.5797 16.5232 20.5298 17.7424C21.4798 18.9617 21.997 20.4624 22 22.008V23C22 23.2652 21.8946 23.5196 21.7071 23.7071C21.5196 23.8946 21.2652 24 21 24ZM4 22H20C19.9954 20.8996 19.6249 19.8319 18.9469 18.9651C18.2689 18.0983 17.3219 17.4816 16.255 17.212C15.6125 17.0494 15.0423 16.6779 14.6341 16.1558C14.2259 15.6337 14.0028 14.9907 14 14.328V12.908C14.0001 12.6428 14.1055 12.3885 14.293 12.201L15.703 10.792C15.7965 10.7026 15.8711 10.5952 15.9221 10.4763C15.9731 10.3574 15.9996 10.2294 16 10.1V6.20001C16.0017 5.09492 15.5671 4.03383 14.7907 3.24737C14.0144 2.46092 12.959 2.01265 11.854 2.00001C10.8264 2.04117 9.85379 2.47507 9.1367 3.21225C8.41962 3.94943 8.01275 4.93367 8 5.96201V10.1C7.99979 10.2266 8.0249 10.352 8.07384 10.4688C8.12278 10.5856 8.19458 10.6914 8.285 10.78L9.707 12.2C9.89455 12.3875 9.99994 12.6418 10 12.907V14.327C9.99724 14.9896 9.77432 15.6325 9.3663 16.1545C8.95827 16.6766 8.3883 17.0482 7.746 17.211C6.67872 17.4804 5.73137 18.0972 5.05318 18.9642C4.37498 19.8313 4.00447 20.8993 4 22Z" fill="#000"/>
+                                                <path
+                                                    d="M21 24H3C2.73478 24 2.48043 23.8946 2.29289 23.7071C2.10536 23.5196 2 23.2652 2 23V22.008C2.00287 20.4622 2.52021 18.9613 3.47044 17.742C4.42066 16.5227 5.74971 15.6544 7.248 15.274C7.46045 15.2219 7.64959 15.1008 7.78571 14.9296C7.92182 14.7583 7.9972 14.5467 8 14.328V13.322L6.883 12.206C6.6032 11.9313 6.38099 11.6036 6.22937 11.2419C6.07776 10.8803 5.99978 10.4921 6 10.1V5.96201C6.01833 4.41693 6.62821 2.93765 7.70414 1.82861C8.78007 0.719572 10.2402 0.0651427 11.784 5.16174e-06C12.5992 -0.00104609 13.4067 0.158488 14.1603 0.469498C14.9139 0.780509 15.5989 1.2369 16.1761 1.81263C16.7533 2.38835 17.2114 3.07213 17.5244 3.82491C17.8373 4.5777 17.999 5.38476 18 6.20001V10.1C17.9997 10.4949 17.9204 10.8857 17.7666 11.2495C17.6129 11.6132 17.388 11.9426 17.105 12.218L16 13.322V14.328C16.0029 14.5469 16.0784 14.7586 16.2147 14.9298C16.351 15.1011 16.5404 15.2221 16.753 15.274C18.251 15.6548 19.5797 16.5232 20.5298 17.7424C21.4798 18.9617 21.997 20.4624 22 22.008V23C22 23.2652 21.8946 23.5196 21.7071 23.7071C21.5196 23.8946 21.2652 24 21 24ZM4 22H20C19.9954 20.8996 19.6249 19.8319 18.9469 18.9651C18.2689 18.0983 17.3219 17.4816 16.255 17.212C15.6125 17.0494 15.0423 16.6779 14.6341 16.1558C14.2259 15.6337 14.0028 14.9907 14 14.328V12.908C14.0001 12.6428 14.1055 12.3885 14.293 12.201L15.703 10.792C15.7965 10.7026 15.8711 10.5952 15.9221 10.4763C15.9731 10.3574 15.9996 10.2294 16 10.1V6.20001C16.0017 5.09492 15.5671 4.03383 14.7907 3.24737C14.0144 2.46092 12.959 2.01265 11.854 2.00001C10.8264 2.04117 9.85379 2.47507 9.1367 3.21225C8.41962 3.94943 8.01275 4.93367 8 5.96201V10.1C7.99979 10.2266 8.0249 10.352 8.07384 10.4688C8.12278 10.5856 8.19458 10.6914 8.285 10.78L9.707 12.2C9.89455 12.3875 9.99994 12.6418 10 12.907V14.327C9.99724 14.9896 9.77432 15.6325 9.3663 16.1545C8.95827 16.6766 8.3883 17.0482 7.746 17.211C6.67872 17.4804 5.73137 18.0972 5.05318 18.9642C4.37498 19.8313 4.00447 20.8993 4 22Z"
+                                                    fill="#000" />
                                             </g>
                                             <defs>
                                                 <clipPath id="clip0">
-                                                    <rect width="24" height="24" fill="white"/>
+                                                    <rect width="24" height="24" fill="white" />
                                                 </clipPath>
                                             </defs>
                                         </svg>
@@ -83,10 +99,10 @@
                 </div>
 
 
-				<div class="row">
-					<div class="col-lg-12">
-						<div class="table-responsive rounded">
-							<table id="fgp-items-table" class="table customer-table display mb-4 fs-14 card-table">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="table-responsive rounded">
+                            <table id="fgp-items-table" class="table customer-table display mb-4 fs-14 card-table">
                                 <thead>
                                     <tr>
                                         {{-- <th>Sr No.</th> --}}
@@ -94,178 +110,175 @@
                                         <th>Image</th>
                                         <th>Description</th>
                                         <th>Categories</th>
-                                        {{-- <th>Orderable</th> --}}
-                                        @canany(['frios_flavors.edit', 'frios_flavors.delete'])
-                                            <th>Actions</th>
-                                        @endcanany
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
-							</table>
-						</div>
-					</div>
-				</div>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
         <!--**********************************
-            Content body end
-        ***********************************-->
+                    Content body end
+                ***********************************-->
 
-@push('scripts')
-    <script>
-        $(document).ready(function() {
-            // Destroy existing DataTable if it exists
-            if ($.fn.DataTable.isDataTable('#fgp-items-table')) {
-                $('#fgp-items-table').DataTable().destroy();
-            }
-
-            var table = $('#fgp-items-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: "{{ route('fgpitem.index') }}",
-                    error: function(xhr, error, thrown) {
-                        console.error('DataTables error:', error);
-                        if (xhr.responseJSON) {
-                            console.error('Server response:', xhr.responseJSON);
-                        }
+        @push('scripts')
+            <script>
+                $(document).ready(function () {
+                    // Destroy existing DataTable if it exists
+                    if ($.fn.DataTable.isDataTable('#fgp-items-table')) {
+                        $('#fgp-items-table').DataTable().destroy();
                     }
-                },
-                columns: [
-                    { data: 'name', name: 'name' },
-                    { 
-                        data: 'image1',
-                        name: 'image1',
-                        render: function(data) {
-                            if (data) {
-                                return '<img src="/storage/' + data + '" alt="Image" style="width: 50px; height: 50px; object-fit: contain;">';
+
+                    var table = $('#fgp-items-table').DataTable({
+                        processing: true,
+                        serverSide: true,
+                        ajax: {
+                            url: "{{ route('fgpitem.index') }}",
+                            error: function (xhr, error, thrown) {
+                                console.error('DataTables error:', error);
+                                if (xhr.responseJSON) {
+                                    console.error('Server response:', xhr.responseJSON);
+                                }
                             }
-                            return '<span>No Image</span>';
-                        }
-                    },
-                    { data: 'description', name: 'description' },
-                    { data: 'categories', name: 'categories' },
-                    { data: 'action', name: 'action', orderable: false, searchable: false },
-                    { data: 'created_at', name: 'created_at', visible: false }
-                ],
-                order: [[5, 'desc']],
-                language: {
-                    paginate: {
-                        next: '<i class="fa fa-angle-double-right"></i>',
-                        previous: '<i class="fa fa-angle-double-left"></i>'
-                    },
-                    processing: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>'
-                },
-                drawCallback: function(settings) {
-                    // Initialize SweetAlert confirmation for delete buttons
-                    window.initSwalConfirm({
-                        triggerSelector: '.delete-fgpitem',
-                        title: 'Delete Item',
-                        text: 'Are you sure you want to delete this item? This action cannot be undone.',
-                        confirmButtonText: 'Yes, delete item'
-                    });
-
-                    $('.dataTables_paginate').addClass('paging_simple_numbers');
-                    $('.paginate_button').each(function() {
-                        if ($(this).hasClass('current')) {
-                            $(this).attr('aria-current', 'page');
-                        }
-                    });
-                    $('.paginate_button.previous, .paginate_button.next').attr({
-                        'role': 'link',
-                        'aria-disabled': function() {
-                            return $(this).hasClass('disabled') ? 'true' : 'false';
-                        }
-                    });
-                }
-            });
-
-            // Keep the existing orderable dropdown functionality
-            $(document).on('change', '.orderable-dropdown', function() {
-                let itemId = $(this).data('id');
-                let orderableValue = $(this).val();
-
-                $.ajax({
-                    url: "{{ route('fgpitem.updateOrderable') }}",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        id: itemId,
-                        orderable: orderableValue
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            table.ajax.reload(null, false); // Reload table without resetting pagination
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.message || 'Something went wrong!'
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('AJAX Error:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Failed to update orderable status'
-                        });
-                    }
-                });
-            });
-        });
-
-        // SweetAlert2 confirmation initialization function
-        function initSwalConfirm(options) {
-            $(document).off('click', options.triggerSelector).on('click', options.triggerSelector, function(e) {
-                e.preventDefault();
-                const form = $(this).closest('form');
-
-                Swal.fire({
-                    title: options.title,
-                    text: options.text,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: options.confirmButtonText,
-                    cancelButtonText: 'Cancel',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: form.attr('action'),
-                            type: 'POST',
-                            data: form.serialize(),
-                            success: function(response) {
-                                if (response.success) {
-                                    Swal.fire(
-                                        'Deleted!',
-                                        'The item has been deleted.',
-                                        'success'
-                                    ).then(() => {
-                                        $('#fgp-items-table').DataTable().ajax.reload();
-                                    });
-                                } else {
-                                    Swal.fire(
-                                        'Error!',
-                                        response.message || 'Something went wrong!',
-                                        'error'
-                                    );
+                        },
+                        columns: [
+                            { data: 'name', name: 'name' },
+                            {
+                                data: 'image1',
+                                name: 'image1',
+                                render: function (data) {
+                                    if (data) {
+                                        return '<img src="/storage/' + data + '" alt="Image" style="width: 50px; height: 50px; object-fit: contain;">';
+                                    }
+                                    return '<span>No Image</span>';
                                 }
                             },
-                            error: function() {
-                                Swal.fire(
-                                    'Error!',
-                                    'Something went wrong!',
-                                    'error'
-                                );
+                            { data: 'description', name: 'description' },
+                            { data: 'categories', name: 'categories' },
+                            { data: 'action', name: 'action', orderable: false, searchable: false },
+                            { data: 'created_at', name: 'created_at', visible: false }
+                        ],
+                        order: [[5, 'desc']],
+                        language: {
+                            paginate: {
+                                next: '<i class="fa fa-angle-double-right"></i>',
+                                previous: '<i class="fa fa-angle-double-left"></i>'
+                            },
+                            processing: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>'
+                        },
+                        drawCallback: function (settings) {
+                            // Initialize SweetAlert confirmation for delete buttons
+                            window.initSwalConfirm({
+                                triggerSelector: '.delete-fgpitem',
+                                title: 'Delete Item',
+                                text: 'Are you sure you want to delete this item? This action cannot be undone.',
+                                confirmButtonText: 'Yes, delete item'
+                            });
+
+                            $('.dataTables_paginate').addClass('paging_simple_numbers');
+                            $('.paginate_button').each(function () {
+                                if ($(this).hasClass('current')) {
+                                    $(this).attr('aria-current', 'page');
+                                }
+                            });
+                            $('.paginate_button.previous, .paginate_button.next').attr({
+                                'role': 'link',
+                                'aria-disabled': function () {
+                                    return $(this).hasClass('disabled') ? 'true' : 'false';
+                                }
+                            });
+                        }
+                    });
+
+                    // Keep the existing orderable dropdown functionality
+                    $(document).on('change', '.orderable-dropdown', function () {
+                        let itemId = $(this).data('id');
+                        let orderableValue = $(this).val();
+
+                        $.ajax({
+                            url: "{{ route('fgpitem.updateOrderable') }}",
+                            type: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                id: itemId,
+                                orderable: orderableValue
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    table.ajax.reload(null, false); // Reload table without resetting pagination
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: response.message || 'Something went wrong!'
+                                    });
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.error('AJAX Error:', error);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Failed to update orderable status'
+                                });
                             }
                         });
-                    }
+                    });
                 });
-            });
-        }
-    </script>
-@endpush
+
+                // SweetAlert2 confirmation initialization function
+                function initSwalConfirm(options) {
+                    $(document).off('click', options.triggerSelector).on('click', options.triggerSelector, function (e) {
+                        e.preventDefault();
+                        const form = $(this).closest('form');
+
+                        Swal.fire({
+                            title: options.title,
+                            text: options.text,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: options.confirmButtonText,
+                            cancelButtonText: 'Cancel',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    url: form.attr('action'),
+                                    type: 'POST',
+                                    data: form.serialize(),
+                                    success: function (response) {
+                                        if (response.success) {
+                                            Swal.fire(
+                                                'Deleted!',
+                                                'The item has been deleted.',
+                                                'success'
+                                            ).then(() => {
+                                                $('#fgp-items-table').DataTable().ajax.reload();
+                                            });
+                                        } else {
+                                            Swal.fire(
+                                                'Error!',
+                                                response.message || 'Something went wrong!',
+                                                'error'
+                                            );
+                                        }
+                                    },
+                                    error: function () {
+                                        Swal.fire(
+                                            'Error!',
+                                            'Something went wrong!',
+                                            'error'
+                                        );
+                                    }
+                                });
+                            }
+                        });
+                    });
+                }
+            </script>
+        @endpush
 
 @endsection

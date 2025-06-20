@@ -15,9 +15,16 @@
                     <a href="{{ route('franchise_staff.events.view', $event->id) }}" class="text-black">
                         {{ $event->event_name }}
                     </a>
+                @elseif(auth()->user()->role == 'corporate_admin')
+                    @if(request()->route('franchisee'))
+                        <a href="{{ route('franchise.events.view', ['franchisee' => request()->route('franchisee'), 'id' => $event->id]) }}" class="text-black">
+                            {{ $event->event_name }}
+                        </a>
+                    @else
+                        <a class="text-black" href="{{ route('events.view', $event->id) }}">{{ $event->event_name }}</a>
+                    @endif
                 @else
-                <a class="text-black"
-                     href="{{ route('events.view', $event->id) }}">{{ $event->event_name }}</a>
+                    <a class="text-black">{{ $event->event_name }}</a>
                 @endif
                     </h6>
 

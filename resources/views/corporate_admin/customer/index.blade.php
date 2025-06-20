@@ -124,7 +124,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('franchise_customer') }}",
+                    url: "{{ route('franchise.franchise_customer', ['franchisee' => request()->route('franchisee')]) }}",
                     data: function (d) {
                         d.franchise_filter = $('#franchise-filter').val();
                     }
@@ -181,7 +181,7 @@
                     
                     // Make AJAX call to get franchise-specific customer count
                     $.ajax({
-                        url: '{{ route("franchise_customer") }}',
+                        url: '{{ route("franchise.franchise_customer", ["franchisee" => request()->route("franchisee")]) }}',
                         type: 'GET',
                         data: {
                             franchise_filter: franchiseId,

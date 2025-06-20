@@ -72,7 +72,7 @@
 
                                                         <div class="mb-3 col-md-6">
                                                             <label class="form-label">Role <span class="text-danger">*</span></label>
-                                                            <select class="form-control @error('role') is-invalid @enderror" name="role">
+                                                            <select class="form-control @error('role') is-invalid @enderror" name="role" id="role_select">
                                                                 <option value="">Select Role</option>
                                                                 @foreach($roles as $role)
                                                                     <option value="{{ $role->name }}" {{ old('role') == $role->name ? 'selected' : '' }}>
@@ -85,12 +85,12 @@
                                                             @enderror
                                                         </div>
 
-                                                        <div class="mb-3 col-md-6">
+                                                        <div class="mb-3 col-md-6" id="franchise_field">
                                                             <label class="form-label">Assign Franchise <span
-                                                                    class="text-danger">*</span></label>
+                                                                    class="text-danger" id="franchise_required">*</span></label>
                                                             <select
                                                                 class="form-control select2 flex-grow-1 @error('franchisee_id') is-invalid @enderror"
-                                                                name="franchisee_id">
+                                                                name="franchisee_id" id="franchisee_select">
                                                                 <option value="">Select Franchise</option>
                                                                 @foreach ($franchises as $franchise)
                                                                     <option value="{{ $franchise->franchisee_id }}" {{ old('franchisee_id') == $franchise->franchisee_id ? 'selected' : '' }}>
@@ -154,7 +154,12 @@
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 const phoneInput = document.getElementById("phone_number");
+                const roleSelect = document.getElementById("role_select");
+                const franchiseField = document.getElementById("franchise_field");
+                const franchiseRequired = document.getElementById("franchise_required");
+                const franchiseSelect = document.getElementById("franchisee_select");
 
+                // Phone number formatting
                 phoneInput.addEventListener("input", function (e) {
                     let value = phoneInput.value.replace(/\D/g, ""); // Remove non-numeric characters
 
@@ -177,6 +182,30 @@
                         e.preventDefault(); // Allow only numbers
                     }
                 });
+
+                // Role selection logic
+                function handleRoleChange() {
+                    const selectedRole = roleSelect.value;
+                    
+                    if (selectedRole === 'corporate_admin') {
+                        // Hide franchise field for corporate admin
+                        franchiseField.style.display = 'none';
+                        franchiseRequired.style.display = 'none';
+                        franchiseSelect.removeAttribute('required');
+                        franchiseSelect.value = ''; // Clear selection
+                    } else {
+                        // Show franchise field for other roles
+                        franchiseField.style.display = 'block';
+                        franchiseRequired.style.display = 'inline';
+                        franchiseSelect.setAttribute('required', 'required');
+                    }
+                }
+
+                // Handle role change
+                roleSelect.addEventListener('change', handleRoleChange);
+
+                // Handle initial state on page load
+                handleRoleChange();
             });
         </script>
 

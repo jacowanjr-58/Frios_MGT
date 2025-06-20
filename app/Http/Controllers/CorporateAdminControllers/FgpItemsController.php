@@ -14,6 +14,7 @@ class FgpItemsController extends Controller
 {
     public function index()
     {
+     
         $totalItems = FgpItem::count();
         if (request()->ajax()) {
             $items = FgpItem::with('categories');
@@ -36,6 +37,11 @@ class FgpItemsController extends Controller
                     });
                 })
                 ->addColumn('action', function ($item) {
+                    // Check if user has any permissions for actions
+                    if (!Auth::check() || !Auth::user()->canAny(['frios_flavors.edit', 'frios_flavors.delete'])) {
+                        return ''; // Return empty string if no permissions
+                    }
+
                     $editUrl = route('fgpitem.edit', $item->fgp_item_id);
                     $deleteUrl = route('fgpitem.destroy', $item->fgp_item_id);
 
@@ -236,14 +242,24 @@ class FgpItemsController extends Controller
     }
 
     public function availability()
-{
-    $flavors = FgpItem::with('categories')->get();
-    $totalItems = $flavors->count();
+    {
+        // Check permission for viewing Frios Availability
+        if (!Auth::check() || !Auth::user()->can('frios_availability.view')) {
+            abort(403, 'Unauthorized access to Frios Availability');
+        }
 
-    return view('corporate_admin.fgp_items.availability_flavor', compact('flavors','totalItems'));
-}
+        $flavors = FgpItem::with('categories')->get();
+        $totalItems = $flavors->count();
+
+        return view('corporate_admin.fgp_items.availability_flavor', compact('flavors','totalItems'));
+    }
 public function updateStatus(Request $request, $id)
 {
+    // Check permission for updating Frios Availability
+    if (!Auth::check() || !Auth::user()->can('frios_availability.update')) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized access'], 403);
+    }
+
     $item = FgpItem::where('fgp_item_id', $id)->firstOrFail(); // Use explicit key
     $item->orderable = $request->orderable;
     $item->save();
@@ -255,6 +271,11 @@ public function updateStatus(Request $request, $id)
 
 public function updateMonth(Request $request, $id)
 {
+    // Check permission for updating Frios Availability
+    if (!Auth::check() || !Auth::user()->can('frios_availability.update')) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized access'], 403);
+    }
+
     $item = FgpItem::findOrFail($id);
     $datesAvailable = json_decode($item->dates_available, true) ?? [];
 

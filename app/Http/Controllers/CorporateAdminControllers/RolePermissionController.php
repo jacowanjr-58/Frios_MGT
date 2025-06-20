@@ -12,10 +12,10 @@ use Illuminate\Support\Facades\Auth;
 
 class RolePermissionController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'role:corporate_admin']);
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware(['auth', 'role:super_admin']);
+    // }
 
     /**
      * Display a listing of roles and their permissions
@@ -60,7 +60,7 @@ class RolePermissionController extends Controller
                     $editUrl = route('roles.edit', $role);
                     $deleteUrl = route('roles.destroy', $role);
                     
-                    $protectedRoles = ['corporate_admin', 'franchise_admin', 'franchise_manager', 'franchise_staff'];
+                    $protectedRoles = ['corporate_admin', 'franchise_admin', 'franchise_manager', 'franchise_staff','super_admin'];
                     $isProtected = in_array($role->name, $protectedRoles);
 
                     $html = '<div class="d-flex gap-1">';
@@ -293,9 +293,13 @@ class RolePermissionController extends Controller
             'franchises' => 'Franchises',
             'owners' => 'Franchise Owners',
             'frios_flavors' => 'Frios Flavors',
+            'frios_availability' => 'Frios Availability',
+            'flavor_category' => 'Flavor Categories',
             'franchise_orders' => 'Franchise Orders',
+            'additional_charges' => 'Additional Charges',
             'payments' => 'Payments',
             'expenses' => 'Expenses',
+            'expense_categories' => 'Expense Categories',
             'customers' => 'Customers',
             'events' => 'Events',
             'inventory' => 'Inventory',
@@ -307,8 +311,10 @@ class RolePermissionController extends Controller
             'flavors' => 'Flavors',
             'staff' => 'Staff Management',
             'locations' => 'Locations',
+            'accounts' => 'Accounts',
             'roles' => 'Role Management',
-            'permissions' => 'Permission Management'
+            'permissions' => 'Permission Management',
+            'users' => 'User Management'
         ];
 
         return $displayNames[$module] ?? ucfirst(str_replace('_', ' ', $module));

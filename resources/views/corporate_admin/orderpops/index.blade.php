@@ -49,8 +49,13 @@
             <div class="row mb-4 align-items-center">
 
                 <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
+                    @can('franchise_orders.create')
                     <button id="orderButton" class="btn btn-secondary btn-lg btn-block rounded text-white">Place
                         Order</button>
+                    @else
+                    <button class="btn btn-secondary btn-lg btn-block rounded text-white" disabled title="You don't have permission to create orders">Place
+                        Order (No Access)</button>
+                    @endcan
                 </div>
                 <div class="col-xl-9 col-lg-8">
                     <div class="card m-0">
@@ -93,10 +98,17 @@
                             <thead>
                                 <tr>
                                     <th>
+                                        @can('franchise_orders.create')
                                         <div class="form-check checkbox-secondary">
                                             <input class="form-check-input" type="checkbox" value="" id="checkAll">
                                             <label class="form-check-label" for="checkAll"></label>
                                         </div>
+                                        @else
+                                        <div class="form-check checkbox-secondary">
+                                            <input class="form-check-input" type="checkbox" value="" id="checkAll" disabled title="You don't have permission to create orders">
+                                            <label class="form-check-label" for="checkAll"></label>
+                                        </div>
+                                        @endcan
                                     </th>
                                     <th>Name</th>
                                     <th>Image</th>

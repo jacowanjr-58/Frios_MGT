@@ -70,49 +70,41 @@
     <div class="header-content">
         <nav class="navbar navbar-expand">
             <div class="collapse navbar-collapse justify-content-between">
+                
                 <div class="header-left">
                     @php
+                        $currentRouteName = request()->route()->getName();
                         $user = auth()->user();
-                        $franchisees = $user->franchisees ?? collect();
-                        $selectedFranchiseeId = $franchiseeId ?? null;
-                        $franchiseeId = $franchiseeId ?? null;
+                        // Get franchisee ID from the current route parameter
+                        $selectedFranchiseeId = request()->route('franchisee') ?? $franchiseeId ?? null;
+                        $showDropdown = false;
+                        $dropdownFranchisees = collect();
+                        
+                        // Determine if dropdown should be shown and which franchisees to display
+                        if ($user->hasRole('super_admin')) {
+                            // Super Admin: No dropdown
+                            $showDropdown = false;
+                        } elseif ($user->hasRole('corporate_admin')) {
+                            // Corporate Admin: Show all franchises
+                            $showDropdown = true;
+                            $dropdownFranchisees = App\Models\Franchisee::select('franchisee_id', 'business_name', 'frios_territory_name')->get();
+                        } else {
+                            // All other roles: Show only assigned franchises (if more than one)
+                            $userFranchisees = $user->franchisees ?? collect();
+                            if ($userFranchisees->count() > 0) {
+                                $showDropdown = true;
+                                $dropdownFranchisees = $userFranchisees;
+                            }
+                        }
                     @endphp
-                    @if($user->hasRole('franchise_admin') && $franchisees->count() > 1)
-
+                    @if($showDropdown && $currentRouteName != 'franchise.index' && $currentRouteName != 'owner.index')
                         <div class="w-100 ml-32">
                             <div class="d-flex align-items-center gap-3">
                                 <label for="franchisee_id" class="form-label mb-0 text-nowrap fw-semibold">Select
                                     Franchisee:</label>
                                 <select name="franchisee_id" id="franchisee_id" class="form-select select2 flex-grow-1"
-                                    onchange="if(this.value) window.location.href='/franchise/' + this.value + '/dashboard'">
-                                    @foreach($franchisees as $franchisee)
-                                        <option value="{{ $franchisee->franchisee_id }}" {{ $selectedFranchiseeId == $franchisee->franchisee_id ? 'selected' : '' }}>
-                                            {{ $franchisee->business_name ?? 'N/A' }} -
-                                            {{ $franchisee->frios_territory_name ?? 'N/A' }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    @endif
-                    @php
-                        $user = auth()->user();
-                        $franchisees = $user->franchisees ?? collect();
-                        $selectedFranchiseeId = $franchiseeId ?? null;
-                        $franchiseeId = $franchiseeId ?? null;
-                    @endphp
-                    @if($user->hasRole('corporate_admin') && request()->routeIs('dashboard'))
-                        @php
-                            // Corporate admins should see all franchises, not just assigned ones
-                            $allFranchisees = App\Models\Franchisee::all();
-                        @endphp
-                        <div class="w-100 ml-32">
-                            <div class="d-flex align-items-center gap-3">
-                                <label for="franchisee_id" class="form-label mb-0 text-nowrap fw-semibold">Select
-                                    Franchisee:</label>
-                                <select name="franchisee_id" id="franchisee_id" class="form-select select2 flex-grow-1"
-                                    onchange="if(this.value) window.location.href='/franchise/' + this.value + '/dashboard'">
-                                    @foreach($allFranchisees as $franchisee)
+                                    onchange="updateFranchiseeInCurrentRoute(this.value)">
+                                    @foreach($dropdownFranchisees as $franchisee)
                                         <option value="{{ $franchisee->franchisee_id }}" {{ $selectedFranchiseeId == $franchisee->franchisee_id ? 'selected' : '' }}>
                                             {{ $franchisee->business_name ?? 'N/A' }} -
                                             {{ $franchisee->frios_territory_name ?? 'N/A' }}
@@ -285,3 +277,25 @@
     box-shadow: none;
 }
 </style>
+
+<script>
+function updateFranchiseeInCurrentRoute(franchiseeId) {
+    if (!franchiseeId) return;
+    
+    // Get current URL
+    const currentUrl = window.location.href;
+    const currentPath = window.location.pathname;
+    
+    // Check if current path contains franchise/{franchisee_id} pattern
+    const franchiseRouteRegex = /\/franchise\/\d+/;
+    
+    if (franchiseRouteRegex.test(currentPath)) {
+        // Replace the existing franchisee_id with the new one
+        const newPath = currentPath.replace(/\/franchise\/\d+/, '/franchise/' + franchiseeId);
+        window.location.href = window.location.origin + newPath + window.location.search;
+    } else {
+        // If not on a franchise route, redirect to dashboard
+        window.location.href = '/franchise/' + franchiseeId + '/dashboard';
+    }
+}
+</script>

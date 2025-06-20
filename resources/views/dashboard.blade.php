@@ -320,7 +320,6 @@
                                         Content body end
                                     ***********************************-->
 
-    @if (auth()->user()->role == 'franchise_staff' || auth()->user()->role == 'franchise_manager')
         <div class=" content-body default-height">
             <!-- row -->
             <div class="container-fluid">
@@ -416,8 +415,7 @@
                 </div>
             </div>
         </div>
-    @endif
-
+   
    
 
     <script>

@@ -18,23 +18,24 @@
             <?php $user = \Auth::user() ?>
             @canany(['users.view', 'users.create', 'users.edit', 'users.delete'])
 
-            <li class="{{ Request::routeIs('users.*') ? 'mm-active' : '' }}">
-                <a class="has-arrow ai-icon {{ Request::routeIs('users.*') ? 'active' : '' }}"
-                    href="javascript:void()"
-                    aria-expanded="{{ Request::routeIs('users.*') ? 'true' : 'false' }}">
-                    <i class="bi bi-person-gear"></i>
-                    <span class="nav-text">Users</span>
-                </a>
-                <ul aria-expanded="{{ Request::routeIs('users.*') ? 'true' : 'false' }}"
-                    class="{{ Request::routeIs('users.*') ? 'mm-collapse mm-show' : '' }}">
-                    <li><a href="{{ route('users.index') }}">Users List</a></li>
-                    <li><a href="{{ route('roles.index') }}">Roles & Permissions</a></li>
-                </ul>
-            </li>
+            @if($user->hasRole('super_admin'))
+                <li class="{{ Request::routeIs('users.*') ? 'mm-active' : '' }}">
+                    <a class="has-arrow ai-icon {{ Request::routeIs('users.*') ? 'active' : '' }}" href="javascript:void()"
+                        aria-expanded="{{ Request::routeIs('users.*') ? 'true' : 'false' }}">
+                        <i class="bi bi-person-gear"></i>
+                        <span class="nav-text">Users</span>
+                    </a>
+                    <ul aria-expanded="{{ Request::routeIs('users.*') ? 'true' : 'false' }}"
+                        class="{{ Request::routeIs('users.*') ? 'mm-collapse mm-show' : '' }}">
+                        <li><a href="{{ route('users.index') }}">Users List</a></li>
+                        <li><a href="{{ route('roles.index') }}">Roles & Permissions</a></li>
+                    </ul>
+                </li>
+            @endif
             @endcan
             @canany(['franchises.view', 'franchises.create', 'franchises.edit', 'franchises.delete', 'owners.view', 'owners.create', 'owners.edit', 'owners.delete'])
-            <li
-                class="{{ Request::routeIs('franchise.*', 'owner.*') ? 'mm-active' : '' }}">
+
+            <li class="{{ Request::routeIs('franchise.*', 'owner.*') ? 'mm-active' : '' }}">
                 <a class="has-arrow ai-icon {{ Request::routeIs('franchise.*', 'owner.*') ? 'active' : '' }}"
                     href="javascript:void(0)"
                     aria-expanded="{{ Request::routeIs('franchise.*', 'owner.*') ? 'true' : 'false' }}">
@@ -44,13 +45,13 @@
                 <ul aria-expanded="{{ Request::routeIs('franchise.*', 'owner.*') ? 'true' : 'false' }}"
                     class="{{ Request::routeIs('franchise.*', 'owner.*') ? 'mm-collapse mm-show' : '' }}">
                     <li><a href="{{ route('franchise.index') }}">Franchise List</a></li>
-                    <li><a href="{{ route('owner.index') }}">Franchise  (Owners)</a></li>
+                    <li><a href="{{ route('owner.index') }}">Franchise (Owners)</a></li>
                 </ul>
             </li>
+
             @endcan
-            @canany(['frios_flavors.view', 'frios_flavors.create', 'frios_flavors.edit', 'frios_flavors.delete', 'frios_flavors.availability', 'frios_flavors.categories'])
-            <li
-                class="{{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'mm-active' : '' }}">
+            @canany(['frios_flavors.view', 'frios_flavors.create', 'frios_flavors.edit', 'frios_flavors.delete', 'frios_flavors.categories'])
+            <li class="{{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'mm-active' : '' }}">
                 <a class="has-arrow ai-icon {{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'active' : '' }}"
                     href="javascript:void()"
                     aria-expanded="{{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'true' : 'false' }}">
@@ -66,8 +67,7 @@
             </li>
             @endcan
             @canany(['franchise_orders.view', 'franchise_orders.create', 'franchise_orders.edit', 'franchise_orders.delete', 'franchise_orders.edit_charges'])
-            <li
-                class="{{ Request::routeIs('vieworders.*', 'orderposps', 'additionalcharges.*') ? 'mm-active' : '' }}">
+            <li class="{{ Request::routeIs('vieworders.*', 'orderposps', 'additionalcharges.*') ? 'mm-active' : '' }}">
                 <a class="has-arrow ai-icon {{ Request::routeIs('vieworders.*', 'orderposps', 'additionalcharges.*') ? 'active' : '' }}"
                     href="javascript:void()"
                     aria-expanded="{{ Request::routeIs('vieworders.*', 'orderposps', 'additionalcharges.*') ? 'true' : 'false' }}">
@@ -82,11 +82,10 @@
                 </ul>
             </li>
             @endcan
-            @canany(['payments.view', 'pos.expense', 'pos.order', 'pos.event'])
+            @canany(['payments.view'])
             <li class="{{ Request::routeIs('transaction') ? 'mm-active' : '' }}">
                 <a class="has-arrow ai-icon {{ Request::routeIs('transaction') ? 'active' : '' }}"
-                    href="javascript:void()"
-                    aria-expanded="{{ Request::routeIs('transaction') ? 'true' : 'false' }}">
+                    href="javascript:void()" aria-expanded="{{ Request::routeIs('transaction') ? 'true' : 'false' }}">
                     <i class="bi bi-credit-card-2-back-fill"></i>
                     <span class="nav-text">Payments</span>
                 </a>
@@ -97,8 +96,7 @@
             </li>
             @endcan
             @canany(['expenses.categories', 'expenses.by_franchisee'])
-            <li
-                class="{{ Request::routeIs('expense-category', 'expense.franchisee') ? 'mm-active' : '' }}">
+            <li class="{{ Request::routeIs('expense-category', 'expense.franchisee') ? 'mm-active' : '' }}">
                 <a class="has-arrow ai-icon {{ Request::routeIs('expense-category', 'expense.franchisee') ? 'active' : '' }}"
                     href="javascript:void()"
                     aria-expanded="{{ Request::routeIs('expense-category', 'expense.franchisee') ? 'true' : 'false' }}">
@@ -113,7 +111,7 @@
                 </ul>
             </li>
             @endcan
-          
+
             <!-- @canany(['events.view', 'events.create', 'events.edit', 'events.delete'])
             <li class="{{ Request::routeIs('events.*') ? 'mm-active' : '' }}">
                 <a class="has-arrow ai-icon {{ Request::routeIs('events.*') ? 'active' : '' }}"
@@ -223,7 +221,7 @@
                 </li>
             @endif
             @endcan
-           
+
             @canany(['events.view', 'events.create', 'events.edit', 'events.delete'])
             @if(auth()->user()->role !== 'corporate_admin' && request()->route('franchisee'))
                 <li class="{{ Request::routeIs('franchise.events.*') ? 'mm-active' : '' }}">
@@ -257,48 +255,53 @@
                 </a>
             </li>
             @endcan
-            @canany(['flavors.view'])
-            <li class="{{ Request::routeIs('franchise_staff.flavors') ? 'mm-active' : '' }}">
-                <a class="ai-icon {{ Request::routeIs('franchise_staff.flavors') ? 'active' : '' }}"
-                    href="{{ route('franchise_staff.flavors') }}" aria-expanded="false">
-                    <i class="bi bi-basket3-fill"></i>
-                    <span class="nav-text">Flavors</span>
+            @can('flavors.view')
+                <li class="{{ Request::routeIs('franchise.flavors') ? 'mm-active' : '' }}">
+                    <a class="ai-icon {{ Request::routeIs('franchise.flavors') ? 'active' : '' }}"
+                        href="{{ route('franchise.flavors', ['franchisee' =>  request()->route('franchisee')]) }}">
+                        <i class="bi bi-basket3-fill"></i>
+                        <span class="nav-text">Flavors</span>
+                    </a>
+                </li>
+            @endcan
+
+
+
+            @canany('customers.by_franchisee')
+            <li class="{{ Request::routeIs('franchise.franchise_customer') ? 'mm-active' : '' }}">
+                <a class="has-arrow ai-icon {{ Request::routeIs('franchise.franchise_customer') ? 'active' : '' }}"
+                    href="javascript:void()"
+                    aria-expanded="{{ Request::routeIs('franchise.franchise_customer') ? 'true' : 'false' }}">
+                    <i class="bi bi-person-fill-add"></i>
+                    <span class="nav-text">Customers</span>
                 </a>
+                <ul aria-expanded="{{ Request::routeIs('franchise.franchise_customer') ? 'true' : 'false' }}"
+                    class="{{ Request::routeIs('franchise.franchise_customer') ? 'mm-collapse mm-show' : '' }}">
+                    <li><a href="{{ route('franchise.franchise_customer', ['franchisee' => request()->route('franchisee')]) }}">Customers (Franchise) </a></li>
+                </ul>
             </li>
             @endcan
 
-         
-            @canany('customers.by_franchisee')
-                <li class="{{ Request::routeIs('franchise_customer') ? 'mm-active' : '' }}">
-                    <a class="has-arrow ai-icon {{ Request::routeIs('franchise_customer') ? 'active' : '' }}"
-                        href="javascript:void()"
-                        aria-expanded="{{ Request::routeIs('franchise_customer') ? 'true' : 'false' }}">
-                        <i class="bi bi-person-fill-add"></i>
-                        <span class="nav-text">Customers</span>
-                    </a>
-                    <ul aria-expanded="{{ Request::routeIs('franchise_customer') ? 'true' : 'false' }}"
-                        class="{{ Request::routeIs('franchise_customer') ? 'mm-collapse mm-show' : '' }}">
-                        <li><a href="{{ route('franchise_customer') }}">Customers (Franchise) </a></li>
-                    </ul>
-                </li>
-            @endcan
-
             @if(!$user->hasRole('corporate_admin'))
-                @canany(['customers.view', 'customers.create', 'customers.edit', 'customers.delete'])
-                <li class="{{ Request::routeIs('franchise_staff.customer.*') ? 'mm-active' : '' }}">
-                    <a class="has-arrow ai-icon {{ Request::routeIs('franchise_staff.customer.*') ? 'active' : '' }}"
-                        href="javascript:void()"
-                        aria-expanded="{{ Request::routeIs(patterns: 'franchise_staff.customer.*') ? 'true' : 'false' }}">
-                        <i class="bi bi-person-fill-add"></i>
-                        <span class="nav-text">Customers</span> 
-                    </a>
-                    <ul aria-expanded="{{ Request::routeIs('franchise_staff.customer.*') ? 'true' : 'false' }}"
-                        class="{{ Request::routeIs('franchise_staff.customer.*') ? 'mm-collapse mm-show' : '' }}">
-                        <li><a href="{{ route('franchise_staff.customer' , ['franchisee' => request()->route('franchisee')]) }}">Customers List</a></li>
-                        <li><a href="{{ route('franchise_staff.customer.create' , ['franchisee' => request()->route('franchisee')]) }}">Add Customer</a></li>
-                    </ul>
-                </li>
-                @endif
+            @canany(['customers.view', 'customers.create', 'customers.edit', 'customers.delete'])
+            <li class="{{ Request::routeIs('franchise_staff.customer.*') ? 'mm-active' : '' }}">
+                <a class="has-arrow ai-icon {{ Request::routeIs('franchise_staff.customer.*') ? 'active' : '' }}"
+                    href="javascript:void()"
+                    aria-expanded="{{ Request::routeIs(patterns: 'franchise_staff.customer.*') ? 'true' : 'false' }}">
+                    <i class="bi bi-person-fill-add"></i>
+                    <span class="nav-text">Customers</span>
+                </a>
+                <ul aria-expanded="{{ Request::routeIs('franchise_staff.customer.*') ? 'true' : 'false' }}"
+                    class="{{ Request::routeIs('franchise_staff.customer.*') ? 'mm-collapse mm-show' : '' }}">
+                    <li><a
+                            href="{{ route('franchise_staff.customer', ['franchisee' => request()->route('franchisee')]) }}">Customers
+                            List</a></li>
+                    <li><a
+                            href="{{ route('franchise_staff.customer.create', ['franchisee' => request()->route('franchisee')]) }}">Add
+                            Customer</a></li>
+                </ul>
+            </li>
+            @endif
             @endcan
             @canany(['sales.view', 'sales.create', 'sales.edit', 'sales.delete'])
             <li class="{{ Request::routeIs('franchise_staff.sales.*') ? 'mm-active' : '' }}">

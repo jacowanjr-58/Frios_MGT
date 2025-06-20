@@ -18,12 +18,6 @@ Route::middleware(['auth'])->group(function () {
             Route::get('events/{id}/view' , [FranchiseStaffController::class , 'eventView'])->name('events.view')->middleware('permission:events.view');
         });
 
-        // Flavors routes
-        Route::middleware('permission:flavors.view')->group(function () {
-            Route::get('flavors' , [FranchiseStaffController::class , 'flavors'])->name('flavors')->middleware('permission:flavors.view');
-            Route::get('/flavors/detail', [FranchiseStaffController::class, 'flavorsDetail'])->name('flavors.detail')->middleware('permission:flavors.view');
-        });
-
         // Customer routes
         Route::middleware('permission:customers.view')->group(function () {
             Route::get('customer' , [FranchiseStaffController::class , 'index'])->name('customer')->middleware('permission:customers.view');
@@ -35,6 +29,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('customer/{id}/edit' , [FranchiseStaffController::class , 'edit'])->name('customer.edit')->middleware('permission:customers.edit');
         Route::put('customer/{id}/update' , [FranchiseStaffController::class , 'update'])->name('customer.update')->middleware('permission:customers.edit');
         Route::delete('customer/{id}/delete' , [FranchiseStaffController::class , 'delete'])->name('customer.delete')->middleware('permission:customers.delete');
+
+        // POS routes
+        Route::middleware('permission:pos.view')->group(function () {
+            Route::get('pos' , [PosController::class , 'index'])->name('pos')->middleware('permission:pos.view');
+        });
 
         // Sales routes
         Route::middleware('permission:sales.view')->group(function () {
@@ -48,9 +47,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('sales/{sale}/edit', [SaleController::class, 'edit'])->name('sales.edit')->middleware('permission:sales.edit');
         Route::put('sales/{sale}', [SaleController::class, 'update'])->name('sales.update')->middleware('permission:sales.edit');
         Route::delete('sales/{sale}', [SaleController::class, 'destroy'])->name('sales.destroy')->middleware('permission:sales.delete');
-
-        // POS routes
-        Route::get('pos' , [PosController::class , 'pos'])->name('pos')->middleware('permission:pos.view');
     });
 
 });

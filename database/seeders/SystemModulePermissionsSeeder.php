@@ -28,7 +28,7 @@ class SystemModulePermissionsSeeder extends Seeder
                 'view', 'create', 'edit', 'delete'
             ],
             'frios_flavors' => [
-                'view', 'create', 'edit', 'delete', 'availability', 'categories'
+                'view', 'create', 'edit', 'delete', 'categories'
             ],
             'franchise_orders' => [
                 'view', 'create', 'edit', 'delete', 'edit_charges'

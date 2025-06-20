@@ -82,7 +82,7 @@ class UserManagementController extends Controller
      */
     public function create()
     {
-        $roles = Role::whereNotIn('id', [1, 2])->get();
+        $roles = Role::whereNotIn('id', [1, 3])->get();
         $franchises = Franchisee::all();
         return view('corporate_admin.users.create', compact('roles', 'franchises'));
     }
@@ -92,7 +92,8 @@ class UserManagementController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        // Define base validation rules
+        $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'phone_number' => 'nullable|string|regex:/^\(\d{3}\) \d{3}-\d{4}$/',
@@ -101,20 +102,29 @@ class UserManagementController extends Controller
                 'exists:roles,name',
                 function ($attribute, $value, $fail) {
                     $role = Role::where('name', $value)->first();
-                    if ($role && in_array($role->id, [1, 2])) {
+                    if ($role && in_array($role->id, [1, 3])) {
                         $fail('The selected role is not allowed.');
                     }
                 },
             ],
             'password' => 'required|min:8|confirmed',
-            'franchisee_id' => 'required|exists:franchisees,franchisee_id',
-        ], [
+        ];
+
+        // Define base custom messages
+        $messages = [
             'phone_number.regex' => 'Phone number must be in format (123) 456-7890',
             'role.required' => 'Please select a role for the user',
             'role.exists' => 'Selected role is invalid',
-            'franchisee_id.required' => 'Please select a franchise',
-            'franchisee_id.exists' => 'Selected franchise is invalid',
-        ]);
+        ];
+
+        // Add franchise validation only if role is not corporate_admin
+        if ($request->role !== 'corporate_admin') {
+            $rules['franchisee_id'] = 'required|exists:franchisees,franchisee_id';
+            $messages['franchisee_id.required'] = 'Please select a franchise';
+            $messages['franchisee_id.exists'] = 'Selected franchise is invalid';
+        }
+
+        $request->validate($rules, $messages);
 
         try {
             $user = User::create([
@@ -129,8 +139,8 @@ class UserManagementController extends Controller
             // Assign role using Spatie
             $user->assignRole($request->role);
 
-            // Attach franchise
-            if ($request->franchisee_id) {
+            // Attach franchise only if not corporate admin and franchisee_id is provided
+            if ($request->role !== 'corporate_admin' && $request->franchisee_id) {
                 $user->franchisees()->attach($request->franchisee_id);
             }
 
@@ -158,7 +168,7 @@ class UserManagementController extends Controller
      */
     public function edit(User $user)
     {
-        $roles = Role::whereNotIn('id', [1, 2])->get();
+        $roles = Role::whereNotIn('id', [1, 3])->get();
         $franchises = Franchisee::all();
         $user->load('roles', 'franchisees');
         return view('corporate_admin.users.edit', compact('user', 'roles', 'franchises'));
@@ -169,7 +179,8 @@ class UserManagementController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $request->validate([
+        // Define base validation rules
+        $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->user_id . ',user_id',
             'phone_number' => 'nullable|string|regex:/^\(\d{3}\) \d{3}-\d{4}$/',
@@ -178,20 +189,29 @@ class UserManagementController extends Controller
                 'exists:roles,name',
                 function ($attribute, $value, $fail) {
                     $role = Role::where('name', $value)->first();
-                    if ($role && in_array($role->id, [1, 2])) {
+                    if ($role && in_array($role->id, [1, 3])) {
                         $fail('The selected role is not allowed.');
                     }
                 },
             ],
             'password' => 'nullable|min:8|confirmed',
-            'franchisee_id' => 'required|exists:franchisees,franchisee_id',
-        ], [
+        ];
+
+        // Define base custom messages
+        $messages = [
             'phone_number.regex' => 'Phone number must be in format (123) 456-7890',
             'role.required' => 'Please select a role for the user',
             'role.exists' => 'Selected role is invalid',
-            'franchisee_id.required' => 'Please select a franchise',
-            'franchisee_id.exists' => 'Selected franchise is invalid',
-        ]);
+        ];
+
+        // Add franchise validation only if role is not corporate_admin
+        if ($request->role !== 'corporate_admin') {
+            $rules['franchisee_id'] = 'required|exists:franchisees,franchisee_id';
+            $messages['franchisee_id.required'] = 'Please select a franchise';
+            $messages['franchisee_id.exists'] = 'Selected franchise is invalid';
+        }
+
+        $request->validate($rules, $messages);
 
         try {
             $updateData = [
@@ -211,9 +231,15 @@ class UserManagementController extends Controller
             // Update role using Spatie
             $user->syncRoles([$request->role]);
 
-            // Sync franchise (single franchise)
-            if ($request->franchisee_id) {
-                $user->franchisees()->sync([$request->franchisee_id]);
+            // Sync franchise only if not corporate admin
+            if ($request->role !== 'corporate_admin') {
+                // Sync franchise (single franchise)
+                if ($request->franchisee_id) {
+                    $user->franchisees()->sync([$request->franchisee_id]);
+                }
+            } else {
+                // If changing to corporate admin, remove all franchise associations
+                $user->franchisees()->detach();
             }
 
             return redirect()->route('users.index')

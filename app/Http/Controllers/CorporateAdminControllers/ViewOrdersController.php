@@ -91,7 +91,46 @@ class ViewOrdersController extends Controller
                         return '<span class="text-muted">No Access</span>';
                     }
                 })
-                ->rawColumns(['order_number', 'ordered_by', 'items_count', 'issues', 'status', 'ups_label'])
+                ->addColumn('action', function ($order) {
+                    $actions = '<div class="dropdown">';
+                    $actions .= '<button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">';
+                    $actions .= '<i class="fa fa-cog"></i>';
+                    $actions .= '</button>';
+                    $actions .= '<ul class="dropdown-menu">';
+                    
+                    // View Details - check permission
+                    if (Auth::check() && Auth::user()->can('franchise_orders.view')) {
+                        $actions .= '<li><a class="dropdown-item" href="javascript:void(0)" onclick="viewOrderDetails(' . $order->fgp_ordersID . ')"><i class="fa fa-eye me-2"></i>View Details</a></li>';
+                    }
+                    
+                    // Edit - check permission
+                    if (Auth::check() && Auth::user()->can('franchise_orders.edit')) {
+                        $actions .= '<li><a class="dropdown-item" href="' . route('vieworders.edit', ['orderId' => $order->fgp_ordersID]) . '"><i class="fa fa-edit me-2"></i>Edit</a></li>';
+                    }
+                    
+                    // Divider - only show if there are actions above and below
+                    if ((Auth::check() && Auth::user()->can('franchise_orders.view')) || (Auth::check() && Auth::user()->can('franchise_orders.edit'))) {
+                        if (Auth::check() && Auth::user()->can('franchise_orders.edit')) {
+                            $actions .= '<li><hr class="dropdown-divider"></li>';
+                        }
+                    }
+                    
+                    // Cancel Order - check permission
+                    if (Auth::check() && Auth::user()->can('franchise_orders.edit')) {
+                        $actions .= '<li><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="changeOrderStatus(' . $order->fgp_ordersID . ', \'cancelled\')"><i class="fa fa-times me-2"></i>Cancel Order</a></li>';
+                    }
+                    
+                    // If no permissions, show view-only message
+                    if (!Auth::check() || (!Auth::user()->can('franchise_orders.view') && !Auth::user()->can('franchise_orders.edit'))) {
+                        $actions .= '<li><span class="dropdown-item text-muted">No Actions Available</span></li>';
+                    }
+                    
+                    $actions .= '</ul>';
+                    $actions .= '</div>';
+                    
+                    return $actions;
+                })
+                ->rawColumns(['order_number', 'ordered_by', 'items_count', 'issues', 'status', 'ups_label', 'action'])
                 ->make(true);
         }
 
@@ -109,19 +148,18 @@ class ViewOrdersController extends Controller
         ->select('od.*', 'fi.name')
         ->get();
 
-    // Format the date_transaction for each order detail
-    foreach ($orderDetails as $detail) {
-        // Format the date using Carbon
-        $detail->formatted_date = Carbon::parse($detail->date_transaction)->format('M d, Y h:i A');
+        // Get the main order information
+        $order = FgpOrder::find($orderId);
+
+        // Format the date_transaction for each order detail
+        foreach ($orderDetails as $detail) {
+            // Format the date using Carbon
+            $detail->formatted_date = Carbon::parse($detail->date_transaction)->format('M d, Y h:i A');
+        }
+
+        // Return HTML view instead of JSON
+        return view('corporate_admin.view_orders.detail_modal', compact('orderDetails', 'order'))->render();
     }
-
-
-        return response()->json([
-            'orderDetails' => $orderDetails,
-        ]);
-    }
-
-
 
     public function updateStatus(Request $request)
     {
@@ -243,10 +281,17 @@ public function update(Request $request, $orderId)
 
             return DataTables::of($pops)
                 ->addColumn('checkbox', function ($pop) {
-                    return '<div class="form-check checkbox-secondary">
-                        <input class="form-check-input pop-checkbox" type="checkbox" value="' . $pop->fgp_item_id . '" id="flexCheckDefault' . $pop->fgp_item_id . '">
-                        <label class="form-check-label" for="flexCheckDefault' . $pop->fgp_item_id . '"></label>
-                    </div>';
+                    if (Auth::check() && Auth::user()->can('franchise_orders.create')) {
+                        return '<div class="form-check checkbox-secondary">
+                            <input class="form-check-input pop-checkbox" type="checkbox" value="' . $pop->fgp_item_id . '" id="flexCheckDefault' . $pop->fgp_item_id . '">
+                            <label class="form-check-label" for="flexCheckDefault' . $pop->fgp_item_id . '"></label>
+                        </div>';
+                    } else {
+                        return '<div class="form-check checkbox-secondary">
+                            <input class="form-check-input pop-checkbox" type="checkbox" value="' . $pop->fgp_item_id . '" id="flexCheckDefault' . $pop->fgp_item_id . '" disabled title="You don\'t have permission to create orders">
+                            <label class="form-check-label" for="flexCheckDefault' . $pop->fgp_item_id . '"></label>
+                        </div>';
+                    }
                 })
                 ->addColumn('image', function ($pop) {
                     if ($pop->image1) {

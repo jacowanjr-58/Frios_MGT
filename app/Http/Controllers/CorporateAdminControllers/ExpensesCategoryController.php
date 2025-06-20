@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ExpensesCategoryController extends Controller
 {
-    public function index()
+    public function index($franchisee)
     {
 
         if (request()->ajax()) {
@@ -196,15 +196,17 @@ class ExpensesCategoryController extends Controller
         return view('corporate_admin.expense.index', $data);
     }
 
-    public function customer()
+    public function customer($franchisee)
     {
       
         if (request()->ajax()) {
             $user = Auth::user();
             $customers = Customer::query();
 
-            // Apply franchise filter if provided
-            if (request()->has('franchise_filter') && request()->franchise_filter != '') {
+            // Apply franchise filter from URL parameter first, then check for request filter
+            if ($franchisee) {
+                $customers->where('franchisee_id', $franchisee);
+            } elseif (request()->has('franchise_filter') && request()->franchise_filter != '') {
                 $customers->where('franchisee_id', request()->franchise_filter);
             }
 
@@ -224,7 +226,7 @@ class ExpensesCategoryController extends Controller
                     });
                 })
                 ->addColumn('action', function ($customer) {
-                    $viewUrl = route('franchise_customer.view', $customer->customer_id);
+                    $viewUrl = route('franchise.franchise_customer.view', ['franchisee' => $customer->franchisee_id, 'id' => $customer->customer_id]);
 
                     $actions = '<div class="d-flex">';
 
@@ -243,7 +245,10 @@ class ExpensesCategoryController extends Controller
                 ->make(true);
         }
 
-        $data['customerCount'] = Customer::count();
+        // Get customer count for the specific franchise
+        $customerCount = $franchisee ? Customer::where('franchisee_id', $franchisee)->count() : Customer::count();
+        $data['customerCount'] = $customerCount;
+        $data['franchisee'] = $franchisee ? Franchisee::find($franchisee) : null;
         return view('corporate_admin.customer.index', $data);
     }
 

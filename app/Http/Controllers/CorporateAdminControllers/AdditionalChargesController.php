@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AdditionalCharge;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Auth;
 
 class AdditionalChargesController extends Controller
 {
@@ -28,25 +29,44 @@ class AdditionalChargesController extends Controller
                     return '<span>Fixed</span>';
                 })
                 ->addColumn('status', function ($charge) {
-                    return '<label class="toggle-switch">
-                        <input type="checkbox" class="toggle-input" data-id="'.$charge->additionalcharges_id.'"
-                            '. ($charge->status ? 'checked' : '') .'>
-                        <span class="slider"></span>
-                    </label>';
+                    if (Auth::check() && Auth::user()->can('additional_charges.edit')) {
+                        return '<label class="toggle-switch">
+                            <input type="checkbox" class="toggle-input" data-id="'.$charge->additionalcharges_id.'"
+                                '. ($charge->status ? 'checked' : '') .'>
+                            <span class="slider"></span>
+                        </label>';
+                    } else {
+                        return '<span class="badge '. ($charge->status ? 'bg-success' : 'bg-secondary') .'">'. ($charge->status ? 'Active' : 'Inactive') .'</span>';
+                    }
                 })
                 ->addColumn('action', function ($charge) {
-                    return '<div class="d-flex">
-                        <a href="'.route('corporate_admin.additionalcharges.edit', $charge->additionalcharges_id).'" class="edit-user">
+                    $actions = '<div class="d-flex">';
+                    
+                    // Edit action - check permission
+                    if (Auth::check() && Auth::user()->can('additional_charges.edit')) {
+                        $actions .= '<a href="'.route('additionalcharges.edit', $charge->additionalcharges_id).'" class="edit-user">
                             <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
-                        </a>
-                        <form action="'.route('corporate_admin.additionalcharges.destroy', $charge->additionalcharges_id).'" method="POST" style="display:inline;">
+                        </a>';
+                    }
+                    
+                    // Delete action - check permission
+                    if (Auth::check() && Auth::user()->can('additional_charges.delete')) {
+                        $actions .= '<form action="'.route('additionalcharges.destroy', $charge->additionalcharges_id).'" method="POST" style="display:inline;">
                             '.csrf_field().'
                             '.method_field('DELETE').'
                             <button type="submit" class="ms-4 delete-charge">
                                 <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
                             </button>
-                        </form>
-                    </div>';
+                        </form>';
+                    }
+                    
+                    // If no permissions, show view-only message
+                    if (!Auth::check() || (!Auth::user()->can('additional_charges.edit') && !Auth::user()->can('additional_charges.delete'))) {
+                        // $actions .= '<span class="text-muted small">View Only</span>';
+                    }
+                    
+                    $actions .= '</div>';
+                    return $actions;
                 })
                 ->rawColumns(['charge_type', 'status', 'action'])
                 ->make(true);

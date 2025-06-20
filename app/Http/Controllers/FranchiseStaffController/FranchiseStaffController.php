@@ -62,18 +62,21 @@ class FranchiseStaffController extends Controller
     }
 
 
-    public function flavors(){
+    public function flavors($franchisee_id){
 
-        $deliveredOrders = FgpOrder::where('status', 'delivered')->get();
-        $shippedOrders = FgpOrder::where('status', 'shipped')->count();
-        $paidOrders = FgpOrder::where('status', 'paid')->count();
-        $pendingOrders = FgpOrder::where('status', 'pending')->count();
+       
+        $deliveredOrders = FgpOrder::where('status', 'delivered')->where('franchisee_id' , $franchisee_id)->get();
+       
+        $shippedOrders = FgpOrder::where('status', 'shipped')->where('franchisee_id' , $franchisee_id)->count();
+        $paidOrders = FgpOrder::where('status', 'paid')->where('franchisee_id' , $franchisee_id)->count();
+        $pendingOrders = FgpOrder::where('status', 'pending')->where('franchisee_id' , $franchisee_id)->count();
 
-        $orders = FgpOrder::where('user_ID' , Auth::user()->franchisee_id)->get();
+        $orders = FgpOrder::where('franchisee_id' , $franchisee_id)->get();
 
         $totalOrders = $orders->count();
+       
 
-        return view('franchise_staff.flavors.index', compact('deliveredOrders', 'shippedOrders', 'pendingOrders','paidOrders', 'orders', 'totalOrders'));
+        return view('franchise_staff.flavors.index', compact('deliveredOrders', 'shippedOrders', 'pendingOrders','paidOrders', 'orders', 'totalOrders','franchisee_id'));
     }
 
 

@@ -25,12 +25,14 @@ class OwnerController extends Controller
                 ->addColumn('franchisee', function ($user) {
                     $franchises = $user->franchisees;
                     if ($franchises->isEmpty()) {
-                        return '<span class="badge bg-danger">No Franchise Assigned</span>';
+                        return '<span class="text-muted">No Franchise Assigned</span>';
                     }
                     
-                    return $franchises->map(function($franchise) {
-                        return '<span class="badge bg-primary me-1">' . $franchise->business_name ?? 'N/A' . '</span>';
-                    })->implode(' ');
+                    $franchiseNames = $franchises->map(function($franchise) {
+                        return $franchise->business_name ?? 'N/A';
+                    })->toArray();
+                    
+                    return implode(', ', $franchiseNames);
                 })
                 ->addColumn('formatted_role', function ($user) {
                     return ucwords(str_replace('_', ' ', $user->role));

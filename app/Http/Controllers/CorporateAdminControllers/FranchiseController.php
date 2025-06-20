@@ -36,7 +36,7 @@ class FranchiseController extends Controller
                 })
                 ->addColumn('customer_count', function ($franchisee) {
                     $customerCount = Customer::where('franchisee_id', $franchisee->franchisee_id)->count();
-                    $franchiseCustomerUrl = route('franchise_customer', ['franchise_filter' => $franchisee->franchisee_id]);
+                    $franchiseCustomerUrl = route('franchise.franchise_customer', ['franchisee' => $franchisee->franchisee_id]);
                     
                     return '<a href="' . $franchiseCustomerUrl . '" class="text-primary fw-bold text-decoration-none">
                                 <span class="badge bg-info fs-12">' . $customerCount . ' Customers</span>

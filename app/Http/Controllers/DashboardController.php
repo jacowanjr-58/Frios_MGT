@@ -20,6 +20,9 @@ class DashboardController extends Controller
 
         $user = Auth::user();
 
+        // $permissions = $user->getPermissionsViaRoles()->pluck('name');
+        // dd($permissions);
+
         // dd($user->getAllPermissions());
         if ($user->hasRole('franchise_admin')) {
             return redirect('/franchise/select');
