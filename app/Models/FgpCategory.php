@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class FgpCategory extends Model
 {
@@ -20,6 +21,22 @@ class FgpCategory extends Model
         'name',
         'type'
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($fgpCategory) {
+            if (Auth::check()) {
+                $fgpCategory->created_by = Auth::id();
+                $fgpCategory->updated_by = Auth::id();
+            }
+        });
+
+        static::updating(function ($fgpCategory) {
+            if (Auth::check()) {
+                $fgpCategory->updated_by = Auth::id();
+            }
+        });
+    }
 
     // Many-to-many relationship with FgpItem
     public function items()
