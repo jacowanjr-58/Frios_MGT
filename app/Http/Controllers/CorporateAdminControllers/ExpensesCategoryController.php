@@ -18,7 +18,7 @@ class ExpensesCategoryController extends Controller
     {
 
         if (request()->ajax()) {
-            $expenseSubCategories = ExpenseSubCategory::query();
+            $expenseSubCategories = ExpenseSubCategory::where('franchisee_id', $franchisee);
 
             return DataTables::of($expenseSubCategories)
                 ->addColumn('category', function ($subCategory) {

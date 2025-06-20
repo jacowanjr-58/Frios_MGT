@@ -26,9 +26,9 @@ class PaymentController extends Controller
 {
 
 
-    public function transaction(){
+    public function transaction($franchisee){
         if (request()->ajax()) {
-            $transactions = OrderTransaction::query();
+            $transactions = OrderTransaction::where('franchisee_id', $franchisee);
 
             return DataTables::of($transactions)
                 ->addColumn('cardholder_name', function ($transaction) {
