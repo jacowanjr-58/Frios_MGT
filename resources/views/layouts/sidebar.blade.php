@@ -12,7 +12,7 @@
             <li class="{{ Request::routeIs('dashboard') ? 'mm-active' : '' }}">
                 <a href="{{ route('dashboard') }}" class="{{ Request::routeIs('dashboard') ? 'active' : '' }}">
                     <i class="flaticon-025-dashboard"></i>
-                    <span class="nav-text">Dashboard {{ session('franchisee_id') }}</span>
+                    <span class="nav-text">Dashboard</span>
 
                 </a>
             </li>

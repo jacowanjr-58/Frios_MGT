@@ -219,6 +219,7 @@ Route::middleware(['auth'])->prefix('franchise')->name('franchise.')->group(func
 
     Route::get('/select', [FranchiseAdminController::class, 'selectFranchisee'])->name('select_franchisee')->middleware('permission:franchises.view');
     Route::post('/set-franchisee', [FranchiseAdminController::class, 'setFranchisee'])->name('set_franchisee')->middleware('permission:franchises.view');
+    Route::post('/set-session-franchisee', [FranchiseAdminController::class, 'setSessionFranchisee'])->name('set_session_franchisee');
     Route::get('/{franchisee}/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard')->middleware('permission:dashboard.view');
 });
 

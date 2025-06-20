@@ -70,7 +70,18 @@ class FranchiseAdminController extends Controller
     public function setFranchisee(Request $request)
     {
         $request->validate(['franchisee_id' => 'required|exists:franchisees,franchisee_id']);
+        // Store the selected franchisee_id in session
+        session(['franchisee_id' => $request->franchisee_id]);
         return redirect("/franchise/{$request->franchisee_id}/dashboard");
         // return redirect()->route('franchise.dashboard', ['franchisee' => $request->franchisee_id]);
+    }
+
+    public function setSessionFranchisee(Request $request)
+    {
+        $request->validate(['franchisee_id' => 'required|exists:franchisees,franchisee_id']);
+
+        session(['franchisee_id' => $request->franchisee_id]);
+
+        return response()->json(['status' => 'success', 'message' => 'Franchisee session updated.']);
     }
 }

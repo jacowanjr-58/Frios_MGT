@@ -281,21 +281,35 @@
 <script>
 function updateFranchiseeInCurrentRoute(franchiseeId) {
     if (!franchiseeId) return;
-    
-    // Get current URL
-    const currentUrl = window.location.href;
-    const currentPath = window.location.pathname;
-    
-    // Check if current path contains franchise/{franchisee_id} pattern
-    const franchiseRouteRegex = /\/franchise\/\d+/;
-    
-    if (franchiseRouteRegex.test(currentPath)) {
-        // Replace the existing franchisee_id with the new one
-        const newPath = currentPath.replace(/\/franchise\/\d+/, '/franchise/' + franchiseeId);
-        window.location.href = window.location.origin + newPath + window.location.search;
-    } else {
-        // If not on a franchise route, redirect to dashboard
-        window.location.href = '/franchise/' + franchiseeId + '/dashboard';
-    }
+
+    // Send an AJAX request to update the session
+    fetch('{{ route("franchise.set_session_franchisee") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ franchisee_id: franchiseeId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Now that session is set, redirect
+            const currentPath = window.location.pathname;
+            const franchiseRouteRegex = /\/franchise\/\d+/;
+            if (franchiseRouteRegex.test(currentPath)) {
+                const newPath = currentPath.replace(/\/franchise\/\d+/, '/franchise/' + franchiseeId);
+                window.location.href = window.location.origin + newPath + window.location.search;
+            } else {
+                window.location.href = '/franchise/' + franchiseeId + '/dashboard';
+            }
+        } else {
+            // Handle error, maybe show an alert
+            alert('Could not update franchisee. Please try again.');
+        }
+    }).catch(error => {
+        console.error('Error updating franchisee session:', error);
+        alert('An error occurred. Please try again.');
+    });
 }
 </script>
