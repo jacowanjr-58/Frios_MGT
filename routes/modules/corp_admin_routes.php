@@ -120,7 +120,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Expense Category
-    Route::middleware('permission:expenses.categories')->group(function () {
+    Route::prefix('franchise/{franchisee}')->group(function () {
         Route::get('expense-category' , [ExpensesCategoryController::class , 'index'])->name('expense-category');
         Route::get('expense-category/create' , [ExpensesCategoryController::class , 'create'])->name('expense-category.create');
         Route::post('expense-category/store' , [ExpensesCategoryController::class , 'store'])->name('expense-category.store');

@@ -88,7 +88,7 @@
 
 
 
-                                            <form action="{{ route('expense-category.update' , $expenseSubCategory->id) }}" method="POST">
+                                            <form action="{{ route('expense-category.update' , ['franchisee' => $franchiseeId, 'id' => $expenseSubCategory->id]) }}" method="POST">
                                                 @method('PUT')
                                                 @csrf
 

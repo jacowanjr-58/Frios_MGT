@@ -96,8 +96,8 @@
                     <i class="bi bi-credit-card-2-back-fill"></i>
                     <span class="nav-text">Payments</span>
                 </a>
-                <ul aria-expanded="{{ Request::routeIs('transaction') ? 'true' : 'false' }}"
-                    class="{{ Request::routeIs('transaction') ? 'mm-collapse mm-show' : '' }}">
+                <ul aria-expanded="{{ Request::routeIs('transaction', 'franchise.transaction') ? 'true' : 'false' }}"
+                    class="{{ Request::routeIs('transaction', 'franchise.transaction') ? 'mm-collapse mm-show' : '' }}">
                     <li><a href="{{ route('transaction', ['franchisee' => $franchiseeId]) }}">Payments by Franchisee</a></li>
                 </ul>
             </li>
@@ -112,8 +112,8 @@
                 </a>
                 <ul aria-expanded="{{ Request::routeIs('expense-category', 'expense.franchisee') ? 'true' : 'false' }}"
                     class="{{ Request::routeIs('expense-category', 'expense.franchisee') ? 'mm-collapse mm-show' : '' }}">
-                    <li><a href="{{ route('expense-category') }}">Expenses by Category</a></li>
-                    <li><a href="{{ route('expense.franchisee') }}">Expenses by Franchisee</a></li>
+                    <li><a href="{{ route('expense-category', ['franchisee' => $franchiseeId]) }}">Expenses by Category</a></li>
+                    <li><a href="{{ route('expense.franchisee', ['franchisee' => $franchiseeId]) }}">Expenses by Franchisee</a></li>
                     {{-- <li><a href="edit_expense_categories.html">Edit Expense Categories</a></li> --}}
                 </ul>
             </li>

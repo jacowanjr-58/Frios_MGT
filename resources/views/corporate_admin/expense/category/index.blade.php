@@ -103,7 +103,7 @@
             $('#category-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('expense-category') }}",
+                ajax: "{{ route('expense-category', ['franchisee' => $franchiseeId]) }}",
                 columns: [
                     { data: 'category', name: 'category' },
                     { data: 'sub_category', name: 'sub_category' },

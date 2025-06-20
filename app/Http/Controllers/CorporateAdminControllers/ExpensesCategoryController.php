@@ -29,9 +29,9 @@ class ExpensesCategoryController extends Controller
                         $q->where('category', 'like', "%$keyword%");
                     });
                 })
-                ->addColumn('action', function ($subCategory) {
-                    $editUrl = route('corporate_admin.expense-category.edit', $subCategory->id);
-                    $deleteUrl = route('corporate_admin.expense-sub-category.delete', $subCategory->id);
+                ->addColumn('action', function ($subCategory) use ($franchisee) {
+                    $editUrl = route('expense-category.edit', ['franchisee' => $franchisee, 'id' => $subCategory->id]);
+                    $deleteUrl = route('expense-sub-category.delete', ['franchisee' => $franchisee, 'id' => $subCategory->id]);
 
                     return '
                     <div class="d-flex">
@@ -52,6 +52,7 @@ class ExpensesCategoryController extends Controller
         }
 
         $data['expenseSubCategoryCount'] = ExpenseSubCategory::count();
+        $data['franchiseeId'] = $franchisee;
         return view('corporate_admin.expense.category.index', $data);
     }
 
@@ -62,10 +63,11 @@ class ExpensesCategoryController extends Controller
         return view('corporate_admin.expense.category.create', $data);
     }
 
-    public function edit($id)
+    public function edit($franchisee, $id)
     {
         $data['ExpenseCategories'] = ExpenseCategory::get();
         $data['expenseSubCategory'] = ExpenseSubCategory::where('id', $id)->first();
+        $data['franchiseeId'] = $franchisee;
         return view('corporate_admin.expense.category.edit', $data);
     }
 
