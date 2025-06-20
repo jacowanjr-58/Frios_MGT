@@ -273,8 +273,9 @@ public function update(Request $request, $orderId)
     {
         if (request()->ajax()) {
             $currentMonth = strval(Carbon::now()->format('n'));
-
-            $pops = FgpItem::with('categories')
+            $franchiseeID = session('franchisee_id');
+            $pops = FgpItem::where('franchisee_id', $franchiseeID)
+                ->with('categories')
                 ->where('orderable', 1)
                 ->where('internal_inventory', '>', 0)
                 ->whereJsonContains('dates_available', $currentMonth);
@@ -334,7 +335,9 @@ public function update(Request $request, $orderId)
             ->whereJsonContains('dates_available', $currentMonth)
             ->count();
 
-        return view('corporate_admin.orderpops.index', compact('totalPops'));
+        $franchiseeID = session('franchisee_id');
+
+        return view('corporate_admin.orderpops.index', compact('totalPops', 'franchiseeID'));
     }
 
 

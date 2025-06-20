@@ -230,7 +230,7 @@
                 let orderableValue = $(this).val();
 
                 $.ajax({
-                    url: "{{ route('fgpitem.updateOrderable') }}",
+                    url: "{{ route('franchise.fgpitem.updateOrderable', ['franchisee' => $franchiseeID]) }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
