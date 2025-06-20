@@ -18,7 +18,7 @@ class ExpensesCategoryController extends Controller
     {
 
         if (request()->ajax()) {
-            $expenseSubCategories = ExpenseSubCategory::where('franchisee_id', $franchisee);
+            $expenseSubCategories = ExpenseSubCategory::where('franchisee_id', $franchisee)->get();
 
             return DataTables::of($expenseSubCategories)
                 ->addColumn('category', function ($subCategory) {
@@ -129,10 +129,10 @@ class ExpensesCategoryController extends Controller
     }
 
 
-    public function expense()
+    public function expense($franchisee)
     {
         if (request()->ajax()) {
-            $expenses = Expense::query();
+            $expenses = Expense::where('franchisee_id', $franchisee);
 
             return DataTables::of($expenses)
                 ->addColumn('franchise', function ($expense) {
@@ -162,9 +162,9 @@ class ExpensesCategoryController extends Controller
                 ->addColumn('amount', function ($expense) {
                     return '$' . number_format($expense->amount);
                 })
-                ->addColumn('action', function ($expense) {
-                    $editUrl = route('franchise.expense.edit', $expense->id);
-                    $deleteUrl = route('franchise.expense.delete', $expense->id);
+                ->addColumn('action', function ($expense) use ($franchisee) {
+                    $editUrl = route('franchise.expense.edit', ['franchisee' => $franchisee, 'id' => $expense->id]);
+                    $deleteUrl = route('franchise.expense.delete', ['franchisee' => $franchisee, 'id' => $expense->id]);
 
                     $actions = '<div class="d-flex">';
 
@@ -195,6 +195,7 @@ class ExpensesCategoryController extends Controller
         }
 
         $data['expenseCount'] = Expense::count();
+        $data['franchiseeId'] = $franchisee;
         return view('corporate_admin.expense.index', $data);
     }
 

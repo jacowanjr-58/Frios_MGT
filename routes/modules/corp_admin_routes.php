@@ -130,7 +130,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('expense-sub-category/{id}/delete' , [ExpensesCategoryController::class , 'delete'])->name('expense-sub-category.delete');
     });
 
-    Route::get('expense' , [ExpensesCategoryController::class , 'expense'])->name('expense.franchisee')->middleware('permission:expenses.by_franchisee');
+    Route::get('/franchise/{franchisee}/expense' , [ExpensesCategoryController::class , 'expense'])->name('expense.franchisee')->middleware('permission:expenses.by_franchisee');
 
     // Customer
     Route::middleware('permission:customers.by_franchisee')->prefix('franchise')->name('franchise.')->group(function () {
