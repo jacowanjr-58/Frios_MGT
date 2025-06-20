@@ -28,12 +28,14 @@ class FgpCategory extends Model
             if (Auth::check()) {
                 $fgpCategory->created_by = Auth::id();
                 $fgpCategory->updated_by = Auth::id();
+                $fgpCategory->franchisee_id = session('franchisee_id') ?? null;
             }
         });
 
         static::updating(function ($fgpCategory) {
             if (Auth::check()) {
                 $fgpCategory->updated_by = Auth::id();
+                $fgpCategory->franchisee_id = session('franchisee_id') ?? null;
             }
         });
     }

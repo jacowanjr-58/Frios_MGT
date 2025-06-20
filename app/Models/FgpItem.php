@@ -36,12 +36,14 @@ class FgpItem extends Model
             if (Auth::check()) {
                 $fgpItem->created_by = Auth::id();
                 $fgpItem->updated_by = Auth::id();
+                $fgpItem->franchisee_id = session('franchisee_id') ?? null;
             }
         });
 
         static::updating(function ($fgpItem) {
             if (Auth::check()) {
                 $fgpItem->updated_by = Auth::id();
+                $fgpItem->franchisee_id = session('franchisee_id') ?? null;
             }
         });
     }
