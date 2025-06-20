@@ -90,15 +90,15 @@
             </li>
             @endcan
             @canany(['payments.view'])
-            <li class="{{ Request::routeIs('transaction') ? 'mm-active' : '' }}">
-                <a class="has-arrow ai-icon {{ Request::routeIs('transaction') ? 'active' : '' }}"
-                    href="javascript:void()" aria-expanded="{{ Request::routeIs('transaction') ? 'true' : 'false' }}">
+            <li class="{{ Request::routeIs('transaction', 'franchise.transaction') ? 'mm-active' : '' }}">
+                <a class="has-arrow ai-icon {{ Request::routeIs('transaction', 'franchise.transaction') ? 'active' : '' }}"
+                    href="javascript:void()" aria-expanded="{{ Request::routeIs('transaction', 'franchise.transaction') ? 'true' : 'false' }}">
                     <i class="bi bi-credit-card-2-back-fill"></i>
                     <span class="nav-text">Payments</span>
                 </a>
                 <ul aria-expanded="{{ Request::routeIs('transaction') ? 'true' : 'false' }}"
                     class="{{ Request::routeIs('transaction') ? 'mm-collapse mm-show' : '' }}">
-                    <li><a href="{{ route('transaction') }}">Payments by Franchisee</a></li>
+                    <li><a href="{{ route('transaction', ['franchisee' => $franchiseeId]) }}">Payments by Franchisee</a></li>
                 </ul>
             </li>
             @endcan

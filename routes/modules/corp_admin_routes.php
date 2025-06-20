@@ -139,8 +139,8 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Payment
-    Route::middleware('permission:payments.view,pos.expense,pos.order,pos.event')->group(function () {
-        Route::get('transactions' , [CorpPaymentController::class , 'transaction'])->name('transaction');
+    Route::middleware('permission:payments.view')->group(function () {
+        Route::get('franchise/{franchisee}/transactions' , [CorpPaymentController::class , 'transaction'])->name('transaction');
         Route::get('pos/{id}/expense' , [CorpPaymentController::class , 'posExpense'])->name('pos.expense');
         Route::get('pos/expenses/{id}/download', [CorpPaymentController::class, 'posDownloadPDF'])->name('expenses.pos.download');
         Route::get('pos/{id}/order' , [CorpPaymentController::class , 'posOrder'])->name('pos.order');

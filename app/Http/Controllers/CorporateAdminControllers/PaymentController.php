@@ -102,6 +102,7 @@ class PaymentController extends Controller
         $data['expenseTransactions'] = ExpenseTransaction::get();
         $data['orderTransactions'] = OrderTransaction::get();
         $data['eventTransactions'] = EventTransaction::get();
+        $data['franchiseeId'] = request()->route('franchisee');
         return view('corporate_admin.payment.transaction' , $data);
     }
 
