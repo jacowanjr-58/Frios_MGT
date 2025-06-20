@@ -42,6 +42,7 @@ Route::middleware(StripeMiddleware::class)->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard')->middleware('auth');
     Route::get('/load-more-events', [DashboardController::class, 'loadMoreEvents'])->name('loadMoreEvents')->middleware('auth');
+    Route::post('/dashboard/filter', [DashboardController::class, 'filterDashboard'])->name('dashboard.filter')->middleware('auth');
 });
 
 Route::middleware('auth')->group(function () {
