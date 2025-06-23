@@ -5,39 +5,94 @@ namespace App\Http\Controllers\FranchiseAdminControllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Franchisee;
+use App\Models\Event;
+use App\Models\InvoiceTransaction;
+use App\Models\OrderTransaction;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class FranchiseAdminController extends Controller
 {
     public function dashboard($franchisee = null)
     {
-
-        $user = auth()->user();
-
+       
         $franchiseeId = $franchisee;
+        $user = Auth::user();
+        $userFranchisees = $user->franchisees;
+        
+        // Get the first franchisee ID for redirection
+        $firstFranchiseeId = $userFranchisees->count() > 0 
+            ? $userFranchisees->first()->franchisee_id 
+            : Franchisee::first()->franchisee_id;
+    
+        // Redirect /dashboard to /franchise/9/dashboard
+        if (request()->is('dashboard') && !$franchisee ) {
+            return redirect('/franchise/'.$firstFranchiseeId.'/dashboard');
+        }
 
-        $startOfMonth = \Carbon\Carbon::now()->startOfMonth();
+        // if ($user->hasRole('franchise_admin')) {
+           
+        //     return redirect('/franchise/'.$firstFranchiseeId.'/dashboard');
+           
+        // }
 
-        $data['eventCount'] = \App\Models\Event::where('franchisee_id', $franchiseeId)->whereMonth('created_at', \Carbon\Carbon::now()->month)->count();
-        $data['saleCount'] = \App\Models\InvoiceTransaction::where('franchisee_id', $franchiseeId)->whereMonth('created_at', \Carbon\Carbon::now()->month)->count();
-        $data['events'] = \App\Models\Event::where('franchisee_id', $franchiseeId)->orderBy('created_at', 'DESC')->take(3)->get();
-        $data['orderAmount'] = [
-            'monthly' => \App\Models\OrderTransaction::where('franchisee_id', $franchiseeId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
-        ];
-        $data['inoviceAmount'] = [
-            'monthly' => \App\Models\InvoiceTransaction::where('franchisee_id', $franchiseeId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
-        ];
-        $data['totalAmount'] = [
-            'monthly' => $data['orderAmount']['monthly'] + $data['inoviceAmount']['monthly'],
-        ];
-        $data['salesData'] = \App\Models\InvoiceTransaction::where('franchisee_id', $franchiseeId)->whereYear('created_at', \Carbon\Carbon::now()->year)
-            ->select(\DB::raw("COUNT(*) as count"), \DB::raw("MONTHNAME(created_at) as month"))
-            ->groupBy(\DB::raw("MONTH(created_at), MONTHNAME(created_at)"))
-            ->pluck('count', 'month');
-        $data['franchiseeId'] = $franchiseeId;
+        // Get default date range (current month)
+        $dateRange = $this->getDateRange('month');
+        
+        // Get all dashboard data using centralized method from DashboardController
+        $dashboardController = new \App\Http\Controllers\DashboardController();
+        $data = $dashboardController->getDashboardData($franchiseeId, $dateRange, 'month');
 
         session(['franchisee_id' => $franchiseeId]);
         
-        return view('dashboard', $data);
+        if ($user->hasRole('corporate_admin')) {
+            return view('dashboard.corporate_dashboard', $data);    
+        } else {
+            // dd('s');
+            return view('dashboard.franchise_admin_dashboard', $data);
+        }
+    }
+    
+    /**
+     * Helper method to get date range (copied from DashboardController for consistency)
+     */
+    private function getDateRange($filter, $fromDate = null, $toDate = null)
+    {
+        $now = Carbon::now();
+        
+        switch ($filter) {
+            case 'today':
+                return [
+                    'start' => $now->copy()->startOfDay(),
+                    'end' => $now->copy()->endOfDay()
+                ];
+            case 'week':
+                return [
+                    'start' => $now->copy()->startOfWeek(),
+                    'end' => $now->copy()->endOfWeek()
+                ];
+            case 'month':
+                return [
+                    'start' => $now->copy()->startOfMonth(),
+                    'end' => $now->copy()->endOfMonth()
+                ];
+            case 'year':
+                return [
+                    'start' => $now->copy()->startOfYear(),
+                    'end' => $now->copy()->endOfYear()
+                ];
+            case 'custom':
+                return [
+                    'start' => Carbon::parse($fromDate)->startOfDay(),
+                    'end' => Carbon::parse($toDate)->endOfDay()
+                ];
+            default:
+                return [
+                    'start' => $now->copy()->startOfMonth(),
+                    'end' => $now->copy()->endOfMonth()
+                ];
+        }
     }
 
     public function selectFranchisee()
@@ -72,6 +127,7 @@ class FranchiseAdminController extends Controller
         $request->validate(['franchisee_id' => 'required|exists:franchisees,franchisee_id']);
         // Store the selected franchisee_id in session
         session(['franchisee_id' => $request->franchisee_id]);
+
         return redirect("/franchise/{$request->franchisee_id}/dashboard");
         // return redirect()->route('franchise.dashboard', ['franchisee' => $request->franchisee_id]);
     }

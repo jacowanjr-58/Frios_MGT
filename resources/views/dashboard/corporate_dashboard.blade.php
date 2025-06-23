@@ -16,16 +16,20 @@
 
                 <!-- Filter Dropdown -->
                 <div class="dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" id="dateFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #00ABC7 !important; color: #fff !important;">
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="dateFilterDropdown"
+                        data-bs-toggle="dropdown" aria-expanded="false"
+                        style="background-color: #00ABC7 !important; color: #fff !important;">
                         <i class="fa fa-calendar me-2"></i>
-                        <span id="selectedFilter">Last Month</span>
+                        <span id="selectedFilter">Current Month</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dateFilterDropdown">
                         <li><a class="dropdown-item filter-option" href="#" data-filter="today">Today</a></li>
                         <li><a class="dropdown-item filter-option" href="#" data-filter="week">Last Week</a></li>
-                        <li><a class="dropdown-item filter-option active" href="#" data-filter="month">Last Month</a></li>
+                        <li><a class="dropdown-item filter-option active" href="#" data-filter="month">Current Month</a></li>
                         <li><a class="dropdown-item filter-option" href="#" data-filter="year">Last Year</a></li>
-                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li><a class="dropdown-item filter-option" href="#" data-filter="custom">Custom Range</a></li>
                     </ul>
                 </div>
@@ -69,16 +73,16 @@
                                 <div class="card-body">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div>
-                                            <h2 class="stat-number mb-0" id="totalCustomersStat">{{ number_format($totalCustomers ?? 0) }}</h2>
+                                            <h2 class="stat-number mb-0" id="totalCustomersStat">
+                                                {{ Number::abbreviate($totalCustomers ?? 0) }}
+                                            </h2>
                                             <h6 class="stat-label text-muted mb-0">Total Customers</h6>
                                         </div>
                                         <div class="stat-icon bg-primary-light">
                                             <i class="fa fa-users text-primary"></i>
                                         </div>
                                     </div>
-                                    <div class="progress mt-3" style="height: 4px;">
-                                        <div class="progress-bar bg-primary" style="width: 85%"></div>
-                                    </div>
+                                   
                                 </div>
                             </div>
                         </div>
@@ -89,82 +93,62 @@
                                 <div class="card-body">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div>
-                                            <h2 class="stat-number mb-0" id="totalFlavorsStat">{{ number_format($totalFlavors ?? 0) }}</h2>
+                                            <h2 class="stat-number mb-0" id="totalFlavorsStat">
+                                                {{ Number::abbreviate($totalFlavors ?? 0) }}
+                                            </h2>
                                             <h6 class="stat-label text-muted mb-0">Total Flavors</h6>
                                         </div>
                                         <div class="stat-icon bg-info-light">
                                             <i class="fa fa-ice-cream text-info"></i>
                                         </div>
                                     </div>
-                                    <div class="progress mt-3" style="height: 4px;">
-                                        <div class="progress-bar bg-info" style="width: 95%"></div>
-                                    </div>
+                                 
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Total Flavor Categories Card -->
-                        <div class="col-xl-3 col-lg-6 col-sm-6">
-                            <div class="card statistics-card">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <div>
-                                            <h2 class="stat-number mb-0" id="totalFlavorCategoriesStat">{{ number_format($totalFlavorCategories ?? 0) }}</h2>
-                                            <h6 class="stat-label text-muted mb-0">Flavor Categories</h6>
-                                        </div>
-                                        <div class="stat-icon bg-warning-light">
-                                            <i class="fa fa-tags text-warning"></i>
-                                        </div>
-                                    </div>
-                                    <div class="progress mt-3" style="height: 4px;">
-                                        <div class="progress-bar bg-warning" style="width: 80%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Total Orders Card -->
                         <div class="col-xl-3 col-lg-6 col-sm-6">
                             <div class="card statistics-card">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div>
-                                            <h2 class="stat-number mb-0" id="totalOrdersStat">{{ number_format($totalOrders ?? 0) }}</h2>
+                                            <h2 class="stat-number mb-0" id="totalOrdersStat">
+                                                {{ Number::abbreviate($totalOrders ?? 0) }}
+                                            </h2>
                                             <h6 class="stat-label text-muted mb-0">Total Orders</h6>
                                         </div>
                                         <div class="stat-icon bg-success-light">
                                             <i class="fa fa-shopping-cart text-success"></i>
                                         </div>
                                     </div>
-                                    <div class="progress mt-3" style="height: 4px;">
-                                        <div class="progress-bar bg-success" style="width: 75%"></div>
-                                    </div>
+                                   
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Second Row -->
-                    <div class="row mt-4">
                         <!-- Total Pop Orders Card -->
                         <div class="col-xl-3 col-lg-6 col-sm-6">
                             <div class="card statistics-card">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div>
-                                            <h2 class="stat-number mb-0" id="totalPopOrdersStat">{{ number_format($totalPopOrders ?? 0) }}</h2>
+                                            <h2 class="stat-number mb-0" id="totalPopOrdersStat">
+                                                {{ Number::abbreviate($totalPopOrders ?? 0) }}
+                                            </h2>
                                             <h6 class="stat-label text-muted mb-0">Total Pop Orders</h6>
                                         </div>
                                         <div class="stat-icon bg-primary-light">
                                             <i class="fa fa-shopping-bag text-primary"></i>
                                         </div>
                                     </div>
-                                    <div class="progress mt-3" style="height: 4px;">
-                                        <div class="progress-bar bg-primary" style="width: {{ $totalPopOrders > 0 ? min((($monthlyPopOrders ?? 0) / $totalPopOrders) * 100, 100) : 0 }}%"></div>
-                                    </div>
+                                   
                                 </div>
                             </div>
                         </div>
+
+                    </div>
+
+                    <!-- Second Row -->
+                    <div class="row mt-4">
 
                         <!-- Events Card -->
                         <div class="col-xl-3 col-lg-6 col-sm-6">
@@ -179,21 +163,60 @@
                                             <i class="fa fa-calendar text-info"></i>
                                         </div>
                                     </div>
-                                    <div class="progress mt-3" style="height: 4px;">
-                                        <div class="progress-bar bg-info" style="width: 75%"></div>
-                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>
 
                         <!-- Revenue Card -->
+                        <!-- <div class="col-xl-3 col-lg-6 col-sm-6">
+                                <div class="card statistics-card">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <h2 class="stat-number mb-0" id="totalInventoryStat">
+                                                    {{ Number::abbreviate($inventoryStatus['total_inventory'] ?? 0) }}
+                                                </h2>
+                                                <h6 class="stat-label text-muted mb-0">Total Inventory</h6>
+                                            </div>
+                                            <div class="stat-icon bg-info-light">
+                                                <i class="fa fa-warehouse text-info"></i>
+                                            </div>
+                                        </div>
+                                        <div class="progress mt-3" style="height: 4px;">
+                                            <div class="progress-bar bg-info" style="width: 90%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> -->
+
+                        <!-- Total Allocated to Events Card -->
+                        <div class="col-xl-3 col-lg-6 col-sm-6">
+                            <div class="card statistics-card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <h2 class="stat-number mb-0" id="totalAllocatedStat">
+                                                {{ Number::abbreviate($inventoryStatus['allocated_to_events'] ?? 0) }}
+                                            </h2>
+                                            <h6 class="stat-label text-muted mb-0">Allocated to Events</h6>
+                                        </div>
+                                        <div class="stat-icon bg-warning-light">
+                                            <i class="fa fa-calendar-check text-warning"></i>
+                                        </div>
+                                    </div>
+                                   
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="col-xl-3 col-lg-6 col-sm-6">
                             <div class="card statistics-card">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div>
                                             <h2 class="stat-number mb-0" id="revenueStat">
-                                                ${{ number_format($totalAmount['monthly']) }}
+                                                ${{ Number::abbreviate($totalAmount['monthly'] ?? 0) }}
                                             </h2>
                                             <h6 class="stat-label text-muted mb-0">Revenue</h6>
                                         </div>
@@ -201,9 +224,7 @@
                                             <i class="fa fa-dollar-sign text-success"></i>
                                         </div>
                                     </div>
-                                    <div class="progress mt-3" style="height: 4px;">
-                                        <div class="progress-bar bg-success" style="width: 60%"></div>
-                                    </div>
+                                   
                                 </div>
                             </div>
                         </div>
@@ -221,55 +242,16 @@
                                             <i class="fa fa-chart-line text-warning"></i>
                                         </div>
                                     </div>
-                                    <div class="progress mt-3" style="height: 4px;">
-                                        <div class="progress-bar bg-warning" style="width: 85%"></div>
-                                    </div>
+                                   
                                 </div>
                             </div>
                         </div>
-                    </div>
 
+                    </div>
                     <!-- Third Row -->
                     <div class="row mt-4">
                         <!-- Total Inventory Card -->
-                        <div class="col-xl-3 col-lg-6 col-sm-6">
-                            <div class="card statistics-card">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <div>
-                                            <h2 class="stat-number mb-0" id="totalInventoryStat">{{ number_format($inventoryStatus['total_inventory'] ?? 0) }}</h2>
-                                            <h6 class="stat-label text-muted mb-0">Total Inventory</h6>
-                                        </div>
-                                        <div class="stat-icon bg-info-light">
-                                            <i class="fa fa-warehouse text-info"></i>
-                                        </div>
-                                    </div>
-                                    <div class="progress mt-3" style="height: 4px;">
-                                        <div class="progress-bar bg-info" style="width: 90%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Total Allocated to Events Card -->
-                        <div class="col-xl-3 col-lg-6 col-sm-6">
-                            <div class="card statistics-card">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <div>
-                                            <h2 class="stat-number mb-0" id="totalAllocatedStat">{{ number_format($inventoryStatus['allocated_to_events'] ?? 0) }}</h2>
-                                            <h6 class="stat-label text-muted mb-0">Allocated to Events</h6>
-                                        </div>
-                                        <div class="stat-icon bg-warning-light">
-                                            <i class="fa fa-calendar-check text-warning"></i>
-                                        </div>
-                                    </div>
-                                    <div class="progress mt-3" style="height: 4px;">
-                                        <div class="progress-bar bg-warning" style="width: {{ ($inventoryStatus['allocation_percentage'] ?? 0) }}%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
                         <!-- Total Expenses Card -->
                         <div class="col-xl-3 col-lg-6 col-sm-6">
@@ -277,57 +259,57 @@
                                 <div class="card-body">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div>
-                                            <h2 class="stat-number mb-0" id="totalExpensesStat">${{ number_format($totalExpenses ?? 0, 2) }}</h2>
+                                            <h2 class="stat-number mb-0" id="totalExpensesStat">
+                                                ${{ Number::abbreviate($totalExpenses ?? 0, 2) }}</h2>
                                             <h6 class="stat-label text-muted mb-0">Total Expenses</h6>
                                         </div>
                                         <div class="stat-icon bg-danger-light">
                                             <i class="fa fa-credit-card text-danger"></i>
                                         </div>
                                     </div>
-                                    <div class="progress mt-3" style="height: 4px;">
-                                        <div class="progress-bar bg-danger" style="width: 65%"></div>
-                                    </div>
+                                   
                                 </div>
                             </div>
                         </div>
 
+
                         <!-- Total Charges Card -->
-                        <div class="col-xl-3 col-lg-6 col-sm-6">
-                            <div class="card statistics-card">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <div>
-                                            <h2 class="stat-number mb-0" id="totalChargesStat">${{ number_format($totalCharges ?? 0, 2) }}</h2>
-                                            <h6 class="stat-label text-muted mb-0">Total Charges</h6>
+                        <!-- <div class="col-xl-3 col-lg-6 col-sm-6">
+                                        <div class="card statistics-card">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <div>
+                                                        <h2 class="stat-number mb-0" id="totalChargesStat">${{ Number::abbreviate($totalCharges ?? 0, 2) }}</h2>
+                                                        <h6 class="stat-label text-muted mb-0">Total Charges</h6>
+                                                    </div>
+                                                    <div class="stat-icon bg-success-light">
+                                                        <i class="fa fa-plus-circle text-success"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="progress mt-3" style="height: 4px;">
+                                                    <div class="progress-bar bg-success" style="width: 70%"></div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="stat-icon bg-success-light">
-                                            <i class="fa fa-plus-circle text-success"></i>
-                                        </div>
-                                    </div>
-                                    <div class="progress mt-3" style="height: 4px;">
-                                        <div class="progress-bar bg-success" style="width: 70%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                    </div> -->
                     </div>
 
                     <!-- Chart Section -->
                     <!-- <div class="row mt-4">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h4 class="card-title">Sales Overview</h4>
-                                    <div class="d-flex align-items-center">
-                                        <span class="me-3 text-muted">Period: <span id="chartPeriod">Last Month</span></span>
+                                    <div class="col-12">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h4 class="card-title">Sales Overview</h4>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="me-3 text-muted">Period: <span id="chartPeriod">Last Month</span></span>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="salesChart"></div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="card-body">
-                                    <div id="salesChart"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
+                                </div> -->
 
                     <!-- Enhanced Franchise Insights Section -->
                     <div class="row mt-4">
@@ -343,26 +325,28 @@
                                 <div class="card-body">
                                     @if(isset($topFlavors) && $topFlavors->count() > 0)
                                         @foreach($topFlavors as $index => $flavor)
-                                            <div class="d-flex align-items-center mb-3 {{ $loop->last ? '' : 'border-bottom pb-3' }}">
+                                            <div
+                                                class="d-flex align-items-center mb-3 {{ $loop->last ? '' : 'border-bottom pb-3' }}">
                                                 <div class="rank-badge me-3">
-                                                    <span class="badge badge-{{ $index === 0 ? 'warning' : ($index === 1 ? 'secondary' : 'info') }}">
+                                                    <span
+                                                        class="badge badge-{{ $index === 0 ? 'warning' : ($index === 1 ? 'secondary' : 'info') }}">
                                                         #{{ $index + 1 }}
                                                     </span>
                                                 </div>
                                                 <div class="flavor-image me-3">
-                                                    <img src="{{ asset('storage/' . $flavor->image1) }}" 
-                                                         alt="{{ $flavor->name }}" 
-                                                         class="rounded-circle"
-                                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                                    <img src="{{ asset('storage/' . $flavor->image1) }}" alt="{{ $flavor->name }}"
+                                                        class="rounded-circle"
+                                                        style="width: 50px; height: 50px; object-fit: cover;">
                                                 </div>
                                                 <div class="flex-grow-1">
                                                     <h6 class="mb-1">{{ $flavor->name }}</h6>
-                                                    <small class="text-muted">{{ number_format($flavor->total_ordered) }} units ordered</small>
+                                                    <small class="text-muted">{{ Number::abbreviate($flavor->total_ordered) }} units
+                                                        ordered</small>
                                                 </div>
                                                 <div class="text-end">
                                                     <div class="progress" style="width: 100px; height: 8px;">
-                                                        <div class="progress-bar bg-primary" 
-                                                             style="width: {{ ($flavor->total_ordered / $topFlavors->max('total_ordered')) * 100 }}%">
+                                                        <div class="progress-bar bg-primary"
+                                                            style="width: {{ ($flavor->total_ordered / $topFlavors->max('total_ordered')) * 100 }}%">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -391,12 +375,12 @@
                                     <div class="row text-center">
                                         <div class="col-6">
                                             <div class="border-end">
-                                                <h3 class="text-success mb-1">{{ number_format($totalPopOrders ?? 0) }}</h3>
+                                                <h3 class="text-success mb-1">{{ Number::abbreviate($totalPopOrders ?? 0) }}</h3>
                                                 <p class="text-muted mb-0">Total Orders</p>
                                             </div>
                                         </div>
                                         <div class="col-6">
-                                            <h3 class="text-primary mb-1">{{ number_format($monthlyPopOrders ?? 0) }}</h3>
+                                            <h3 class="text-primary mb-1">{{ Number::abbreviate($monthlyPopOrders ?? 0) }}</h3>
                                             <p class="text-muted mb-0">This Month</p>
                                         </div>
                                     </div>
@@ -408,10 +392,10 @@
                                             </span>
                                         </div>
                                         <div class="progress" style="height: 8px;">
-                                            <div class="progress-bar bg-success" 
-                                                 style="width: {{ $totalPopOrders > 0 ? (($monthlyPopOrders / $totalPopOrders) * 100) : 0 }}%">
-                                    </div>
-                                </div>
+                                            <div class="progress-bar bg-success"
+                                                style="width: {{ $totalPopOrders > 0 ? (($monthlyPopOrders / $totalPopOrders) * 100) : 0 }}%">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -434,20 +418,22 @@
                                         <div class="col-md-4 text-end">
                                             <div class="d-flex justify-content-end">
                                                 <div class="me-4">
-                                                    <h5 class="text-white mb-0">${{ number_format($totalSales['current_month'] ?? 0, 2) }}</h5>
+                                                    <h5 class="text-white mb-0">
+                                                        ${{ Number::abbreviate($totalSales['current_month'] ?? 0, 2) }}</h5>
                                                     <small class="text-white-50">This Month</small>
-                                    </div>
-                                    <div>
-                                                    <h4 class="text-white mb-0">${{ number_format($totalSales['all_time'] ?? 0, 2) }}</h4>
+                                                </div>
+                                                <div>
+                                                    <h4 class="text-white mb-0">
+                                                        ${{ Number::abbreviate($totalSales['all_time'] ?? 0, 2) }}</h4>
                                                     <small class="text-white-50">All Time</small>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                </div>
                             </div>
                         </div>
+                    </div>
 
                     <!-- Inventory vs Event Allocation -->
                     <div class="row mt-4" style="display: none;">
@@ -463,25 +449,33 @@
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="text-center p-3">
-                                                <h4 class="text-info mb-1">{{ number_format($inventoryStatus['total_inventory'] ?? 0) }}</h4>
+                                                <h4 class="text-info mb-1">
+                                                    {{ Number::abbreviate($inventoryStatus['total_inventory'] ?? 0) }}
+                                                </h4>
                                                 <p class="text-muted mb-0">Total Inventory</p>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="text-center p-3 border-start">
-                                                <h4 class="text-warning mb-1">{{ number_format($inventoryStatus['allocated_to_events'] ?? 0) }}</h4>
+                                                <h4 class="text-warning mb-1">
+                                                    {{ Number::abbreviate($inventoryStatus['allocated_to_events'] ?? 0) }}
+                                                </h4>
                                                 <p class="text-muted mb-0">Allocated to Events</p>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="text-center p-3 border-start">
-                                                <h4 class="text-success mb-1">{{ number_format($inventoryStatus['available_inventory'] ?? 0) }}</h4>
+                                                <h4 class="text-success mb-1">
+                                                    {{ Number::abbreviate($inventoryStatus['available_inventory'] ?? 0) }}
+                                                </h4>
                                                 <p class="text-muted mb-0">Available</p>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="text-center p-3 border-start">
-                                                <h4 class="text-primary mb-1">{{ $inventoryStatus['allocation_percentage'] ?? 0 }}%</h4>
+                                                <h4 class="text-primary mb-1">
+                                                    {{ $inventoryStatus['allocation_percentage'] ?? 0 }}%
+                                                </h4>
                                                 <p class="text-muted mb-0">Allocation Rate</p>
                                             </div>
                                         </div>
@@ -492,8 +486,8 @@
                                             <span>{{ $inventoryStatus['allocation_percentage'] ?? 0 }}%</span>
                                         </div>
                                         <div class="progress" style="height: 10px;">
-                                            <div class="progress-bar bg-warning" 
-                                                 style="width: {{ $inventoryStatus['allocation_percentage'] ?? 0 }}%">
+                                            <div class="progress-bar bg-warning"
+                                                style="width: {{ $inventoryStatus['allocation_percentage'] ?? 0 }}%">
                                             </div>
                                         </div>
                                         @if(($inventoryStatus['allocation_percentage'] ?? 0) > 80)
@@ -514,19 +508,20 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center justify-content-between">
-                                    <div>
+                                        <div>
                                             <h4 class="mb-1">Events Progress</h4>
                                             <p class="text-muted mb-0">Track your event completion rate</p>
                                         </div>
                                         <div class="text-end">
-                                        @php
-                                            $totalEvents = 10;
-                                            $percentage = ($eventCount / $totalEvents) * 100;
-                                        @endphp
-                                        <div class="d-inline-block position-relative donut-chart-sale">
-                                            <span class="donut1"
-                                                data-peity='{ "fill": ["var(--primary)", "rgba(240, 240, 240)"],   "innerRadius": 35, "radius": 10}'>{{ $eventCount }}/{{ $totalEvents }}</span>
-                                            <small class="text-black">{{ round($percentage) }}%</small>
+                                            @php
+                                                $totalEvents = 10;
+                                                $percentage = ($eventCount / $totalEvents) * 100;
+                                            @endphp
+                                            <div class="d-inline-block position-relative donut-chart-sale">
+                                                <span class="donut1"
+                                                    data-peity='{ "fill": ["var(--primary)", "rgba(240, 240, 240)"],   "innerRadius": 35, "radius": 10}'>{{ $eventCount }}/{{ $totalEvents }}</span>
+                                                <small class="text-black">{{ round($percentage) }}%</small>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -534,26 +529,24 @@
                         </div>
                     </div>
                 </div>
-                </div>
 
                 <!-- Franchise Events Calendar & Upcoming Events Sidebar -->
                 <div class="col-xl-3">
                     <!-- Upcoming Events -->
                     <div class="card h-auto mb-4">
-                                <div class="card-body text-center event-calender pb-2 px-2 pt-2">
-                                    <input type='text' class="form-control d-none" id='datetimepicker1'>
-                                </div>
-                                <div class="card-header py-0 border-0">
-                                    <h4 class="text-black fs-20">Upcoming Events</h4>
+                        <div class="card-body text-center event-calender pb-2 px-2 pt-2">
+                            <input type='text' class="form-control d-none" id='datetimepicker1'>
+                        </div>
+                        <div class="card-header py-0 border-0">
+                            <h4 class="text-black fs-20">Upcoming Events</h4>
                             <p class="text-muted mb-0">Next scheduled events</p>
-                                </div>
+                        </div>
                         <div class="card-body pb-0 loadmore-content height300 dz-scroll" id="UpcomingEventContent">
-                                    @include('franchise_admin.event.upcoming')
-                                </div>
-                                <div class="card-footer pt-0 border-0">
-                                    <a href="javascript:void(0);"
-                                class="btn btn-primary btn-block text-white dz-load-more w-100" id="UpcomingEvent"
-                                rel="page-error-404.html">Load More Events</a>
+                            @include('franchise_admin.event.upcoming')
+                        </div>
+                        <div class="card-footer pt-0 border-0">
+                            <a href="javascript:void(0);" class="btn btn-primary btn-block text-white dz-load-more w-100"
+                                id="UpcomingEvent" rel="page-error-404.html">Load More Events</a>
                         </div>
                     </div>
 
@@ -572,37 +565,39 @@
 
                     <!-- Event Allocation Summary -->
                     @if(isset($eventAllocations) && $eventAllocations->count() > 0)
-                    <div class="card mt-4">
-                        <div class="card-header">
-                            <h4 class="card-title">
-                                <i class="fa fa-chart-pie text-success me-2"></i>
-                                Event Allocations
-                            </h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="allocation-list" style="max-height: 300px; overflow-y: auto;">
-                                @foreach($eventAllocations->take(5) as $allocation)
-                                    <div class="allocation-item mb-3 p-2 border rounded">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-1">{{ $allocation->event_name }}</h6>
-                                                <small class="text-muted">{{ \Carbon\Carbon::parse($allocation->start_date)->format('M d, Y') }}</small>
-                                            </div>
-                                            <span class="badge bg-info">{{ $allocation->total_allocated }}</span>
-                                        </div>
-                                        <div class="mt-2">
-                                            <small class="text-primary">{{ $allocation->flavor_name }}</small>
-                                        </div>
-                                </div>
-                                @endforeach
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h4 class="card-title">
+                                    <i class="fa fa-chart-pie text-success me-2"></i>
+                                    Event Allocations
+                                </h4>
                             </div>
-                            @if($eventAllocations->count() > 5)
-                                <div class="text-center mt-3">
-                                    <small class="text-muted">And {{ $eventAllocations->count() - 5 }} more allocations...</small>
+                            <div class="card-body">
+                                <div class="allocation-list" style="max-height: 300px; overflow-y: auto;">
+                                    @foreach($eventAllocations->take(5) as $allocation)
+                                        <div class="allocation-item mb-3 p-2 border rounded">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1">{{ $allocation->event_name }}</h6>
+                                                    <small
+                                                        class="text-muted">{{ \Carbon\Carbon::parse($allocation->start_date)->format('M d, Y') }}</small>
+                                                </div>
+                                                <span class="badge bg-info">{{ $allocation->total_allocated }}</span>
+                                            </div>
+                                            <div class="mt-2">
+                                                <small class="text-primary">{{ $allocation->flavor_name }}</small>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
-                            @endif
+                                @if($eventAllocations->count() > 5)
+                                    <div class="text-center mt-3">
+                                        <small class="text-muted">And {{ $eventAllocations->count() - 5 }} more
+                                            allocations...</small>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
-                    </div>
                     @endif
                 </div>
             </div>
@@ -637,8 +632,8 @@
         }
 
         .stat-icon {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -707,8 +702,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .card {
@@ -724,14 +724,15 @@
             font-size: 0.75rem;
             padding: 0.5rem 0.75rem;
         }
-        .button#dateFilterDropdown{
-        background-color: #00ABC7 !important;
-        color: #fff !important;
-    }
+
+        .button#dateFilterDropdown {
+            background-color: #00ABC7 !important;
+            color: #fff !important;
+        }
 
         .badge-warning {
             background-color: #ffc107 !important;
-            color: #212529 !important;
+            color: #fff !important;
         }
 
         .badge-secondary {
@@ -740,7 +741,7 @@
 
         .badge-info {
             background-color: #0dcaf0 !important;
-            color: #212529 !important;
+            color: #fff !important;
         }
 
         .flavor-image img {
@@ -815,111 +816,117 @@
                         $('#UpcomingEvent').hide();
                     }
                 },
-                error: function() {
+                error: function () {
                     $('#UpcomingEvent').html('Load More Events');
                 }
             });
         });
 
         // Filter functionality
-        $('.filter-option').click(function(e) {
+        $('.filter-option').click(function (e) {
             e.preventDefault();
-            
+
             const filter = $(this).data('filter');
             const filterText = $(this).text();
-            
+
             if (filter === 'custom') {
                 $('#customDateModal').modal('show');
                 return;
             }
-            
+
             // Update active state
             $('.filter-option').removeClass('active');
             $(this).addClass('active');
             $('#selectedFilter').text(filterText);
-            
+
             currentFilter = filter;
             applyFilter(filter);
         });
 
         // Custom date range functionality
-        $('#applyCustomRange').click(function() {
+        $('#applyCustomRange').click(function () {
             const fromDate = $('#fromDate').val();
             const toDate = $('#toDate').val();
-            
+
             if (!fromDate || !toDate) {
                 alert('Please select both from and to dates');
                 return;
             }
-            
+
             if (fromDate > toDate) {
                 alert('From date cannot be greater than to date');
                 return;
             }
-            
+
             customDateRange = { from: fromDate, to: toDate };
             $('.filter-option').removeClass('active');
             $('#selectedFilter').text(`${fromDate} to ${toDate}`);
             $('#customDateModal').modal('hide');
-            
+
             applyFilter('custom', customDateRange);
         });
 
         function applyFilter(filter, dateRange = null) {
             // Show loading state for ALL statistics cards
             $('.statistics-card').addClass('filter-loading');
-            
+
             // Show filter indicator
             $('#selectedFilter').html('<i class="fa fa-spinner fa-spin me-2"></i>Filtering...');
-            
+
             const data = {
                 filter: filter,
                 _token: '{{ csrf_token() }}'
             };
-            
+
             if (dateRange) {
                 data.from_date = dateRange.from;
                 data.to_date = dateRange.to;
             }
-            
+
+            const filterUrl = @if(request()->route('franchisee'))
+                "{{ route('franchise.dashboard.filter', ['franchisee' => request()->route('franchisee')]) }}"
+            @else
+                "{{ route('dashboard.filter') }}"
+            @endif;
+
             $.ajax({
-                url: "{{ route('dashboard.filter') }}", 
+                url: filterUrl,
                 type: "POST",
                 data: data,
-                success: function(response) {
+                success: function (response) {
                     // Update main statistics row
                     $('#totalCustomersStat').text(numberFormat(response.totalCustomers || 0));
                     $('#totalFlavorsStat').text(numberFormat(response.totalFlavors || 0));
                     $('#totalFlavorCategoriesStat').text(numberFormat(response.totalFlavorCategories || 0));
                     $('#totalOrdersStat').text(numberFormat(response.totalOrders || 0));
-                    
+
                     // Update second row statistics
                     $('#totalPopOrdersStat').text(numberFormat(response.totalPopOrders || 0));
                     $('#eventCountStat').text(numberFormat(response.eventCount));
                     $('#revenueStat').text('$' + numberFormat(response.totalAmount, 2));
                     $('#salesCountStat').text(numberFormat(response.saleCount));
-                    
+
                     // Update third row statistics
                     $('#totalInventoryStat').text(numberFormat(response.totalInventory || 0));
                     $('#totalAllocatedStat').text(numberFormat(response.totalAllocated || 0));
                     $('#totalExpensesStat').text('$' + numberFormat(response.totalExpenses || 0, 2));
                     $('#totalChargesStat').text('$' + numberFormat(response.totalCharges || 0, 2));
-                    
+
                     // Update chart period
                     $('#chartPeriod').text($('#selectedFilter').text());
-                    
+
                     // Update chart with new data
                     if (response.salesData) {
                         updateSalesChart(response.salesData);
                     }
-                    
+
                     // Remove loading state from ALL cards
                     $('.statistics-card').removeClass('filter-loading');
-                    
+
                     // Show success indicator
                     showFilterSuccess();
                 },
-                error: function() {
+                error: function () {
                     $('.statistics-card').removeClass('filter-loading');
                     $('#selectedFilter').text('Filter Error');
                     alert('Error applying filter. Please try again.');
@@ -931,8 +938,8 @@
             // Temporarily show a success indicator
             const originalText = $('#selectedFilter').text();
             $('#selectedFilter').html('<i class="fa fa-check text-success me-2"></i>' + originalText);
-            
-            setTimeout(function() {
+
+            setTimeout(function () {
                 $('#selectedFilter').text(originalText);
             }, 2000);
         }
@@ -1045,37 +1052,36 @@
                         right: 'dayGridMonth,listWeek'
                     },
                     events: calendarEvents,
-                        eventContent: function(arg) {
-                            return {
-                                html: '<div class="fc-event-title text-truncate" title="' + arg.event.title + '">' + 
-                                      arg.event.title + '</div>'
-                            };
-                        },
-                        eventDidMount: function(info) {
-                            var status = info.event.extendedProps.status;
-                            var className = 'fc-event-' + status;
-                            info.el.classList.add(className);
-                            
-                            // Add tooltip
-                            info.el.setAttribute('title', 
-                                info.event.title + '\n' +
-                                'Status: ' + status + '\n' +
-                                'Customer: ' + (info.event.extendedProps.customer || 'N/A') + '\n' +
-                                'Expected Sales: $' + (info.event.extendedProps.expected_sales || '0')
-                            );
-                        },
-                        eventClassNames: function(arg) {
-                            switch(arg.event.extendedProps.status) {
-                                case 'scheduled': return ['bg-success'];
-                                case 'tentative': return ['bg-warning'];
-                                case 'staffed': return ['bg-info'];
-                                default: return ['bg-secondary'];
-                            }
+                    eventContent: function (arg) {
+                        return {
+                            html: '<div class="fc-event-title text-truncate" title="' + arg.event.title + '">' +
+                                arg.event.title + '</div>'
+                        };
+                    },
+                    eventDidMount: function (info) {
+                        var status = info.event.extendedProps.status;
+                        var className = 'fc-event-' + status;
+                        info.el.classList.add(className);
+
+                        // Add tooltip
+                        info.el.setAttribute('title',
+                            info.event.title + '\n' +
+                            'Status: ' + status + '\n' +
+                            'Customer: ' + (info.event.extendedProps.customer || 'N/A') + '\n' +
+                            'Expected Sales: $' + (info.event.extendedProps.expected_sales || '0')
+                        );
+                    },
+                    eventClassNames: function (arg) {
+                        switch (arg.event.extendedProps.status) {
+                            case 'scheduled': return ['bg-success'];
+                            case 'tentative': return ['bg-warning'];
+                            case 'staffed': return ['bg-info'];
+                            default: return ['bg-secondary'];
                         }
-                    });
-                    calendar.render();
-                }
+                    }
+                });
+                calendar.render();
+            }
         }
     </script>
 @endsection
-
