@@ -34,7 +34,7 @@
         }
     </style>
 @endpush
-
+@can('transactions.view')
 <div class="content-body default-height">
         <!-- row -->
         <div class="container-fluid">
@@ -144,6 +144,20 @@
 
         </div>
     </div>
+    @else
+        <div class="content-body default-height">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="alert alert-warning text-center" role="alert">
+                            <i class="ti ti-alert-circle fs-20 me-2"></i>
+                            <strong>Access Denied!</strong> You don't have permission to view Flavor Categories.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endcan
 @endsection
 
 @push('scripts')

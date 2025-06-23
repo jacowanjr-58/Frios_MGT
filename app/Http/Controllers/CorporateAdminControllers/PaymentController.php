@@ -17,8 +17,8 @@ use App\Models\FgpOrderDetail;
 use App\Models\Franchisee;
 use App\Models\FranchiseEventItem;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
 
 
@@ -50,16 +50,19 @@ class PaymentController extends Controller
                 ->addColumn('action', function ($transaction) {
                     $viewUrl = route('pos.order', $transaction->id);
                     $downloadUrl = route('order.pos.download', $transaction->id);
-
-                    return '
-                    <div class="d-flex">
-                        <a href="'.$viewUrl.'" target="_blank" class="me-4">
+                    $actions = '<div class="d-flex">';
+                    if (Auth::check() && Auth::user()->can('transactions.view')) {
+                        $actions .= '<a href="'.$viewUrl.'" target="_blank" class="me-4">
                             <i class="ti ti-eye fs-20" style="color: #00ABC7;"></i>
-                        </a>
-                        <a href="'.$downloadUrl.'">
+                        </a>';
+                    }
+                    if (Auth::check() && Auth::user()->can('transactions.view')) {
+                        $actions .= '<a href="'.$downloadUrl.'" class="me-4">
                             <i class="ti ti-file-download fs-20" style="color: #FF3131;"></i>
-                        </a>
-                    </div>';
+                        </a>';
+                    }
+                    $actions .= '</div>';
+                    return $actions;
                 })
                 ->rawColumns(['status', 'action'])
                 ->make(true);

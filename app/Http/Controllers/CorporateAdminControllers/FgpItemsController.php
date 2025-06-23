@@ -241,14 +241,14 @@ class FgpItemsController extends Controller
         }
     }
 
-    public function availability()
+    public function availability($franchisee)
     {
         // Check permission for viewing Frios Availability
         if (!Auth::check() || !Auth::user()->can('frios_availability.view')) {
             abort(403, 'Unauthorized access to Frios Availability');
         }
 
-        $flavors = FgpItem::with('categories')->get();
+        $flavors = FgpItem::where('franchisee_id', $franchisee)->with('categories')->get();
         $totalItems = $flavors->count();
 
         return view('corporate_admin.fgp_items.availability_flavor', compact('flavors','totalItems'));

@@ -243,7 +243,6 @@
         }
     </style>
 @endpush
-
 <div class="content-body default-height">
     <div class="container-fluid">
         <div class="form-head mb-4 d-flex flex-wrap align-items-center">
@@ -407,7 +406,6 @@
         </div>
     </div>
 </div>
-
 @push('scripts')
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>

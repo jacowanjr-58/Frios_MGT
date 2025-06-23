@@ -89,7 +89,7 @@
                 </ul>
             </li>
             @endcan
-            @canany(['payments.view'])
+            @canany(['transactions.view'])
             <li class="{{ Request::routeIs('transaction', 'franchise.transaction') ? 'mm-active' : '' }}">
                 <a class="has-arrow ai-icon {{ Request::routeIs('transaction', 'franchise.transaction') ? 'active' : '' }}"
                     href="javascript:void()" aria-expanded="{{ Request::routeIs('transaction', 'franchise.transaction') ? 'true' : 'false' }}">

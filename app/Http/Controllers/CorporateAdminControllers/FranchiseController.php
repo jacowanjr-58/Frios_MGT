@@ -17,7 +17,7 @@ class FranchiseController extends Controller
         $franchiseeId = $franchisee;
         $totalFranchises = Franchisee::count();
         if (request()->ajax()) {
-            $franchisees = Franchisee::query();
+            $franchisees = Franchisee::where('franchisee_id', $franchiseeId);
 
             return DataTables::of($franchisees)
                 ->addColumn('location_zip', function ($franchisee) {
