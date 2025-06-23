@@ -126,7 +126,7 @@
                 $('#owners-table').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "{{ route('owner.index') }}",
+                    ajax: "{{ route('owner.index', ['franchisee' => $franchiseeId]) }}",
                     columns: [
                         { data: 'name', name: 'name' },
                         { data: 'franchisee', name: 'franchisee' },
