@@ -89,24 +89,24 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     });
 
 
-    Route::prefix('{franchisee}')->group(function () {
-        // Order pops routes
-        Route::middleware('permission:orders.view')->group(function () {
-            Route::get('/orderpops', [OrderPopsController::class, 'index'])->name('orderpops.index');
-            Route::get('/orderpops/view', [OrderPopsController::class, 'viewOrders'])->name('orderpops.view');
-            Route::get('/orderpops/confirm/page', [OrderPopsController::class, 'showConfirmPage'])->name('orderpops.confirm.page');
-        });
-
-        Route::get('/orderpops/create', [OrderPopsController::class, 'create'])->name('orderpops.create')->middleware('permission:orders.create');
-        Route::post('/orderpops/store', [OrderPopsController::class, 'store'])->name('orderpops.store')->middleware('permission:orders.create');
-        Route::get('/orderpops/{orderpops}/edit', [OrderPopsController::class, 'edit'])->name('orderpops.edit')->middleware('permission:orders.edit');
-        Route::put('/orderpops/{orderpops}', [OrderPopsController::class, 'update'])->name('orderpops.update')->middleware('permission:orders.edit');
-        Route::delete('/orderpops/{orderpops}', [OrderPopsController::class, 'destroy'])->name('orderpops.destroy')->middleware('permission:orders.delete');
-
-        Route::post('/orderpops/confirm', [OrderPopsController::class, 'confirmOrder'])->name('orderpops.confirm')->middleware('permission:orders.create');
-        Route::post('/orderpops/{order}/mark-delivered', [OrderPopsController::class, 'markDelivered'])
-            ->name('orderpops.markDelivered')->middleware('permission:orders.edit');
+   
+    // Order pops routes
+    Route::middleware('permission:orders.view')->group(function () {
+        Route::get('{franchisee}/orderpops', [OrderPopsController::class, 'index'])->name('orderpops.index');
+        Route::get('{franchisee}/orderpops/view', [OrderPopsController::class, 'viewOrders'])->name('orderpops.view');
+        Route::get('{franchisee}/orderpops/confirm/page', [OrderPopsController::class, 'showConfirmPage'])->name('orderpops.confirm.page');
     });
+
+    Route::get('/orderpops/create', [OrderPopsController::class, 'create'])->name('orderpops.create')->middleware('permission:orders.create');
+    Route::post('/orderpops/store', [OrderPopsController::class, 'store'])->name('orderpops.store')->middleware('permission:orders.create');
+    Route::get('/orderpops/{orderpops}/edit', [OrderPopsController::class, 'edit'])->name('orderpops.edit')->middleware('permission:orders.edit');
+    Route::put('/orderpops/{orderpops}', [OrderPopsController::class, 'update'])->name('orderpops.update')->middleware('permission:orders.edit');
+    Route::delete('/orderpops/{orderpops}', [OrderPopsController::class, 'destroy'])->name('orderpops.destroy')->middleware('permission:orders.delete');
+
+    Route::post('/orderpops/confirm', [OrderPopsController::class, 'confirmOrder'])->name('orderpops.confirm')->middleware('permission:orders.create');
+    Route::post('/orderpops/{order}/mark-delivered', [OrderPopsController::class, 'markDelivered'])
+        ->name('orderpops.markDelivered')->middleware('permission:orders.edit');
+    // });
 
 
     Route::prefix('{franchisee}/events')->group(function () {

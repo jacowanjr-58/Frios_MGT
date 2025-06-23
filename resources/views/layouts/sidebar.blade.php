@@ -176,7 +176,7 @@
                     <ul aria-expanded="{{ Request::routeIs('franchise.orderpops.*') ? 'true' : 'false' }}"
                         class="{{ Request::routeIs('franchise.orderpops.*') ? 'mm-collapse mm-show' : '' }}">
                         <li><a
-                                href="{{ route('franchise.orderpops.index', ['franchisee' => $franchiseeId]) }}">Order
+                                href="{{ route('orderposps', ['franchisee' => $franchiseeId]) }}">Order
                                 Pops</a></li>
                         <li><a
                                 href="{{ route('franchise.orderpops.view', ['franchisee' => $franchiseeId]) }}">View
