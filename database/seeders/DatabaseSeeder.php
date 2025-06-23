@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         // Run roles and permissions seeder first
         $this->call([
             RolesAndPermissionsSeeder::class,
+            FgpOrderSeeder::class,
         ]);
 
         // Define users to create/update
@@ -205,7 +206,7 @@ class DatabaseSeeder extends Seeder
                     'orders.create',
                     'orders.edit',
                     'orders.delete',
-                    'orders.pops',
+                    // 'orders.pops',
                     'invoices.view',
                     'invoices.create',
                     'invoices.edit',
@@ -261,7 +262,7 @@ class DatabaseSeeder extends Seeder
                     'orders.create',
                     'orders.edit',
                     'orders.delete',
-                    'orders.pops',
+                    // 'orders.pops',
                     'expenses.view',
                     'expenses.create',
                     'expenses.edit',

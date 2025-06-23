@@ -145,11 +145,11 @@
 
                                 console.log("Checked Items:", checkedItems);
 
-                                if (checkedItems.length < 3) {
-                                    alert("Please select at least three items to order.");
-                                    console.log("Less than three items selected, alert displayed.");
-                                    return;
-                                }
+                                // if (checkedItems.length < 3) {
+                                //     alert("Please select at least three items to order.");
+                                //     console.log("Less than three items selected, alert displayed.");
+                                //     return;
+                                // }
 
 
                                 console.log("Sending request to server with checked items...");
@@ -319,10 +319,10 @@
                         checkedItems.push(itemDetails);
                     });
 
-                    if (checkedItems.length < 3) {
-                        alert("Please select at least three items to order.");
-                        return;
-                    }
+                    // if (checkedItems.length < 3) {
+                    //     alert("Please select at least three items to order.");
+                    //     return;
+                    // }
 
                     fetch("{{ route('orderpops.confirm') }}", {
                         method: 'POST',

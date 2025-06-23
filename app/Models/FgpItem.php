@@ -63,10 +63,16 @@ class FgpItem extends Model
         return $this->belongsToMany(FgpCategory::class, 'fgp_category_fgp_item', 'fgp_item_id', 'category_ID');
     }
 
+    public function orderDetails()
+    {
+        return $this->hasMany(FgpOrderDetail::class, 'fgp_item_id', 'fgp_item_id');
+    }
+
     public function Orders()
     {
         return $this->hasMany(FgpOrder::class, 'fgp_item_id')->where('status', 'delivered');
     }
+
     public function InventoryAllocations()
     {
         return $this->hasMany(InventoryAllocation::class, 'fgp_item_id');

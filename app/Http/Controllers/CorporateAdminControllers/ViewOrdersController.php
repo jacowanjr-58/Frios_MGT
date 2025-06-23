@@ -17,16 +17,45 @@ use App\Models\Customer;
 
 class ViewOrdersController extends Controller
 {
-    public function index($franchiseeId)
+    public function index($franchiseeId = null)
     {
+      
+        $franchiseeId = intval($franchiseeId);
         if (request()->ajax()) {
             $orders = FgpOrder::query()
-                ->with(['user', 'customer'])
-                ->select('fgp_orders.*');
+                ->with(['user', 'customer', 'franchisee', 'orderDetails.flavor'])
+                ->select('fgp_orders.*')
+                ->where('franchisee_id', $franchiseeId);
+
+            // Apply filters
+            if (request()->filled('status')) {
+                $orders->where('status', request('status'));
+            }
+
+            if (request()->filled('shipping_address')) {
+                $orders->where(function($q) {
+                    $address = request('shipping_address');
+                    $q->whereRaw("TRIM(CONCAT(COALESCE(ship_to_address1, ''), ' ', COALESCE(ship_to_address2, ''), ', ', COALESCE(ship_to_city, ''), ', ', COALESCE(ship_to_state, ''), ' ', COALESCE(ship_to_zip, ''))) LIKE ?", ['%' . $address . '%']);
+                });
+            }
+
+            if (request()->filled('flavor')) {
+                $orders->whereHas('orderDetails', function($query) {
+                    $query->where('fgp_item_id', request('flavor'));
+                });
+            }
+
+            if (request()->filled('date_from')) {
+                $orders->whereDate('date_transaction', '>=', request('date_from'));
+            }
+
+            if (request()->filled('date_to')) {
+                $orders->whereDate('date_transaction', '<=', request('date_to'));
+            }
 
             return DataTables::of($orders)
-                ->addColumn('order_number', function ($order) {
-                    return '<a href="' . route('vieworders.edit', ['orderId' => $order->fgp_ordersID]) . '" class="text-primary fs-12">' .
+                ->addColumn('order_number', function ($order) use ($franchiseeId) {
+                    return '<a href="' . route('franchise.vieworders.edit', ['franchisee' => $franchiseeId, 'orderId' => $order->fgp_ordersID]) . '" class="text-primary fs-12">' .
                            $order->getOrderNum() . '</a>';
                 })
                 ->addColumn('date_time', function ($order) {
@@ -39,18 +68,36 @@ class ViewOrdersController extends Controller
                         ->value('total');
                     return '$' . number_format($totalAmount, 2);
                 })
-                ->addColumn('ordered_by', function ($order) {
+              
+                 ->addColumn('ordered_by', function ($order) use ($franchiseeId) {
                     $franchisee = Franchisee::where('franchisee_id', $order->user_ID)->first();
                     $customer = Customer::where('customer_id', $order->customer_id)->first();
 
                     if ($customer) {
-                        return '<a href="' . route('customer.view', ['id' => $customer->customer_id]) . '" class="text-primary">' .
+                        return '<a href="' . route('franchise.franchise_customer', ['franchisee' => $franchiseeId, 'id' => $customer->customer_id]) . '" class="text-primary">' .
                                $customer->name . '</a>';
                     } elseif ($franchisee) {
-                        return '<a href="' . route('profile.show', ['profile' => $franchisee->franchisee_id]) . '" class="text-primary">' .
+                        return '<a href="' . route('franchise.profile.show', ['franchisee' => $franchiseeId, 'profile' => $franchisee->franchisee_id]) . '" class="text-primary">' .
                                $franchisee->business_name . '</a>';
                     }
                     return 'Unknown';
+                })
+                ->addColumn('franchise', function ($order) {
+                    if ($order->franchisee) {
+                        return '<strong>' . $order->franchisee->business_name . '</strong><br>' .
+                               '<small>' . $order->franchisee->frios_territory_name . '</small>';
+                    }
+                    return '<span class="text-muted">No Franchise</span>';
+                })
+                ->addColumn('flavors', function ($order) {
+                    if ($order->orderDetails->count() > 0) {
+                        $flavorList = $order->orderDetails->map(function ($detail) {
+                            $flavorName = $detail->flavor->name ?? 'Unknown Flavor';
+                            return "({$detail->unit_number}) {$flavorName}";
+                        })->implode('<br>');
+                        return '<div class="small">' . $flavorList . '</div>';
+                    }
+                    return '<span class="text-muted">No Items</span>';
                 })
                 ->addColumn('shipping_address', function ($order) {
                     return $order->fullShippingAddress();
@@ -91,7 +138,7 @@ class ViewOrdersController extends Controller
                         return '<span class="text-muted">No Access</span>';
                     }
                 })
-                ->addColumn('action', function ($order) {
+                ->addColumn('action', function ($order) use ($franchiseeId) {
                     $actions = '<div class="dropdown">';
                     $actions .= '<button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">';
                     $actions .= '<i class="fa fa-cog"></i>';
@@ -105,7 +152,7 @@ class ViewOrdersController extends Controller
                     
                     // Edit - check permission
                     if (Auth::check() && Auth::user()->can('franchise_orders.edit')) {
-                        $actions .= '<li><a class="dropdown-item" href="' . route('vieworders.edit', ['orderId' => $order->fgp_ordersID]) . '"><i class="fa fa-edit me-2"></i>Edit</a></li>';
+                        $actions .= '<li><a class="dropdown-item" href="' . route('franchise.vieworders.edit', ['franchisee' => $franchiseeId, 'orderId' => $order->fgp_ordersID]) . '"><i class="fa fa-edit me-2"></i>Edit</a></li>';
                     }
                     
                     // Divider - only show if there are actions above and below
@@ -130,12 +177,64 @@ class ViewOrdersController extends Controller
                     
                     return $actions;
                 })
-                ->rawColumns(['order_number', 'ordered_by', 'items_count', 'issues', 'status', 'ups_label', 'action'])
+                ->rawColumns(['order_number', 'ordered_by', 'franchise', 'flavors', 'items_count', 'issues', 'status', 'ups_label', 'action'])
                 ->make(true);
         }
 
         $totalOrders = FgpOrder::count();
         return view('corporate_admin.view_orders.index', compact('totalOrders', 'franchiseeId'));
+    }
+
+    public function getFlavors($franchiseeId)
+    {
+        try {
+            $flavors = DB::table('fgp_order_details')
+                ->join('fgp_orders', 'fgp_order_details.fgp_order_id', '=', 'fgp_orders.fgp_ordersID')
+                ->join('fgp_items', 'fgp_order_details.fgp_item_id', '=', 'fgp_items.fgp_item_id')
+                ->where('fgp_orders.franchisee_id', $franchiseeId)
+                ->select('fgp_items.fgp_item_id', 'fgp_items.name')
+                ->distinct()
+                ->orderBy('fgp_items.name')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'flavors' => $flavors
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading flavors: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getShippingAddresses($franchiseeId)
+    {
+        try {
+            $addresses = FgpOrder::where('franchisee_id', $franchiseeId)
+                ->whereNotNull('ship_to_address1')
+                ->get()
+                ->map(function ($order) {
+                    return [
+                        'id' => $order->fgp_ordersID,
+                        'address' => $order->fullShippingAddress()
+                    ];
+                })
+                ->unique('address')
+                ->values()
+                ->sortBy('address');
+
+            return response()->json([
+                'success' => true,
+                'addresses' => $addresses
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading shipping addresses: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function viewordersDetail(Request $request)
@@ -178,11 +277,11 @@ class ViewOrdersController extends Controller
             }
     }
 
-    public function edit($orderId)
+    public function edit($franchiseeId, $orderId)
     {
         $order = FgpOrder::with('orderDetails','user')->find($orderId);
         $currentMonth = strval(Carbon::now()->format('n'));
-
+ 
         // Fetch only orderable, in-stock, and currently available items
         $allItems = FgpItem::where('orderable', 1)
             ->where('internal_inventory', '>', 0) // Ensure item is in stock
@@ -192,11 +291,11 @@ class ViewOrdersController extends Controller
                 return in_array($currentMonth, $availableMonths ?? []);
             });
 
-    return view('corporate_admin.view_orders.edit', compact('order', 'allItems'));
+        return view('corporate_admin.view_orders.edit', compact('order', 'allItems', 'franchiseeId'));
     }
 
 
-public function update(Request $request, $orderId)
+public function update(Request $request, $franchiseeId, $orderId)
 {
     $order = FgpOrder::with('orderDetails')->findOrFail($orderId);
 
@@ -262,7 +361,7 @@ public function update(Request $request, $orderId)
     }
 
     return redirect()
-    ->route('vieworders.index')
+    ->route('vieworders.index', ['franchisee' => $franchiseeId])
     ->with('success', 'Order #' . $order->getOrderNum() . ' updated successfully!');
 }
 
@@ -271,14 +370,21 @@ public function update(Request $request, $orderId)
 
     public function orderposps($franchisee)
     {
+
+        $franchiseeId = intval($franchisee);
+       
         if (request()->ajax()) {
             $currentMonth = strval(Carbon::now()->format('n'));
             $franchiseeID = session('franchisee_id');
+
+            
             $pops = FgpItem::where('franchisee_id', $franchiseeID)
                 ->with('categories')
                 ->where('orderable', 1)
                 ->where('internal_inventory', '>', 0)
                 ->whereJsonContains('dates_available', $currentMonth);
+
+
 
             return DataTables::of($pops)
                 ->addColumn('checkbox', function ($pop) {

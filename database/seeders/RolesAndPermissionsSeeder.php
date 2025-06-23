@@ -142,7 +142,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'orders.create',
             'orders.edit',
             'orders.delete',
-            'orders.pops',
+            // 'orders.pops',
 
             // Get Paid/Invoices (Franchise Admin)
             'invoices.view',

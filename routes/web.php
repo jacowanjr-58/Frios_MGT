@@ -94,7 +94,11 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     Route::middleware('permission:orders.view')->group(function () {
         Route::get('{franchisee}/orderpops', [OrderPopsController::class, 'index'])->name('orderpops.index');
         Route::get('{franchisee}/orderpops/view', [OrderPopsController::class, 'viewOrders'])->name('orderpops.view');
+        
         Route::get('{franchisee}/orderpops/confirm/page', [OrderPopsController::class, 'showConfirmPage'])->name('orderpops.confirm.page');
+    
+    
+    
     });
 
     Route::get('/orderpops/create', [OrderPopsController::class, 'create'])->name('orderpops.create')->middleware('permission:orders.create');

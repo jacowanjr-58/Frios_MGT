@@ -30,6 +30,7 @@ class OrderPopsController extends Controller
 {
     public function index($franchisee=null)
     {
+      
         $franchiseeId = intval($franchisee);
         $currentMonth = strval(Carbon::now()->format('n'));
 
@@ -321,6 +322,7 @@ class OrderPopsController extends Controller
     {
         $franchiseeId = intval($franchisee);
 
+     
         if (request()->ajax()) {
             $orders = FgpOrder::with([
                 'orderDetails.flavor',

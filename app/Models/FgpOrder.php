@@ -87,6 +87,12 @@ class FgpOrder extends Model
         return $this->belongsTo(Customer::class, 'customer_id');
     }
 
+    // 🔗 Link to franchisee
+    public function franchisee()
+    {
+        return $this->belongsTo(Franchisee::class, 'franchisee_id', 'franchisee_id');
+    }
+
     public function flavorSummary()
     {
         return $this->items->map(function ($item) {

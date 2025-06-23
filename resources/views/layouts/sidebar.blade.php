@@ -84,7 +84,7 @@
                 <ul aria-expanded="{{ Request::routeIs('vieworders.*', 'orderposps', 'additionalcharges.*') ? 'true' : 'false' }}"
                     class="{{ Request::routeIs('vieworders.*', 'orderposps', 'additionalcharges.*') ? 'mm-collapse mm-show' : '' }}">
                     <li><a href="{{ route('vieworders.index', ['franchisee' => $franchiseeId]) }}">View Orders</a></li>
-                    <li><a href="{{ route('orderposps', ['franchisee' => $franchiseeId]) }}">Edit/Delete Orders</a></li>
+                    <!-- <li><a href="{{ route('orderposps', ['franchisee' => $franchiseeId]) }}">Edit/Delete Orders</a></li> -->
                     <li><a href="{{ route('additionalcharges.index', ['franchisee' => $franchiseeId]) }}">Edit Charges</a></li>
                 </ul>
             </li>
@@ -164,7 +164,7 @@
                 </li>
             @endif
             @endcan
-            @canany(['orders.view', 'orders.create', 'orders.edit', 'orders.delete'])
+            <!-- @canany(['orders.view', 'orders.create', 'orders.edit', 'orders.delete'])
             @if(auth()->user()->role !== 'corporate_admin' && $franchiseeId)
                 <li class="{{ Request::routeIs('franchise.orderpops.*') ? 'mm-active' : '' }}">
                     <a class="has-arrow ai-icon {{ Request::routeIs('franchise.orderpops.*') ? 'active' : '' }}"
@@ -181,10 +181,11 @@
                         <li><a
                                 href="{{ route('franchise.orderpops.view', ['franchisee' => $franchiseeId]) }}">View
                                 Orders</a></li>
+                                <li><a href="{{ route('vieworders.index', ['franchisee' => $franchiseeId]) }}">View Orders</a></li>
                     </ul>
                 </li>
             @endif
-            @endcan
+            @endcan -->
             @canany(['invoices.view', 'invoices.create', 'invoices.edit', 'invoices.delete'])
             @if(auth()->user()->role !== 'corporate_admin' && $franchiseeId)
                 <li class="{{ Request::routeIs('franchise.invoice.*', 'franchise.transaction') ? 'mm-active' : '' }}">
