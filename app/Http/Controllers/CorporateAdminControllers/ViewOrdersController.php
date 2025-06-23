@@ -21,8 +21,8 @@ class ViewOrdersController extends Controller
     {
         if (request()->ajax()) {
             $orders = FgpOrder::query()
-                ->with(['user', 'customer'])
-                ->select('fgp_orders.*');
+            ->where('franchisee_id', $franchiseeId)
+                ->with(['user', 'customer']);
 
             return DataTables::of($orders)
                 ->addColumn('order_number', function ($order) {

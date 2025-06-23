@@ -10,8 +10,8 @@ use App\Models\FgpItem;
 use App\Models\Customer;
 use App\Models\FgpOrder;
 use Carbon\Carbon;
-use Auth;
 use DB;
+use Illuminate\Support\Facades\Auth;
 
 class FranchiseStaffController extends Controller
 {
@@ -64,7 +64,6 @@ class FranchiseStaffController extends Controller
 
     public function flavors($franchisee_id){
 
-       
         $deliveredOrders = FgpOrder::where('status', 'delivered')->where('franchisee_id' , $franchisee_id)->get();
        
         $shippedOrders = FgpOrder::where('status', 'shipped')->where('franchisee_id' , $franchisee_id)->count();
