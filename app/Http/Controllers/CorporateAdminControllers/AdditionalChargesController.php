@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\Auth;
 
 class AdditionalChargesController extends Controller
 {
-    public function index()
+    public function index($franchisee)
     {
+        $franchiseeID = $franchisee;
         if (request()->ajax()) {
-            $franchiseeID = session('franchisee_id');
             $charges = AdditionalCharge::where('franchisee_id', $franchiseeID);
             return DataTables::of($charges)
                 ->addColumn('charge_amount', function ($charge) {
@@ -73,7 +73,7 @@ class AdditionalChargesController extends Controller
         }
 
         $totalCharges = AdditionalCharge::count();
-        return view('corporate_admin.additional_charges.index', compact('totalCharges'));
+        return view('corporate_admin.additional_charges.index', compact('totalCharges', 'franchiseeID'));
     }
     
     public function create()

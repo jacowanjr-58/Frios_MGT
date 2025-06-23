@@ -97,7 +97,7 @@
             $('#orders-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('vieworders.index') }}",
+                ajax: "{{ route('vieworders.index', ['franchisee' => $franchiseeId]) }}",
                 columns: [
                     {data: 'order_number', name: 'fgp_orders.fgp_ordersID'},
                     {data: 'ordered_by', name: 'ordered_by'},

@@ -172,7 +172,7 @@
                 var table = $('#charges-table').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "{{ route('additionalcharges.index') }}",
+                    ajax: "{{ route('additionalcharges.index', ['franchisee' => $franchiseeID]) }}",
                     columns: [
                         { data: 'charge_name', name: 'charge_name' },
                         { data: 'charge_amount', name: 'charge_price' },
