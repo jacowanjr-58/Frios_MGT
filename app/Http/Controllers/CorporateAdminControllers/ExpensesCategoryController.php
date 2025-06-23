@@ -33,19 +33,23 @@ class ExpensesCategoryController extends Controller
                     $editUrl = route('expense-category.edit', ['franchisee' => $franchisee, 'id' => $subCategory->id]);
                     $deleteUrl = route('expense-sub-category.delete', ['franchisee' => $franchisee, 'id' => $subCategory->id]);
 
-                    return '
-                    <div class="d-flex">
-                        <a href="' . $editUrl . '" class="edit-category">
+                    $actions = '<div class="d-flex">';
+                    if (Auth::check() && Auth::user()->can('expense_categories.edit')) {
+                        $actions .= '<a href="' . $editUrl . '" class="edit-category">
                             <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
-                        </a>
-                        <form action="' . $deleteUrl . '" method="POST" class="delete-form">
+                        </a>';
+                    }
+                    if (Auth::check() && Auth::user()->can('expense_categories.delete')) {
+                        $actions .= '<form action="' . $deleteUrl . '" method="POST" class="delete-form">
                             ' . csrf_field() . '
                             ' . method_field('DELETE') . '
                             <button type="submit" class="ms-4 delete-category">
                                 <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
                             </button>
-                        </form>
-                    </div>';
+                        </form>';
+                    }
+                    $actions .= '</div>';
+                    return $actions;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -169,14 +173,14 @@ class ExpensesCategoryController extends Controller
                     $actions = '<div class="d-flex">';
 
                     // Edit button - check permission
-                    if (auth()->check() && auth()->user()->can('expenses.by_franchisee')) {
+                    if (auth()->check() && auth()->user()->can('expenses.edit')) {
                         $actions .= '<a href="' . $editUrl . '" class="edit-expense">
                             <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
                         </a>';
                     }
 
                     // Delete button - check permission
-                    if (auth()->check() && auth()->user()->can('expenses.by_franchisee')) {
+                    if (auth()->check() && auth()->user()->can('expenses.delete')) {
                         $actions .= '<form action="' . $deleteUrl . '" method="POST" class="delete-form">
                             ' . csrf_field() . '
                             ' . method_field('DELETE') . '
