@@ -165,7 +165,7 @@
                     $('#franchise-table').DataTable({
                         processing: true,
                         serverSide: true,
-                        ajax: "{{ route('franchise.index') }}",
+                        ajax: "{{ route('franchise.index', ['franchisee' => $franchiseeId]) }}",
                         columns: [
                             { data: 'business_name', name: 'business_name' },
                             {

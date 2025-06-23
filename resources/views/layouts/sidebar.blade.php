@@ -45,8 +45,8 @@
                 </a>
                 <ul aria-expanded="{{ Request::routeIs('franchise.*', 'owner.*') ? 'true' : 'false' }}"
                     class="{{ Request::routeIs('franchise.*', 'owner.*') ? 'mm-collapse mm-show' : '' }}">
-                    <li><a href="{{ route('franchise.index') }}">Franchise List</a></li>
-                    <li><a href="{{ route('owner.index') }}">Franchise (Owners)</a></li>
+                    <li><a href="{{ route('franchise.index', ['franchisee' => $franchiseeId]) }}">Franchise List</a></li>
+                    <li><a href="{{ route('owner.index', ['franchisee' => $franchiseeId]) }}">Franchise (Owners)</a></li>
                 </ul>
             </li>
 

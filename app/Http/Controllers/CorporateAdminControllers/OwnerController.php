@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\Auth;
 
 class OwnerController extends Controller
 {
-    public function index()
+    public function index($franchisee)
     {
-       
+        $franchiseeId = $franchisee;
         $totalUsers = User::where('role', 'franchise_admin')->count();
 
         if (request()->ajax()) {
@@ -72,7 +72,7 @@ class OwnerController extends Controller
                 ->make(true);
         }
 
-        return view('corporate_admin.owners.index', compact('totalUsers'));
+        return view('corporate_admin.owners.index', compact('totalUsers', 'franchiseeId'));
     }
 
     // Show create form

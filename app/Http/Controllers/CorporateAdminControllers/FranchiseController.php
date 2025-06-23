@@ -12,9 +12,9 @@ use Yajra\DataTables\Facades\DataTables;
 class FranchiseController extends Controller
 {
     // Show all franchises
-    public function index()
+    public function index($franchisee)
     {
-      
+        $franchiseeId = $franchisee;
         $totalFranchises = Franchisee::count();
         if (request()->ajax()) {
             $franchisees = Franchisee::query();
@@ -74,7 +74,7 @@ class FranchiseController extends Controller
                 ->make(true);
         }
 
-        return view('corporate_admin.franchise.index', compact('totalFranchises'));
+        return view('corporate_admin.franchise.index', compact('totalFranchises', 'franchiseeId'));
     }
 
     // Show create form
