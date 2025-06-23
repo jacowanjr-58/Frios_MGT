@@ -83,7 +83,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Additional charges routes
     Route::middleware('permission:additional_charges.view')->group(function () {
-        Route::get('/additionalcharges', [AdditionalChargesController::class, 'index'])->name('additionalcharges.index');
+        Route::get('/franchise/{franchisee}/additionalcharges', [AdditionalChargesController::class, 'index'])->name('additionalcharges.index');
         
         Route::get('/additionalcharges/create', [AdditionalChargesController::class, 'create'])->name('additionalcharges.create')->middleware('permission:additional_charges.create');
         Route::post('/additionalcharges', [AdditionalChargesController::class, 'store'])->name('additionalcharges.store')->middleware('permission:additional_charges.create');
@@ -95,10 +95,10 @@ Route::middleware(['auth'])->group(function () {
 
     // View Orders routes
     Route::middleware('permission:franchise_orders.view')->group(function () {
-        Route::get('/vieworders', [ViewOrdersController::class, 'index'])->name('vieworders.index');
+        Route::get('/franchise/{franchisee}/vieworders', [ViewOrdersController::class, 'index'])->name('vieworders.index');
         Route::get('/vieworders/detail', [ViewOrdersController::class, 'viewordersDetail'])->name('vieworders.detail');
         Route::get('/vieworders/customersorder/{customer_id}', [ViewOrdersController::class, 'showCustomer'])->name('customersorder.show');
-        Route::get('orderpops' , [ViewOrdersController::class , 'orderposps'])->name('orderposps');
+        Route::get('/franchise/{franchisee}/orderpops' , [ViewOrdersController::class , 'orderposps'])->name('orderposps');
         Route::get('orderpops/confirm/page' , [ViewOrdersController::class , 'confirmPage'])->name('confirm.page');
         Route::get('get-customer/{customer_id}', [OrderPopsController::class, 'customer'])->name('orderpops.customer');
     });

@@ -230,7 +230,7 @@
                 let orderableValue = $(this).val();
 
                 $.ajax({
-                    url: "{{ route('franchise.fgpitem.updateOrderable', ['franchisee' => $franchiseeID]) }}",
+                    url: "{{ route('franchise.fgpitem.updateOrderable', ['franchisee' => $franchiseeId]) }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -260,7 +260,7 @@
                 var table = $('#pops-table').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "{{ route('orderposps') }}",
+                    ajax: "{{ route('orderposps', ['franchisee' => $franchiseeId]) }}",
                     columns: [
                         { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
                         { data: 'name', name: 'name' },

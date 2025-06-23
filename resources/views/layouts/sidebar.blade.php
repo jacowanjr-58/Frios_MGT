@@ -83,9 +83,9 @@
                 </a>
                 <ul aria-expanded="{{ Request::routeIs('vieworders.*', 'orderposps', 'additionalcharges.*') ? 'true' : 'false' }}"
                     class="{{ Request::routeIs('vieworders.*', 'orderposps', 'additionalcharges.*') ? 'mm-collapse mm-show' : '' }}">
-                    <li><a href="{{ route('vieworders.index') }}">View Orders</a></li>
-                    <li><a href="{{ route('orderposps') }}">Edit/Delete Orders</a></li>
-                    <li><a href="{{ route('additionalcharges.index') }}">Edit Charges</a></li>
+                    <li><a href="{{ route('vieworders.index', ['franchisee' => $franchiseeId]) }}">View Orders</a></li>
+                    <li><a href="{{ route('orderposps', ['franchisee' => $franchiseeId]) }}">Edit/Delete Orders</a></li>
+                    <li><a href="{{ route('additionalcharges.index', ['franchisee' => $franchiseeId]) }}">Edit Charges</a></li>
                 </ul>
             </li>
             @endcan

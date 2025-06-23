@@ -17,7 +17,7 @@ use App\Models\Customer;
 
 class ViewOrdersController extends Controller
 {
-    public function index()
+    public function index($franchiseeId)
     {
         if (request()->ajax()) {
             $orders = FgpOrder::query()
@@ -135,7 +135,7 @@ class ViewOrdersController extends Controller
         }
 
         $totalOrders = FgpOrder::count();
-        return view('corporate_admin.view_orders.index', compact('totalOrders'));
+        return view('corporate_admin.view_orders.index', compact('totalOrders', 'franchiseeId'));
     }
 
     public function viewordersDetail(Request $request)
@@ -269,7 +269,7 @@ public function update(Request $request, $orderId)
 
 
 
-    public function orderposps()
+    public function orderposps($franchisee)
     {
         if (request()->ajax()) {
             $currentMonth = strval(Carbon::now()->format('n'));
@@ -335,9 +335,9 @@ public function update(Request $request, $orderId)
             ->whereJsonContains('dates_available', $currentMonth)
             ->count();
 
-        $franchiseeID = session('franchisee_id');
+        $franchiseeId = $franchisee;
 
-        return view('corporate_admin.orderpops.index', compact('totalPops', 'franchiseeID'));
+        return view('corporate_admin.orderpops.index', compact('totalPops', 'franchiseeId'));
     }
 
 
