@@ -398,6 +398,8 @@ Route::prefix('franchise')->name('franchise.')->middleware(['auth'])->group(func
         Route::put('/{location}', [InventoryLocationController::class, 'update'])->name('update')->middleware('permission:locations.edit');
         Route::delete('/{location}', [InventoryLocationController::class, 'destroy'])->name('destroy')->middleware('permission:locations.delete');
     });
+
+    
 });
 
 

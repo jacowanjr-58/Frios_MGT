@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('location');
             $table->string('quantity');
             $table->unsignedBigInteger('franchise_id');
-            $table->foreign('franchise_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('franchise_id')->references('user_id')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
         }

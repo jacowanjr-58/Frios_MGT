@@ -14,7 +14,6 @@ return new class extends Migration
         if (! Schema::hasTable('users')) {
         Schema::create('users', function (Blueprint $table) {
             $table->id('user_id');
-            $table->unsignedBigInteger('franchisee_id')->nullable();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
@@ -27,9 +26,7 @@ return new class extends Migration
             $table->string('stripe_account_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
-
-            $table->foreign('franchisee_id')->references('franchisee_id')->on('franchisees')->onDelete('cascade');
-        });
+          });
         }
 
         if (! Schema::hasTable('password_reset_tokens')) {

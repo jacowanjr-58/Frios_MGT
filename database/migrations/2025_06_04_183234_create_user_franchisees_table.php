@@ -22,18 +22,18 @@ return new class extends Migration {
         });
 
         // ✅ Only insert if franchisee_id exists
-        $users = DB::table('users')->get(['user_id', 'franchisee_id']);
+        // $users = DB::table('users')->get(['user_id', 'franchisee_id']);
 
-        foreach ($users as $user) {
-            if ($user->franchisee_id) {
-                DB::table('user_franchisees')->insert([
-                    'user_id' => $user->user_id,
-                    'franchisee_id' => $user->franchisee_id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
-        }
+        // foreach ($users as $user) {
+        //     if ($user->franchisee_id) {
+        //         DB::table('user_franchisees')->insert([
+        //             'user_id' => $user->user_id,
+        //             'franchisee_id' => $user->franchisee_id,
+        //             'created_at' => now(),
+        //             'updated_at' => now(),
+        //         ]);
+        //     }
+        // }
     }
 
 

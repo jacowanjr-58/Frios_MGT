@@ -14,7 +14,6 @@ return new class extends Migration
         if (! Schema::hasTable('franchisees')) {
         Schema::create('franchisees', function (Blueprint $table) {
             $table->id('franchisee_id');
-            $table->unsignedBigInteger('user_id')->nullable()->default(0);
             $table->string('business_name');
             $table->string('address1')->nullable();
             $table->string('address2')->nullable();
@@ -25,8 +24,6 @@ return new class extends Migration
             $table->json('ACH_data_API')->nullable();
             $table->json('pos_service_API')->nullable();
             $table->timestamps();
-        
-            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
         });
         }
         
