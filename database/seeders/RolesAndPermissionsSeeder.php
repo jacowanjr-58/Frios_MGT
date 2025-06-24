@@ -202,7 +202,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'additional_charges.delete',
 
                         // Sidebar-specific permissions for permission-based access control
-            'manage-franchises', 
+            'manage-franchises',
             'manage-flavors',
             'manage-frios-availability',
             'manage-flavor-categories',
@@ -277,7 +277,7 @@ class RolesAndPermissionsSeeder extends Seeder
         // Assign specific permissions to corporate_admin (view-only for specified modules)
         $corporateAdminPermissions = [
             'dashboard.view',
-            
+
             // User & Role Management (view-only by default, Super Admin has full access)
             'roles.view',
             'permissions.view',
@@ -290,23 +290,23 @@ class RolesAndPermissionsSeeder extends Seeder
             // Frios Flavors Management (view-only by default)
             'frios_flavors.view',
             'frios_flavors.categories',
-            
+
             // Frios Availability Management (view-only by default)
             'frios_availability.view',
-            
+
             // Flavor Category Management (view-only by default)
             'flavor_category.view',
-            
+
             // Franchise Orders Management (view-only by default)
             'franchise_orders.view',
-            
+
             // Payments Management (view-only by default)
             'payments.view',
             'payments.by_franchisee',
-            
+
             // Expense Categories Management (view-only by default)
             'expense_categories.view',
-            
+
             // Additional Charges Management (view-only by default)
             'additional_charges.view',
 

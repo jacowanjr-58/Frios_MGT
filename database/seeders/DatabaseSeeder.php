@@ -137,7 +137,7 @@ class DatabaseSeeder extends Seeder
                 // Corporate Admin gets view-only access to specified modules
                 $corporateAdminPermissions = [
                     'dashboard.view',
-                    
+
                     // User & Role Management (view-only by default, Super Admin has full access)
                     'roles.view',
                     'permissions.view',
@@ -150,23 +150,23 @@ class DatabaseSeeder extends Seeder
                     // Frios Flavors Management (view-only by default)
                     'frios_flavors.view',
                     'frios_flavors.categories',
-                    
+
                     // Frios Availability Management (view-only by default)
                     'frios_availability.view',
-                    
+
                     // Flavor Category Management (view-only by default)
                     'flavor_category.view',
-                    
+
                     // Franchise Orders Management (view-only by default)
                     'franchise_orders.view',
-                    
+
                     // Payments Management (view-only by default)
                     'payments.view',
                     'payments.by_franchisee',
-                    
+
                     // Expense Categories Management (view-only by default)
                     'expense_categories.view',
-                    
+
                     // Additional Charges Management (view-only by default)
                     'additional_charges.view',
 
@@ -213,7 +213,7 @@ class DatabaseSeeder extends Seeder
                     'orders.create',
                     'orders.edit',
                     'orders.delete',
-                    // 'orders.pops',
+                    'orders.pops',
                     'invoices.view',
                     'invoices.create',
                     'invoices.edit',
@@ -269,7 +269,7 @@ class DatabaseSeeder extends Seeder
                     'orders.create',
                     'orders.edit',
                     'orders.delete',
-                    // 'orders.pops',
+                    'orders.pops',
                     'expenses.view',
                     'expenses.create',
                     'expenses.edit',
