@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\CorporateAdminControllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Franchisee;
+use App\Models\Franchise;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,12 +12,12 @@ use Yajra\DataTables\Facades\DataTables;
 class FranchiseController extends Controller
 {
     // Show all franchises
-    public function index($franchisee)
+    public function index()
     {
-        $franchiseeId = $franchisee;
-        $totalFranchises = Franchisee::count();
+        $franchiseeId = session('franchise_id');
+        $totalFranchises = Franchise::count();
         if (request()->ajax()) {
-            $franchisees = Franchisee::where('franchisee_id', $franchiseeId);
+            $franchisees = Franchise::query();
 
             return DataTables::of($franchisees)
                 ->addColumn('location_zip', function ($franchisee) {
@@ -35,16 +35,16 @@ class FranchiseController extends Controller
                     $query->where('location_zip', 'like', "%$keyword%");
                 })
                 ->addColumn('customer_count', function ($franchisee) {
-                    $customerCount = Customer::where('franchisee_id', $franchisee->franchisee_id)->count();
-                    $franchiseCustomerUrl = route('franchise.franchise_customer', ['franchisee' => $franchisee->franchisee_id]);
+                    $customerCount = Customer::where('franchise_id', $franchisee->franchise_id)->count();
+                    $franchiseCustomerUrl = route('franchise.franchise_customer', ['franchisee' => $franchisee->franchise_id]);
                     
                     return '<a href="' . $franchiseCustomerUrl . '" class="text-primary fw-bold text-decoration-none">
                                 <span class="badge bg-info fs-12">' . $customerCount . ' Customers</span>
                             </a>';
                 })
                 ->addColumn('action', function ($franchisee) {
-                    $editUrl = route('franchise.edit', $franchisee->franchisee_id);
-                    $deleteUrl = route('franchise.destroy', $franchisee->franchisee_id);
+                    $editUrl = route('franchise.edit', $franchisee->franchise_id);
+                    $deleteUrl = route('franchise.destroy', $franchisee->franchise_id);
 
                     $actions = '<div class="d-flex">';
                     
@@ -104,7 +104,7 @@ public function store(Request $request)
     $requestData['location_zip'] = implode(',', $request->location_zip);
 
     // Insert Data into Database
-    Franchisee::create($requestData);
+    Franchise::create($requestData);
 
     // Notify success message
     notify()->success('Franchise created successfully.');
@@ -114,14 +114,14 @@ public function store(Request $request)
 }
 
     // Show edit form
-    public function edit(Franchisee $franchise)
+    public function edit(Franchise $franchise)
     {
         $franchise->location_zip = explode(',', $franchise->location_zip ?? '');
         return view('corporate_admin.franchise.edit', compact('franchise'));
     }
 
     // Update franchise
-    public function update(Request $request, Franchisee $franchise)
+    public function update(Request $request, Franchise $franchise)
     {
         $request->validate([
             'business_name' => 'required|string|max:255',
@@ -148,7 +148,7 @@ public function store(Request $request)
     }
 
     // Delete franchise
-    public function destroy(Franchisee $franchise)
+    public function destroy(Franchise $franchise)
     {
         $franchise->delete();
 
@@ -159,7 +159,7 @@ public function store(Request $request)
         return redirect()->route('franchise.index')->with('success', 'Franchise deleted successfully.');
     }
 
-    public function show(Franchisee $franchise)
+    public function show(Franchise $franchise)
 {
     // If you want ZIP codes as an array for the view:
     $franchise->location_zip = explode(',', $franchise->location_zip ?? '');

@@ -25,18 +25,18 @@ use Illuminate\Support\Facades\DB;
 
 class EventController extends Controller
 {
-    public function index($franchisee)
+    public function index($franchise)
     {
      
         $today = Carbon::today()->toDateString();
-        $events = Event::where('franchisee_id', $franchisee)->get();
+        $events = Event::where('franchise_id', $franchise)->get();
         return view('franchise_admin.event.index', compact('events'));
     }
 
-    public function eventCalender($franchisee)
+    public function eventCalender($franchise)
     {
-        $events = Event::where('franchisee_id', $franchisee)->get();
-        $badgeEvents = Event::where('franchisee_id', $franchisee)
+        $events = Event::where('franchise_id', $franchise)->get();
+        $badgeEvents = Event::where('franchise_id', $franchise)
             ->orderBy('created_at', 'DESC')
             ->get();
 
@@ -52,9 +52,9 @@ class EventController extends Controller
         return view('franchise_admin.event.calender', compact('events', 'uniqueEvents'));
     }
 
-    public function updateStatus(Request $request, $franchisee)
+    public function updateStatus(Request $request, $franchise)
     {
-        $event = Event::where('franchisee_id', $franchisee)->find($request->event_id);
+        $event = Event::where('franchise_id', $franchise)->find($request->event_id);
         if (!$event) {
             return response()->json(['success' => false, 'message' => 'Event not found'], 404);
         }
@@ -65,14 +65,14 @@ class EventController extends Controller
         return response()->json(['success' => true, 'message' => 'Status updated successfully']);
     }
 
-    public function view($franchisee, $id)
+    public function view($franchise, $id)
     {
-        $event = Event::where('franchisee_id', $franchisee)->where('id', $id)->firstorfail();
+        $event = Event::where('franchise_id', $franchise)->where('id', $id)->firstorfail();
         $eventItems = FranchiseEventItem::where('event_id', $event->id)->get();
         return view('franchise_admin.event.view', compact('event', 'eventItems'));
     }
 
-    public function report(Request $request, $franchisee)
+    public function report(Request $request, $franchise)
     {
         if ($request->ajax()) {
             $monthYear = $request->input('month_year', Carbon::now()->format('Y-m'));
@@ -82,8 +82,8 @@ class EventController extends Controller
             $query = FranchiseEventItem::with(['fgpItem'])
                 ->whereYear('created_at', $year)
                 ->whereMonth('created_at', $month)
-                ->whereHas('events', function ($query) use ($franchisee) {
-                    $query->where('franchisee_id', $franchisee);
+                ->whereHas('events', function ($query) use ($franchise) {
+                    $query->where('franchise_id', $franchise);
                 });
 
             return datatables()
@@ -141,7 +141,7 @@ class EventController extends Controller
         return view('franchise_admin.event.report');
     }
 
-    public function create($franchisee)
+    public function create($franchise)
     {
         $currentMonth = strval(Carbon::now()->format('n'));
         $pops = FgpItem::where('orderable', 1)
@@ -152,16 +152,16 @@ class EventController extends Controller
                 return in_array($currentMonth, $availableMonths ?? []);
             });
 
-        $staffs = User::where('role', 'franchise_staff')->where('franchisee_id', $franchisee)->get();
+        $staffs = User::where('role', 'franchise_staff')->where('franchise_id', $franchise)->get();
 
         $orders = DB::table('fgp_orders')
             ->where('status', 'Delivered')
             ->get();
 
-        $orderIds = $orders->pluck('fgp_ordersID');
+        $orderIds = $orders->pluck('id');
 
         $orderDetails = DB::table('fgp_order_details')
-            ->join('fgp_items', 'fgp_order_details.fgp_item_id', '=', 'fgp_items.fgp_item_id')
+            ->join('fgp_items', 'fgp_order_details.fgp_item_id', '=', 'fgp_items.id')
             ->whereIn('fgp_order_details.fgp_order_id', $orderIds)
             ->select(
                 'fgp_order_details.fgp_item_id',
@@ -171,12 +171,12 @@ class EventController extends Controller
             ->groupBy('fgp_order_details.fgp_item_id', 'fgp_items.name')
             ->get();
 
-        $customers = Customer::where('franchisee_id', $franchisee)->get();
+        $customers = Customer::where('franchise_id', $franchise)->get();
 
         return view('franchise_admin.event.create', compact('pops', 'staffs', 'orderDetails', 'customers'));
     }
 
-    public function store(Request $request, $franchisee)
+    public function store(Request $request, $franchise)
     {
         $validated = $request->validate([
             'event_name' => 'required|string|max:255',
@@ -202,7 +202,7 @@ class EventController extends Controller
         ]);
 
         $event = Event::create([
-            'franchisee_id' => $franchisee,
+            'franchise_id' => $franchise,
             'event_name' => $validated['event_name'],
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'],
@@ -227,19 +227,19 @@ class EventController extends Controller
             ]);
         }
 
-        return redirect()->route('franchise.events.calender', ['franchisee' => $franchisee])->with('success', 'Event created successfully!');
+        return redirect()->route('franchise.events.calender', ['franchise' => $franchise])->with('success', 'Event created successfully!');
     }
 
-    public function compare($franchisee, $event)
+    public function compare($franchise, $event)
     {
-        $event = Event::where('franchisee_id', $franchisee)->findOrFail($event);
+        $event = Event::where('franchise_id', $franchise)->findOrFail($event);
         return view('franchise_admin.event.compare', compact('event'));
     }
 
-    public function date(Request $request, $franchisee)
+    public function date(Request $request, $franchise)
     {
         $date = $request->input('date');
-        $events = Event::where('franchisee_id', $franchisee)
+        $events = Event::where('franchise_id', $franchise)
             ->whereDate('start_date', $date)
             ->get();
 

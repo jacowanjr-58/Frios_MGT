@@ -3,7 +3,7 @@
         ***********************************-->
 @php
     use Illuminate\Support\Facades\Auth;
-    $franchiseeId = request()->route('franchisee') ?? session('franchisee_id');
+    $franchiseeId = request()->route('franchise') ?? session('franchise_id');
 @endphp
 <div class="deznav" style="margin-top:-8px;">
     <div class="deznav-scroll">
@@ -45,8 +45,8 @@
                 </a>
                 <ul aria-expanded="{{ Request::routeIs('franchise.*', 'owner.*') ? 'true' : 'false' }}"
                     class="{{ Request::routeIs('franchise.*', 'owner.*') ? 'mm-collapse mm-show' : '' }}">
-                    <li><a href="{{ route('franchise.index', ['franchisee' => $franchiseeId]) }}">Franchise List</a></li>
-                    <li><a href="{{ route('owner.index', ['franchisee' => $franchiseeId]) }}">Franchise (Owners)</a></li>
+                    <li><a href="{{ route('franchise.index') }}">Franchise List</a></li>
+                    <li><a href="{{ route('owner.index', ['franchise' => $franchiseeId]) }}">Franchise (Owners)</a></li>
                 </ul>
             </li>
 
@@ -62,13 +62,13 @@
                 <ul aria-expanded="{{ Request::routeIs('franchise.fgpitem.*', 'franchise.fgpcategory.*') ? 'true' : 'false' }}"
                     class="{{ Request::routeIs('franchise.fgpitem.*', 'franchise.fgpcategory.*') ? 'mm-collapse mm-show' : '' }}">
                     <li><a
-                            href="{{ route('franchise.fgpitem.index', ['franchisee' => $franchiseeId]) }}">Flavor
+                            href="{{ route('franchise.fgpitem.index', ['franchise' => $franchiseeId]) }}">Flavor
                             List</a></li>
                     <li><a
-                            href="{{ route('franchise.fgpitem.availability', ['franchisee' => $franchiseeId]) }}">Availability</a>
+                            href="{{ route('franchise.fgpitem.availability', ['franchise' => $franchiseeId]) }}">Availability</a>
                     </li>
                     <li><a
-                            href="{{ route('franchise.fgpcategory.index', ['franchisee' => $franchiseeId]) }}">Edit
+                            href="{{ route('franchise.fgpcategory.index', ['franchise' => $franchiseeId]) }}">Edit
                             Flavor Categories</a></li>
                 </ul>
             </li>
@@ -83,9 +83,9 @@
                 </a>
                 <ul aria-expanded="{{ Request::routeIs('vieworders.*', 'orderposps', 'additionalcharges.*') ? 'true' : 'false' }}"
                     class="{{ Request::routeIs('vieworders.*', 'orderposps', 'additionalcharges.*') ? 'mm-collapse mm-show' : '' }}">
-                    <li><a href="{{ route('vieworders.index', ['franchisee' => $franchiseeId]) }}">View Orders</a></li>
-                    <!-- <li><a href="{{ route('orderposps', ['franchisee' => $franchiseeId]) }}">Edit/Delete Orders</a></li> -->
-                    <li><a href="{{ route('additionalcharges.index', ['franchisee' => $franchiseeId]) }}">Edit Charges</a></li>
+                    <li><a href="{{ route('vieworders.index', ['franchise' => $franchiseeId]) }}">View Orders</a></li>
+                    <!-- <li><a href="{{ route('orderposps', ['franchise' => $franchiseeId]) }}">Edit/Delete Orders</a></li> -->
+                    <li><a href="{{ route('additionalcharges.index', ['franchise' => $franchiseeId]) }}">Edit Charges</a></li>
                 </ul>
             </li>
             @endcan
@@ -98,22 +98,22 @@
                 </a>
                 <ul aria-expanded="{{ Request::routeIs('transaction', 'franchise.transaction') ? 'true' : 'false' }}"
                     class="{{ Request::routeIs('transaction', 'franchise.transaction') ? 'mm-collapse mm-show' : '' }}">
-                    <li><a href="{{ route('transaction', ['franchisee' => $franchiseeId]) }}">Payments by Franchisee</a></li>
+                    <li><a href="{{ route('transaction', ['franchise' => $franchiseeId]) }}">Payments by franchise</a></li>
                 </ul>
             </li>
             @endcan
             @canany(['expenses.categories', 'expenses.by_franchisee'])
-            <li class="{{ Request::routeIs('expense-category', 'expense.franchisee') ? 'mm-active' : '' }}">
-                <a class="has-arrow ai-icon {{ Request::routeIs('expense-category', 'expense.franchisee') ? 'active' : '' }}"
+            <li class="{{ Request::routeIs('expense-category', 'expense.franchise') ? 'mm-active' : '' }}">
+                <a class="has-arrow ai-icon {{ Request::routeIs('expense-category', 'expense.franchise') ? 'active' : '' }}"
                     href="javascript:void()"
-                    aria-expanded="{{ Request::routeIs('expense-category', 'expense.franchisee') ? 'true' : 'false' }}">
+                    aria-expanded="{{ Request::routeIs('expense-category', 'expense.franchise') ? 'true' : 'false' }}">
                     <i class="bi bi-cup-hot-fill"></i>
                     <span class="nav-text">Expenses</span>
                 </a>
-                <ul aria-expanded="{{ Request::routeIs('expense-category', 'expense.franchisee') ? 'true' : 'false' }}"
-                    class="{{ Request::routeIs('expense-category', 'expense.franchisee') ? 'mm-collapse mm-show' : '' }}">
-                    <li><a href="{{ route('expense-category', ['franchisee' => $franchiseeId]) }}">Expenses by Category</a></li>
-                    <li><a href="{{ route('expense.franchisee', ['franchisee' => $franchiseeId]) }}">Expenses by Franchisee</a></li>
+                <ul aria-expanded="{{ Request::routeIs('expense-category', 'expense.franchise') ? 'true' : 'false' }}"
+                    class="{{ Request::routeIs('expense-category', 'expense.franchise') ? 'mm-collapse mm-show' : '' }}">
+                    <li><a href="{{ route('expense-category', ['franchise' => $franchiseeId]) }}">Expenses by Category</a></li>
+                    <li><a href="{{ route('expense.franchise', ['franchise' => $franchiseeId]) }}">Expenses by franchise</a></li>
                     {{-- <li><a href="edit_expense_categories.html">Edit Expense Categories</a></li> --}}
                 </ul>
             </li>
@@ -146,19 +146,19 @@
                     <ul aria-expanded="{{ Request::routeIs('franchise.inventory.*', 'franchise.locations.*') ? 'true' : 'false' }}"
                         class="{{ Request::routeIs('franchise.inventory.*', 'franchise.locations.*') ? 'mm-collapse mm-show' : '' }}">
                         <li><a
-                                href="{{ route('franchise.inventory.index', ['franchisee' => $franchiseeId]) }}">Inventory
+                                href="{{ route('franchise.inventory.index', ['franchise' => $franchiseeId]) }}">Inventory
                                 List</a></li>
                         <li><a
-                                href="{{ route('franchise.inventory.adjust.form', ['franchisee' => $franchiseeId]) }}">Bulk
+                                href="{{ route('franchise.inventory.adjust.form', ['franchise' => $franchiseeId]) }}">Bulk
                                 Stock Adjust</a></li>
                         <li><a
-                                href="{{ route('franchise.inventory.bulk_price.form', ['franchisee' => $franchiseeId]) }}">Bulk
+                                href="{{ route('franchise.inventory.bulk_price.form', ['franchise' => $franchiseeId]) }}">Bulk
                                 Prices Adjust</a></li>
                         <li><a
-                                href="{{ route('franchise.inventory.locations', ['franchisee' => $franchiseeId]) }}">Allocate
+                                href="{{ route('franchise.inventory.locations', ['franchise' => $franchiseeId]) }}">Allocate
                                 Inventory</a></li>
                         <li><a
-                                href="{{ route('franchise.locations.index', ['franchisee' => $franchiseeId]) }}">Allocation
+                                href="{{ route('franchise.locations.index', ['franchise' => $franchiseeId]) }}">Allocation
                                 Locations</a></li>
                     </ul>
                 </li>
@@ -176,12 +176,12 @@
                     <ul aria-expanded="{{ Request::routeIs('franchise.orderpops.*') ? 'true' : 'false' }}"
                         class="{{ Request::routeIs('franchise.orderpops.*') ? 'mm-collapse mm-show' : '' }}">
                         <li><a
-                                href="{{ route('orderposps', ['franchisee' => $franchiseeId]) }}">Order
+                                href="{{ route('orderposps', ['franchise' => $franchiseeId]) }}">Order
                                 Pops</a></li>
                         <li><a
-                                href="{{ route('franchise.orderpops.view', ['franchisee' => $franchiseeId]) }}">View
+                                href="{{ route('franchise.orderpops.view', ['franchise' => $franchiseeId]) }}">View
                                 Orders</a></li>
-                                <li><a href="{{ route('vieworders.index', ['franchisee' => $franchiseeId]) }}">View Orders</a></li>
+                                <li><a href="{{ route('vieworders.index', ['franchise' => $franchiseeId]) }}">View Orders</a></li>
                     </ul>
                 </li>
             @endif
@@ -199,11 +199,11 @@
                         class="{{ Request::routeIs('franchise.invoice.*', 'franchise.transaction') ? 'mm-collapse mm-show' : '' }}">
                         {{-- <li><a href="{{ route('franchise.account.index') }}">Accounts</a></li> --}}
                         <li><a
-                                href="{{ route('franchise.invoice.index', ['franchisee' => $franchiseeId]) }}">Invoices</a>
+                                href="{{ route('franchise.invoice.index', ['franchise' => $franchiseeId]) }}">Invoices</a>
                         </li>
                         {{-- <li><a href="sales.html">Sales</a></li> --}}
                         <li><a
-                                href="{{ route('transaction', ['franchisee' => $franchiseeId]) }}">Transactions</a>
+                                href="{{ route('transaction', ['franchise' => $franchiseeId]) }}">Transactions</a>
                         </li>
                     </ul>
                 </li>
@@ -220,10 +220,10 @@
                     </a>
                     <ul aria-expanded="{{ Request::routeIs('expense', 'expense-category') ? 'true' : 'false' }}"
                         class="{{ Request::routeIs('expense', 'expense-category') ? 'mm-collapse mm-show' : '' }}">
-                        <li><a href="{{ route('expense.franchisee', ['franchisee' => $franchiseeId]) }}">Expenses
+                        <li><a href="{{ route('expense.franchise', ['franchise' => $franchiseeId]) }}">Expenses
                                 List</a></li>
                         <li><a
-                                href="{{ route('expense-category', ['franchisee' => $franchiseeId]) }}">Expense
+                                href="{{ route('expense-category', ['franchise' => $franchiseeId]) }}">Expense
                                 Categories</a></li>
                     </ul>
                 </li>
@@ -242,13 +242,13 @@
                     <ul aria-expanded="{{ Request::routeIs('franchise.events.*') ? 'true' : 'false' }}"
                         class="{{ Request::routeIs('franchise.events.*') ? 'mm-collapse mm-show' : '' }}">
                         <li><a
-                                href="{{ route('franchise.events.index', ['franchisee' => $franchiseeId]) }}">Events
+                                href="{{ route('franchise.events.index', ['franchise' => $franchiseeId]) }}">Events
                                 List</a></li>
                         <li><a
-                                href="{{ route('franchise.events.calender', ['franchisee' => $franchiseeId]) }}">Calender</a>
+                                href="{{ route('franchise.events.calender', ['franchise' => $franchiseeId]) }}">Calender</a>
                         </li>
                         <li><a
-                                href="{{ route('franchise.events.report', ['franchisee' => $franchiseeId]) }}">Report</a>
+                                href="{{ route('franchise.events.report', ['franchise' => $franchiseeId]) }}">Report</a>
                         </li>
                     </ul>
                 </li>
@@ -257,7 +257,7 @@
             @canany(['pos.view'])
             <li class="{{ Request::routeIs('franchise_staff.pos') ? 'mm-active' : '' }}">
                 <a class="ai-icon {{ Request::routeIs('franchise_staff.pos') ? 'active' : '' }}"
-                    href="{{ route('franchise_staff.pos', ['franchisee' => $franchiseeId]) }}"
+                    href="{{ route('franchise_staff.pos', ['franchise' => $franchiseeId]) }}"
                     aria-expanded="false">
                     <i class="bi bi-cart-check-fill"></i>
                     <span class="nav-text">POS</span>
@@ -267,7 +267,7 @@
             @can('flavors.view')
                 <li class="{{ Request::routeIs('franchise.flavors') ? 'mm-active' : '' }}">
                     <a class="ai-icon {{ Request::routeIs('franchise.flavors') ? 'active' : '' }}"
-                        href="{{ route('franchise.flavors', ['franchisee' => $franchiseeId]) }}">
+                        href="{{ route('franchise.flavors', ['franchise' => $franchiseeId]) }}">
                         <i class="bi bi-basket3-fill"></i>
                         <span class="nav-text">Flavors</span>
                     </a>
@@ -293,7 +293,7 @@
                                 (Franchise) </a>
                         @else
                             <a
-                                href="{{ route('franchise.franchise_customer', ['franchisee' => $franchiseeId]) }}">Customers
+                                href="{{ route('franchise.franchise_customer', ['franchise' => $franchiseeId]) }}">Customers
                             (Franchise) </a>
                         @endrole
                     </li>
@@ -313,10 +313,10 @@
                 <ul aria-expanded="{{ Request::routeIs('franchise_staff.customer.*') ? 'true' : 'false' }}"
                     class="{{ Request::routeIs('franchise_staff.customer.*') ? 'mm-collapse mm-show' : '' }}">
                     <li><a
-                            href="{{ route('franchise_staff.customer', ['franchisee' => $franchiseeId]) }}">Customers
+                            href="{{ route('franchise_staff.customer', ['franchise' => $franchiseeId]) }}">Customers
                             List</a></li>
                     <li><a
-                            href="{{ route('franchise_staff.customer.create', ['franchisee' => $franchiseeId]) }}">Add
+                            href="{{ route('franchise_staff.customer.create', ['franchise' => $franchiseeId]) }}">Add
                             Customer</a></li>
                 </ul>
             </li>
@@ -325,7 +325,7 @@
             @canany(['sales.view', 'sales.create', 'sales.edit', 'sales.delete'])
             <li class="{{ Request::routeIs('franchise_staff.sales.*') ? 'mm-active' : '' }}">
                 <a class="ai-icon {{ Request::routeIs('franchise_staff.sales.*') ? 'active' : '' }}"
-                    href="{{ route('franchise_staff.sales.index', ['franchisee' => $franchiseeId]) }}"
+                    href="{{ route('franchise_staff.sales.index', ['franchise' => $franchiseeId]) }}"
                     aria-expanded="false">
                     <i class="bi bi-coin"></i>
                     <span class="nav-text">Sales</span>
@@ -342,9 +342,9 @@
                 </a>
                 <ul aria-expanded="{{ Request::routeIs('franchise_staff.events.*') ? 'true' : 'false' }}"
                     class="{{ Request::routeIs('franchise_staff.events.*') ? 'mm-collapse mm-show' : '' }}">
-                    <li><a href="{{ route('franchise_staff.events.calendar', ['franchisee' => $franchiseeId]) }}">Calender</a></li>
+                    <li><a href="{{ route('franchise_staff.events.calendar', ['franchise' => $franchiseeId]) }}">Calender</a></li>
                     <li><a
-                            href="{{ route('franchise_staff.events.report', ['franchisee' => $franchiseeId]) }}">Report</a>
+                            href="{{ route('franchise_staff.events.report', ['franchise' => $franchiseeId]) }}">Report</a>
                     </li>
                 </ul>
             </li>

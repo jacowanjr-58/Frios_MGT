@@ -26,8 +26,8 @@ class Invoice extends Model
         return $this->belongsTo(Customer::class , 'customer_id' , 'customer_id');
     }
 
-    public function franchisee(){
-        return $this->belongsTo(Franchisee::class , 'franchisee_id' , 'franchisee_id');
+    public function franchise(){
+        return $this->belongsTo(Franchise::class, 'franchise_id');
     }
 
     public function items()

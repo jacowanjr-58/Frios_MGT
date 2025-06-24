@@ -24,7 +24,7 @@ use App\Http\Controllers\Franchise\InventoryRemovalController;
 */
 
 Route::middleware(['auth'])
-     ->prefix('franchise/{franchisee}/inventory')
+     ->prefix('franchise/{franchise}/inventory')
      ->name('franchise.inventory.')
      ->group(function () {
 

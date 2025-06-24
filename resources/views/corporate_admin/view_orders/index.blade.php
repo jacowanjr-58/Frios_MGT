@@ -426,7 +426,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('vieworders.index', ['franchisee' => $franchiseeId]) }}",
+                    url: "{{ route('vieworders.index', ['franchise' => $franchiseeId]) }}",
                     data: function(d) {
                         d.status = $('#statusFilter').val();
                         d.shipping_address = $('#shippingAddressFilter').val();
@@ -436,7 +436,7 @@
                     }
                 },
                 columns: [
-                    {data: 'order_number', name: 'fgp_orders.fgp_ordersID'},
+                    {data: 'order_number', name: 'fgp_orders.id'},
                     {data: 'ordered_by', name: 'ordered_by'},
                     {data: 'franchise', name: 'franchise'},
                     {data: 'flavors', name: 'flavors'},
@@ -565,7 +565,7 @@
         function changeOrderStatus(orderId, status) {
             if (confirm('Are you sure you want to change the order status?')) {
                 $.ajax({
-                    url: "{{ route('franchise.vieworders.updateStatus', ['franchisee' => $franchiseeId]) }}",
+                    url: "{{ route('franchise.vieworders.updateStatus', ['franchise' => $franchiseeId]) }}",
                     method: 'POST',
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),

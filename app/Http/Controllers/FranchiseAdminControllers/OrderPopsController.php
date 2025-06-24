@@ -8,7 +8,7 @@ use App\Models\FgpOrder;
 use App\Models\FgpCategory;
 use App\Models\Customer;
 use App\Models\Invoice;
-use App\Models\Franchisee;
+use App\Models\Franchise;
 use App\Models\User;
 use App\Services\ShipStationService;
 use Illuminate\Http\Request;
@@ -148,9 +148,9 @@ class OrderPopsController extends Controller
             return redirect()->route('franchise.orderpops.index')->withErrors('No items selected.');
         }
 
-        $franchiseeId = Auth::user()->franchisee_id;
-        $customers = Customer::where('franchisee_id', $franchiseeId)->get();
-        $franchisee = Franchisee::where('franchisee_id', $franchiseeId)->get();
+        $franchiseeId = Auth::user()->franchise_id;
+        $customers = Customer::where('franchise_id', $franchiseeId)->get();
+        $franchisee = Franchise::where('franchise_id', $franchiseeId)->get();
         $requiredCharges = AdditionalCharge::where('charge_optional', 'required')->where('status', 1)->get();
         $optionalCharges = AdditionalCharge::where('charge_optional', 'optional')->where('status', 1)->get();
 
@@ -205,7 +205,7 @@ class OrderPopsController extends Controller
                     'description' => 'Order Payment by: ' . $request->cardholder_name,
                     'source' => $request->stripeToken,
                     'metadata' => [
-                        'franchisee_id' => $franchiseeId,
+                        'franchise_id' => $franchiseeId,
                     ],
                 ]);
             } catch (\Exception $e) {
@@ -214,8 +214,8 @@ class OrderPopsController extends Controller
         }
 
         $order = FgpOrder::create([
-            'user_ID' => Auth::user()->user_id,
-            'franchisee_id' => $franchisee,
+            'user_id' => Auth::user()->id,
+            'franchise_id' => $franchisee,
             'date_transaction' => now(),
             'status' => 'Pending',
             'is_paid' => $request->is_paid === '1',
@@ -231,14 +231,14 @@ class OrderPopsController extends Controller
             'shipstation_status' => 'awaiting_shipment',
         ]);
 
-        $orderNum = 'FGP-' . $order->fgp_ordersID;
+        $orderNum = 'FGP-' . $order->id;
 
         $orderItems = [];
         $noteLines[] = "Ordered Items:";
 
         foreach ($validated['items'] as $index => $item) {
             DB::table('fgp_order_details')->insert([
-                'fgp_order_id' => $order->fgp_ordersID,
+                'fgp_order_id' => $order->id,
                 'fgp_item_id' => $item['fgp_item_id'],
                 'unit_cost' => $item['unit_cost'],
                 'unit_number' => $item['unit_number'],
@@ -267,8 +267,8 @@ class OrderPopsController extends Controller
 
         if ($request->is_paid === '1') {
             OrderTransaction::create([
-                'franchisee_id' => Auth::user()->franchisee_id,
-                'fgp_order_id' => $order->fgp_ordersID,
+                'franchise_id' => Auth::user()->franchise_id,
+                'fgp_order_id' => $order->id,
                 'order_num' => $orderNum,
                 'cardholder_name' => $request->cardholder_name,
                 'amount' => $request->grandTotal,
@@ -280,7 +280,7 @@ class OrderPopsController extends Controller
             ]);
         } else {
             Invoice::create([
-                'franchisee_id' => Auth::user()->franchisee_id,
+                'franchise_id' => Auth::user()->franchise_id,
                 'name' => Auth::user()->name,
                 'order_num' => $orderNum,
                 'total_price' => $request->grandTotal,
@@ -329,11 +329,11 @@ class OrderPopsController extends Controller
                 'user',
                 'customer',
             ])
-            ->where('franchisee_id', $franchiseeId);
+            ->where('franchise_id', $franchiseeId);
 
             return DataTables::of($orders)
                 ->addColumn('order_number', function($order) {
-                    return 'FGP-' . $order->fgp_ordersID;
+                    return 'FGP-' . $order->id;
                 })
                 ->addColumn('date', function($order) {
                     return Carbon::parse($order->date_transaction)->format('M d, Y');
@@ -365,7 +365,7 @@ class OrderPopsController extends Controller
                 })
                 ->addColumn('delivery_status', function($order) {
                     if ($order->is_delivered == 0) {
-                        return '<form method="GET" action="' . route('franchise.inventory.confirm_delivery', ['franchisee' => request()->route('franchisee'), 'order' => $order->fgp_ordersID]) . '">
+                        return '<form method="GET" action="' . route('franchise.inventory.confirm_delivery', ['franchisee' => request()->route('franchisee'), 'order' => $order->id]) . '">
                             ' . csrf_field() . '
                             <button type="submit" class="btn btn-sm btn-outline-success">Confirm</button>
                         </form>';
@@ -376,13 +376,13 @@ class OrderPopsController extends Controller
                 ->make(true);
         }
 
-        $totalOrders = FgpOrder::where('franchisee_id', $franchiseeId)->count();
+        $totalOrders = FgpOrder::where('franchise_id', $franchiseeId)->count();
         return view('franchise_admin.orderpops.vieworders', compact('totalOrders'));
     }
 
-    public function customer($franchisee_id)
+    public function customer($franchise_id)
     {
-        $customers = Customer::where('franchisee_id', $franchisee_id)->get();
+        $customers = Customer::where('franchise_id', $franchise_id)->get();
 
         return response()->json([
             'data' => $customers,
@@ -404,7 +404,7 @@ class OrderPopsController extends Controller
             $paymentIntent = \Stripe\PaymentIntent::retrieve($session->payment_intent);
 
             $orderId = $session->metadata->order_id ?? null;
-            $franchiseeId = $session->metadata->franchisee_id ?? null;
+            $franchiseeId = $session->metadata->franchise_id ?? null;
 
             if (!$orderId || !$franchiseeId) {
                 return 'Missing metadata from Stripe.';
@@ -416,7 +416,7 @@ class OrderPopsController extends Controller
             }
 
             OrderTransaction::create([
-                'franchisee_id' => $franchiseeId,
+                'franchise_id' => $franchiseeId,
                 'fgp_order_id' => $orderId,
                 'cardholder_name' => $session->customer_details->name ?? 'Unknown',
                 'amount' => $session->amount_total / 100,

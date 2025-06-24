@@ -14,7 +14,7 @@ use App\Models\ExpenseCategory;
 use App\Models\ExpenseSubCategory;
 use App\Models\FgpOrder;
 use App\Models\FgpOrderDetail;
-use App\Models\Franchisee;
+use App\Models\Franchise;
 use App\Models\FranchiseEventItem;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -26,9 +26,9 @@ class PaymentController extends Controller
 {
 
 
-    public function transaction($franchisee){
+    public function transaction($franchise){
         if (request()->ajax()) {
-            $transactions = OrderTransaction::where('franchisee_id', $franchisee);
+            $transactions = OrderTransaction::where('franchise_id', $franchise);
 
             return DataTables::of($transactions)
                 ->addColumn('cardholder_name', function ($transaction) {
@@ -105,7 +105,7 @@ class PaymentController extends Controller
         $data['expenseTransactions'] = ExpenseTransaction::get();
         $data['orderTransactions'] = OrderTransaction::get();
         $data['eventTransactions'] = EventTransaction::get();
-        $data['franchiseeId'] = request()->route('franchisee');
+        $data['franchiseeId'] = request()->route('franchise');
         return view('corporate_admin.payment.transaction' , $data);
     }
 
@@ -133,20 +133,20 @@ class PaymentController extends Controller
     public function posOrder($id)
     {
        $data['orderTransaction'] = OrderTransaction::where('id' , $id)->firstorfail();
-       $data['order'] = FgpOrder::where('fgp_ordersID' , $data['orderTransaction']->fgp_order_id)->firstorfail();
-       $data['franchisee'] = Franchisee::where('franchisee_id' , $data['order']->user_ID)->firstorfail();
-       $data['orderDetails'] = FgpOrderDetail::where('fgp_order_id' , $data['order']->fgp_ordersID)->get();
+       $data['order'] = FgpOrder::where('id' , $data['orderTransaction']->fgp_order_id)->firstorfail();
+       $data['franchise'] = Franchise::where('franchise_id' , $data['order']->user_ID)->firstorfail();
+       $data['orderDetails'] = FgpOrderDetail::where('fgp_order_id' , $data['order']->id)->get();
         return view('corporate_admin.payment.order-pos' ,$data);
     }
 
     public function posOrderDownloadPDF($id)
     {
        $orderTransaction = OrderTransaction::where('id' , $id)->firstorfail();
-       $order = FgpOrder::where('fgp_ordersID' , $orderTransaction->fgp_order_id)->firstorfail();
-       $franchisee = Franchisee::where('franchisee_id' , $order->user_ID)->firstorfail();
-       $orderDetails = FgpOrderDetail::where('fgp_order_id' , $order->fgp_ordersID)->get();
+       $order = FgpOrder::where('id' , $orderTransaction->fgp_order_id)->firstorfail();
+       $franchise = Franchise::where('franchise_id' , $order->user_ID)->firstorfail();
+       $orderDetails = FgpOrderDetail::where('fgp_order_id' , $order->id)->get();
 
-        $pdf = Pdf::loadView('corporate_admin.payment.pdf.order-pos', compact('orderTransaction', 'order', 'franchisee', 'orderDetails'));
+        $pdf = Pdf::loadView('corporate_admin.payment.pdf.order-pos', compact('orderTransaction', 'order', 'franchise', 'orderDetails'));
 
         return $pdf->download('order_invoice_friospos.pdf');
     }
@@ -155,7 +155,7 @@ class PaymentController extends Controller
     public function posEvent($id)
     {
        $data['eventTransaction'] = EventTransaction::where('id' , $id)->firstorfail();
-       $data['franchisee'] = Franchisee::where('franchisee_id' , $data['eventTransaction']->franchisee_id)->firstorfail();
+       $data['franchise'] = Franchise::where('franchise_id' , $data['eventTransaction']->franchise_id)->firstorfail();
         $data['eventItems'] = FranchiseEventItem::where('event_id' , $data['eventTransaction']->event_id)->get();
         return view('corporate_admin.payment.event-pos' ,$data);
     }
@@ -163,10 +163,10 @@ class PaymentController extends Controller
     public function posEventDownloadPDF($id)
     {
        $eventTransaction = EventTransaction::where('id' , $id)->firstorfail();
-       $franchisee = Franchisee::where('franchisee_id' , $eventTransaction->franchisee_id)->firstorfail();
+       $franchise = Franchise::where('franchise_id' , $eventTransaction->franchise_id)->firstorfail();
        $eventItems = FranchiseEventItem::where('event_id' , $eventTransaction->event_id)->get();
 
-        $pdf = Pdf::loadView('corporate_admin.payment.pdf.event-pos', compact('eventTransaction', 'franchisee', 'eventItems'));
+        $pdf = Pdf::loadView('corporate_admin.payment.pdf.event-pos', compact('eventTransaction', 'franchise', 'eventItems'));
 
         return $pdf->download('event_invoice_friospos.pdf');
     }

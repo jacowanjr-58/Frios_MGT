@@ -4,7 +4,7 @@ namespace App\Http\Controllers\CorporateAdminControllers;
 
 use App\Models\FgpItem;
 use App\Models\FgpCategory;
-use App\Models\Franchisee;
+use App\Models\Franchise;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
@@ -15,10 +15,10 @@ class FgpItemsController extends Controller
 {
     public function index( $franchisee)
     {
-        $franchisee = Franchisee::find($franchisee);
+        $franchisee = Franchise::find($franchisee);
         $totalItems = FgpItem::count();
         if (request()->ajax()) {
-            $items = FgpItem::where('franchisee_id', $franchisee)->with('categories');
+            $items = FgpItem::where('franchise_id', $franchisee)->with('categories');
 
             return DataTables::of($items)
                 ->addColumn('categories', function ($item) {
@@ -248,7 +248,7 @@ class FgpItemsController extends Controller
             abort(403, 'Unauthorized access to Frios Availability');
         }
 
-        $flavors = FgpItem::where('franchisee_id', $franchisee)->with('categories')->get();
+        $flavors = FgpItem::where('franchise_id', $franchisee)->with('categories')->get();
         $totalItems = $flavors->count();
 
         return view('corporate_admin.fgp_items.availability_flavor', compact('flavors','totalItems'));

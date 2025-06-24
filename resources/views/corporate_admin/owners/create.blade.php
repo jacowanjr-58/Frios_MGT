@@ -90,16 +90,16 @@
                                                         <label class="form-label">Assign Franchise <span
                                                                 class="text-danger">*</span></label>
                                                         <select
-                                                            class="form-control select2 @error('franchisee_id') is-invalid @enderror"
-                                                            name="franchisee_id[]" multiple="multiple">
+                                                            class="form-control select2 @error('franchise_id') is-invalid @enderror"
+                                                            name="franchise_id[]" multiple="multiple">
                                                             <option value="">Select Franchise</option>
                                                             @foreach ($franchises as $franchise)
-                                                                <option value="{{ $franchise->franchisee_id }}">
+                                                                <option value="{{ $franchise->franchise_id }}">
                                                                 {{ $franchise->business_name ?? 'N/A' }} - {{ $franchise->frios_territory_name ?? 'N/A' }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
-                                                        @error('franchisee_id')
+                                                        @error('franchise_id')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>

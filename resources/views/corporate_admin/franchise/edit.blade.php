@@ -51,7 +51,7 @@
 
                                             <!-- Display Success Message -->
 
-                                            <form action="{{ route('franchise.update', $franchise->franchisee_id) }}" method="POST">
+                                            <form action="{{ route('franchise.update', $franchise->franchise_id) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
                                                 <div class="row">

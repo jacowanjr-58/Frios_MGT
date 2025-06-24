@@ -14,7 +14,7 @@ return new class extends Migration
         if (! Schema::hasTable('invoices')) {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
-            $table->string('franchisee_id');
+            $table->string('franchise_id');
             $table->string('customer_id')->nullable();
             $table->string('name');
             $table->date('date');

@@ -21,8 +21,8 @@ class FranchiseStaffController extends Controller
     }
 
     public function calendar(){
-        $events = Event::where('franchisee_id' , Auth::user()->franchisee_id)->get();
-        $badgeEvents = Event::where('franchisee_id' , Auth::user()->franchisee_id)->orderBy('created_at', 'DESC')
+        $events = Event::where('franchise_id' , Auth::user()->franchise_id)->get();
+        $badgeEvents = Event::where('franchise_id' , Auth::user()->franchise_id)->orderBy('created_at', 'DESC')
         ->get();
 
         // Group by year and month
@@ -49,7 +49,7 @@ class FranchiseStaffController extends Controller
   $eventItems = FranchiseEventItem::whereYear('created_at', $year)
             ->whereMonth('created_at', $month)
             ->whereHas('events', function ($query) {
-                $query->where('franchisee_id', Auth::user()->franchisee_id);
+                $query->where('franchise_id', Auth::user()->franchise_id);
             })
             ->get();
         return view('franchise_staff.event.report', compact('eventItems'));
@@ -62,32 +62,32 @@ class FranchiseStaffController extends Controller
     }
 
 
-    public function flavors($franchisee_id){
+    public function flavors($franchise_id){
 
-        $deliveredOrders = FgpOrder::where('status', 'delivered')->where('franchisee_id' , $franchisee_id)->get();
+        $deliveredOrders = FgpOrder::where('status', 'delivered')->where('franchise_id' , $franchise_id)->get();
        
-        $shippedOrders = FgpOrder::where('status', 'shipped')->where('franchisee_id' , $franchisee_id)->count();
-        $paidOrders = FgpOrder::where('status', 'paid')->where('franchisee_id' , $franchisee_id)->count();
-        $pendingOrders = FgpOrder::where('status', 'pending')->where('franchisee_id' , $franchisee_id)->count();
+        $shippedOrders = FgpOrder::where('status', 'shipped')->where('franchise_id' , $franchise_id)->count();
+        $paidOrders = FgpOrder::where('status', 'paid')->where('franchise_id' , $franchise_id)->count();
+        $pendingOrders = FgpOrder::where('status', 'pending')->where('franchise_id' , $franchise_id)->count();
 
-        $orders = FgpOrder::where('franchisee_id' , $franchisee_id)->get();
+        $orders = FgpOrder::where('franchise_id' , $franchise_id)->get();
 
         $totalOrders = $orders->count();
        
 
-        return view('franchise_staff.flavors.index', compact('deliveredOrders', 'shippedOrders', 'pendingOrders','paidOrders', 'orders', 'totalOrders','franchisee_id'));
+        return view('franchise_staff.flavors.index', compact('deliveredOrders', 'shippedOrders', 'pendingOrders','paidOrders', 'orders', 'totalOrders','franchise_id'));
     }
 
 
     public function index() {
        
-        $data['customers'] = Customer::where('franchisee_id' , Auth::user()->franchisee_id)->get();
-        $data['customerCount'] = Customer::where('franchisee_id' , Auth::user()->franchisee_id)->count();
+        $data['customers'] = Customer::where('franchise_id' , Auth::user()->franchise_id)->get();
+        $data['customerCount'] = Customer::where('franchise_id' , Auth::user()->franchise_id)->count();
         return view('franchise_staff.customer.index' ,$data);
     }
 
-    public function create( $franchisee ) {
-        return view('franchise_staff.customer.create', compact('franchisee'));
+    public function create( $franchise ) {
+        return view('franchise_staff.customer.create', compact('franchise'));
     }
 
     public function store(Request $request){
@@ -104,7 +104,7 @@ class FranchiseStaffController extends Controller
         ]);
 
         $customer = Customer::create([
-            'franchisee_id' => Auth::user()->franchisee_id,
+            'franchise_id' => Auth::user()->franchise_id,
             'user_id' => Auth::user()->user_id ?? 0,
             'name' => $request->name,
             'phone' => $request->phone,
@@ -139,7 +139,7 @@ class FranchiseStaffController extends Controller
         ]);
 
         $customer = Customer::where('customer_id' , $id)->update([
-            'franchisee_id' => Auth::user()->franchisee_id,
+            'franchise_id' => Auth::user()->franchise_id,
             'name' => $request->name,
             'phone' => $request->phone,
             'email' => $request->email,
@@ -169,7 +169,7 @@ class FranchiseStaffController extends Controller
         $orderId = $request->input('id');
 
         $orderDetails = DB::table('fgp_order_details as od')
-        ->join('fgp_items as fi', 'od.fgp_item_id', '=', 'fi.fgp_item_id')
+                    ->join('fgp_items as fi', 'od.fgp_item_id', '=', 'fi.id')
         ->where('od.fgp_order_id', $orderId)
         ->select('od.*', 'fi.name')
         ->get();

@@ -8,7 +8,7 @@ use App\Models\ExpenseCategory;
 use App\Models\ExpenseSubCategory;
 use App\Models\Expense;
 use App\Models\Customer;
-use App\Models\Franchisee;
+use App\Models\Franchise;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,7 +18,7 @@ class ExpensesCategoryController extends Controller
     {
 
         if (request()->ajax()) {
-            $expenseSubCategories = ExpenseSubCategory::where('franchisee_id', $franchisee);
+            $expenseSubCategories = ExpenseSubCategory::where('franchise_id', $franchisee);
 
             return DataTables::of($expenseSubCategories)
                 ->addColumn('category', function ($subCategory) {
@@ -136,7 +136,7 @@ class ExpensesCategoryController extends Controller
     public function expense($franchisee)
     {
         if (request()->ajax()) {
-            $expenses = Expense::where('franchisee_id', $franchisee);
+            $expenses = Expense::where('franchise_id', $franchisee);
 
             return DataTables::of($expenses)
                 ->addColumn('franchise', function ($expense) {
@@ -207,13 +207,13 @@ class ExpensesCategoryController extends Controller
     {
         if (request()->ajax()) {
             $user = Auth::user();
-            $customers = Customer::where('franchisee_id', $franchisee);
+            $customers = Customer::where('franchise_id', $franchisee);
 
             // Apply franchise filter from URL parameter first, then check for request filter
             if ($franchisee) {
-                $customers->where('franchisee_id', $franchisee);
+                $customers->where('franchise_id', $franchisee);
             } elseif (request()->has('franchise_filter') && request()->franchise_filter != '') {
-                $customers->where('franchisee_id', request()->franchise_filter);
+                $customers->where('franchise_id', request()->franchise_filter);
             }
 
             // If only count is requested, return just the count
@@ -223,7 +223,7 @@ class ExpensesCategoryController extends Controller
 
             return DataTables::of($customers)
                 ->addColumn('franchise', function ($customer) {
-                    $franchisee = Franchisee::where('franchisee_id', $customer->franchisee_id)->first();
+                    $franchisee = Franchise::where('franchise_id', $customer->franchise_id)->first();
                     return $franchisee->business_name ?? '-';
                 })
                 ->filterColumn('franchise', function ($query, $keyword) {
@@ -232,7 +232,7 @@ class ExpensesCategoryController extends Controller
                     });
                 })
                 ->addColumn('action', function ($customer) {
-                    $viewUrl = route('franchise.franchise_customer.view', ['franchisee' => $customer->franchisee_id, 'id' => $customer->customer_id]);
+                    $viewUrl = route('franchise.franchise_customer.view', ['franchisee' => $customer->franchise_id, 'id' => $customer->customer_id]);
 
                     $actions = '<div class="d-flex">';
 
@@ -252,9 +252,9 @@ class ExpensesCategoryController extends Controller
         }
 
         // Get customer count for the specific franchise
-        $customerCount = $franchisee ? Customer::where('franchisee_id', $franchisee)->count() : Customer::count();
+        $customerCount = $franchisee ? Customer::where('franchise_id', $franchisee)->count() : Customer::count();
         $data['customerCount'] = $customerCount;
-        $data['franchisee'] = $franchisee ? Franchisee::find($franchisee) : null;
+        $data['franchisee'] = $franchisee ? Franchise::find($franchisee) : null;
         return view('corporate_admin.customer.index', $data);
     }
 
@@ -272,7 +272,7 @@ class ExpensesCategoryController extends Controller
     public function indexExpense($franchisee)
     {
         if (request()->ajax()) {
-            $expenseSubCategories = ExpenseSubCategory::where('franchisee_id', $franchisee)
+            $expenseSubCategories = ExpenseSubCategory::where('franchise_id', $franchisee)
                 ->with('category'); // Eager load the category relationship
 
             return DataTables::of($expenseSubCategories)
@@ -300,16 +300,16 @@ class ExpensesCategoryController extends Controller
                 ->make(true);
         }
 
-        $data['expenseSubCategories'] = ExpenseSubCategory::where('franchisee_id', $franchisee)->orderBy('created_at', 'DESC')->get();
-        $data['expenseSubCategoryCount'] = ExpenseSubCategory::where('franchisee_id', $franchisee)->count();
-        $data['franchisee'] = Franchisee::findOrFail($franchisee);
+        $data['expenseSubCategories'] = ExpenseSubCategory::where('franchise_id', $franchisee)->orderBy('created_at', 'DESC')->get();
+        $data['expenseSubCategoryCount'] = ExpenseSubCategory::where('franchise_id', $franchisee)->count();
+        $data['franchisee'] = Franchise::findOrFail($franchisee);
         return view('franchise_admin.expense.category.index', $data);
     }
 
 
     public function createExpense()
     {
-        $data['ExpenseCategories'] = ExpenseCategory::where('franchisee_id', Auth::user()->franchisee_id)->get();
+        $data['ExpenseCategories'] = ExpenseCategory::where('franchise_id', Auth::user()->franchise_id)->get();
         return view('franchise_admin.expense.category.create', $data);
     }
 
@@ -317,7 +317,7 @@ class ExpensesCategoryController extends Controller
     {
 
         $data['franchiseId'] = intval($franchisee);
-        $data['ExpenseCategories'] = ExpenseCategory::where('franchisee_id', $franchisee)->get();
+        $data['ExpenseCategories'] = ExpenseCategory::where('franchise_id', $franchisee)->get();
         $data['expenseSubCategory'] = ExpenseSubCategory::where('id', $id)->first();
 
         return view('franchise_admin.expense.category.edit', $data);
@@ -331,7 +331,7 @@ class ExpensesCategoryController extends Controller
 
         $category = ExpenseCategory::create([
             'category' => $request->category,
-            'franchisee_id' => Auth::user()->franchisee_id,
+            'franchise_id' => Auth::user()->franchise_id,
         ]);
 
 
@@ -350,7 +350,7 @@ class ExpensesCategoryController extends Controller
         $subCategory = ExpenseSubCategory::create([
             'category_id' => $request->category_id,
             'sub_category' => $request->sub_category,
-            'franchisee_id' => Auth::user()->franchisee_id,
+            'franchise_id' => Auth::user()->franchise_id,
             'sub_category_description' => $request->sub_category_description,
         ]);
 
@@ -369,7 +369,7 @@ class ExpensesCategoryController extends Controller
 
         // Update the sub-category
         ExpenseSubCategory::where('id', $id)
-            ->where('franchisee_id', $franchisee) // Optional safety check
+            ->where('franchise_id', $franchisee) // Optional safety check
             ->update([
                 'category_id' => $request->category_id,
                 'sub_category' => $request->sub_category,

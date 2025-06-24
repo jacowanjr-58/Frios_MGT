@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('invoice_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('invoice_id')->constrained()->onDelete('cascade');
-            $table->string('franchisee_id')->nullable();
+            $table->string('franchise_id')->nullable();
             $table->string('transaction_id')->nullable();
             $table->string('status');
             $table->decimal('amount', 10, 2);

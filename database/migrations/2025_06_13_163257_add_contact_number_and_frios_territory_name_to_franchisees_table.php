@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('franchisees', function (Blueprint $table) {
-            $table->string('contact_number')->after('business_name');
-            $table->string('frios_territory_name')->nullable()->after('contact_number');
-           
+        Schema::table('franchises', function (Blueprint $table) {
+            $table->string('contact_number')->nullable();
+            $table->string('frios_territory_name')->nullable();
         });
     }
 
@@ -23,9 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('franchisees', function (Blueprint $table) {
-         
-            $table->dropColumn(['contact_number', 'frios_territory_name']);
+        Schema::table('franchises', function (Blueprint $table) {
+            $table->dropColumn('contact_number');
+            $table->dropColumn('frios_territory_name');
         });
     }
 };

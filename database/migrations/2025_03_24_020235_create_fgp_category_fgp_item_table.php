@@ -14,12 +14,12 @@
             if (! Schema::hasTable('fgp_category_fgp_item')) {
             Schema::create('fgp_category_fgp_item', function (Blueprint $table) {
                 $table->id();
-                $table->unsignedBigInteger('category_ID');
+                $table->unsignedBigInteger('category_id');
                 $table->unsignedBigInteger('fgp_item_id');
                 $table->timestamps();
 
                 // Foreign keys
-                $table->foreign('category_ID')->references('category_ID')->on('fgp_categories')->onDelete('cascade');
+                $table->foreign('category_id')->references('category_id')->on('fgp_categories')->onDelete('cascade');
                 $table->foreign('fgp_item_id')->references('fgp_item_id')->on('fgp_items')->onDelete('cascade');
             });
             }

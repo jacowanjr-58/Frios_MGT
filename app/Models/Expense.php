@@ -15,14 +15,14 @@ class Expense extends Model
             if (Auth::check()) {
                 $expense->created_by = Auth::id();
                 $expense->updated_by = Auth::id();
-                $expense->franchisee_id = session('franchisee_id') ?? null;
+                $expense->franchise_id = session('franchise_id') ?? null;
             }
         });
 
         static::updating(function ($expense) {
             if (Auth::check()) {
                 $expense->updated_by = Auth::id();
-                $expense->franchisee_id = session('franchisee_id') ?? null;
+                $expense->franchise_id = session('franchise_id') ?? null;
             }
         });
     }
@@ -35,9 +35,9 @@ class Expense extends Model
         return $this->belongsTo(ExpenseSubCategory::class);
     }
 
-    public function franchisee()
+    public function franchise()
     {
-        return $this->belongsTo(Franchisee::class, 'franchisee_id', 'franchisee_id');
+        return $this->belongsTo(Franchise::class, 'franchise_id');
     }
     // In App\Models\Expense.php
 

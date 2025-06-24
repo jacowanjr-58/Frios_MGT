@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 use App\Models\FgpOrder;
 use App\Models\User;
 use App\Models\Customer;
-use App\Models\Franchisee;
+use App\Models\Franchise;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -18,74 +18,76 @@ class FgpOrderSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get existing users, customers, and franchisees for foreign key relationships
-        $users = User::pluck('user_id')->toArray();
-        $customers = Customer::pluck('customer_id')->toArray();
-        $franchisees = Franchisee::pluck('franchisee_id')->toArray();
+        // Get existing users, customers, and franchises for foreign key relationships
+        $users = User::pluck('id')->toArray();
+        $customers = Customer::pluck('id')->toArray();
+        $franchises = Franchise::pluck('id')->toArray();
 
         // If no data exists, create some basic records first
         if (empty($users)) {
-            $users = [1, 2, 3]; // Default user IDs
+            $this->command->error('No users found. Please run user seeders first.');
+            return;
         }
-        if (empty($franchisees)) {
-            $franchisees = [1, 2, 3]; // Default franchisee IDs
+        if (empty($franchises)) {
+            $this->command->error('No franchises found. Please run FranchiseSeeder first.');
+            return;
         }
 
-        // Sample shipping addresses
+        // Sample shipping addresses - Updated to Texas cities to match franchise locations
         $shippingAddresses = [
             [
                 'name' => 'John Smith',
                 'address1' => '123 Main Street',
                 'address2' => 'Apt 4B',
-                'city' => 'New York',
-                'state' => 'NY',
-                'zip' => '10001',
-                'phone' => '555-123-4567'
+                'city' => 'Austin',
+                'state' => 'TX',
+                'zip' => '78701',
+                'phone' => '512-123-4567'
             ],
             [
                 'name' => 'Sarah Johnson',
                 'address1' => '456 Oak Avenue',
                 'address2' => '',
-                'city' => 'Los Angeles',
-                'state' => 'CA',
-                'zip' => '90210',
-                'phone' => '555-987-6543'
+                'city' => 'Dallas',
+                'state' => 'TX',
+                'zip' => '75240',
+                'phone' => '214-987-6543'
             ],
             [
                 'name' => 'Mike Wilson',
                 'address1' => '789 Pine Street',
                 'address2' => 'Suite 200',
-                'city' => 'Chicago',
-                'state' => 'IL',
-                'zip' => '60601',
-                'phone' => '555-456-7890'
+                'city' => 'Houston',
+                'state' => 'TX',
+                'zip' => '77008',
+                'phone' => '713-456-7890'
             ],
             [
                 'name' => 'Emily Davis',
                 'address1' => '321 Elm Drive',
                 'address2' => '',
-                'city' => 'Houston',
+                'city' => 'San Antonio',
                 'state' => 'TX',
-                'zip' => '77001',
-                'phone' => '555-234-5678'
+                'zip' => '78205',
+                'phone' => '210-234-5678'
             ],
             [
                 'name' => 'Robert Brown',
                 'address1' => '654 Maple Lane',
                 'address2' => 'Unit 12',
-                'city' => 'Phoenix',
-                'state' => 'AZ',
-                'zip' => '85001',
-                'phone' => '555-345-6789'
+                'city' => 'Fort Worth',
+                'state' => 'TX',
+                'zip' => '76164',
+                'phone' => '817-345-6789'
             ],
             [
                 'name' => 'Lisa Garcia',
                 'address1' => '987 Cedar Court',
                 'address2' => '',
-                'city' => 'Philadelphia',
-                'state' => 'PA',
-                'zip' => '19101',
-                'phone' => '555-567-8901'
+                'city' => 'El Paso',
+                'state' => 'TX',
+                'zip' => '79912',
+                'phone' => '915-567-8901'
             ]
         ];
 
@@ -114,8 +116,8 @@ class FgpOrderSeeder extends Seeder
             };
 
             $orderData = [
-                'user_ID' => $users[array_rand($users)],
-                'franchisee_id' => $franchisees[array_rand($franchisees)],
+                'user_id' => $users[array_rand($users)],
+                'franchise_id' => $franchises[array_rand($franchises)],
                 'customer_id' => !empty($customers) ? (rand(0, 1) ? $customers[array_rand($customers)] : null) : null,
                 'date_transaction' => $transactionDate,
                 'status' => $status,

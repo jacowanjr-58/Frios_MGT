@@ -79,17 +79,17 @@
                                                         <label class="form-label">Assign Franchise <span
                                                                 class="text-danger">*</span></label>
                                                         <select
-                                                            class="form-control select2 @error('franchisee_id') is-invalid @enderror"
-                                                            name="franchisee_id[]" multiple="multiple">
+                                                            class="form-control select2 @error('franchise_id') is-invalid @enderror"
+                                                            name="franchise_id[]" multiple="multiple">
                                                             <option value="">Select Franchise</option>
                                                             @foreach ($franchises as $franchise)
-                                                                <option value="{{ $franchise->franchisee_id }}"
-                                                                    {{ $owner->franchisees->contains('franchisee_id', $franchise->franchisee_id) ? 'selected' : '' }}>
+                                                                <option value="{{ $franchise->franchise_id }}"
+                                                                    {{ $owner->franchisees->contains('franchise_id', $franchise->franchise_id) ? 'selected' : '' }}>
                                                                     {{ $franchise->business_name ?? 'N/A' }} - {{ $franchise->frios_territory_name ?? 'N/A' }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
-                                                        @error('franchisee_id') <div class="text-danger">{{ $message }}</div> @enderror
+                                                        @error('franchise_id') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
 
                                                     <div class="mb-3 col-md-6">

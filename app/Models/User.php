@@ -12,27 +12,6 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasRoles;
 
     /**
-     * Define custom primary key
-     *
-     * @var string
-     */
-    protected $primaryKey = 'user_id'; // Specify the custom primary key
-
-    /**
-     * Indicate that the primary key is auto-incrementing
-     *
-     * @var bool
-     */
-    public $incrementing = true;
-
-    /**
-     * Set primary key type
-     *
-     * @var string
-     */
-    protected $keyType = 'int';
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -43,7 +22,7 @@ class User extends Authenticatable
         'password',
         'role',
         'phone_number',
-        'franchisee_id',
+        'franchise_id',
         'created_date',
         'clearance',
         'security',
@@ -77,16 +56,16 @@ class User extends Authenticatable
     ];
 
     /**
-     * Define relationship with Franchisee
+     * Define relationship with Franchise
      */
-    public function franchisee()
+    public function franchise()
     {
-        return $this->belongsTo(Franchisee::class, 'franchisee_id', 'franchisee_id');
+        return $this->belongsTo(Franchise::class, 'franchise_id');
     }
 
-    public function franchisees()
+    public function franchises()
     {
-        return $this->belongsToMany(Franchisee::class, 'user_franchisees', 'user_id', 'franchisee_id');
+        return $this->belongsToMany(Franchise::class, 'user_franchises', 'user_id', 'franchise_id');
     }
 
     /**

@@ -57,9 +57,9 @@
                             <label for="franchise-filter" class="form-label">Filter by Franchise:</label>
                             <select id="franchise-filter" class="form-select select2 flex-grow-1">
                                 <option value="">All Franchises</option>
-                                @foreach(\App\Models\Franchisee::all() as $franchise)
-                                    <option value="{{ $franchise->franchisee_id }}" 
-                                        {{ request('franchise_filter') == $franchise->franchisee_id ? 'selected' : '' }}>
+                                @foreach(\App\Models\Franchise::all() as $franchise)
+                                    <option value="{{ $franchise->franchise_id }}" 
+                                        {{ request('franchise_filter') == $franchise->franchise_id ? 'selected' : '' }}>
                                         {{ $franchise->business_name ?? 'N/A' }} - {{ $franchise->frios_territory_name ?? 'N/A' }}
                                     </option>
                                 @endforeach

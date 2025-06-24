@@ -38,6 +38,6 @@ class InventoryAllocation extends Model
 
     public function flavor()
     {
-        return $this->belongsTo(FGPItem::class, 'fgp_item_id', 'fgp_item_id');
+        return $this->belongsTo(FGPItem::class, 'fgp_item_id', 'id');
     }
 }

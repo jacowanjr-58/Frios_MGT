@@ -19,14 +19,14 @@ class ExpenseSubCategory extends Model
             if (Auth::check()) {
                 $expenseSubCategory->created_by = Auth::id();
                 $expenseSubCategory->updated_by = Auth::id();
-                $expenseSubCategory->franchisee_id = session('franchisee_id') ?? null;
+                $expenseSubCategory->franchise_id = session('franchise_id') ?? null;
             }
         });
 
         static::updating(function ($expenseSubCategory) {
             if (Auth::check()) {
                 $expenseSubCategory->updated_by = Auth::id();
-                $expenseSubCategory->franchisee_id = session('franchisee_id') ?? null;
+                $expenseSubCategory->franchise_id = session('franchise_id') ?? null;
             }
         });
     }

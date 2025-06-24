@@ -20,7 +20,7 @@ class FgpOrderDetail extends Model
 
     public function fgp_item()
     {
-        return $this->belongsTo(FgpItem::class, 'fgp_item_id', 'fgp_item_id');
+        return $this->belongsTo(FgpItem::class, 'fgp_item_id', 'id');
     }
 
 
@@ -36,7 +36,7 @@ class FgpOrderDetail extends Model
 
       public function flavor()
     {
-        return $this->belongsTo(FgpItem::class, 'fgp_item_id', 'fgp_item_id');
+        return $this->belongsTo(FgpItem::class, 'fgp_item_id', 'id');
     }
 
       public function discrepancy()

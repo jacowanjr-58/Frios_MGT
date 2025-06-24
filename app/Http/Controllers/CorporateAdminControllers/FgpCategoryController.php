@@ -19,7 +19,7 @@ class FgpCategoryController extends Controller
 
         $totalCategories = FgpCategory::count();
         if (request()->ajax()) {
-            $categories = FgpCategory::where('franchisee_id', $franchisee);
+            $categories = FgpCategory::where('franchise_id', $franchisee);
 
             return DataTables::of($categories)
                 ->addColumn('created_at', function ($category) {

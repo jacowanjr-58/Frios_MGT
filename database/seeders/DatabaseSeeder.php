@@ -17,7 +17,9 @@ class DatabaseSeeder extends Seeder
         // Run roles and permissions seeder first
         $this->call([
             RolesAndPermissionsSeeder::class,
-            FgpOrderSeeder::class,
+            FranchiseSeeder::class,
+            // CustomerSeeder::class,
+            // FgpOrderSeeder::class,
         ]);
 
         // Define users to create/update
@@ -81,6 +83,11 @@ class DatabaseSeeder extends Seeder
 
             $this->command->info("User {$userData['email']} processed with role {$userData['role']}");
         }
+
+        // Create user-franchise relationships after all users are created
+        $this->call([
+            UserFranchiseSeeder::class,
+        ]);
     }
 
     /**

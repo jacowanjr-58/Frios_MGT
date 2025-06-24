@@ -109,11 +109,11 @@ class UPSShippingService
         $tracking = data_get($data, 'ShipmentResponse.ShipmentResults.PackageResults.TrackingNumber');
         $shipmentId = data_get($data, 'ShipmentResponse.ShipmentResults.ShipmentIdentificationNumber');
 
-        $file = "labels/ups_label_{$order->fgp_ordersID}.zpl";
+        $file = "labels/ups_label_{$order->id}.zpl";
         \Storage::disk('local')->put($file, $labelImage);
 
         UpsShipment::create([
-            'fgp_ordersID' => $order->fgp_ordersID,
+            'fgp_order_id' => $order->id,
             'shipment_id' => $shipmentId,
             'tracking_number' => $tracking,
             'label_format' => 'ZPL',

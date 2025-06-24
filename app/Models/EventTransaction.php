@@ -11,4 +11,8 @@ class EventTransaction extends Model
     public function event(){
         return $this->belongsTo(Event::class);
     }
+
+    public function franchise(){
+        return $this->belongsTo(Franchise::class, 'franchise_id');
+    }
 }

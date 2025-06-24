@@ -67,8 +67,8 @@
                     <td>{{ $franchise->state }}</td>
                     <td>{{ $franchise->zip_code }}</td>
                     <td>
-                        <a href="{{ route('franchise.edit', $franchise->franchisee_id) }}" class="btn btn-warning">Edit</a>
-                        <form action="{{ route('franchise.destroy', $franchise->franchisee_id) }}" method="POST"
+                        <a href="{{ route('franchise.edit', $franchise->franchise_id) }}" class="btn btn-warning">Edit</a>
+                        <form action="{{ route('franchise.destroy', $franchise->franchise_id) }}" method="POST"
                             style="display:inline;">
                             @csrf @method('DELETE')
                             <button type="submit" class="btn btn-danger"
@@ -179,7 +179,7 @@
                     $('#franchise-table').DataTable({
                         processing: true,
                         serverSide: true,
-                        ajax: "{{ route('franchise.index', ['franchisee' => $franchiseeId]) }}",
+                        ajax: "{{ route('franchise.index') }}",
                         columns: [
                             { data: 'business_name', name: 'business_name' },
                             {

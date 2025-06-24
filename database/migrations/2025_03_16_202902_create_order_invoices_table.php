@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('orders_invoice', function (Blueprint $table) {
             $table->id('invoice_ID');
             $table->unsignedBigInteger('user_ID');
-            $table->unsignedBigInteger('franchisee_ID');
+            $table->unsignedBigInteger('franchise_id');
             $table->unsignedBigInteger('custom_ID')->nullable();
             $table->json('order_items_ID_list');
             $table->dateTime('date_created');
@@ -26,7 +26,10 @@ return new class extends Migration
         
             // Foreign Keys
             $table->foreign('user_ID')->references('user_id')->on('users')->onDelete('cascade');
-            $table->foreign('franchisee_ID')->references('franchisee_id')->on('franchisees')->onDelete('cascade');
+            $table->foreign('franchise_id')
+                ->references('franchise_id')
+                ->on('franchises')
+                ->onDelete('cascade');
         });
         }
         

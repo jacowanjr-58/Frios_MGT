@@ -5,7 +5,7 @@ namespace App\Http\Controllers\FranchiseAdminControllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\Franchisee;
+use App\Models\Franchise;
 use Carbon\Carbon;
 class StaffController extends Controller
 {
@@ -42,14 +42,14 @@ class StaffController extends Controller
             'security' => 'nullable|string',
         ]);
 
-        $franchiseeId = auth()->user()->franchisee_id;
+        $franchiseeId = auth()->user()->franchise_id;
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'role' => $request->role, // Storing role in the database
-            'franchisee_id' => $franchiseeId,
+            'franchise_id' => $franchiseeId,
             'phone_number' => $request->phone_number,
             'security' => $request->security,
             'created_date' => Carbon::now()->toDateString(), // Storing the current date
@@ -85,14 +85,14 @@ class StaffController extends Controller
             'phone_number' => 'nullable|string|regex:/^\(\d{3}\) \d{3}-\d{4}$/',
             'security' => 'nullable|string',
         ]);
-        $franchiseeId = auth()->user()->franchisee_id;
+        $franchiseeId = auth()->user()->franchise_id;
 
         $staff->update([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'role' => $request->role, // Storing role in the database
-            'franchisee_id' => $franchiseeId,
+            'franchise_id' => $franchiseeId,
             'phone_number' => $request->phone_number,
             'security' => $request->security,
         ]);

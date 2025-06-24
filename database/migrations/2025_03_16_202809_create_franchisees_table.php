@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -11,22 +12,27 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (! Schema::hasTable('franchisees')) {
-        Schema::create('franchisees', function (Blueprint $table) {
-            $table->id('franchisee_id');
-            $table->string('business_name');
-            $table->string('address1')->nullable();
-            $table->string('address2')->nullable();
-            $table->string('city')->nullable();
-            $table->string('zip_code', 5)->nullable();
-            $table->string('state', 2)->nullable();
-            $table->string('location_zip')->nullable();
-            $table->json('ACH_data_API')->nullable();
-            $table->json('pos_service_API')->nullable();
-            $table->timestamps();
-        });
+        if (! Schema::hasTable('franchises')) {
+            Schema::create('franchises', function (Blueprint $table) {
+                $table->id('franchise_id');
+                $table->unsignedBigInteger('user_id')->nullable();
+                $table->string('business_name');
+                $table->string('address1');
+                $table->string('address2')->nullable();
+                $table->string('city');
+                $table->string('state');
+                $table->string('zip_code');
+                $table->string('location_zip')->nullable();
+                $table->string('ACH_data_API')->nullable();
+                $table->string('pos_service_API')->nullable();
+                $table->timestamps();
+
+                $table->foreign('user_id')
+                    ->references('user_id')
+                    ->on('users')
+                    ->onDelete('set null');
+            });
         }
-        
     }
 
     /**
@@ -34,6 +40,13 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('franchisees');
+        // Disable foreign key checks to allow dropping tables with dependencies
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        
+        Schema::dropIfExists('franchises');
+        
+        // Re-enable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        Schema::dropIfExists('franchises');
     }
 };

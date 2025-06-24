@@ -14,7 +14,7 @@ return new class extends Migration
         if (! Schema::hasTable('accounts')) {
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
-            $table->string('franchisee_id')->nullable();
+            $table->string('franchise_id')->nullable();
             $table->string('cardholder_name')->nullable();
             $table->string('stripe_customer_id')->nullable();
             $table->string('stripe_payment_method_id')->nullable();

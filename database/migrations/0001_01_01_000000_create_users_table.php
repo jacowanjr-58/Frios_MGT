@@ -3,7 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
+use Illuminate\Support\Facades\DB;
+    
 return new class extends Migration
 {
     /**
@@ -40,7 +41,7 @@ return new class extends Migration
         if (! Schema::hasTable('sessions')) {
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
+            $table->unsignedBigInteger('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');
@@ -54,8 +55,15 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Disable foreign key checks to allow dropping tables with dependencies
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        
+        
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        
+        // Re-enable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 };

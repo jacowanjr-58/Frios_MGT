@@ -154,18 +154,18 @@
                                 @foreach ($orders as $index => $order)
                                 @php
                                     $totalAmount = \DB::table('fgp_order_details')
-                                        ->where('fgp_order_id', $order->fgp_ordersID)
+                                        ->where('fgp_order_id', $order->id)
                                         ->selectRaw('SUM(unit_number * unit_cost) as total')
                                         ->value('total');
                                 @endphp
                                 <tr style="text-wrap: no-wrap;">
                                     @php
-                                        $franchisee = App\Models\Franchisee::where('franchisee_id' , $order->franchisee_id  ?? $franchisee_id)->first();
+                                        $franchise = App\Models\Franchise::where('franchise_id' , $order->franchise_id  ?? $franchise_id)->first();
                                     @endphp
-                                    <td>{{ $franchisee->business_name ?? 'N/A' }}</td>
+                                    <td>{{ $franchise->business_name ?? 'N/A' }}</td>
                                     <td>
-                                        <span class="cursor-pointer text-primary order-detail-trigger" data-id="{{ $order->fgp_ordersID }}">
-                                            {{ \DB::table('fgp_order_details')->where('fgp_order_id', $order->fgp_ordersID)->count() }} items
+                                        <span class="cursor-pointer text-primary order-detail-trigger" data-id="{{ $order->id }}">
+                                            {{ \DB::table('fgp_order_details')->where('fgp_order_id', $order->id)->count() }} items
                                         </span>
                                     </td>
                                     <td>{{ $order->status }}</td>
@@ -379,7 +379,7 @@
                 let orderableValue = $(this).val();
 
                 $.ajax({
-                    url: "{{ route('franchise.fgpitem.updateOrderable', ['franchisee' => $franchisee_id]) }}",
+                    url: "{{ route('franchise.fgpitem.updateOrderable', ['franchise' => $franchise_id]) }}",
                     type: "POST",
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),
@@ -430,7 +430,7 @@ $(document).ready(function () {
         const orderId = $(this).data('id'); // Get the order ID from the data-id attribute
 
         $.ajax({
-            url: '{{ route('franchise.flavors.detail', ['franchisee' => $franchisee_id]) }}', // Backend route to fetch order details
+            url: '{{ route('franchise.flavors.detail', ['franchise' => $franchise_id]) }}', // Backend route to fetch order details
             method: 'GET',
             data: { id: orderId }, // Pass orderId to backend
             success: function (response) {

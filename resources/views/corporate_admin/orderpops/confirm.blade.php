@@ -69,7 +69,7 @@
                                                                 <select name="user_ID" id="user_ID" class="form-control  @error('user_ID') is-invalid @enderror">
                                                                     <option value="">Please Select</option>
                                                                     @foreach ($users as $user)
-                                                                        <option value="{{ $user->franchisee_id }}">{{ $user->business_name }}</option>
+                                                                        <option value="{{ $user->franchise_id }}">{{ $user->business_name }}</option>
                                                                     @endforeach
                                                                 </select>
                                                                 @error('user_ID')

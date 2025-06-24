@@ -14,7 +14,7 @@ return new class extends Migration
         if (! Schema::hasTable('expenses')) {
         Schema::create('expenses', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('franchisee_id');
+            $table->unsignedBigInteger('franchise_id');
             $table->integer('category_id');
             $table->integer('sub_category_id');
             $table->string('name');
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Foreign Keys
-            $table->foreign('franchisee_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->foreign('franchise_id')->references('user_id')->on('users')->onDelete('cascade');
         });
         }
 

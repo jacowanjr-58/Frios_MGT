@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\CorporateAdminControllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Franchisee;
+use App\Models\Franchise;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -13,16 +13,16 @@ use Illuminate\Support\Facades\Auth;
 
 class OwnerController extends Controller
 {
-    public function index($franchisee)
+    public function index($franchise)
     {
-        $franchiseeId = $franchisee;
+        $franchiseeId = $franchise;
         $totalUsers = User::where('role', 'franchise_admin')->count();
 
         if (request()->ajax()) {
             $users = User::where('role', 'franchise_admin');
 
             return DataTables::of($users)
-                ->addColumn('franchisee', function ($user) {
+                ->addColumn('franchise', function ($user) {
                     $franchises = $user->franchisees;
                     if ($franchises->isEmpty()) {
                         return '<span class="text-muted">No Franchise Assigned</span>';
@@ -68,7 +68,7 @@ class OwnerController extends Controller
                     
                     return $actions;
                 })
-                ->rawColumns(['action', 'franchisee'])
+                ->rawColumns(['action', 'franchise'])
                 ->make(true);
         }
 
@@ -80,7 +80,7 @@ class OwnerController extends Controller
     public function create()
     {
        
-        $franchises = Franchisee::whereDoesntHave('users')->get();
+        $franchises = Franchise::whereDoesntHave('users')->get();
 
         return view('corporate_admin.owners.create', compact('franchises'));
     }
@@ -92,15 +92,15 @@ class OwnerController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
-            'franchisee_id' => 'required|exists:franchisees,franchisee_id',
+            'franchise_id' => 'required|exists:franchisees,franchise_id',
             'ein_ssn' => 'nullable|string|max:255',
             'contract_document' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // 10MB max
             'date_joined' => 'nullable|date',
             // 'clearance' => 'nullable|string',
             // 'security' => 'nullable|string',
         ], [
-            'franchisee_id.required' => 'Franchise is required.', // Custom error message
-            'franchisee_id.exists' => 'Selected franchise does not exist.', // Custom error message for invalid franchise
+            'franchise_id.required' => 'Franchise is required.', // Custom error message
+            'franchise_id.exists' => 'Selected franchise does not exist.', // Custom error message for invalid franchise
             'contract_document.mimes' => 'Contract document must be a PDF, DOC, or DOCX file.',
             'contract_document.max' => 'Contract document must not exceed 10MB.',
         ]);
@@ -135,8 +135,8 @@ class OwnerController extends Controller
 
         // Assign the role using Spatie Role Permission
         $user->assignRole('franchise_admin');
-        // Attach franchisee
-        $user->franchisees()->attach($request->franchisee_id);
+        // Attach franchise
+        $user->franchisees()->attach($request->franchise_id);
 
         return redirect()->route('owner.index')->with('success', 'Owner created successfully.');
     }
@@ -144,16 +144,16 @@ class OwnerController extends Controller
     public function edit(User $owner)
     {
         // Get the franchisees assigned to this user
-        $assignedFranchiseIds = $owner->franchisees->pluck('franchisee_id');
+        $assignedFranchiseIds = $owner->franchisees->pluck('franchise_id');
     
         // Franchises not assigned to any user
-        $availableFranchises = Franchisee::whereDoesntHave('users')->get();
+        $availableFranchises = Franchise::whereDoesntHave('users')->get();
     
         // Franchises assigned to this user (should still appear in the dropdown)
-        $assignedFranchises = Franchisee::whereIn('franchisee_id', $assignedFranchiseIds)->get();
+        $assignedFranchises = Franchise::whereIn('franchise_id', $assignedFranchiseIds)->get();
     
         // Merge both collections and remove duplicates
-        $franchises = $availableFranchises->merge($assignedFranchises)->unique('franchisee_id');
+        $franchises = $availableFranchises->merge($assignedFranchises)->unique('franchise_id');
     
         return view('corporate_admin.owners.edit', compact('owner', 'franchises'));
     }
@@ -165,7 +165,7 @@ class OwnerController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $owner->user_id . ',user_id', // Corrected validation
             'password' => 'nullable|min:6',
-            'franchisee_id' => 'nullable|exists:franchisees,franchisee_id',
+            'franchise_id' => 'nullable|exists:franchisees,franchise_id',
             'ein_ssn' => 'nullable|string|max:255',
             'contract_document' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // 10MB max
             'date_joined' => 'nullable|date',
@@ -210,7 +210,7 @@ class OwnerController extends Controller
             $owner->update(['password' => bcrypt($request->password)]);
         }
 
-        $owner->franchisees()->sync($request->franchisee_id);
+        $owner->franchisees()->sync($request->franchise_id);
         return redirect()->route('owner.index')->with('success', 'Owner updated successfully.');
     }
     public function destroy($id)

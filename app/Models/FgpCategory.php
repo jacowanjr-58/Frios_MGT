@@ -12,7 +12,6 @@ class FgpCategory extends Model
     use HasFactory;
 
     protected $table = 'fgp_categories';
-    protected $primaryKey = 'category_ID';
     public $timestamps = true;
     protected $casts = [
         'type' => 'array',
@@ -28,14 +27,14 @@ class FgpCategory extends Model
             if (Auth::check()) {
                 $fgpCategory->created_by = Auth::id();
                 $fgpCategory->updated_by = Auth::id();
-                $fgpCategory->franchisee_id = session('franchisee_id') ?? null;
+                $fgpCategory->franchise_id = session('franchise_id') ?? null;
             }
         });
 
         static::updating(function ($fgpCategory) {
             if (Auth::check()) {
                 $fgpCategory->updated_by = Auth::id();
-                $fgpCategory->franchisee_id = session('franchisee_id') ?? null;
+                $fgpCategory->franchise_id = session('franchise_id') ?? null;
             }
         });
     }
@@ -43,7 +42,12 @@ class FgpCategory extends Model
     // Many-to-many relationship with FgpItem
     public function items()
     {
-        return $this->belongsToMany(FgpItem::class, 'fgp_category_fgp_item', 'category_ID', 'fgp_item_id');
+        return $this->belongsToMany(FgpItem::class, 'fgp_category_fgp_item', 'category_id', 'fgp_item_id');
+    }
+
+    public function franchise()
+    {
+        return $this->belongsTo(Franchise::class, 'franchise_id');
     }
 
     public function getFormattedCreatedAtAttribute()

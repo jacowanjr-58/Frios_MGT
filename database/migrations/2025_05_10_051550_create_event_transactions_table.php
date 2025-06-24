@@ -14,7 +14,7 @@ return new class extends Migration
         if (! Schema::hasTable('event_transactions')) {
         Schema::create('event_transactions', function (Blueprint $table) {
             $table->id();
-            $table->string('franchisee_id');
+            $table->string('franchise_id');
             $table->integer('event_id');
             $table->string('cardholder_name');
             $table->double('amount');

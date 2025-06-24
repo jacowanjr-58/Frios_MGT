@@ -8,10 +8,10 @@ use Illuminate\Http\Request;
 
 class UPSShippingController extends Controller
 {
-    public function createLabel($fgp_ordersID)
+    public function createLabel($orderId)
     {
         try {
-            $order = FgpOrder::with('orderDetails')->findOrFail($fgp_ordersID);
+            $order = FgpOrder::with('orderDetails')->findOrFail($orderId);
 
             $ups = new UPSShippingService();
             $tracking = $ups->createShipment($order);

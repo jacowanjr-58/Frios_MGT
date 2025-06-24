@@ -5,7 +5,7 @@ namespace App\Http\Controllers\FranchiseAdminControllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Franchisee;
+use App\Models\Franchise;
 use App\Models\Event;
 use App\Models\InvoiceTransaction;
 use App\Models\OrderTransaction;
@@ -14,26 +14,25 @@ use Illuminate\Support\Facades\DB;
 
 class FranchiseAdminController extends Controller
 {
-    public function dashboard($franchisee = null)
+    public function dashboard($franchise = null)
     {
-       
-        $franchiseeId = $franchisee;
+        $franchiseId = $franchise;
         $user = Auth::user();
-        $userFranchisees = $user->franchisees;
+        $userFranchises = $user->franchises;
         
-        // Get the first franchisee ID for redirection
-        $firstFranchiseeId = $userFranchisees->count() > 0 
-            ? $userFranchisees->first()->franchisee_id 
-            : Franchisee::first()->franchisee_id;
+        // Get the first franchise ID for redirection
+        $firstFranchiseId = $userFranchises?->count() > 0 
+            ? $userFranchises->first()->franchise_id 
+            : Franchise::first()->franchise_id;
     
         // Redirect /dashboard to /franchise/9/dashboard
-        if (request()->is('dashboard') && !$franchisee ) {
-            return redirect('/franchise/'.$firstFranchiseeId.'/dashboard');
+        if (request()->is('dashboard') && !$franchise ) {
+            return redirect('/franchise/'.$firstFranchiseId.'/dashboard');
         }
 
         // if ($user->hasRole('franchise_admin')) {
            
-        //     return redirect('/franchise/'.$firstFranchiseeId.'/dashboard');
+        //     return redirect('/franchise/'.$firstFranchiseId.'/dashboard');
            
         // }
 
@@ -42,9 +41,9 @@ class FranchiseAdminController extends Controller
         
         // Get all dashboard data using centralized method from DashboardController
         $dashboardController = new \App\Http\Controllers\DashboardController();
-        $data = $dashboardController->getDashboardData($franchiseeId, $dateRange, 'month');
+        $data = $dashboardController->getDashboardData($franchiseId, $dateRange, 'month');
 
-        session(['franchisee_id' => $franchiseeId]);
+        session(['franchise_id' => $franchiseId]);
         
         if ($user->hasRole('corporate_admin')) {
             return view('dashboard.corporate_dashboard', $data);    
@@ -95,14 +94,14 @@ class FranchiseAdminController extends Controller
         }
     }
 
-    public function selectFranchisee()
+    public function selectFranchise()
     {
         $user = auth()->user();
-        $franchisees = $user->franchisees;
+        $franchises = $user->franchises;
 
-        $franchiseeCount = $franchisees->count();
+        $franchiseCount = $franchises->count();
 
-        if ($franchiseeCount === 0) {
+        if ($franchiseCount === 0) {
             Auth::logout();
             request()->session()->regenerate();
 
@@ -111,33 +110,33 @@ class FranchiseAdminController extends Controller
                 ->with('error', 'You are not assigned to any franchise. Please contact your administrator.');
         }
 
-        if ($franchiseeCount === 1) {
-            $franchiseeId = $franchisees->first()->franchisee_id;
+        if ($franchiseCount === 1) {
+            $franchiseId = $franchises->first()->franchise_id;
 
-            return redirect()->route('franchise.dashboard', ['franchisee' => $franchiseeId]);
+            return redirect()->route('franchise.dashboard', ['franchise' => $franchiseId]);
         }
 
-        // More than one franchisee
-        return view('franchise_admin.franchisee_select', compact('franchisees'));
+        // More than one franchise
+        return view('franchise_admin.franchise_select', compact('franchises'));
     }
 
 
-    public function setFranchisee(Request $request)
+    public function setFranchise(Request $request)
     {
-        $request->validate(['franchisee_id' => 'required|exists:franchisees,franchisee_id']);
-        // Store the selected franchisee_id in session
-        session(['franchisee_id' => $request->franchisee_id]);
+        $request->validate(['franchise_id' => 'required|exists:franchises,franchise_id']);
+        // Store the selected franchise_id in session
+        session(['franchise_id' => $request->franchise_id]);
 
-        return redirect("/franchise/{$request->franchisee_id}/dashboard");
-        // return redirect()->route('franchise.dashboard', ['franchisee' => $request->franchisee_id]);
+        return redirect("/franchise/{$request->franchise_id}/dashboard");
+        // return redirect()->route('franchise.dashboard', ['franchise' => $request->franchise_id]);
     }
 
-    public function setSessionFranchisee(Request $request)
+    public function setSessionFranchise(Request $request)
     {
-        $request->validate(['franchisee_id' => 'required|exists:franchisees,franchisee_id']);
+        $request->validate(['franchise_id' => 'required|exists:franchises,franchise_id']);
 
-        session(['franchisee_id' => $request->franchisee_id]);
+        session(['franchise_id' => $request->franchise_id]);
 
-        return response()->json(['status' => 'success', 'message' => 'Franchisee session updated.']);
+        return response()->json(['status' => 'success', 'message' => 'Franchise session updated.']);
     }
 }

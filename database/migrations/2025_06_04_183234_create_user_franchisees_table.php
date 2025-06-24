@@ -4,21 +4,21 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+
 return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('user_franchisees', function (Blueprint $table) {
-            // $table->id();
+        Schema::create('user_franchises', function (Blueprint $table) {
+            $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('franchisee_id');
+            $table->unsignedBigInteger('franchise_id');
             $table->timestamps();
 
             $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
-            $table->foreign('franchisee_id')->references('franchisee_id')->on('franchisees')->onDelete('cascade');
-            $table->unique(['user_id', 'franchisee_id']);
+            $table->foreign('franchise_id')->references('franchise_id')->on('franchises')->onDelete('cascade');
         });
 
         // ✅ Only insert if franchisee_id exists
@@ -36,11 +36,11 @@ return new class extends Migration {
         // }
     }
 
-
-
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
-        Schema::dropIfExists('user_franchisees');
+        Schema::dropIfExists('user_franchises');
     }
-
 };

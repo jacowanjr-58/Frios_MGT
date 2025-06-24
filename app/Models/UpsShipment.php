@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class UpsShipment extends Model
 {
     protected $fillable = [
-        'fgp_ordersID',
+        'fgp_order_id',
         'shipment_id',
         'tracking_number',
         'label_format',

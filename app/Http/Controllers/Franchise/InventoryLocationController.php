@@ -16,7 +16,7 @@ class InventoryLocationController extends Controller
         $franchiseId = (int)$franchisee;
 
         if (request()->ajax()) {
-            $query = InventoryLocation::where('franchisee_id', $franchiseId);
+            $query = InventoryLocation::where('franchise_id', $franchiseId);
 
             return DataTables::of($query)
                 ->addColumn('action', function ($location) use ($franchiseId) {
@@ -39,7 +39,7 @@ class InventoryLocationController extends Controller
                 ->make(true);
         }
 
-        $locationCount = InventoryLocation::where('franchisee_id', $franchiseId)->count();
+        $locationCount = InventoryLocation::where('franchise_id', $franchiseId)->count();
         return view('franchise_admin.inventory.location.index', compact('locationCount'));
     }
 
@@ -56,7 +56,7 @@ class InventoryLocationController extends Controller
 
         InventoryLocation::create([
             'name' => $request->name,
-            'franchisee_id' => $franchisee,
+            'franchise_id' => $franchisee,
         ]);
 
         return redirect()->route('franchise.locations.index', ['franchisee' => $franchisee])
@@ -96,7 +96,7 @@ class InventoryLocationController extends Controller
 
     private function authorizeLocation(InventoryLocation $location)
     {
-        if ($location->franchisee_id !== Auth::user()->franchisee_id) {
+        if ($location->franchise_id !== Auth::user()->franchise_id) {
             abort(403, 'Unauthorized action.');
         }
     }

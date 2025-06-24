@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\Franchisee;
+use App\Models\Franchise;
+
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,31 +27,35 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+
         $request->authenticate();
         $request->session()->regenerate();
         $user = Auth::user();
-        $userFranchisees = $user->franchisees;
-        
-        // Get the first franchisee ID for redirection
-        $firstFranchiseeId = $userFranchisees->count() > 0 
-            ? $userFranchisees->first()->franchisee_id 
-            : Franchisee::first()->franchisee_id;
-        
-        // Check the role and redirect accordingly, with a success message
-        if ($user->hasRole('corporate_admin')) {
-            return redirect("/franchise/{$firstFranchiseeId}/dashboard")
-                ->with('success', 'Welcome Back, ' . $user->name);
-        } elseif ($user->hasRole('super_admin')) {
+        // Get user's franchises (corrected relationship name)
+        $userFranchises = $user->franchises;
+        // Get the first franchise ID for redirection
+        $firstFranchiseId = $userFranchises?->count() > 0
+            ? $userFranchises->first()->id
+            : Franchise::first()?->id;
+
+        session(['franchise_id' => $firstFranchiseId]);
+        if ($user->role == 'super_admin') {
             return redirect()->intended(route('dashboard', absolute: false))
                 ->with('success', 'Welcome Back, ' . $user->name);
-        } elseif ($user->hasRole('franchise_admin')) {
-            if ($userFranchisees->count() > 1) {
-                return redirect()->route('franchise.select_franchisee');
-            } elseif ($userFranchisees->count() === 1) {
-                return redirect("/franchise/{$userFranchisees->first()->franchisee_id}/dashboard")->with('success', 'Welcome Back, ' . $user->name);
+        }
+
+        // Check the role and redirect accordingly, with a success message
+        if ($user->role == 'corporate_admin') {
+            return redirect("/franchise/{$firstFranchiseId}/dashboard")
+                ->with('success', 'Welcome Back, ' . $user->name);
+        } elseif ($user->role == 'franchise_admin') {
+            if ($userFranchises->count() > 1) {
+                return redirect()->route('franchise.select_franchise');
+            } elseif ($userFranchises->count() === 1) {
+                return redirect("/franchise/{$userFranchises->first()->id}/dashboard")->with('success', 'Welcome Back, ' . $user->name);
             }
         } else {
-            return redirect("/franchise/{$firstFranchiseeId}/dashboard")
+            return redirect("/franchise/{$firstFranchiseId}/dashboard")
                 ->with('success', 'Welcome Back, ' . $user->name);
         }
 

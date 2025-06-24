@@ -13,9 +13,9 @@ class InventoryAdjustmentController extends Controller
 {
     public function adjustForm($franchisee)
     {
-        $franchiseId = (int)$franchisee; //Auth::user()->franchisee_id;
+        $franchiseId = (int)$franchisee; //Auth::user()->franchise_id;
         
-        $inventoryMasters = InventoryMaster::where('franchisee_id', $franchiseId)->get();
+        $inventoryMasters = InventoryMaster::where('franchise_id', $franchiseId)->get();
         return view('franchise_admin.inventory.adjust', [
             'inventoryMasters' => $inventoryMasters
         ]);
@@ -25,7 +25,7 @@ class InventoryAdjustmentController extends Controller
    public function adjustUpdate(Request $request, $franchisee)
    {
        $franchiseId = (int)$franchisee;
-       $inventoryMasters = InventoryMaster::where('franchisee_id', $franchiseId)->get();
+       $inventoryMasters = InventoryMaster::where('franchise_id', $franchiseId)->get();
 
        DB::beginTransaction();
        try {
@@ -81,8 +81,8 @@ class InventoryAdjustmentController extends Controller
      */
     public function showBulkPriceForm($franchisee)
     {
-        $franchiseId = (int)$franchisee; //Auth::user()->franchisee_id;
-        $inventoryMasters = InventoryMaster::where('franchisee_id', $franchiseId)->get();
+        $franchiseId = (int)$franchisee; //Auth::user()->franchise_id;
+        $inventoryMasters = InventoryMaster::where('franchise_id', $franchiseId)->get();
         // Return a view (to be created) for bulk price adjustment
        
         return view('franchise_admin.inventory.bulk_price', [
@@ -96,7 +96,7 @@ class InventoryAdjustmentController extends Controller
     public function updateBulkPrice(Request $request, $franchisee)
     {
         $franchiseId = (int)$franchisee;
-        $inventoryMasters = InventoryMaster::where('franchisee_id', $franchiseId)->get();
+        $inventoryMasters = InventoryMaster::where('franchise_id', $franchiseId)->get();
 
         foreach ($inventoryMasters as $master) {
             $id = $master->inventory_id;

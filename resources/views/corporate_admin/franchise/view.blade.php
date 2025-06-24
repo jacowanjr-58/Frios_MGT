@@ -74,7 +74,7 @@
                                             </div>
                                         </div>
                                         @can('franchises.edit')
-                                            <a href="{{ route('franchise.edit', $franchise->franchisee_id) }}" class="btn btn-primary mt-3">
+                                            <a href="{{ route('franchise.edit', $franchise->franchise_id) }}" class="btn btn-primary mt-3">
                                                 Edit Franchise
                                             </a>
                                         @endcan

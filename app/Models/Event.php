@@ -11,4 +11,8 @@ class Event extends Model
     public function customer(){
         return $this->belongsTo(Customer::class , 'customer_id' , 'customer_id');
     }
+
+    public function franchise(){
+        return $this->belongsTo(Franchise::class, 'franchise_id');
+    }
 }

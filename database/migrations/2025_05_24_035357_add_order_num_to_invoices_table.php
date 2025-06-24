@@ -13,7 +13,7 @@ return new class extends Migration
     {
         if (Schema::hasTable('invoices') && ! Schema::hasColumn('invoices', 'order_num')) {
         Schema::table('invoices', function (Blueprint $table) {
-             $table->string('order_num')->after('franchisee_id')->nullable()->unique();
+             $table->string('order_num')->after('franchise_id')->nullable()->unique();
         });
         }
     }

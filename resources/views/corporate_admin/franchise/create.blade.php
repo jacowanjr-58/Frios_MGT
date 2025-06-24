@@ -160,8 +160,8 @@
                                                                 <option value="">Select Parent Franchise</option>
                                                                 @if(isset($franchises))
                                                                     @foreach ($franchises as $franchise)
-                                                                        <option value="{{ $franchise->franchisee_id }}" 
-                                                                                {{ old('parent_franchise_id') == $franchise->franchisee_id ? 'selected' : '' }}>
+                                                                        <option value="{{ $franchise->franchise_id }}" 
+                                                                                {{ old('parent_franchise_id') == $franchise->franchise_id ? 'selected' : '' }}>
                                                                             {{ $franchise->frios_territory_name ? $franchise->frios_territory_name . ' - ' : '' }}{{ $franchise->business_name }}
                                                                         </option>
                                                                     @endforeach

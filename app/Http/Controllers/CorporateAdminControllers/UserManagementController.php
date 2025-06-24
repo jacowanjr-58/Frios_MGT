@@ -4,7 +4,7 @@ namespace App\Http\Controllers\CorporateAdminControllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Franchisee;
+use App\Models\Franchise;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -20,11 +20,11 @@ class UserManagementController extends Controller
     public function index()
     {
         // Only count users not assigned to any franchise
-        $totalUsers = User::with('franchisees')->count();
+        $totalUsers = User::with('franchises')->count();
 
         if (request()->ajax()) {
             // Only get users who are not assigned to any franchise
-            $users = User::with('roles','franchisees');
+            $users = User::with('roles','franchises');
 
             return DataTables::of($users)
                 ->addColumn('role_display', function ($user) {
@@ -42,9 +42,9 @@ class UserManagementController extends Controller
                     return $user->created_at ? $user->created_at->format('d/m/Y') : 'N/A';
                 })
                 ->addColumn('action', function ($user) {
-                    $editUrl = route('users.edit', $user->user_id);
-                    $deleteUrl = route('users.destroy', $user->user_id);
-                    $viewUrl = route('users.show', $user->user_id);
+                    $editUrl = route('users.edit', $user->id);
+                    $deleteUrl = route('users.destroy', $user->id);
+                    $viewUrl = route('users.show', $user->id);
 
                     $html = '<div class="d-flex gap-1">';
                     
@@ -83,7 +83,7 @@ class UserManagementController extends Controller
     public function create()
     {
         $roles = Role::whereNotIn('id', [1, 3])->get();
-        $franchises = Franchisee::all();
+        $franchises = Franchise::all();
         return view('corporate_admin.users.create', compact('roles', 'franchises'));
     }
 
@@ -119,9 +119,9 @@ class UserManagementController extends Controller
 
         // Add franchise validation only if role is not corporate_admin
         if ($request->role !== 'corporate_admin') {
-            $rules['franchisee_id'] = 'required|exists:franchisees,franchisee_id';
-            $messages['franchisee_id.required'] = 'Please select a franchise';
-            $messages['franchisee_id.exists'] = 'Selected franchise is invalid';
+            $rules['franchise_id'] = 'required|exists:franchises,franchise_id';
+            $messages['franchise_id.required'] = 'Please select a franchise';
+            $messages['franchise_id.exists'] = 'Selected franchise is invalid';
         }
 
         $request->validate($rules, $messages);
@@ -139,9 +139,9 @@ class UserManagementController extends Controller
             // Assign role using Spatie
             $user->assignRole($request->role);
 
-            // Attach franchise only if not corporate admin and franchisee_id is provided
-            if ($request->role !== 'corporate_admin' && $request->franchisee_id) {
-                $user->franchisees()->attach($request->franchisee_id);
+            // Attach franchise only if not corporate admin and franchise_id is provided
+            if ($request->role !== 'corporate_admin' && $request->franchise_id) {
+                $user->franchises()->attach($request->franchise_id);
             }
 
             return redirect()->route('users.index')
@@ -159,7 +159,7 @@ class UserManagementController extends Controller
      */
     public function show(User $user)
     {
-        $user->load('roles', 'franchisees');
+        $user->load('roles', 'franchises');
         return view('corporate_admin.users.show', compact('user'));
     }
 
@@ -169,8 +169,8 @@ class UserManagementController extends Controller
     public function edit(User $user)
     {
         $roles = Role::whereNotIn('id', [1, 3])->get();
-        $franchises = Franchisee::all();
-        $user->load('roles', 'franchisees');
+        $franchises = Franchise::all();
+        $user->load('roles', 'franchises');
         return view('corporate_admin.users.edit', compact('user', 'roles', 'franchises'));
     }
 
@@ -206,9 +206,9 @@ class UserManagementController extends Controller
 
         // Add franchise validation only if role is not corporate_admin
         if ($request->role !== 'corporate_admin') {
-            $rules['franchisee_id'] = 'required|exists:franchisees,franchisee_id';
-            $messages['franchisee_id.required'] = 'Please select a franchise';
-            $messages['franchisee_id.exists'] = 'Selected franchise is invalid';
+            $rules['franchise_id'] = 'required|exists:franchises,franchise_id';
+            $messages['franchise_id.required'] = 'Please select a franchise';
+            $messages['franchise_id.exists'] = 'Selected franchise is invalid';
         }
 
         $request->validate($rules, $messages);
@@ -234,12 +234,12 @@ class UserManagementController extends Controller
             // Sync franchise only if not corporate admin
             if ($request->role !== 'corporate_admin') {
                 // Sync franchise (single franchise)
-                if ($request->franchisee_id) {
-                    $user->franchisees()->sync([$request->franchisee_id]);
+                if ($request->franchise_id) {
+                    $user->franchises()->sync([$request->franchise_id]);
                 }
             } else {
                 // If changing to corporate admin, remove all franchise associations
-                $user->franchisees()->detach();
+                $user->franchises()->detach();
             }
 
             return redirect()->route('users.index')

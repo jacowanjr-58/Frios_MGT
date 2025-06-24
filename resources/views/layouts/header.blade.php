@@ -75,39 +75,33 @@
                     @php
                         $currentRouteName = request()->route()->getName();
                         $user = auth()->user();
-                        // Get franchisee ID from the current route parameter
-                        $selectedFranchiseeId = request()->route('franchisee') ?? $franchiseeId ?? null;
+                        $selectedFranchiseId = request()->route('franchise') ?? $franchiseId ?? null;
                         $showDropdown = false;
-                        $dropdownFranchisees = collect();
+                        $dropdownFranchises = collect();
                         
-                        // Determine if dropdown should be shown and which franchisees to display
                         if ($user->hasRole('super_admin')) {
-                            // Super Admin: No dropdown
                             $showDropdown = false;
                         } elseif ($user->hasRole('corporate_admin')) {
-                            // Corporate Admin: Show all franchises
                             $showDropdown = true;
-                            $dropdownFranchisees = App\Models\Franchisee::select('franchisee_id', 'business_name', 'frios_territory_name')->get();
+                            $dropdownFranchises = App\Models\Franchise::select('id', 'business_name', 'frios_territory_name')->get();
                         } else {
-                            // All other roles: Show only assigned franchises (if more than one)
-                            $userFranchisees = $user->franchisees ?? collect();
-                            if ($userFranchisees->count() > 0) {
+                            $userFranchises = $user->franchises ?? collect();
+                            if ($userFranchises->count() > 0) {
                                 $showDropdown = true;
-                                $dropdownFranchisees = $userFranchisees;
+                                $dropdownFranchises = $userFranchises;
                             }
                         }
                     @endphp
                     @if($showDropdown && $currentRouteName != 'franchise.index' && $currentRouteName != 'owner.index')
                         <div class="w-100 ml-32">
                             <div class="d-flex align-items-center gap-3">
-                                <label for="franchisee_id" class="form-label mb-0 text-nowrap fw-semibold">Select
-                                    Franchisee:</label>
-                                <select name="franchisee_id" id="franchisee_id" class="form-select select2 flex-grow-1"
-                                    onchange="updateFranchiseeInCurrentRoute(this.value)">
-                                    @foreach($dropdownFranchisees as $franchisee)
-                                        <option value="{{ $franchisee->franchisee_id }}" {{ $selectedFranchiseeId == $franchisee->franchisee_id ? 'selected' : '' }}>
-                                            {{ $franchisee->business_name ?? 'N/A' }} -
-                                            {{ $franchisee->frios_territory_name ?? 'N/A' }}
+                                <label for="franchise-select" class="form-label mb-0 text-nowrap fw-semibold">Select
+                                    Franchise:</label>
+                                <select id="franchise-select" class="form-select select2 flex-grow-1"
+                                    onchange="updateFranchiseInCurrentRoute(this.value)">
+                                    @foreach($dropdownFranchises as $franchise)
+                                        <option value="{{ $franchise->franchise_id }}" {{ $selectedFranchiseId == $franchise->franchise_id ? 'selected' : '' }}>
+                                            {{ $franchise->business_name }} - {{ $franchise->frios_territory_name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -224,37 +218,43 @@
 </style>
 
 <script>
-function updateFranchiseeInCurrentRoute(franchiseeId) {
-    if (!franchiseeId) return;
+    function updateFranchiseInCurrentRoute(franchiseId) {
+        // Get current URL
+        let currentUrl = window.location.href;
 
-    // Send an AJAX request to update the session
-    fetch('{{ route("franchise.set_session_franchisee") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({ franchisee_id: franchiseeId })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            // Now that session is set, redirect
-            const currentPath = window.location.pathname;
-            const franchiseRouteRegex = /\/franchise\/\d+/;
-            if (franchiseRouteRegex.test(currentPath)) {
-                const newPath = currentPath.replace(/\/franchise\/\d+/, '/franchise/' + franchiseeId);
-                window.location.href = window.location.origin + newPath + window.location.search;
-            } else {
-                window.location.href = '/franchise/' + franchiseeId + '/dashboard';
-            }
+        // Check if URL already contains a franchise parameter
+        let franchisePattern = /\/franchise\/\d+\//;
+        let newUrl;
+
+        if (franchisePattern.test(currentUrl)) {
+            // Replace existing franchise ID
+            newUrl = currentUrl.replace(/\/franchise\/\d+\//, `/franchise/${franchiseId}/`);
         } else {
-            // Handle error, maybe show an alert
-            alert('Could not update franchisee. Please try again.');
+            // Add franchise ID to URL
+            newUrl = currentUrl.replace('/franchise/', `/franchise/${franchiseId}/`);
         }
-    }).catch(error => {
-        console.error('Error updating franchisee session:', error);
-        alert('An error occurred. Please try again.');
-    });
-}
+
+        // Update URL without reloading page
+        window.history.pushState({}, '', newUrl);
+
+        // Make AJAX call to update session
+        fetch('/franchise/set-session-franchise', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({
+                franchise_id: franchiseId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Reload the page to reflect the new franchise
+                window.location.href = newUrl;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
 </script>

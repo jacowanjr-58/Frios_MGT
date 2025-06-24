@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\GoogleController;
 
@@ -38,12 +39,20 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
+// Test route to logout user
+Route::get('/test-logout', function () {
+    Auth::logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect('/')->with('message', 'Logged out successfully from test route!');
+})->middleware('auth')->name('test.logout');
+
 Route::middleware(StripeMiddleware::class)->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard')->middleware('auth');
     Route::get('/load-more-events', [DashboardController::class, 'loadMoreEvents'])->name('loadMoreEvents')->middleware('auth');
     Route::post('/dashboard/filter', [DashboardController::class, 'filterDashboard'])->name('dashboard.filter')->middleware('auth');
-    Route::post('/franchise/{franchisee}/dashboard/filter', [DashboardController::class, 'filterDashboard'])->name('franchise.dashboard.filter')->middleware('auth');
+    Route::post('/franchise/{franchise}/dashboard/filter', [DashboardController::class, 'filterDashboard'])->name('franchise.dashboard.filter')->middleware('auth');
 });
 
 Route::middleware('auth')->group(function () {
@@ -63,7 +72,7 @@ Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallb
 Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name('franchise.')->group(function () {
     Route::get('/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard')->middleware('permission:dashboard.view');
 
-    Route::prefix('{franchisee}')->group(function () {
+    Route::prefix('{franchise}')->group(function () {
         // Profile routes
         Route::middleware('permission:profiles.view')->group(function () {
             Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
@@ -92,10 +101,10 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
    
     // Order pops routes
     Route::middleware('permission:orders.view')->group(function () {
-        Route::get('{franchisee}/orderpops', [OrderPopsController::class, 'index'])->name('orderpops.index');
-        Route::get('{franchisee}/orderpops/view', [OrderPopsController::class, 'viewOrders'])->name('orderpops.view');
+        Route::get('{franchise}/orderpops', [OrderPopsController::class, 'index'])->name('orderpops.index');
+        Route::get('{franchise}/orderpops/view', [OrderPopsController::class, 'viewOrders'])->name('orderpops.view');
         
-        Route::get('{franchisee}/orderpops/confirm/page', [OrderPopsController::class, 'showConfirmPage'])->name('orderpops.confirm.page');
+        Route::get('{franchise}/orderpops/confirm/page', [OrderPopsController::class, 'showConfirmPage'])->name('orderpops.confirm.page');
     
     
     
@@ -113,7 +122,7 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     // });
 
 
-    Route::prefix('{franchisee}/events')->group(function () {
+    Route::prefix('{franchise}/events')->group(function () {
         // Events view routes
         Route::middleware('permission:events.view')->group(function () {
             Route::get('/', [EventController::class, 'index'])->name('events.index');
@@ -130,7 +139,7 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     });
 
     // Expense
-    Route::prefix('{franchisee}')->group(function () {
+    Route::prefix('{franchise}')->group(function () {
         // Expense view routes
         Route::middleware('permission:expenses.view')->group(function () {
             Route::get('expense', [ExpenseController::class, 'index'])->name('expense');
@@ -145,7 +154,7 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     });
 
     // Customer
-    Route::prefix('{franchisee}')->group(function () {
+    Route::prefix('{franchise}')->group(function () {
         // Customer view routes
         Route::middleware('permission:customers.view')->group(function () {
             Route::get('customer', [CustomerController::class, 'index'])->name('customer');
@@ -159,7 +168,7 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
         Route::delete('customer/{id}/delete', [CustomerController::class, 'delete'])->name('customer.delete')->middleware('permission:customers.delete');
     });
 
-    Route::prefix('{franchisee}')->group(function () {
+    Route::prefix('{franchise}')->group(function () {
         // Payment routes
         Route::middleware('permission:payments.view')->group(function () {
             Route::get('transactions', [PaymentController::class, 'transaction'])->name('transaction');
@@ -173,7 +182,7 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
         });
     });
     // Location
-    Route::prefix('{franchisee}/locations')->name('franchise.locations.')->group(function () {
+    Route::prefix('{franchise}/locations')->name('franchise.locations.')->group(function () {
         // Location view routes
         Route::middleware('permission:locations.view')->group(function () {
             Route::get('/', [InventoryLocationController::class, 'index'])->name('index');
@@ -187,7 +196,7 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     });
 
     // Invoice
-    Route::prefix('{franchisee}')->group(function () {
+    Route::prefix('{franchise}')->group(function () {
         // Invoice view routes
         Route::middleware('permission:invoices.view')->group(function () {
             Route::get('invoice', [InvoiceController::class, 'index'])->name('invoice.index');
@@ -207,7 +216,7 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     // Route::resource('account', AccountController::class);
 
 
-    Route::prefix('{franchisee}')->group(function () {
+    Route::prefix('{franchise}')->group(function () {
         // Expense Category routes
         Route::middleware('permission:expenses.categories')->group(function () {
             Route::get('expense-category', [ExpensesCategoryController::class, 'indexExpense'])->name('expense-category');
@@ -223,10 +232,10 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
 });
 Route::middleware(['auth'])->prefix('franchise')->name('franchise.')->group(function () {
 
-    Route::get('/select', [FranchiseAdminController::class, 'selectFranchisee'])->name('select_franchisee')->middleware('permission:franchises.view');
-    Route::post('/set-franchisee', [FranchiseAdminController::class, 'setFranchisee'])->name('set_franchisee')->middleware('permission:franchises.view');
-    Route::post('/set-session-franchisee', [FranchiseAdminController::class, 'setSessionFranchisee'])->name('set_session_franchisee');
-    Route::get('/{franchisee}/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard')->middleware('permission:dashboard.view');
+    Route::get('/select', [FranchiseAdminController::class, 'selectFranchise'])->name('select_franchise')->middleware('permission:franchises.view');
+    Route::post('/set-franchise', [FranchiseAdminController::class, 'setFranchise'])->name('set_franchise')->middleware('permission:franchises.view');
+    Route::post('/set-session-franchise', [FranchiseAdminController::class, 'setSessionFranchise'])->name('set_session_franchise');
+    Route::get('/{franchise}/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard')->middleware('permission:dashboard.view');
 });
 
 Route::get('/payment/success', [OrderPopsController::class, 'success'])->name('payment.successs');
@@ -361,10 +370,10 @@ require __DIR__ . '/auth.php';
 
 
 Route::prefix('franchise')->name('franchise.')->middleware(['auth'])->group(function () {
-    Route::get('{franchisee}/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard')->middleware('permission:dashboard.view');
+    Route::get('{franchise}/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard')->middleware('permission:dashboard.view');
 
     // Events routes
-    Route::prefix('{franchisee}/events')->name('events.')->group(function () {
+    Route::prefix('{franchise}/events')->name('events.')->group(function () {
         // Events view routes
         Route::middleware('permission:events.view')->group(function () {
             Route::get('/', [EventController::class, 'index'])->name('index');
@@ -382,11 +391,11 @@ Route::prefix('franchise')->name('franchise.')->middleware(['auth'])->group(func
 
     // Flavors routes
 
-    Route::get('{franchisee}/flavors', [FranchiseStaffController::class, 'flavors'])->name('flavors');
-    Route::get('{franchisee}/flavors/detail', [FranchiseStaffController::class, 'flavorsDetail'])->name('flavors.detail');
+    Route::get('{franchise}/flavors', [FranchiseStaffController::class, 'flavors'])->name('flavors');
+    Route::get('{franchise}/flavors/detail', [FranchiseStaffController::class, 'flavorsDetail'])->name('flavors.detail');
 
     // Location routes
-    Route::prefix('{franchisee}/locations')->name('locations.')->group(function () {
+    Route::prefix('{franchise}/locations')->name('locations.')->group(function () {
         // Location view routes
         Route::middleware('permission:locations.view')->group(function () {
             Route::get('/', [InventoryLocationController::class, 'index'])->name('index');

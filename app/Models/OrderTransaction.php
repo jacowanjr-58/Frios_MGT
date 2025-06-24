@@ -15,14 +15,14 @@ class OrderTransaction extends Model
             if (Auth::check()) {
                 $orderTransaction->created_by = Auth::id();
                 $orderTransaction->updated_by = Auth::id();
-                $orderTransaction->franchisee_id = session('franchisee_id') ?? null;
+                $orderTransaction->franchise_id = session('franchise_id') ?? null;
             }
         });
 
         static::updating(function ($orderTransaction) {
             if (Auth::check()) {
                 $orderTransaction->updated_by = Auth::id();
-                $orderTransaction->franchisee_id = session('franchisee_id') ?? null;
+                $orderTransaction->franchise_id = session('franchise_id') ?? null;
             }
         });
     }

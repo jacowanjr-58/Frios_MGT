@@ -14,8 +14,8 @@ class AccountController extends Controller
 {
     public function index()
     {
-        $accounts = Account::where('franchisee_id', auth()->user()->franchisee_id)->get();
-        $accountCount = Account::where('franchisee_id', auth()->user()->franchisee_id)->count();
+        $accounts = Account::where('franchise_id', auth()->user()->franchise_id)->get();
+        $accountCount = Account::where('franchise_id', auth()->user()->franchise_id)->count();
         return view('franchise_admin.accounts.index', compact('accounts' , 'accountCount'));
     }
 
@@ -43,7 +43,7 @@ public function store(Request $request)
         ]);
 
         $account = Account::create([
-            'franchisee_id' => auth()->user()->franchisee_id,
+            'franchise_id' => auth()->user()->franchise_id,
             'cardholder_name' => $cardholderName,
             'stripeToken' => $stripeToken,
             'stripe_customer_id' => $charge->customer,
@@ -86,7 +86,7 @@ public function update(Request $request, Account $account)
     // If this card is marked as active, deactivate all other cards for the same franchisee
     if ($request->input('is_active')) {
         // Deactivate all other cards for this franchisee
-        Account::where('franchisee_id', $account->franchisee_id)
+        Account::where('franchise_id', $account->franchise_id)
             ->where('id', '!=', $account->id) // Exclude the current card
             ->update(['is_active' => 0]);
     }

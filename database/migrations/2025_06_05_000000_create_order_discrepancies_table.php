@@ -22,7 +22,7 @@ return new class extends Migration
                 $table->timestamps();
 
                 $table->foreign('order_id')
-                    ->references('fgp_ordersID')
+                    ->references('id')
                     ->on('fgp_orders')
                     ->onDelete('cascade');
 

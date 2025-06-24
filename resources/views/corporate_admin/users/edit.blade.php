@@ -91,20 +91,20 @@
                                                             <label class="form-label">Assign Franchise <span
                                                                     class="text-danger" id="franchise_required">*</span></label>
                                                             <select
-                                                                class="form-control select2 flex-grow-1 @error('franchisee_id') is-invalid @enderror"
-                                                                name="franchisee_id" id="franchisee_select">
+                                                                class="form-control select2 flex-grow-1 @error('franchise_id') is-invalid @enderror"
+                                                                name="franchise_id" id="franchisee_select">
                                                                 <option value="">Select Franchise</option>
                                                                 @foreach ($franchises as $franchise)
                                                                     @php
-                                                                        $selectedFranchise = old('franchisee_id', $user->franchisees ? $user->franchisees->first()?->franchisee_id : null);
+                                                                        $selectedFranchise = old('franchise_id', $user->franchisees ? $user->franchisees->first()?->franchise_id : null);
                                                                     @endphp
-                                                                    <option value="{{ $franchise->franchisee_id }}"
-                                                                        {{ $selectedFranchise == $franchise->franchisee_id ? 'selected' : '' }}>
+                                                                    <option value="{{ $franchise->franchise_id }}"
+                                                                        {{ $selectedFranchise == $franchise->franchise_id ? 'selected' : '' }}>
                                                                     {{ $franchise->business_name ?? 'N/A' }} - {{ $franchise->frios_territory_name ?? 'N/A' }}
                                                                     </option>
                                                                 @endforeach
                                                             </select>
-                                                            @error('franchisee_id')
+                                                            @error('franchise_id')
                                                                 <div class="text-danger">{{ $message }}</div>
                                                             @enderror
                                                         </div>

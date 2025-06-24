@@ -12,12 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('fgp_items', function (Blueprint $table) {
-            $table->unsignedBigInteger('franchisee_id')->nullable();
-            $table->foreign('franchisee_id')->references('franchisee_id')->on('franchisees')->onDelete('set null');
+            $table->unsignedBigInteger('franchise_id')->nullable();
+            $table->foreign('franchise_id')
+                ->references('franchise_id')
+                ->on('franchises')
+                ->onDelete('set null');
         });
         Schema::table('fgp_categories', function (Blueprint $table) {
-            $table->unsignedBigInteger('franchisee_id')->nullable();
-            $table->foreign('franchisee_id')->references('franchisee_id')->on('franchisees')->onDelete('set null');
+            $table->unsignedBigInteger('franchise_id')->nullable();
+            $table->foreign('franchise_id')
+                ->references('franchise_id')
+                ->on('franchises')
+                ->onDelete('set null');
         });
     }
 
@@ -27,12 +33,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('fgp_items', function (Blueprint $table) {
-            $table->dropForeign(['franchisee_id']);
-            $table->dropColumn(['franchisee_id']);
+            $table->dropForeign(['franchise_id']);
+            $table->dropColumn(['franchise_id']);
         });
         Schema::table('fgp_categories', function (Blueprint $table) {
-            $table->dropForeign(['franchisee_id']);
-            $table->dropColumn(['franchisee_id']);
+            $table->dropForeign(['franchise_id']);
+            $table->dropColumn(['franchise_id']);
         });
     }
 };

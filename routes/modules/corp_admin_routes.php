@@ -25,21 +25,21 @@ Route::middleware(['auth'])->group(function () {
 
     // Franchise routes
     Route::middleware('permission:franchises.view|franchises.create|franchises.edit|franchises.delete')->group(function () {
-        Route::get('/franchisee/{franchisee}', [FranchiseController::class, 'index'])->name('franchise.index');
+        Route::get('/franchise', [FranchiseController::class, 'index'])->name('franchise.index');
 
-        Route::get('/franchisee/create', [FranchiseController::class, 'create'])->name('franchise.create')->middleware('permission:franchises.create');
-        Route::post('/franchisee', [FranchiseController::class, 'store'])->name('franchise.store')->middleware('permission:franchises.create');
-        Route::get('/franchisee/{franchise}/edit', [FranchiseController::class, 'edit'])->name('franchise.edit')->middleware('permission:franchises.edit');
-        Route::put('/franchisee/{franchise}', [FranchiseController::class, 'update'])->name('franchise.update')->middleware('permission:franchises.edit');
-        Route::delete('/franchisee/{franchise}', [FranchiseController::class, 'destroy'])->name('franchise.destroy')->middleware('permission:franchises.delete');
+        Route::get('/franchise/create', [FranchiseController::class, 'create'])->name('franchise.create')->middleware('permission:franchises.create');
+        Route::post('/franchise', [FranchiseController::class, 'store'])->name('franchise.store')->middleware('permission:franchises.create');
+        Route::get('/franchise/{franchise}/edit', [FranchiseController::class, 'edit'])->name('franchise.edit')->middleware('permission:franchises.edit');
+        Route::put('/franchise/{franchise}', [FranchiseController::class, 'update'])->name('franchise.update')->middleware('permission:franchises.edit');
+        Route::delete('/franchise/{franchise}', [FranchiseController::class, 'destroy'])->name('franchise.destroy')->middleware('permission:franchises.delete');
 
-        Route::get('/franchisee/{franchise}', [FranchiseController::class, 'show'])->name('franchise.show');
+        Route::get('/franchise/{franchise}', [FranchiseController::class, 'show'])->name('franchise.show');
     });
 
 
     // Owner routes
     Route::middleware('permission:owners.view')->group(function () {
-        Route::get('/franchise/{franchisee}/owner', [OwnerController::class, 'index'])->name('owner.index');
+        Route::get('/franchise/{franchise}/owner', [OwnerController::class, 'index'])->name('owner.index');
 
         Route::get('/owner/create', [OwnerController::class, 'create'])->name('owner.create')->middleware('permission:owners.create');
         Route::post('/owner', [OwnerController::class, 'store'])->name('owner.store')->middleware('permission:owners.create');
@@ -50,7 +50,7 @@ Route::middleware(['auth'])->group(function () {
 
 
     // fgp Category routes
-    Route::prefix('franchise/{franchisee}')->name('franchise.')->group(function () {
+    Route::prefix('franchise/{franchise}')->name('franchise.')->group(function () {
         Route::middleware('permission:frios_flavors.categories')->group(function () {
             Route::get('/fgpcategory', [FgpCategoryController::class, 'index'])->name('fgpcategory.index');
             Route::get('/fgpcategory/create', [FgpCategoryController::class, 'create'])->name('fgpcategory.create');
@@ -83,7 +83,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Additional charges routes
     Route::middleware('permission:additional_charges.view')->group(function () {
-        Route::get('/franchise/{franchisee}/additionalcharges', [AdditionalChargesController::class, 'index'])->name('additionalcharges.index');
+        Route::get('/franchise/{franchise}/additionalcharges', [AdditionalChargesController::class, 'index'])->name('additionalcharges.index');
 
         Route::get('/additionalcharges/create', [AdditionalChargesController::class, 'create'])->name('additionalcharges.create')->middleware('permission:additional_charges.create');
         Route::post('/additionalcharges', [AdditionalChargesController::class, 'store'])->name('additionalcharges.store')->middleware('permission:additional_charges.create');
@@ -95,15 +95,15 @@ Route::middleware(['auth'])->group(function () {
 
     // View Orders routes
     Route::middleware('permission:franchise_orders.view')->group(function () {
-        Route::get('/franchise/{franchisee}/vieworders', [ViewOrdersController::class, 'index'])->name('vieworders.index');
-        Route::get('/franchise/{franchisee}/orderpops/edit', [OrderPopsController::class, 'edit'])->name('orderpops.edit');
+        Route::get('/franchise/{franchise}/vieworders', [ViewOrdersController::class, 'index'])->name('vieworders.index');
+        Route::get('/franchise/{franchise}/orderpops/edit', [OrderPopsController::class, 'edit'])->name('orderpops.edit');
         Route::get('/vieworders/detail', [ViewOrdersController::class, 'viewordersDetail'])->name('vieworders.detail');
         Route::get('/vieworders/customersorder/{customer_id}', [ViewOrdersController::class, 'showCustomer'])->name('customersorder.show');
-        Route::get('/franchise/{franchisee}/orderpops', [ViewOrdersController::class, 'orderposps'])->name('orderposps');
+        Route::get('/franchise/{franchise}/orderpops', [ViewOrdersController::class, 'orderposps'])->name('orderposps');
         Route::get('orderpops/confirm/page', [ViewOrdersController::class, 'confirmPage'])->name('confirm.page');
         Route::get('get-customer/{customer_id}', [OrderPopsController::class, 'customer'])->name('orderpops.customer');
     });
-    Route::prefix('franchise/{franchisee}')->name('franchise.')->group(function () {
+    Route::prefix('franchise/{franchise}')->name('franchise.')->group(function () {
         Route::get('/vieworders/create', [ViewOrdersController::class, 'create'])->name('vieworders.create')->middleware('permission:franchise_orders.create');
         Route::post('/vieworders', [ViewOrdersController::class, 'store'])->name('vieworders.store')->middleware('permission:franchise_orders.create');
         Route::post('/vieworders/update-status', [ViewOrdersController::class, 'updateStatus'])->name('vieworders.updateStatus')->middleware('permission:franchise_orders.edit');
@@ -122,7 +122,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Expense Category
-    Route::prefix('franchise/{franchisee}')->group(function () {
+    Route::prefix('franchise/{franchise}')->group(function () {
         Route::get('expense-category', [ExpensesCategoryController::class, 'index'])->name('expense-category');
         Route::get('expense-category/create', [ExpensesCategoryController::class, 'create'])->name('expense-category.create');
         Route::post('expense-category/store', [ExpensesCategoryController::class, 'store'])->name('expense-category.store');
@@ -132,17 +132,17 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('expense-sub-category/{id}/delete', [ExpensesCategoryController::class, 'delete'])->name('expense-sub-category.delete');
     });
 
-    Route::get('/franchise/{franchisee}/expense', [ExpensesCategoryController::class, 'expense'])->name('expense.franchisee')->middleware('permission:expenses.by_franchisee');
+    Route::get('/franchise/{franchise}/expense', [ExpensesCategoryController::class, 'expense'])->name('expense.franchise')->middleware('permission:expenses.by_franchisee');
 
     // Customer
     Route::middleware('permission:customers.by_franchisee')->prefix('franchise')->name('franchise.')->group(function () {
-        Route::get('{franchisee}/franchise_customer', [ExpensesCategoryController::class, 'customer'])->name('franchise_customer');
-        Route::get('{franchisee}/franchise_customer/{id}/view', [ExpensesCategoryController::class, 'customerView'])->name('franchise_customer.view');
+        Route::get('{franchise}/franchise_customer', [ExpensesCategoryController::class, 'customer'])->name('franchise_customer');
+        Route::get('{franchise}/franchise_customer/{id}/view', [ExpensesCategoryController::class, 'customerView'])->name('franchise_customer.view');
     });
 
     // Payment
     Route::middleware('permission:payments.view')->group(function () {
-        Route::get('franchise/{franchisee}/transactions', [CorpPaymentController::class, 'transaction'])->name('transaction');
+        Route::get('franchise/{franchise}/transactions', [CorpPaymentController::class, 'transaction'])->name('transaction');
         Route::get('pos/{id}/expense', [CorpPaymentController::class, 'posExpense'])->name('pos.expense');
         Route::get('pos/expenses/{id}/download', [CorpPaymentController::class, 'posDownloadPDF'])->name('expenses.pos.download');
         Route::get('pos/{id}/order', [CorpPaymentController::class, 'posOrder'])->name('pos.order');
@@ -174,7 +174,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{user}', [UserManagementController::class, 'destroy'])->name('destroy')->middleware('permission:users.delete');
     });
 
-    Route::get('/vieworders/{franchisee}/flavors', [ViewOrdersController::class, 'getFlavors'])->name('franchise.vieworders.flavors');
+    Route::get('/vieworders/{franchise}/flavors', [ViewOrdersController::class, 'getFlavors'])->name('franchise.vieworders.flavors');
 
-    Route::get('/vieworders/{franchisee}/shipping-addresses', [ViewOrdersController::class, 'getShippingAddresses'])->name('franchise.vieworders.shippingAddresses');
+    Route::get('/vieworders/{franchise}/shipping-addresses', [ViewOrdersController::class, 'getShippingAddresses'])->name('franchise.vieworders.shippingAddresses');
 });

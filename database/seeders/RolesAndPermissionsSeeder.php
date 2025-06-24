@@ -26,12 +26,12 @@ class RolesAndPermissionsSeeder extends Seeder
         DB::table('permissions')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        // Create Roles
-        $superAdmin = Role::create(['name' => 'super_admin']);
-        $corporateAdmin = Role::create(['name' => 'corporate_admin']);
-        $franchiseAdmin = Role::create(['name' => 'franchise_admin']);
-        $franchiseManager = Role::create(['name' => 'franchise_manager']);
-        $franchiseStaff = Role::create(['name' => 'franchise_staff']);
+        // Create Roles using firstOrCreate to handle existing roles
+        $superAdmin = Role::firstOrCreate(['name' => 'super_admin']);
+        $corporateAdmin = Role::firstOrCreate(['name' => 'corporate_admin']);
+        $franchiseAdmin = Role::firstOrCreate(['name' => 'franchise_admin']);
+        $franchiseManager = Role::firstOrCreate(['name' => 'franchise_manager']);
+        $franchiseStaff = Role::firstOrCreate(['name' => 'franchise_staff']);
 
         // Define all permissions based on system modules
         $permissions = [
@@ -142,7 +142,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'orders.create',
             'orders.edit',
             'orders.delete',
-            // 'orders.pops',
+            'orders.pops',
 
             // Get Paid/Invoices (Franchise Admin)
             'invoices.view',
@@ -225,10 +225,17 @@ class RolesAndPermissionsSeeder extends Seeder
 
         ];
 
-        // Create all permissions
+        // Create all permissions using firstOrCreate to handle existing permissions
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission]);
         }
+
+        // Clear existing permissions for all roles to ensure clean state
+        $superAdmin->syncPermissions([]);
+        $corporateAdmin->syncPermissions([]);
+        $franchiseAdmin->syncPermissions([]);
+        $franchiseManager->syncPermissions([]);
+        $franchiseStaff->syncPermissions([]);
 
         // Assign ALL permissions to super_admin
         $superAdminPermissions = [

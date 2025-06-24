@@ -26,14 +26,14 @@ class AdditionalCharge extends Model
             if (Auth::check()) {
                 $additionalCharge->created_by = Auth::id();
                 $additionalCharge->updated_by = Auth::id();
-                $additionalCharge->franchisee_id = session('franchisee_id') ?? null;
+                $additionalCharge->franchise_id = session('franchise_id') ?? null;
             }
         });
 
         static::updating(function ($additionalCharge) {
             if (Auth::check()) {
                 $additionalCharge->updated_by = Auth::id();
-                $additionalCharge->franchisee_id = session('franchisee_id') ?? null;
+                $additionalCharge->franchise_id = session('franchise_id') ?? null;
             }
         });
     }
