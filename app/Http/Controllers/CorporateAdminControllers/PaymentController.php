@@ -14,11 +14,11 @@ use App\Models\ExpenseCategory;
 use App\Models\ExpenseSubCategory;
 use App\Models\FgpOrder;
 use App\Models\FgpOrderDetail;
-use App\Models\Franchisee;
+use App\Models\Franchise;
 use App\Models\FranchiseEventItem;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
 
 
@@ -26,9 +26,9 @@ class PaymentController extends Controller
 {
 
 
-    public function transaction(){
+    public function transaction($franchise){
         if (request()->ajax()) {
-            $transactions = OrderTransaction::query();
+            $transactions = OrderTransaction::where('franchise_id', $franchise);
 
             return DataTables::of($transactions)
                 ->addColumn('cardholder_name', function ($transaction) {
@@ -48,18 +48,21 @@ class PaymentController extends Controller
                     return '<span class="badge bg-'.$statusClass.'">' . ucfirst($transaction->stripe_status) . '</span>';
                 })
                 ->addColumn('action', function ($transaction) {
-                    $viewUrl = route('corporate_admin.pos.order', $transaction->id);
-                    $downloadUrl = route('corporate_admin.order.pos.download', $transaction->id);
-
-                    return '
-                    <div class="d-flex">
-                        <a href="'.$viewUrl.'" target="_blank" class="me-4">
+                    $viewUrl = route('pos.order', $transaction->id);
+                    $downloadUrl = route('order.pos.download', $transaction->id);
+                    $actions = '<div class="d-flex">';
+                    if (Auth::check() && Auth::user()->can('transactions.view')) {
+                        $actions .= '<a href="'.$viewUrl.'" target="_blank" class="me-4">
                             <i class="ti ti-eye fs-20" style="color: #00ABC7;"></i>
-                        </a>
-                        <a href="'.$downloadUrl.'">
+                        </a>';
+                    }
+                    if (Auth::check() && Auth::user()->can('transactions.view')) {
+                        $actions .= '<a href="'.$downloadUrl.'" class="me-4">
                             <i class="ti ti-file-download fs-20" style="color: #FF3131;"></i>
-                        </a>
-                    </div>';
+                        </a>';
+                    }
+                    $actions .= '</div>';
+                    return $actions;
                 })
                 ->rawColumns(['status', 'action'])
                 ->make(true);
@@ -102,6 +105,7 @@ class PaymentController extends Controller
         $data['expenseTransactions'] = ExpenseTransaction::get();
         $data['orderTransactions'] = OrderTransaction::get();
         $data['eventTransactions'] = EventTransaction::get();
+        $data['franchiseeId'] = request()->route('franchise');
         return view('corporate_admin.payment.transaction' , $data);
     }
 
@@ -129,20 +133,20 @@ class PaymentController extends Controller
     public function posOrder($id)
     {
        $data['orderTransaction'] = OrderTransaction::where('id' , $id)->firstorfail();
-       $data['order'] = FgpOrder::where('fgp_ordersID' , $data['orderTransaction']->fgp_order_id)->firstorfail();
-       $data['franchisee'] = Franchisee::where('franchisee_id' , $data['order']->user_ID)->firstorfail();
-       $data['orderDetails'] = FgpOrderDetail::where('fgp_order_id' , $data['order']->fgp_ordersID)->get();
+       $data['order'] = FgpOrder::where('id' , $data['orderTransaction']->fgp_order_id)->firstorfail();
+       $data['franchise'] = Franchise::where('franchise_id' , $data['order']->user_ID)->firstorfail();
+       $data['orderDetails'] = FgpOrderDetail::where('fgp_order_id' , $data['order']->id)->get();
         return view('corporate_admin.payment.order-pos' ,$data);
     }
 
     public function posOrderDownloadPDF($id)
     {
        $orderTransaction = OrderTransaction::where('id' , $id)->firstorfail();
-       $order = FgpOrder::where('fgp_ordersID' , $orderTransaction->fgp_order_id)->firstorfail();
-       $franchisee = Franchisee::where('franchisee_id' , $order->user_ID)->firstorfail();
-       $orderDetails = FgpOrderDetail::where('fgp_order_id' , $order->fgp_ordersID)->get();
+       $order = FgpOrder::where('id' , $orderTransaction->fgp_order_id)->firstorfail();
+       $franchise = Franchise::where('franchise_id' , $order->user_ID)->firstorfail();
+       $orderDetails = FgpOrderDetail::where('fgp_order_id' , $order->id)->get();
 
-        $pdf = Pdf::loadView('corporate_admin.payment.pdf.order-pos', compact('orderTransaction', 'order', 'franchisee', 'orderDetails'));
+        $pdf = Pdf::loadView('corporate_admin.payment.pdf.order-pos', compact('orderTransaction', 'order', 'franchise', 'orderDetails'));
 
         return $pdf->download('order_invoice_friospos.pdf');
     }
@@ -151,7 +155,7 @@ class PaymentController extends Controller
     public function posEvent($id)
     {
        $data['eventTransaction'] = EventTransaction::where('id' , $id)->firstorfail();
-       $data['franchisee'] = Franchisee::where('franchisee_id' , $data['eventTransaction']->franchisee_id)->firstorfail();
+       $data['franchise'] = Franchise::where('franchise_id' , $data['eventTransaction']->franchise_id)->firstorfail();
         $data['eventItems'] = FranchiseEventItem::where('event_id' , $data['eventTransaction']->event_id)->get();
         return view('corporate_admin.payment.event-pos' ,$data);
     }
@@ -159,10 +163,10 @@ class PaymentController extends Controller
     public function posEventDownloadPDF($id)
     {
        $eventTransaction = EventTransaction::where('id' , $id)->firstorfail();
-       $franchisee = Franchisee::where('franchisee_id' , $eventTransaction->franchisee_id)->firstorfail();
+       $franchise = Franchise::where('franchise_id' , $eventTransaction->franchise_id)->firstorfail();
        $eventItems = FranchiseEventItem::where('event_id' , $eventTransaction->event_id)->get();
 
-        $pdf = Pdf::loadView('corporate_admin.payment.pdf.event-pos', compact('eventTransaction', 'franchisee', 'eventItems'));
+        $pdf = Pdf::loadView('corporate_admin.payment.pdf.event-pos', compact('eventTransaction', 'franchise', 'eventItems'));
 
         return $pdf->download('event_invoice_friospos.pdf');
     }

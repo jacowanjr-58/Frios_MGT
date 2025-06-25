@@ -151,12 +151,13 @@ class UPSShippingService
         $labelImage = base64_decode(data_get($pkg, 'ShippingLabel.GraphicImage'));
         $tracking = data_get($pkg, 'TrackingNumber');
         $shipmentId = data_get($data, 'ShipmentResponse.ShipmentResults.ShipmentIdentificationNumber');
-        $file = "labels/ups_label_{$order->fgp_ordersID}_box" . ($idx + 1) . ".zpl";
+
+        $file = "labels/ups_label_{$order->id}.zpl";
         \Storage::disk('local')->put($file, $labelImage);
 
         // Save box contents as JSON for packing list
         UpsShipment::create([
-            'fgp_ordersID' => $order->fgp_ordersID,
+            'fgp_order_id' => $order->id,
             'shipment_id' => $shipmentId,
             'tracking_number' => $tracking,
             'label_format' => 'ZPL',

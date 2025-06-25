@@ -13,7 +13,7 @@ class InventoryReceiveController extends Controller
 {
     public function receiveForm()
     {
-        $franchiseId = Auth::user()->franchisee_id;
+        $franchiseId = Auth::user()->franchise_id;
         $deliveredPopFlavors = FgpItem::whereHas('deliveries', function ($q) use ($franchiseId) {
             $q->where('franchise_id', $franchiseId);
         })->select('fgp_item_id', 'name')->get();
@@ -33,20 +33,20 @@ class InventoryReceiveController extends Controller
             'custom_item_name' => 'nullable|string|max:255',
         ]);
 
-        $franchiseId = Auth::user()->franchisee_id;
+        $franchiseId = Auth::user()->franchise_id;
         $quantity = $request->input('quantity');
         $reference = $request->input('reference', null);
 
         if ($request->filled('is_custom')) {
             $customName = $request->input('custom_item_name');
             $inventory = InventoryMaster::firstOrCreate(
-                ['franchisee_id' => $franchiseId, 'fgp_item_id' => null, 'custom_item_name' => $customName],
+                ['franchise_id' => $franchiseId, 'fgp_item_id' => null, 'custom_item_name' => $customName],
                 ['total_quantity' => 0]
             );
         } else {
             $fgpItemId = $request->input('fgp_item_id');
             $inventory = InventoryMaster::firstOrCreate(
-                ['franchisee_id' => $franchiseId, 'fgp_item_id' => $fgpItemId],
+                ['franchise_id' => $franchiseId, 'fgp_item_id' => $fgpItemId],
                 ['custom_item_name' => null, 'total_quantity' => 0]
             );
         }

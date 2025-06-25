@@ -13,8 +13,8 @@ return new class extends Migration
     {
         if (! Schema::hasTable('fgp_orders')) {
         Schema::create('fgp_orders', function (Blueprint $table) {
-            $table->id('fgp_ordersID');
-            $table->integer('user_ID');
+            $table->id();
+            $table->unsignedBigInteger('user_id');
             $table->integer('customer_id')->nullable();
             $table->dateTime('date_transaction');
             $table->json('ACH_data')->nullable();

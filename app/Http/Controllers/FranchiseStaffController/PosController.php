@@ -25,7 +25,7 @@ class PosController extends Controller
         //     'daily' => ExpenseTransaction::where('user_id', $userId)->whereDate('created_at', $today)->sum('amount'),
         //     'weekly' => ExpenseTransaction::where('user_id', $userId)->whereBetween('created_at', [$startOfWeek, now()])->sum('amount'),
         //     'monthly' => ExpenseTransaction::where('user_id', $userId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
-        //     'yearly' => ExpenseTransaction::where('franchisee_id', $userId)->whereBetween('created_at', [$startOfYear, now()])->sum('amount'),
+        //     'yearly' => ExpenseTransaction::where('franchise_id', $userId)->whereBetween('created_at', [$startOfYear, now()])->sum('amount'),
         // ];
 
         $data['inoviceAmount'] = [

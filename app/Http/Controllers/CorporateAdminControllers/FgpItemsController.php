@@ -4,18 +4,21 @@ namespace App\Http\Controllers\CorporateAdminControllers;
 
 use App\Models\FgpItem;
 use App\Models\FgpCategory;
+use App\Models\Franchise;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
 
 class FgpItemsController extends Controller
 {
-    public function index()
+    public function index( $franchisee)
     {
+        $franchisee = Franchise::find($franchisee);
         $totalItems = FgpItem::count();
         if (request()->ajax()) {
-            $items = FgpItem::with('categories');
+            $items = FgpItem::where('franchise_id', $franchisee)->with('categories');
 
             return DataTables::of($items)
                 ->addColumn('categories', function ($item) {
@@ -35,22 +38,37 @@ class FgpItemsController extends Controller
                     });
                 })
                 ->addColumn('action', function ($item) {
-                    $editUrl = route('corporate_admin.fgpitem.edit', $item->fgp_item_id);
-                    $deleteUrl = route('corporate_admin.fgpitem.destroy', $item->fgp_item_id);
+                    // Check if user has any permissions for actions
+                    if (!Auth::check() || !Auth::user()->canAny(['frios_flavors.edit', 'frios_flavors.delete'])) {
+                        return ''; // Return empty string if no permissions
+                    }
 
-                    return '
-                    <div class="d-flex">
-                        <a href="'.$editUrl.'" class="edit-user">
+                    $editUrl = route('fgpitem.edit', $item->fgp_item_id);
+                    $deleteUrl = route('fgpitem.destroy', $item->fgp_item_id);
+
+                    $actions = '<div class="d-flex">';
+                    
+                    // Edit button - check permission
+                    if (Auth::check() && Auth::user()->can('frios_flavors.edit')) {
+                        $actions .= '<a href="'.$editUrl.'" class="edit-user">
                             <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
-                        </a>
-                        <form action="'.$deleteUrl.'" method="POST">
+                        </a>';
+                    }
+                    
+                    // Delete button - check permission
+                    if (Auth::check() && Auth::user()->can('frios_flavors.delete')) {
+                        $actions .= '<form action="'.$deleteUrl.'" method="POST">
                             '.csrf_field().'
                             '.method_field('DELETE').'
                             <button type="submit" class="ms-4 delete-fgpitem">
                                 <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
                             </button>
-                        </form>
-                    </div>';
+                        </form>';
+                    }
+                    
+                    $actions .= '</div>';
+                    
+                    return $actions;
                 })
                 ->rawColumns(['action', 'categories'])
                 ->make(true);
@@ -67,11 +85,10 @@ class FgpItemsController extends Controller
             'Allergen' => FgpCategory::whereJsonContains('type', 'Allergen')->get()
         ];
 
-        return view('corporate_admin.fgp_items.create', compact('categorizedCategories'));
+        $categories = FgpCategory::all();
+
+        return view('corporate_admin.fgp_items.create', compact('categorizedCategories', 'categories'));
     }
-
-
-
 
     public function store(Request $request)
     {
@@ -119,7 +136,7 @@ class FgpItemsController extends Controller
 
 
 
-    public function edit(FgpItem $fgpitem)
+    public function edit(FgpItem $fgpitem, $franchisee)
 {
     $categorizedCategories = [
         'Availability' => FgpCategory::whereJsonContains('type', 'Availability')->get(),
@@ -224,15 +241,25 @@ class FgpItemsController extends Controller
         }
     }
 
-    public function availability()
-{
-    $flavors = FgpItem::with('categories')->get();
-    $totalItems = $flavors->count();
+    public function availability($franchisee)
+    {
+        // Check permission for viewing Frios Availability
+        if (!Auth::check() || !Auth::user()->can('frios_availability.view')) {
+            abort(403, 'Unauthorized access to Frios Availability');
+        }
 
-    return view('corporate_admin.fgp_items.availability_flavor', compact('flavors','totalItems'));
-}
+        $flavors = FgpItem::where('franchise_id', $franchisee)->with('categories')->get();
+        $totalItems = $flavors->count();
+
+        return view('corporate_admin.fgp_items.availability_flavor', compact('flavors','totalItems'));
+    }
 public function updateStatus(Request $request, $id)
 {
+    // Check permission for updating Frios Availability
+    if (!Auth::check() || !Auth::user()->can('frios_availability.update')) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized access'], 403);
+    }
+
     $item = FgpItem::where('fgp_item_id', $id)->firstOrFail(); // Use explicit key
     $item->orderable = $request->orderable;
     $item->save();
@@ -244,6 +271,11 @@ public function updateStatus(Request $request, $id)
 
 public function updateMonth(Request $request, $id)
 {
+    // Check permission for updating Frios Availability
+    if (!Auth::check() || !Auth::user()->can('frios_availability.update')) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized access'], 403);
+    }
+
     $item = FgpItem::findOrFail($id);
     $datesAvailable = json_decode($item->dates_available, true) ?? [];
 

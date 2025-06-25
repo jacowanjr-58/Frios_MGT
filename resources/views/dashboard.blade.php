@@ -2,33 +2,9 @@
 
 @section('content')
     <x-notify::notify />
-    @php
-                        $user = auth()->user();
-                        $franchisees = $user->franchisees ?? collect();
-                        $selectedFranchiseeId = $franchiseeId ?? null;
-                    @endphp
-                    @if($user->hasRole('franchise_admin') && $franchisees->count() > 1)
-                        <div class="mb-3">
-                            <div class="row align-items-center">
-                                <div class="col-auto">
-                                    <label for="franchisee_id" class="form-label mb-0 me-2">Select Franchisee:</label>
-                                </div>
-                                <div class="col-auto">
-                                    <select name="franchisee_id" id="franchisee_id" class="form-select form-control" onchange="if(this.value) window.location.href='/franchise/' + this.value + '/dashboard'">
-                                        @foreach($franchisees as $franchisee)
-                                            <option value="{{ $franchisee->franchisee_id }}" {{ $selectedFranchiseeId == $franchisee->franchisee_id ? 'selected' : '' }}>
-                                                {{ $franchisee->business_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-    <!--**********************************
-                                        Content body start
-                                    ***********************************-->
-    @if (auth()->user()->role == 'corporate_admin' || auth()->user()->role == 'franchise_admin')
+
+    <!--********************************* Content body start ***********************************-->
+   
         <div class=" content-body default-height">
             <!-- row -->
             <div class="container-fluid">
@@ -315,12 +291,11 @@
                 </div>
             </div>
         </div>
-    @endif
+   
     <!--**********************************
                                         Content body end
                                     ***********************************-->
 
-    @if (auth()->user()->role == 'franchise_staff' || auth()->user()->role == 'franchise_manager')
         <div class=" content-body default-height">
             <!-- row -->
             <div class="container-fluid">
@@ -416,8 +391,7 @@
                 </div>
             </div>
         </div>
-    @endif
-
+   
    
 
     <script>

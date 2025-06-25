@@ -52,10 +52,10 @@
                                             <!-- Display Success Message -->
 
                                             @role('franchise_admin')
-                                            <form action="{{ route('franchise.staff.store') }}" method="POST">
+                                            <form action="{{ route('franchise.staff.store', ['franchisee' => request()->route('franchisee')]) }}" method="POST">
                                             @endrole
                                             @role('franchise_manager')
-                                            <form action="{{ route('franchise.staff.store') }}" method="POST">
+                                            <form action="{{ route('franchise.staff.store', ['franchisee' => request()->route('franchisee')]) }}" method="POST">
                                             @endrole
                                                 @csrf
 

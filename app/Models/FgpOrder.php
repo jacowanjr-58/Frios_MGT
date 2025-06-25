@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class FgpOrder extends Model
@@ -11,8 +12,6 @@ class FgpOrder extends Model
     use HasFactory;
 
     protected $table = 'fgp_orders';
-
-    protected $primaryKey = 'fgp_ordersID';  // tell Eloquent the primary key
 
     public $timestamps = true; // if you have timestamps (created_at, updated_at)
 
@@ -25,9 +24,33 @@ class FgpOrder extends Model
         'is_delivered' => 'boolean',
         'is_paid' => 'boolean',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($fgpOrder) {
+            if (Auth::check()) {
+                $fgpOrder->created_by = Auth::id();
+                $fgpOrder->updated_by = Auth::id();
+                $fgpOrder->franchise_id = session('franchise_id') ?? null;
+            }
+        });
+
+        static::updating(function ($fgpOrder) {
+            if (Auth::check()) {
+                $fgpOrder->updated_by = Auth::id();
+                $fgpOrder->franchise_id = session('franchise_id') ?? null;
+            }
+        });
+    }
+
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_ID', 'user_id');
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function franchise()
+    {
+        return $this->belongsTo(Franchise::class, 'franchise_id');
     }
 
     public function item()
@@ -36,28 +59,27 @@ class FgpOrder extends Model
     }
 
     public function getOrderNum() : string{
-            return "FGP-" . $this->fgp_ordersID;
+            return "FGP-" . $this->id;
     }
 
     //Note the Plural for adding to OrderDetails
     public function items()
     {
-        return $this->hasMany(FgpOrderDetail::class, 'fgp_order_id', 'fgp_ordersID');
+        return $this->hasMany(FgpOrderDetail::class, 'fgp_order_id');
     }
 
     public function orderDetails()
     {
-        return $this->hasMany(FgpOrderDetail::class, 'fgp_order_id', 'fgp_ordersID');
+        return $this->hasMany(FgpOrderDetail::class, 'fgp_order_id');
     }
 
      public function orderDiscrepancies()
     {
-        // If your OrderDiscrepancy table’s FK is “order_id”
-        // and your local PK is “fgp_ordersID”, do:
+        // If your OrderDiscrepancy table's FK is "order_id"
+        // and your local PK is "id", do:
         return $this->hasMany(
             OrderDiscrepancy::class,
-            'order_id',        // FK column on order_discrepancies
-            'fgp_ordersID'     // PK column on fgp_orders
+            'order_id'        // FK column on order_discrepancies
         );
     }
 

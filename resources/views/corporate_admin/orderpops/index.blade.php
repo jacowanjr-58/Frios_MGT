@@ -31,7 +31,6 @@
             }
         </style>
     @endpush
-
     <!--**********************************
                     Content body start
                 ***********************************-->
@@ -49,8 +48,13 @@
             <div class="row mb-4 align-items-center">
 
                 <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
+                    @can('franchise_orders.create')
                     <button id="orderButton" class="btn btn-secondary btn-lg btn-block rounded text-white">Place
                         Order</button>
+                    @else
+                    <button class="btn btn-secondary btn-lg btn-block rounded text-white" disabled title="You don't have permission to create orders">Place
+                        Order (No Access)</button>
+                    @endcan
                 </div>
                 <div class="col-xl-9 col-lg-8">
                     <div class="card m-0">
@@ -93,10 +97,17 @@
                             <thead>
                                 <tr>
                                     <th>
+                                        @can('franchise_orders.create')
                                         <div class="form-check checkbox-secondary">
                                             <input class="form-check-input" type="checkbox" value="" id="checkAll">
                                             <label class="form-check-label" for="checkAll"></label>
                                         </div>
+                                        @else
+                                        <div class="form-check checkbox-secondary">
+                                            <input class="form-check-input" type="checkbox" value="" id="checkAll" disabled title="You don't have permission to create orders">
+                                            <label class="form-check-label" for="checkAll"></label>
+                                        </div>
+                                        @endcan
                                     </th>
                                     <th>Name</th>
                                     <th>Image</th>
@@ -133,16 +144,16 @@
 
                                 console.log("Checked Items:", checkedItems);
 
-                                if (checkedItems.length < 3) {
-                                    alert("Please select at least three items to order.");
-                                    console.log("Less than three items selected, alert displayed.");
-                                    return;
-                                }
+                                // if (checkedItems.length < 3) {
+                                //     alert("Please select at least three items to order.");
+                                //     console.log("Less than three items selected, alert displayed.");
+                                //     return;
+                                // }
 
 
                                 console.log("Sending request to server with checked items...");
 
-                                const url = "{{ route('corporate_admin.orderpops.confirm') }}";
+                                const url = "{{ route('orderpops.confirm') }}";
 
                                 fetch(url, {
                                     method: 'POST',
@@ -218,7 +229,7 @@
                 let orderableValue = $(this).val();
 
                 $.ajax({
-                    url: "{{ route('corporate_admin.fgpitem.updateOrderable') }}",
+                    url: "{{ route('franchise.fgpitem.updateOrderable', ['franchisee' => $franchiseeId]) }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -248,7 +259,7 @@
                 var table = $('#pops-table').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "{{ route('corporate_admin.orderposps') }}",
+                    ajax: "{{ route('orderposps', ['franchisee' => $franchiseeId]) }}",
                     columns: [
                         { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
                         { data: 'name', name: 'name' },
@@ -307,12 +318,12 @@
                         checkedItems.push(itemDetails);
                     });
 
-                    if (checkedItems.length < 3) {
-                        alert("Please select at least three items to order.");
-                        return;
-                    }
+                    // if (checkedItems.length < 3) {
+                    //     alert("Please select at least three items to order.");
+                    //     return;
+                    // }
 
-                    fetch("{{ route('corporate_admin.orderpops.confirm') }}", {
+                    fetch("{{ route('orderpops.confirm') }}", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

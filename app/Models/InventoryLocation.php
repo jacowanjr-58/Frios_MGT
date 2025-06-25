@@ -15,15 +15,15 @@ class InventoryLocation extends Model
 
     protected $fillable = [
         'name',
-        'franchisee_id',
+        'franchise_id',
     ];
 
     public function inventoryMasters()
     {
-        return $this->hasMany(InventoryMaster::class, 'franchisee_id', 'franchisee_id');
+        return $this->hasMany(InventoryMaster::class, 'franchise_id', 'franchise_id');
     }
-    public function franchisee()
+    public function franchise()
     {
-        return $this->belongsTo(Franchisee::class, 'franchisee_id', 'franchisee_id');
+        return $this->belongsTo(Franchise::class, 'franchise_id');
     }
 }

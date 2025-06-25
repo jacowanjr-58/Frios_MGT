@@ -41,7 +41,7 @@
                                             <!-- Display Success Message -->
 
 
-                                            <form action="{{ route('corporate_admin.fgpitem.update', $fgpitem->fgp_item_id) }}" method="POST" enctype="multipart/form-data">
+                                            <form action="{{ route('franchise.fgpitem.update', ['franchisee' => request()->route('franchisee'), 'fgpitem' => $fgpitem->fgp_item_id]) }}" method="POST" enctype="multipart/form-data">
                                                 @csrf
                                                 @method('PUT')
 

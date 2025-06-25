@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('expense_categories', function (Blueprint $table) {
             $table->id();
             $table->string('category');
-            $table->string('franchisee_id')->nullable();
+            $table->string('franchise_id')->nullable();
             $table->timestamps();
         });
         }

@@ -11,13 +11,12 @@ class Customer extends Model
     use HasFactory;
 
     protected $table = 'customers'; // Table name
-    protected $primaryKey = 'customer_id'; // Primary key
 
     protected $guarded = [];
 
 
-    public function franchisee(): BelongsTo
+    public function franchise(): BelongsTo
     {
-        return $this->belongsTo(Franchisee::class, 'franchisee_id', 'franchisee_id');
+        return $this->belongsTo(Franchise::class, 'franchise_id');
     }
 }

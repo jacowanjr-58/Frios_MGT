@@ -13,11 +13,10 @@ class FgpItem extends Model
     use HasFactory;
 
     protected $table = 'fgp_items'; // Ensure table name is correct
-    protected $primaryKey = 'fgp_item_id'; // Explicitly define primary key
     public $timestamps = true; // Ensure timestamps are handled
 
     protected $fillable = [
-        'category_ID',
+        'category_id',
         'name',
         'description',
         'case_cost',
@@ -30,25 +29,54 @@ class FgpItem extends Model
         'split_factor',
     ];
 
+    protected static function booted()
+    {
+        static::creating(function ($fgpItem) {
+            if (Auth::check()) {
+                $fgpItem->created_by = Auth::id();
+                $fgpItem->updated_by = Auth::id();
+                $fgpItem->franchise_id = session('franchise_id') ?? null;
+            }
+        });
+
+        static::updating(function ($fgpItem) {
+            if (Auth::check()) {
+                $fgpItem->updated_by = Auth::id();
+                $fgpItem->franchise_id = session('franchise_id') ?? null;
+            }
+        });
+    }
+
     /**
      * All inventory_master rows for this FGP item.
      */
     public function inventories()
     {
-        return $this->hasMany(InventoryMaster::class, 'fgp_item_id', 'fgp_item_id');
+        return $this->hasMany(InventoryMaster::class, 'fgp_item_id');
     }
 
 
     // Many-to-many relationship with FgpCategory
     public function categories()
     {
-        return $this->belongsToMany(FgpCategory::class, 'fgp_category_fgp_item', 'fgp_item_id', 'category_ID');
+        return $this->belongsToMany(FgpCategory::class, 'fgp_category_fgp_item', 'fgp_item_id', 'category_id');
+    }
+
+    public function franchise()
+    {
+        return $this->belongsTo(Franchise::class, 'franchise_id');
+    }
+
+    public function orderDetails()
+    {
+        return $this->hasMany(FgpOrderDetail::class, 'fgp_item_id');
     }
 
     public function Orders()
     {
         return $this->hasMany(FgpOrder::class, 'fgp_item_id')->where('status', 'delivered');
     }
+
     public function InventoryAllocations()
     {
         return $this->hasMany(InventoryAllocation::class, 'fgp_item_id');
@@ -68,16 +96,16 @@ class FgpItem extends Model
     public function availableQuantity()
     {
         return DB::table('fgp_order_details')
-            ->join('fgp_orders', 'fgp_orders.fgp_ordersID', '=', 'fgp_order_details.fgp_order_id')
-            ->where('fgp_order_details.fgp_item_id', $this->fgp_item_id)
+            ->join('fgp_orders', 'fgp_orders.id', '=', 'fgp_order_details.fgp_order_id')
+            ->where('fgp_order_details.fgp_item_id', $this->id)
             ->where('fgp_orders.status', 'Delivered')
             ->where('fgp_orders.status', 'Delivered')
-            ->where('fgp_orders.user_ID', Auth::user()->franchisee_id)
+            ->where('fgp_orders.user_id', Auth::user()->franchise_id)
             ->sum('fgp_order_details.unit_number');
     }
 
     public function allocations()
     {
-        return $this->hasMany(InventoryAllocation::class, 'fgp_item_id', 'fgp_item_id');
+        return $this->hasMany(InventoryAllocation::class, 'fgp_item_id');
     }
 }

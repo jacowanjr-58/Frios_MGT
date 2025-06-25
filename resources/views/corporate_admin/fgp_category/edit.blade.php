@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
 
-
+@can('flavor_category.update')
     <!--**********************************
                 Content body start
             ***********************************-->
@@ -40,7 +40,7 @@
                                             <!-- Display Success Message -->
 
 
-                                            <form action="{{ route('corporate_admin.fgpcategory.update', $fgpcategory->category_ID) }}" method="POST">
+                                            <form action="{{ route('franchise.fgpcategory.update', ['franchisee' => request()->route('franchisee'), 'fgpcategory' => $fgpcategory->category_ID]) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
 
@@ -100,6 +100,19 @@
     <!--**********************************
                 Content body end
             ***********************************-->
-
+@else
+    <div class="content-body default-height">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="alert alert-warning text-center" role="alert">
+                        <i class="ti ti-alert-circle fs-20 me-2"></i>
+                        <strong>Access Denied!</strong> You don't have permission to update Flavor Categories.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endcan
 
 @endsection

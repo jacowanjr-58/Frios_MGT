@@ -19,17 +19,17 @@ class SaleController extends Controller
 {
     public function index()
     {
-        $data['invoices'] = Invoice::where('user_id', auth()->user()->user_id)->get();
-        $data['invoiceCount'] = Invoice::where('user_id', auth()->user()->user_id)->count();
+        $data['invoices'] = Invoice::where('user_id', auth()->user()->id)->get();
+        $data['invoiceCount'] = Invoice::where('user_id', auth()->user()->id)->count();
 
         return view('franchise_staff.sale.index', $data);
     }
 
     public function create()
     {
-        $data['customers'] = Customer::where('franchisee_id', Auth::user()->franchisee_id)->get();
-        $data['franchisee'] = '10';
-        $data['user'] = User::where('franchisee_id', Auth::user()->franchisee_id)->first();
+        $data['customers'] = Customer::where('franchise_id', Auth::user()->franchise_id)->get();
+        $data['franchise'] = '10';
+        $data['user'] = User::where('franchise_id', Auth::user()->franchise_id)->first();
         $flavors = FgpItem::all();
 
         $initialPopFlavors = [];
@@ -43,8 +43,8 @@ class SaleController extends Controller
 
 $data['allocations'] = \DB::table('inventory_allocations')
     ->join('inventory_master', 'inventory_allocations.inventory_id', '=', 'inventory_master.inventory_id')
-    ->join('fgp_items',       'inventory_master.fgp_item_id',      '=', 'fgp_items.fgp_item_id')
-    ->where('inventory_master.franchisee_id', Auth::user()->franchisee_id)
+            ->join('fgp_items',       'inventory_master.fgp_item_id',      '=', 'fgp_items.id')
+    ->where('inventory_master.franchise_id', Auth::user()->franchise_id)
     ->select([
         'inventory_allocations.*',
         'fgp_items.name',
@@ -71,8 +71,8 @@ $data['allocations'] = \DB::table('inventory_allocations')
         ]);
 
         $invoice = Invoice::create([
-            'franchisee_id' => Auth::user()->franchisee_id,
-            'user_id' => auth()->user()->user_id,
+            'franchise_id' => Auth::user()->franchise_id,
+            'user_id' => auth()->user()->id,
             'customer_id' => $request->customer_id,
             'name' => $request->name,
             'note' => $request->note,
@@ -111,7 +111,7 @@ $data['allocations'] = \DB::table('inventory_allocations')
         if($request->customer_id) {
             $corporateAdmin = User::where('user_id', 17)->first();
             Mail::to($invoice->customer->email ?? $corporateAdmin->email)
-                ->send(new \App\Mail\InvoiceMail($invoice, $invoice->items, $invoice->franchisee->business_name));
+                ->send(new \App\Mail\InvoiceMail($invoice, $invoice->items, $invoice->franchise->business_name));
         }
 
 
@@ -135,11 +135,11 @@ $data['allocations'] = \DB::table('inventory_allocations')
 
         $total = $subtotal + $tax;
 
-        $customers = Customer::where('franchisee_id', Auth::user()->franchisee_id)->get();
+        $customers = Customer::where('franchise_id', Auth::user()->franchise_id)->get();
 
         $allocations = InventoryAllocation::with(['inventoryMaster.flavor'])
             ->whereHas('inventoryMaster', function ($q) {
-                $q->where('franchisee_id', Auth::user()->franchisee_id);
+                $q->where('franchise_id', Auth::user()->franchise_id);
             })
             ->get()
             ->map(function ($alloc) {
@@ -155,11 +155,11 @@ $data['allocations'] = \DB::table('inventory_allocations')
                 ];
             });
 
-        $franchisee = $taxRate;
+        $franchise = $taxRate;
 
         return view('franchise_staff.sale.edit', compact(
             'invoice',
-            'franchisee',
+            'franchise',
             'customers',
             'allocations',
             'subtotal',
@@ -181,7 +181,7 @@ $data['allocations'] = \DB::table('inventory_allocations')
             'items.*.price' => 'required|numeric|min:0',
         ]);
         $invoice->update([
-            'franchisee_id' => Auth::user()->franchisee_id,
+            'franchise_id' => Auth::user()->franchise_id,
             'customer_id' => $request->customer_id,
             'name' => $request->name,
             'note' => $request->note,
@@ -250,10 +250,10 @@ $data['allocations'] = \DB::table('inventory_allocations')
 
         $total = $subtotal + $tax;
 
-        $customers = Customer::where('franchisee_id', Auth::user()->franchisee_id)->get();
+        $customers = Customer::where('franchise_id', Auth::user()->franchise_id)->get();
 
         $allocations = InventoryAllocation::with('flavor')
-            ->join('fgp_items', 'fgp_items.fgp_item_id', '=', 'inventory_allocations.fgp_item_id')
+            ->join('fgp_items', 'fgp_items.id', '=', 'inventory_allocations.fgp_item_id')
             ->select(
                 'inventory_allocations.*',
                 'fgp_items.name',
@@ -262,11 +262,11 @@ $data['allocations'] = \DB::table('inventory_allocations')
             )
             ->get();
 
-        $franchisee = $taxRate;
+        $franchise = $taxRate;
 
         return view('franchise_staff.sale.view', compact(
             'invoice',
-            'franchisee',
+            'franchise',
             'customers',
             'allocations',
             'subtotal',

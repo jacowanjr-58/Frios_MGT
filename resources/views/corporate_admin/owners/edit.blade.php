@@ -52,7 +52,7 @@
                                             <!-- Display Success Message -->
 
 
-                                            <form action="{{ route('corporate_admin.owner.update', $owner->user_id) }}" method="POST">
+                                            <form action="{{ route('owner.update', $owner->user_id) }}" method="POST" enctype="multipart/form-data">
                                                 @csrf
                                                 @method('PUT')
 
@@ -76,31 +76,57 @@
                                                     </div>
 
                                                     <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Assign Franchise <span class="text-danger">*</span></label>
-                                                        <select class="form-control multiple-select  @error('franchisee_id') is-invalid @enderror" name="franchisee_id[]" multiple>
+                                                        <label class="form-label">Assign Franchise <span
+                                                                class="text-danger">*</span></label>
+                                                        <select
+                                                            class="form-control select2 @error('franchise_id') is-invalid @enderror"
+                                                            name="franchise_id[]" multiple="multiple">
                                                             <option value="">Select Franchise</option>
                                                             @foreach ($franchises as $franchise)
-                                                                <option value="{{ $franchise->franchisee_id }}"
-                                                                    {{ $owner->franchisees->contains('franchisee_id', $franchise->franchisee_id) ? 'selected' : '' }}>
-                                                                    {{ $franchise->business_name }}
+                                                                <option value="{{ $franchise->franchise_id }}"
+                                                                    {{ $owner->franchisees->contains('franchise_id', $franchise->franchise_id) ? 'selected' : '' }}>
+                                                                    {{ $franchise->business_name ?? 'N/A' }} - {{ $franchise->frios_territory_name ?? 'N/A' }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
-
-                                                        @error('franchisee_id') <div class="text-danger">{{ $message }}</div> @enderror
-                                                    </div>
-
-                                                    {{-- <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Clearance</label>
-                                                        <input type="text" class="form-control @error('clearance') is-invalid @enderror" name="clearance" value="{{ old('clearance', $owner->clearance) }}">
-                                                        @error('clearance') <div class="text-danger">{{ $message }}</div> @enderror
+                                                        @error('franchise_id') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
 
                                                     <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Security</label>
-                                                        <input type="text" class="form-control @error('security') is-invalid @enderror" name="security" value="{{ old('security', $owner->security) }}">
-                                                        @error('security') <div class="text-danger">{{ $message }}</div> @enderror
-                                                    </div> --}}
+                                                        <label class="form-label">EIN/SSN</label>
+                                                       
+                                                        <input type="text" class="form-control @error('ein_ssn') is-invalid @enderror" 
+                                                               name="ein_ssn" value="{{  $owner->ein_ssn  }}" 
+                                                               placeholder="Enter EIN or SSN (leave empty to keep current)">
+                                                        @error('ein_ssn') <div class="text-danger">{{ $message }}</div> @enderror
+                                                        @if($owner->ein_ssn_hash)
+                                                            <small class="text-muted">EIN/SSN is currently set</small>
+                                                        @endif
+                                                    </div>
+
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Date Joined</label>
+                                                        <input type="date" class="form-control @error('date_joined') is-invalid @enderror" 
+                                                               name="date_joined" value="{{ old('date_joined', $owner->date_joined ? $owner->date_joined->format('Y-m-d') : '') }}">
+                                                        @error('date_joined') <div class="text-danger">{{ $message }}</div> @enderror
+                                                    </div>
+
+                                                    <div class="mb-3 col-md-12">
+                                                        <label class="form-label">Franchise Contract Document 
+                                                            <small class="text-muted">(PDF, DOC, DOCX - Max 10MB)</small>
+                                                        </label>
+                                                        <input type="file" class="form-control @error('contract_document') is-invalid @enderror" 
+                                                               name="contract_document" accept=".pdf,.doc,.docx">
+                                                        @error('contract_document') <div class="text-danger">{{ $message }}</div> @enderror
+                                                        @if($owner->contract_document_path)
+                                                            <small class="text-muted">
+                                                                Current document: 
+                                                                <a href="{{ url($owner->contract_document_path) }}" target="_blank">
+                                                                    {{ basename($owner->contract_document_path) }}
+                                                                </a>
+                                                            </small>
+                                                        @endif
+                                                    </div>
                                                 </div>
 
                                                 <button type="submit" class="btn btn-primary bg-primary">Update Owner</button>

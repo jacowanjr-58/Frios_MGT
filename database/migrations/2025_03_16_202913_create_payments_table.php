@@ -23,7 +23,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Foreign Keys
-            $table->foreign('order_id')->references('fgp_ordersID')->on('fgp_orders')->onDelete("cascade");
+            $table->foreign('order_id')->references('id')->on('fgp_orders')->onDelete("cascade");
         });
         }
 

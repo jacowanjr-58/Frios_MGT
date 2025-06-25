@@ -12,7 +12,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User;
-use App\Models\Franchisee;
+use App\Models\Franchise;
 use Yajra\DataTables\Facades\DataTables;
 
 class InventoryController extends Controller
@@ -27,7 +27,7 @@ class InventoryController extends Controller
         // Verify that the user has access to this franchisee
         $hasAccess = DB::table('user_franchisees')
             ->where('user_id', $user->user_id)
-            ->where('franchisee_id', (int) $franchisee)
+            ->where('franchise_id', (int) $franchisee)
             ->exists();
 
         if (!$hasAccess) {
@@ -36,7 +36,7 @@ class InventoryController extends Controller
 
         if ($request->ajax()) {
             $query = InventoryMaster::with('flavor')
-                ->where('franchisee_id', (int) $franchisee)
+                ->where('franchise_id', (int) $franchisee)
                 ->where('total_quantity', '>', 0);
 
             return DataTables::of($query)
@@ -70,7 +70,7 @@ class InventoryController extends Controller
                 ->make(true);
         }
 
-        $totalInventories = InventoryMaster::where('franchisee_id', (int) $franchisee)
+        $totalInventories = InventoryMaster::where('franchise_id', (int) $franchisee)
             ->where('total_quantity', '>', 0)
             ->count();
 
@@ -90,7 +90,7 @@ class InventoryController extends Controller
         // Verify that the user has access to this franchisee
         $hasAccess = DB::table('user_franchisees')
             ->where('user_id', $user->user_id)
-            ->where('franchisee_id', (int) $franchisee)
+            ->where('franchise_id', (int) $franchisee)
             ->exists();
 
         if (!$hasAccess) {
@@ -98,7 +98,7 @@ class InventoryController extends Controller
         }
 
         $fgpItems = FgpItem::orderBy('name')->get();
-        $locations = InventoryLocation::where('franchisee_id', $franchisee)
+        $locations = InventoryLocation::where('franchise_id', $franchisee)
             ->orderBy('name')
             ->get();
         $today = now()->format('Y-m-d');
@@ -122,7 +122,7 @@ class InventoryController extends Controller
         // Verify that the user has access to this franchisee
         $hasAccess = DB::table('user_franchisees')
             ->where('user_id', $user->user_id)
-            ->where('franchisee_id', (int) $franchisee)
+            ->where('franchise_id', (int) $franchisee)
             ->exists();
 
         if (!$hasAccess) {
@@ -160,7 +160,7 @@ class InventoryController extends Controller
 
         // 3️⃣ Handle duplicates: if corporate selected with no custom name and record exists
         if (!empty($data['fgp_item_id']) && empty($data['custom_item_name'])) {
-            $exists = InventoryMaster::where('franchisee_id', $franchisee)
+            $exists = InventoryMaster::where('franchise_id', $franchisee)
                 ->where('fgp_item_id', $data['fgp_item_id'])
                 ->exists();
             if ($exists) {
@@ -185,7 +185,7 @@ class InventoryController extends Controller
         // 5️⃣ Persist master and allocations
         DB::transaction(function () use ($data, $franchisee, $request, $totalQty) {
             $master = InventoryMaster::create([
-                'franchisee_id' => (int)$franchisee,
+                'franchise_id' => (int)$franchisee,
                 'fgp_item_id' => $data['fgp_item_id'],
                 'custom_item_name' => $data['custom_item_name'],
                 'stock_count_date' => $data['stock_count_date'],
@@ -243,7 +243,7 @@ class InventoryController extends Controller
         // Verify that the user has access to this franchisee
         $hasAccess = DB::table('user_franchisees')
             ->where('user_id', $user->user_id)
-            ->where('franchisee_id', (int) $franchisee)
+            ->where('franchise_id', (int) $franchisee)
             ->exists();
            
         if (!$hasAccess) {
@@ -251,7 +251,7 @@ class InventoryController extends Controller
         }
 
         // Get the specific inventory master record
-        $inventoryMaster = InventoryMaster::where('franchisee_id', (int) $franchisee)
+        $inventoryMaster = InventoryMaster::where('franchise_id', (int) $franchisee)
             ->where('inventory_id', $inventoryMaster)
             ->firstOrFail();
 
@@ -259,7 +259,7 @@ class InventoryController extends Controller
         $inventoryMaster->load('flavor', 'allocations');
 
         // fetch locations for the allocation grid
-        $locations = InventoryLocation::where('franchisee_id', (int) $franchisee)
+        $locations = InventoryLocation::where('franchise_id', (int) $franchisee)
             ->orderBy('name')
             ->get();
 
@@ -293,7 +293,7 @@ class InventoryController extends Controller
         // Verify that the user has access to this franchisee
         $hasAccess = DB::table('user_franchisees')
             ->where('user_id', $user->user_id)
-            ->where('franchisee_id', (int) $franchisee)
+            ->where('franchise_id', (int) $franchisee)
             ->exists();
            
         if (!$hasAccess) {
@@ -301,7 +301,7 @@ class InventoryController extends Controller
         }
 
         // Get the specific inventory master record
-        $inventoryMaster = InventoryMaster::where('franchisee_id', (int) $franchisee)
+        $inventoryMaster = InventoryMaster::where('franchise_id', (int) $franchisee)
             ->where('inventory_id', $inventoryMaster)
             ->firstOrFail();
 
@@ -405,8 +405,8 @@ class InventoryController extends Controller
     {
         //  $this->authorize('delete', $inventoryMaster);
 
-        $franchiseId = Auth::user()->franchisee_id;
-        if ($inventoryMaster->franchisee_id !== $franchiseId) {
+        $franchiseId = Auth::user()->franchise_id;
+        if ($inventoryMaster->franchise_id !== $franchiseId) {
             abort(403);
         }
 

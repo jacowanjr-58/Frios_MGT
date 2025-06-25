@@ -27,10 +27,10 @@
 @endif
 
             <div class="container mx-auto px-4">
-                <h1 class="text-2xl font-bold mb-4">Confirm Delivery for Order #FGP-{{ $order->fgp_ordersID }}</h1>
+                <h1 class="text-2xl font-bold mb-4">Confirm Delivery for Order #FGP-{{ $order->id }}</h1>
 
                 <form
-                    action="{{ route('franchise.inventory.confirm_delivery.store', ['order' => $order->fgp_ordersID]) }}"
+                    action="{{ route('franchise.inventory.confirm_delivery.store', ['order' => $order->id]) }}"
                     method="POST"
                     x-data="{}"
                     class="bg-white p-6 rounded shadow"
@@ -40,7 +40,7 @@
                     {{-- Order header info --}}
                     <div class="mb-6 p-4 bg-gray-100 rounded">
                         <p><strong>Order Date:</strong> {{ $order->created_at->format('M d, Y') }}</p>
-                        <p><strong>Franchisee:</strong> {{ $order->franchise->name ?? 'N/A' }}</p>
+                        <p><strong>franchise:</strong> {{ $order->franchise->name ?? 'N/A' }}</p>
                         {{-- any other summary fields --}}
                     </div>
 

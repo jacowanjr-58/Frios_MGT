@@ -70,29 +70,41 @@
     <div class="header-content">
         <nav class="navbar navbar-expand">
             <div class="collapse navbar-collapse justify-content-between">
+                
                 <div class="header-left">
                     @php
+                        $currentRouteName = request()->route()->getName();
                         $user = auth()->user();
-                        $franchisees = $user->franchisees ?? collect();
-                        $selectedFranchiseeId = $franchiseeId ?? null;
-                        $franchiseeId = $franchiseeId ?? null;
+                        $selectedFranchiseId = request()->route('franchise') ?? $franchiseId ?? null;
+                        $showDropdown = false;
+                        $dropdownFranchises = collect();
+                        
+                        if ($user->hasRole('super_admin')) {
+                            $showDropdown = false;
+                        } elseif ($user->hasRole('corporate_admin')) {
+                            $showDropdown = true;
+                            $dropdownFranchises = App\Models\Franchise::select('id', 'business_name', 'frios_territory_name')->get();
+                        } else {
+                            $userFranchises = $user->franchises ?? collect();
+                            if ($userFranchises->count() > 0) {
+                                $showDropdown = true;
+                                $dropdownFranchises = $userFranchises;
+                            }
+                        }
                     @endphp
-                    @if($user->hasRole('franchise_admin') && $franchisees->count() > 1)
-                        <div class="">
-                            <div class="row align-items-center">
-                                <div class="col-auto">
-                                    <label for="franchisee_id" class="form-label mb-0 me-2">Select Franchisee</label>
-                                </div>
-                                <div class="col-auto">
-                                    <select name="franchisee_id" id="franchisee_id" class="form-select form-control"
-                                        onchange="if(this.value) window.location.href='/franchise/' + this.value + '/dashboard'">
-                                        @foreach($franchisees as $franchisee)
-                                            <option value="{{ $franchisee->franchisee_id }}" {{ $selectedFranchiseeId == $franchisee->franchisee_id ? 'selected' : '' }}>
-                                                {{ $franchisee->business_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                    @if($showDropdown && $currentRouteName != 'franchise.index' && $currentRouteName != 'owner.index')
+                        <div class="w-100 ml-32">
+                            <div class="d-flex align-items-center gap-3">
+                                <label for="franchise-select" class="form-label mb-0 text-nowrap fw-semibold">Select
+                                    Franchise:</label>
+                                <select id="franchise-select" class="form-select select2 flex-grow-1"
+                                    onchange="updateFranchiseInCurrentRoute(this.value)">
+                                    @foreach($dropdownFranchises as $franchise)
+                                        <option value="{{ $franchise->franchise_id }}" {{ $selectedFranchiseId == $franchise->franchise_id ? 'selected' : '' }}>
+                                            {{ $franchise->business_name }} - {{ $franchise->frios_territory_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     @endif
@@ -118,60 +130,7 @@
                                 width="20" alt="Profile Picture"> --}}
                             <img src="{{asset('assets/images/default_avatar.jpg') }}" width="20" alt="Profile Picture">
                         </a>
-                        <div class="dropdown-menu dropdown-menu-end">
-                            @role('corporate_admin')
-                            <a href="{{ route('profile.index') }}" class="dropdown-item ai-icon d-flex">
-                                <svg id="icon-user1" xmlns="http://www.w3.org/2000/svg" class="text-primary" width="18"
-                                    height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="12" cy="7" r="4"></circle>
-                                </svg>
-                                <span class="ms-2">Profile</span>
-                            </a>
-                            @endrole
-                            @role('franchise_admin')
-                            <a href="{{ route('profile.index') }}" class="dropdown-item ai-icon d-flex">
-                                <svg id="icon-user1" xmlns="http://www.w3.org/2000/svg" class="text-primary" width="18"
-                                    height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="12" cy="7" r="4"></circle>
-                                </svg>
-                                <span class="ms-2">Profile</span>
-                            </a>
-                            @endrole
-                            @role('franchise_admin')
-                            <a href="{{ route('franchise.staff.index' , ['franchise' => $franchiseeId]) }}" class="dropdown-item ai-icon d-flex">
-                                <i class="bi bi-people-fill text-primary"></i>
-                                <span class="ms-2">Manage Users</span>
-                            </a>
-                            <a href="{{ route('franchise.stripe') }}" class="dropdown-item ai-icon d-flex">
-                                <i class="bi bi-stripe text-primary"></i>
-                                <span class="ms-2">Stripe</span>
-                            </a>
-                            @endrole
-                            @role('franchise_manager')
-                            <a href="{{ route('franchise.staff.index' , ['franchise' => $franchiseeId]) }}" class="dropdown-item ai-icon d-flex">
-                                <i class="bi bi-people-fill text-primary"></i>
-                                <span class="ms-2">Manage Users</span>
-                            </a>
-                            @endrole
-                            <a href="{{ route('logout') }}" class="dropdown-item ai-icon d-flex"
-                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                <svg id="icon-logout" xmlns="http://www.w3.org/2000/svg" class="text-danger" width="18"
-                                    height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                    <polyline points="16 17 21 12 16 7"></polyline>
-                                    <line x1="21" y1="12" x2="9" y2="12"></line>
-                                </svg>
-                                <span class="ms-2">Logout</span>
-                            </a>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        </div>
+                        
 
                     </li>
                 </ul>
@@ -183,3 +142,119 @@
 <!--**********************************
             Header end ti-comment-alt
         ***********************************-->
+<style scoped>
+    .ml-32 {
+        margin-left: -32px;
+    }
+
+    /* Fix dropdown overflow issues */
+    .header-content {
+        overflow: visible !important;
+    }
+
+    .navbar-collapse {
+        overflow: visible !important;
+    }
+
+    .header-left {
+        overflow: visible !important;
+        position: relative;
+        z-index: 1000;
+    }
+
+    /* Ensure Select2 dropdown appears properly */
+    .select2-container {
+        z-index: 9999 !important;
+    }
+
+    .select2-dropdown {
+        z-index: 9999 !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.375rem !important;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    }
+
+    /* Improve select appearance */
+    .select2-container--default .select2-selection--single {
+        height: 38px !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.375rem !important;
+        padding: 6px 12px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 24px !important;
+        padding-left: 0 !important;
+        /* color: #495057 !important; */
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px !important;
+        right: 10px !important;
+    }
+
+    .position-relative {
+        position: relative !important;
+        /* background: red; */
+        /* width: 253px; */
+    }
+
+    .select2-results__option[role=option] {
+    margin: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    color: black;
+}
+    .header-left input {
+    background: #fff;
+    min-width: 124px !important;
+    min-height: 40px;
+    border-color: transparent;
+    color: #6e6e6e !important;
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+    box-shadow: none;
+}
+</style>
+
+<script>
+    function updateFranchiseInCurrentRoute(franchiseId) {
+        // Get current URL
+        let currentUrl = window.location.href;
+
+        // Check if URL already contains a franchise parameter
+        let franchisePattern = /\/franchise\/\d+\//;
+        let newUrl;
+
+        if (franchisePattern.test(currentUrl)) {
+            // Replace existing franchise ID
+            newUrl = currentUrl.replace(/\/franchise\/\d+\//, `/franchise/${franchiseId}/`);
+        } else {
+            // Add franchise ID to URL
+            newUrl = currentUrl.replace('/franchise/', `/franchise/${franchiseId}/`);
+        }
+
+        // Update URL without reloading page
+        window.history.pushState({}, '', newUrl);
+
+        // Make AJAX call to update session
+        fetch('/franchise/set-session-franchise', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({
+                franchise_id: franchiseId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Reload the page to reflect the new franchise
+                window.location.href = newUrl;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>

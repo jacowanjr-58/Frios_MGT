@@ -21,11 +21,11 @@ class StripeMiddleware
         if (Auth::user()->role == "franchise_admin") {
 
 
-            // $franchiseeId = Auth::user()->franchisee_id;
+            // $franchiseeId = Auth::user()->franchise_id;
             $user = Auth::user();
-          
+           
             // $franchiseeId =  $user->load('franchisees');
-            // $user = User::where('franchisee_id', $franchiseeId)->first();
+            // $user = User::where('franchise_id', $franchiseeId)->first();
             if ($user->stripe_account_id == null) {
                 return redirect()->route('franchise.stripe')->with('error', 'You have not connect a Stripe account yet. Please connect one to proceed.');
             } else {

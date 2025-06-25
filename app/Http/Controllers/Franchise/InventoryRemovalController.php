@@ -13,11 +13,11 @@ class InventoryRemovalController extends Controller
 {
     public function showRemovalQueue()
     {
-        $franchiseId = Auth::user()->franchisee_id;
+        $franchiseId = Auth::user()->franchise_id;
 
         $removals = InventoryRemovalQueue::with(['inventoryMaster.flavor', 'location', 'requestedBy'])
             ->whereHas('inventoryMaster', function ($q) use ($franchiseId) {
-                $q->where('franchisee_id', $franchiseId);
+                $q->where('franchise_id', $franchiseId);
             })
             ->where('status', 'pending')
             ->get();

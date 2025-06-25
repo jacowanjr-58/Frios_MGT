@@ -38,9 +38,10 @@
                                     <div class="card-body">
                                         <div class="basic-form">
 
+                                            @can('additional_charges.edit')
                                             <!-- Display Success Message -->
 
-                                            <form action="{{ route('corporate_admin.additionalcharges.update', $additionalcharges->additionalcharges_id) }}" method="POST">
+                                            <form action="{{ route('additionalcharges.update', $additionalcharges->additionalcharges_id) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
 
@@ -115,6 +116,15 @@
 
                                                 <button type="submit" class="btn btn-primary bg-primary">Update Charge</button>
                                             </form>
+                                            @else
+                                            <div class="alert alert-warning">
+                                                <h5><i class="fa fa-lock me-2"></i>Access Denied</h5>
+                                                <p>You don't have permission to edit additional charges. Please contact your administrator for access.</p>
+                                                <a href="{{ route('additionalcharges.index') }}" class="btn btn-secondary btn-sm">
+                                                    <i class="fa fa-arrow-left me-2"></i>Back to Additional Charges List
+                                                </a>
+                                            </div>
+                                            @endcan
 
                                         </div>
                                     </div>

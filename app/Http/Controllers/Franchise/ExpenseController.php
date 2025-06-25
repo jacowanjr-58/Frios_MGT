@@ -22,7 +22,7 @@ class ExpenseController extends Controller
 {
     public function index($franchisee) {
         if (request()->ajax()) {
-            $expenses = Expense::where('franchisee_id', $franchisee)
+            $expenses = Expense::where('franchise_id', $franchisee)
                 ->with(['category', 'sub_category']);
 
             return DataTables::of($expenses)
@@ -60,7 +60,7 @@ class ExpenseController extends Controller
                 ->make(true);
         }
 
-        $data['expenseCount'] = Expense::where('franchisee_id', $franchisee)->count();
+        $data['expenseCount'] = Expense::where('franchise_id', $franchisee)->count();
         return view('franchise_admin.expense.index', $data);
     }
 
@@ -81,7 +81,7 @@ class ExpenseController extends Controller
         ]);
 
         $expense = Expense::create([
-            'franchisee_id' => $franchisee,
+            'franchise_id' => $franchisee,
             'category_id' => $request->category_id,
             'sub_category_id' => $request->sub_category_id,
             'name' => $request->name,
@@ -110,7 +110,7 @@ class ExpenseController extends Controller
         ]);
 
         $expense = Expense::where('id', $id)->update([
-            'franchisee_id' => $franchisee,
+            'franchise_id' => $franchisee,
             'category_id' => $request->category_id,
             'sub_category_id' => $request->sub_category_id,
             'name' => $request->name,
@@ -123,7 +123,7 @@ class ExpenseController extends Controller
 
     public function getSubCategories($franchisee, $category_id) {
        
-        $subCategories = ExpenseSubCategory::where('franchisee_id', $franchisee)->where('category_id', $category_id)->get();
+        $subCategories = ExpenseSubCategory::where('franchise_id', $franchisee)->where('category_id', $category_id)->get();
         return response()->json([
             'data' => $subCategories,
         ]);

@@ -14,7 +14,7 @@ return new class extends Migration
         if (! Schema::hasTable('events')) {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('franchisee_id');
+            $table->unsignedBigInteger('franchise_id');
             $table->string('event_name');
             $table->datetime('start_date');
             $table->datetime('end_date');
@@ -31,7 +31,10 @@ return new class extends Migration
             $table->timestamps();
 
             // Foreign Key
-            $table->foreign('franchisee_id')->references('franchisee_id')->on('franchisees')->onDelete('cascade');
+            $table->foreign('franchise_id')
+                ->references('franchise_id')
+                ->on('franchises')
+                ->onDelete('cascade');
         });
         }
 

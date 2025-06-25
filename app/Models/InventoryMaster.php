@@ -11,7 +11,6 @@ class InventoryMaster extends Model
     use HasFactory;
 
     protected $table = 'inventory_master';
-    protected $primaryKey = 'inventory_id';
 
     protected $appends = ['item_name', 'cases', 'units',];
     public $timestamps = true;
@@ -20,7 +19,7 @@ class InventoryMaster extends Model
     ];
 
      protected $fillable = [
-    'franchisee_id','fgp_item_id','custom_item_name',
+            'franchise_id','fgp_item_id','custom_item_name',
     'total_quantity','split_total_quantity','default_cost',
     'split_factor','cogs_case','cogs_unit',
     'wholesale_case','wholesale_unit','retail_case','retail_unit',
@@ -28,7 +27,7 @@ class InventoryMaster extends Model
 ];
 
     /**
-     * If this row has an fgp_item_id, return the related FgpItem’s name;
+     * If this row has an fgp_item_id, return the related FgpItem's name;
      * otherwise return custom_item_name.
      * use:  $inventoryMaster->item_name to invoke it (snake_case Laravel magic)
      */
@@ -70,7 +69,7 @@ class InventoryMaster extends Model
      */
     public function flavor()
     {
-        return $this->belongsTo(FgpItem::class, 'fgp_item_id', 'fgp_item_id');
+        return $this->belongsTo(FgpItem::class, 'fgp_item_id');
     }
 
     /**
@@ -78,14 +77,14 @@ class InventoryMaster extends Model
      */
     public function allocations()
     {
-        return $this->hasMany(InventoryAllocation::class, 'inventory_id', 'inventory_id');
+        return $this->hasMany(InventoryAllocation::class, 'inventory_id');
     }
 
     /**
-     * Relationship: owning franchisee.
+     * Relationship: owning franchise.
      */
-    public function franchisee()
+    public function franchise()
     {
-        return $this->belongsTo(Franchisee::class, 'franchisee_id', 'franchisee_id');
+        return $this->belongsTo(Franchise::class, 'franchise_id');
     }
 }

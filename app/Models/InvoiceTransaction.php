@@ -12,4 +12,9 @@ class InvoiceTransaction extends Model
     {
         return $this->belongsTo(Invoice::class);
     }
+
+    public function franchise()
+    {
+        return $this->belongsTo(Franchise::class, 'franchise_id');
+    }
 }

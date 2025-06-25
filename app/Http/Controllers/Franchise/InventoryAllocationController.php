@@ -21,26 +21,26 @@ class InventoryAllocationController extends Controller
 {
     public function inventoryLocations()
     {
-        $franchiseId = Auth::user()->franchisee_id;
+        $franchiseId = Auth::user()->franchise_id;
 
          // 1) Grab all "delivered" Pop flavors from inventory_master:
         //    i.e. any master row with fgp_item_id != null AND positive on-hand.
         $initialPopFlavors = InventoryMaster::with('flavor')
-            ->where('franchisee_id', $franchiseId)
+            ->where('franchise_id', $franchiseId)
             ->whereNotNull('fgp_item_id')
             ->where('total_quantity', '>', 0)
             ->get(['inventory_id', 'fgp_item_id', 'custom_item_name']);
             // note: 'custom_item_name' will be null for real Pops
 
         // 2) Grab all "custom" inventory‐master lines (fgp_item_id IS NULL):
-        $customItems = InventoryMaster::where('franchisee_id', $franchiseId)
+        $customItems = InventoryMaster::where('franchise_id', $franchiseId)
             ->whereNull('fgp_item_id')
             ->get(['inventory_id', 'custom_item_name']);
 
-        // 3) Load existing allocations for this franchisee:
+        // 3) Load existing allocations for this franchise:
         $existingAllocations = InventoryAllocation::with(['inventoryMaster.flavor', 'location'])
             ->whereHas('inventoryMaster', function ($q) use ($franchiseId) {
-                $q->where('franchisee_id', $franchiseId);
+                $q->where('franchise_id', $franchiseId);
             })
             ->get()
             ->map(function ($alloc) {
@@ -53,8 +53,8 @@ class InventoryAllocationController extends Controller
                 ];
             });
 
-        // 4) Grab all locations for this franchisee:
-        $locations = InventoryLocation::where('franchisee_id', $franchiseId)
+        // 4) Grab all locations for this franchise:
+        $locations = InventoryLocation::where('franchise_id', $franchiseId)
                     ->orderBy('name')
                     ->get();
 
@@ -78,15 +78,15 @@ class InventoryAllocationController extends Controller
             'allocatedInventory.*.cases'        => 'required|integer|min:1',
         ]);
 
-        $franchiseId = Auth::user()->franchisee_id;
+        $franchiseId = Auth::user()->franchise_id;
 
         // Delete existing allocations for this franchise
-        $masterIds = InventoryMaster::where('franchisee_id', $franchiseId)->pluck('inventory_id');
+        $masterIds = InventoryMaster::where('franchise_id', $franchiseId)->pluck('inventory_id');
         InventoryAllocation::whereIn('inventory_id', $masterIds)->delete();
 
         foreach ($request->input('allocatedInventory') as $entry) {
             $locModel = InventoryLocation::where('name', $entry['location'])
-                ->where('franchisee_id', $franchiseId)
+                ->where('franchise_id', $franchiseId)
                 ->first();
 
             if (!$locModel) {
@@ -106,7 +106,7 @@ class InventoryAllocationController extends Controller
 
     /**
      * Show the “Confirm Delivery” form.
-     *  Display a form so the franchisee can confirm / adjust the delivered quantities.
+     *  Display a form so the franchise can confirm / adjust the delivered quantities.
      * @param  int  $order  (this is fgp_ordersID)
      */
 
@@ -117,7 +117,7 @@ class InventoryAllocationController extends Controller
                         ->findOrFail($order);
 
         // 2)  make sure this franchise “owns” the order
-        if (Auth::user()->franchisee_id !== $pass_order->franchisee_id) {
+        if (Auth::user()->franchise_id !== $pass_order->franchise_id) {
             abort(403, 'Unauthorized');
         }
 
@@ -135,11 +135,11 @@ class InventoryAllocationController extends Controller
 {
     // 1) Load the order + details
     $order = FgpOrder::with('orderDetails')
-                ->where('fgp_ordersID', $orderId)
+                ->where('id', $orderId)
                 ->firstOrFail();
 
     // 2) Authorization
-    if (Auth::user()->franchisee_id !== $order->franchisee_id) {
+    if (Auth::user()->franchise_id !== $order->franchise_id) {
         abort(403, 'Unauthorized');
     }
 
@@ -159,7 +159,7 @@ class InventoryAllocationController extends Controller
 
             // a) Sync InventoryMaster
             $itemId      = $detail->fgp_item_id;
-            $franchiseId = $order->franchisee_id;
+            $franchiseId = $order->franchise_id;
 
             // Corporate defaults
             $fItem       = FgpItem::findOrFail($itemId);
@@ -175,7 +175,7 @@ class InventoryAllocationController extends Controller
             // Fetch or create inventory_master row
             $inventory = InventoryMaster::firstOrCreate(
                 [
-                    'franchisee_id' => $franchiseId,
+                    'franchise_id' => $franchiseId,
                     'fgp_item_id'   => $itemId,
                 ],
                 [
@@ -199,7 +199,7 @@ class InventoryAllocationController extends Controller
                         'inventory_id' => $inventory->inventory_id, // PK in inventory_master
                         'type'         => 'order_add',
                         'quantity'     => $inventory->total_quantity,
-                        'reference'    => 'Order #' . $order->fgp_ordersID,
+                        'reference'    => 'Order #' . $order->id,
                         'notes'        => 'Item ID: ' . $itemId,
                         'created_by'   => Auth::user()->user_id,
                     ]);
@@ -207,7 +207,7 @@ class InventoryAllocationController extends Controller
             // c) Discrepancy if cases received ≠ cases ordered
             if ($receivedQty !== $orderedQty) {
                 OrderDiscrepancy::create([
-                    'order_id'           => $order->fgp_ordersID,
+                    'order_id'           => $order->id,
                     'order_detail_id'    => $detail->id,
                     'quantity_ordered'   => $orderedQty,
                     'quantity_received'  => $receivedQty,

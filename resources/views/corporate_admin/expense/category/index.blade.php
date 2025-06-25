@@ -34,7 +34,7 @@
         }
     </style>
 @endpush
-
+@can('expense_categories.view')
 <!--**********************************
             Content body start
         ***********************************-->
@@ -51,7 +51,9 @@
 				</div>
                 <div class="row mb-4 align-items-center">
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                        <a href="{{ route('corporate_admin.expense-category.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Category</a>
+                        @can('expense_categories.create')
+                            <a href="{{ route('expense-category.create', ['franchisee' => $franchiseeId]) }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Category</a>
+                        @endcan
                     </div>
                     <div class="col-xl-9 col-lg-8">
                         <div class="card m-0">
@@ -95,13 +97,28 @@
 
         </div>
 
+        @else
+        <div class="content-body default-height">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="alert alert-warning text-center" role="alert">
+                            <i class="ti ti-alert-circle fs-20 me-2"></i>
+                            <strong>Access Denied!</strong> You don't have permission to view Flavor Categories.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endcan
+
 @push('scripts')
     <script>
         $(document).ready(function() {
             $('#category-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('corporate_admin.expense-category') }}",
+                ajax: "{{ route('expense-category', ['franchisee' => $franchiseeId]) }}",
                 columns: [
                     { data: 'category', name: 'category' },
                     { data: 'sub_category', name: 'sub_category' },

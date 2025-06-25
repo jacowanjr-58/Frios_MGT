@@ -51,7 +51,7 @@
 
                                             <!-- Display Success Message -->
 
-                                            <form action="{{ route('corporate_admin.franchise.update', $franchise->franchisee_id) }}" method="POST">
+                                            <form action="{{ route('franchise.update', $franchise->franchise_id) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
                                                 <div class="row">
@@ -63,6 +63,24 @@
                                                                 name="business_name" value="{{ old('business_name', $franchise->business_name) }}"
                                                                 placeholder="Business Name">
                                                             @error('business_name')
+                                                                <div class="text-danger">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                                            <input type="text" class="form-control @error('contact_number') is-invalid @enderror"
+                                                                name="contact_number" value="{{ old('contact_number', $franchise->contact_number) }}"
+                                                                placeholder="Contact Number">
+                                                            @error('contact_number')
+                                                                <div class="text-danger">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Frios Territory Name</label>
+                                                            <input type="text" class="form-control @error('frios_territory_name') is-invalid @enderror"
+                                                                name="frios_territory_name" value="{{ old('frios_territory_name', $franchise->frios_territory_name) }}"
+                                                                placeholder="Frios Territory Name">
+                                                            @error('frios_territory_name')
                                                                 <div class="text-danger">{{ $message }}</div>
                                                             @enderror
                                                         </div>

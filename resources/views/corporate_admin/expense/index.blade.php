@@ -34,6 +34,7 @@
         }
     </style>
 @endpush
+@can('expenses.view')
 
 <!--**********************************
             Content body start
@@ -104,14 +105,27 @@
             </div>
 
         </div>
-
+        @else
+        <div class="content-body default-height">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="alert alert-warning text-center" role="alert">
+                            <i class="ti ti-alert-circle fs-20 me-2"></i>
+                            <strong>Access Denied!</strong> You don't have permission to view Flavor Categories.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endcan
 @push('scripts')
     <script>
         $(document).ready(function() {
             $('#expense-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('corporate_admin.expense.franchisee') }}",
+                ajax: "{{ route('expense.franchisee', ['franchisee' => $franchiseeId]) }}",
                 columns: [
                     { data: 'franchise', name: 'franchise' },
                     { data: 'name', name: 'name' },

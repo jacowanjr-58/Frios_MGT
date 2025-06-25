@@ -3,7 +3,7 @@
 
     {{-- <div class="container">
         <h1>Add Franchise</h1>
-        <form action="{{ route('corporate_admin.franchise.store') }}" method="POST">
+        <form action="{{ route('franchise.store') }}" method="POST">
             @csrf
             <div class="mb-3">
                 <label class="form-label">Business Name</label>
@@ -52,10 +52,10 @@
                                             <!-- Display Success Message -->
 
                                             @role('franchise_admin')
-                                            <form action="{{ route('franchise.staff.update', $staff->user_id) }}" method="POST">
+                                            <form action="{{ route('franchise.staff.update', ['franchisee' => $franchisee, 'staff' => $staff->user_id]) }}" method="POST">
                                             @endrole
                                             @role('franchise_manager')
-                                            <form action="{{ route('franchise.staff.update', $staff->user_id) }}" method="POST">
+                                            <form action="{{ route('franchise.staff.update', ['franchisee' => $franchisee, 'staff' => $staff->user_id]) }}" method="POST">
                                             @endrole
                                                 @csrf
                                                 @method('PUT')

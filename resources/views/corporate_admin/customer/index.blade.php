@@ -49,6 +49,26 @@
 					</div>
 
 				</div>
+
+                <!-- Filter Section -->
+                <div class="row mb-4">
+                    <div class="col-xl-4 col-lg-6">
+                        <div class="form-group">
+                            <label for="franchise-filter" class="form-label">Filter by Franchise:</label>
+                            <select id="franchise-filter" class="form-select select2 flex-grow-1">
+                                <option value="">All Franchises</option>
+                                @foreach(\App\Models\Franchise::all() as $franchise)
+                                    <option value="{{ $franchise->franchise_id }}" 
+                                        {{ request('franchise_filter') == $franchise->franchise_id ? 'selected' : '' }}>
+                                        {{ $franchise->business_name ?? 'N/A' }} - {{ $franchise->frios_territory_name ?? 'N/A' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                    </div>
+                </div>
+
                 <div class="row mb-4 align-items-center">
 
                     <div class="col-xl-12 col-lg-12">
@@ -58,7 +78,10 @@
                                     <div class="d-flex mb-sm-0 mb-3 me-auto align-items-center">
                                         <div class="media-body">
                                             <p class="mb-1 fs-12">Total Customers</p>
-                                            <h3 class="mb-0 font-w600 fs-22">{{ $customerCount }} Customers</h3>
+                                            <h3 class="mb-0 font-w600 fs-22">
+                                                <span id="customer-count">{{ $customerCount }}</span> 
+                                                <span id="franchise-label">Customers</span>
+                                            </h3>
                                         </div>
                                     </div>
 
@@ -97,10 +120,15 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            $('#customer-table').DataTable({
+            var table = $('#customer-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('corporate_admin.customer') }}",
+                ajax: {
+                    url: "{{ route('franchise.franchise_customer', ['franchisee' => request()->route('franchisee')]) }}",
+                    data: function (d) {
+                        d.franchise_filter = $('#franchise-filter').val();
+                    }
+                },
                 columns: [
                     { data: 'name', name: 'name' },
                     { data: 'email', name: 'email' },
@@ -131,6 +159,64 @@
                     });
                 }
             });
+
+            // Handle franchise filter change
+            $('#franchise-filter').on('change', function() {
+                var selectedFranchise = $(this).val();
+                var selectedText = $(this).find('option:selected').text();
+                
+                // Update the customer count display
+                updateCustomerCount(selectedFranchise, selectedText);
+                
+                // Refresh table
+                table.draw();
+            });
+
+            // Function to update customer count dynamically
+            function updateCustomerCount(franchiseId, franchiseText) {
+                if (franchiseId) {
+                    // Show loading state
+                    $('#customer-count').text('Loading...');
+                    $('#franchise-label').text('Customers');
+                    
+                    // Make AJAX call to get franchise-specific customer count
+                    $.ajax({
+                        url: '{{ route("franchise.franchise_customer", ["franchisee" => request()->route("franchisee")]) }}',
+                        type: 'GET',
+                        data: {
+                            franchise_filter: franchiseId,
+                            count_only: true
+                        },
+                        success: function(response) {
+                            if (response.count !== undefined) {
+                                $('#customer-count').text(response.count);
+                            }
+                        },
+                        error: function() {
+                            $('#customer-count').text('Error');
+                        }
+                    });
+                } else {
+                    // Show total count for all franchises
+                    $('#customer-count').text('{{ $customerCount }}');
+                    $('#franchise-label').text('Customers');
+                }
+            }
+
+            // Initialize select2 for franchise filter
+            $('#franchise-filter').select2({
+                placeholder: 'Select a franchise...',
+                allowClear: true
+            });
+
+            // Auto-select franchise if URL parameter exists and update count
+            var initialFilter = '{{ request("franchise_filter") }}';
+            if (initialFilter) {
+                $('#franchise-filter').val(initialFilter);
+                var selectedText = $('#franchise-filter').find('option:selected').text();
+                updateCustomerCount(initialFilter, selectedText);
+                $('#franchise-filter').trigger('change.select2');
+            }
         });
     </script>
 @endpush

@@ -61,14 +61,15 @@
                                             <div class="col-lg-12">
                                                 <div class="table-responsive rounded">
                                                     @if (!empty($items))
-                                                    <form action="{{ route('corporate_admin.orderpops.store') }}" method="POST">
+                                                    @can('franchise_orders.create')
+                                                    <form action="{{ route('orderpops.store') }}" method="POST">
                                                         <div class="row">
                                                             <div class="mb-3 col-md-6">
                                                                 <label class="form-label">Franchise <span class="text-danger">*</span></label>
                                                                 <select name="user_ID" id="user_ID" class="form-control  @error('user_ID') is-invalid @enderror">
                                                                     <option value="">Please Select</option>
                                                                     @foreach ($users as $user)
-                                                                        <option value="{{ $user->franchisee_id }}">{{ $user->business_name }}</option>
+                                                                        <option value="{{ $user->franchise_id }}">{{ $user->business_name }}</option>
                                                                     @endforeach
                                                                 </select>
                                                                 @error('user_ID')
@@ -206,6 +207,13 @@
                                                         </table>
                                                         <button type="submit" class="btn btn-primary bg-primary">Confirm Order</button>
                                                     </form>
+                                                    @endcan
+                                                    @cannot('franchise_orders.create')
+                                                    <div class="alert alert-warning">
+                                                        <h5><i class="fa fa-lock me-2"></i>Access Denied</h5>
+                                                        <p>You don't have permission to create franchise orders. Please contact your administrator for access.</p>
+                                                    </div>
+                                                    @endcannot
                                                 @else
                                                     <p>No items in the order.</p>
                                                 @endif

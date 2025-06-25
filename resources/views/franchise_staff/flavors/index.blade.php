@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('content')
+@can('flavors.view')
     <!--**********************************
                     Content body start
                 ***********************************-->
@@ -153,18 +154,18 @@
                                 @foreach ($orders as $index => $order)
                                 @php
                                     $totalAmount = \DB::table('fgp_order_details')
-                                        ->where('fgp_order_id', $order->fgp_ordersID)
+                                        ->where('fgp_order_id', $order->id)
                                         ->selectRaw('SUM(unit_number * unit_cost) as total')
                                         ->value('total');
                                 @endphp
                                 <tr style="text-wrap: no-wrap;">
                                     @php
-                                        $franchisee = App\Models\user::where('franchisee_id' , $order->user_ID)->first();
+                                        $franchise = App\Models\Franchise::where('franchise_id' , $order->franchise_id  ?? $franchise_id)->first();
                                     @endphp
-                                    <td>{{ $franchisee->name ?? 'N/A' }}</td>
+                                    <td>{{ $franchise->business_name ?? 'N/A' }}</td>
                                     <td>
-                                        <span class="cursor-pointer text-primary order-detail-trigger" data-id="{{ $order->fgp_ordersID }}">
-                                            {{ \DB::table('fgp_order_details')->where('fgp_order_id', $order->fgp_ordersID)->count() }} items
+                                        <span class="cursor-pointer text-primary order-detail-trigger" data-id="{{ $order->id }}">
+                                            {{ \DB::table('fgp_order_details')->where('fgp_order_id', $order->id)->count() }} items
                                         </span>
                                     </td>
                                     <td>{{ $order->status }}</td>
@@ -178,7 +179,20 @@
                     </div>
                 </div>
             </div>
-
+            @else
+            <div class="content-body default-height">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="alert alert-warning text-center" role="alert">
+                                <i class="ti ti-alert-circle fs-20 me-2"></i>
+                                <strong>Access Denied!</strong> You don't have permission to view Flavor Categories.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endcan
 
             {{-- <div class="row">
                 <div class="col-lg-12">
@@ -365,24 +379,18 @@
                 let orderableValue = $(this).val();
 
                 $.ajax({
-                    url: "{{ route('corporate_admin.fgpitem.updateOrderable') }}",
+                    url: "{{ route('franchise.fgpitem.updateOrderable', ['franchise' => $franchise_id]) }}",
                     type: "POST",
                     data: {
-                        _token: "{{ csrf_token() }}",
-                        id: itemId,
-                        orderable: orderableValue
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        item_id: itemId,
+                        pop_orderable: orderableValue
                     },
                     success: function(response) {
-                        console.log(response);
-                        if (response.success) {
-                            // location.reload();
-                        } else {
-                            alert("Error: " + response.message);
-                        }
+                        console.log('Success:', response);
                     },
                     error: function(xhr, status, error) {
-                        console.error(xhr.responseText);
-                        alert("AJAX Error: " + xhr.responseText);
+                        console.error('Error:', error);
                     }
                 });
             });
@@ -422,7 +430,7 @@ $(document).ready(function () {
         const orderId = $(this).data('id'); // Get the order ID from the data-id attribute
 
         $.ajax({
-            url: '{{ route('franchise_staff.flavors.detail') }}', // Backend route to fetch order details
+            url: '{{ route('franchise.flavors.detail', ['franchise' => $franchise_id]) }}', // Backend route to fetch order details
             method: 'GET',
             data: { id: orderId }, // Pass orderId to backend
             success: function (response) {

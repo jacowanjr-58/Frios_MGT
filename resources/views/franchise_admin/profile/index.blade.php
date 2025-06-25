@@ -32,14 +32,17 @@
                                 <div class="card">
                                     <div class="card-header d-flex justify-content-between align-items-center">
                                         <h4 class="card-title">Profile</h4>
-                                        <a href="{{ route('profile.edit', $user->user_id) }}" class="btn btn-primary">Edit Profile</a>
+                                        @can('profile.edit')
+                                            @if($franchisee)
+                                                <a href="{{ route('franchise.profile.edit', [$franchisee, $user->user_id]) }}" class="btn btn-primary">Edit Profile</a>
+                                            @else
+                                                <a href="{{ route('profile.edit', $user->user_id) }}" class="btn btn-primary">Edit Profile</a>
+                                            @endif
+                                        @endcan
                                     </div>
                                     <div class="card-body">
                                         <div class="basic-form">
-
                                             <!-- Display Success Message -->
-
-
                                             <form>
                                                 @csrf
 

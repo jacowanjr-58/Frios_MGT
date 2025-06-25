@@ -41,7 +41,7 @@
                                             <!-- Display Success Message -->
 
 
-                                            <form action="{{ route('corporate_admin.fgpitem.store') }}" method="POST" enctype="multipart/form-data">
+                                            <form action="{{ route('franchise.fgpitem.store', ['franchisee' => request()->route('franchisee')]) }}" method="POST" enctype="multipart/form-data">
                                                 @csrf
 
                                                 <div class="row">
@@ -49,11 +49,11 @@
                                                     <div class="col-md-6">
                                                         <!-- Item Name -->
                                                         <div class="mb-3">
-                                                            <label class="form-label">Item Name <span class="text-danger">*</span></label>
-                                                            <input type="text" class="form-control @error('name') is-invalid @enderror" name="name"
-                                                                   value="{{ old('name') }}" placeholder="Enter Item Name">
-                                                            @error('name')
-                                                                <div class="text-danger">{{ $message }}</div>
+                                                            <label for="item_name" class="form-label">Item Name <span class="text-danger">*</span></label>
+                                                            <input type="text" class="form-control @error('item_name') is-invalid @enderror" 
+                                                                   id="item_name" name="item_name" value="{{ old('item_name') }}" required>
+                                                            @error('item_name')
+                                                                <div class="invalid-feedback">{{ $message }}</div>
                                                             @enderror
                                                         </div>
 
@@ -69,24 +69,19 @@
 
                                                       <!-- Category Selection -->
                                                       <div class="mb-3">
-                                                        <label class="form-label">Category <span class="text-danger">*</span></label>
-                                                        <div class="form-control" style="height: auto; padding: 10px;">
-                                                            @foreach ($categorizedCategories as $categoryGroup => $categories)
-                                                                <h6 class="fw-bold p-2">{{ $categoryGroup }}</h6>
-                                                                @foreach ($categories as $category)
-                                                                    <div class="form-check">
-                                                                        <input class="form-check-input" type="checkbox" name="category_ID[]"
-                                                                            value="{{ $category->category_ID }}" id="category_{{ $category->category_ID }}">
-                                                                        <label class="form-check-label" for="category_{{ $category->category_ID }}">
-                                                                            {{ $category->name }}
-                                                                        </label>
-                                                                    </div>
-                                                                @endforeach
-                                                                <hr>
+                                                        <label for="category_id" class="form-label">Category <span class="text-danger">*</span></label>
+                                                        <select class="form-control @error('category_id') is-invalid @enderror" 
+                                                                id="category_id" name="category_id" required>
+                                                            <option value="">Select Category</option>
+                                                            @foreach($categories as $category)
+                                                                <option value="{{ $category->category_ID }}" 
+                                                                    {{ old('category_ID') == $category->category_ID ? 'selected' : '' }}>
+                                                                    {{ $category->name }}
+                                                                </option>
                                                             @endforeach
-                                                        </div>
-                                                        @error('category_ID')
-                                                            <div class="text-danger">{{ $message }}</div>
+                                                        </select>
+                                                        @error('category_id')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     </div>
 

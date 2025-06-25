@@ -15,7 +15,7 @@ Route::middleware('auth')->group(function () {
         });
 
 
-        Route::get('/order/{fgp_ordersID}/create-ups-label', [\App\Http\Controllers\Shipping\UPSShippingController::class, 'createLabel']);
+        Route::get('/order/{orderId}/create-ups-label', [\App\Http\Controllers\Shipping\UPSShippingController::class, 'createLabel']);
 
        /*  Route::get('/order/{fgp_ordersID}/create-ups-label', function ($fgp_ordersID) {
             $order = \App\Models\FgpOrder::with('orderDetails')->findOrFail($fgp_ordersID);

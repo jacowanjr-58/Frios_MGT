@@ -13,7 +13,7 @@ class CustomerController extends Controller
 {
     public function index($franchisee) {
         if (request()->ajax()) {
-            $customers = Customer::where('franchisee_id', $franchisee);
+            $customers = Customer::where('franchise_id', $franchisee);
 
             return DataTables::of($customers)
                 ->addColumn('formatted_date', function ($customer) {
@@ -45,12 +45,12 @@ class CustomerController extends Controller
                 ->make(true);
         }
 
-        $data['customerCount'] = Customer::where('franchisee_id', $franchisee)->count();
+        $data['customerCount'] = Customer::where('franchise_id', $franchisee)->count();
         return view('franchise_admin.customer.index', $data);
     }
 
     public function create($franchisee) {
-        return view('franchise_admin.customer.create');
+        return view('franchise_admin.customer.create', compact('franchisee'));
     }
 
     public function store(Request $request, $franchisee) {
@@ -66,7 +66,7 @@ class CustomerController extends Controller
         ]);
 
         $customer = Customer::create([
-            'franchisee_id' => $franchisee,
+            'franchise_id' => $franchisee,
             'user_id' => Auth::user()->user_id ?? 0,
             'name' => $request->name,
             'phone' => $request->phone,
@@ -99,7 +99,7 @@ class CustomerController extends Controller
         ]);
 
         $customer = Customer::where('customer_id', $id)->update([
-            'franchisee_id' => $franchisee,
+            'franchise_id' => $franchisee,
             'name' => $request->name,
             'phone' => $request->phone,
             'email' => $request->email,

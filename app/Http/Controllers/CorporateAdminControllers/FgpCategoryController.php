@@ -10,33 +10,48 @@ use Yajra\DataTables\Facades\DataTables;
 class FgpCategoryController extends Controller
 {
     // Display all categories
-    public function index()
+    public function index($franchisee)
     {
+        // Check permission for viewing flavor categories
+        if (!auth()->check() || !auth()->user()->can('flavor_category.view')) {
+            abort(403, 'Unauthorized access to Flavor Categories');
+        }
+
         $totalCategories = FgpCategory::count();
         if (request()->ajax()) {
-            $categories = FgpCategory::query();
+            $categories = FgpCategory::where('franchise_id', $franchisee);
 
             return DataTables::of($categories)
                 ->addColumn('created_at', function ($category) {
                     return $category->formatted_created_at;
                 })
                 ->addColumn('action', function ($category) {
-                    $editUrl = route('corporate_admin.fgpcategory.edit', $category->category_ID);
-                    $deleteUrl = route('corporate_admin.fgpcategory.destroy', $category->category_ID);
+                    $editUrl = route('franchise.fgpcategory.edit', ['franchisee' => request()->route('franchisee'), 'fgpcategory' => $category->category_ID]);
+                    $deleteUrl = route('franchise.fgpcategory.destroy', ['franchisee' => request()->route('franchisee'), 'fgpcategory' => $category->category_ID]);
 
-                    return '
-                    <div class="d-flex">
-                        <a href="'.$editUrl.'" class="edit-category">
+                    $actions = '<div class="d-flex">';
+                    
+                    // Edit button - check permission
+                    if (auth()->check() && auth()->user()->can('flavor_category.update')) {
+                        $actions .= '<a href="'.$editUrl.'" class="edit-category">
                             <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
-                        </a>
-                        <form action="'.$deleteUrl.'" method="POST">
+                        </a>';
+                    }
+                    
+                    // Delete button - check permission
+                    if (auth()->check() && auth()->user()->can('flavor_category.delete')) {
+                        $actions .= '<form action="'.$deleteUrl.'" method="POST">
                             '.csrf_field().'
                             '.method_field('DELETE').'
                             <button type="submit" class="ms-4 delete-category">
                                 <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
                             </button>
-                        </form>
-                    </div>';
+                        </form>';
+                    }
+                    
+                    $actions .= '</div>';
+                    
+                    return $actions;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -48,6 +63,11 @@ class FgpCategoryController extends Controller
     // Show form to create a new category
     public function create()
     {
+        // Check permission for creating flavor categories
+        if (!auth()->check() || !auth()->user()->can('flavor_category.create')) {
+            abort(403, 'Unauthorized access to create Flavor Categories');
+        }
+
         return view('corporate_admin.fgp_category.create');
     }
 
@@ -88,7 +108,7 @@ class FgpCategoryController extends Controller
             'type' => $request->type, // Store as a string (not JSON)
         ]);
 
-        return redirect()->route('corporate_admin.fgpcategory.index')->with('success', 'Category updated successfully.');
+        return redirect()->route('fgpcategory.index')->with('success', 'Category updated successfully.');
     }
 
 
@@ -99,9 +119,9 @@ class FgpCategoryController extends Controller
         try {
 
             $fgpcategory->delete();
-            return redirect()->route('corporate_admin.fgpcategory.index')->with('success', 'Category deleted successfully.');
+            return redirect()->route('fgpcategory.index')->with('success', 'Category deleted successfully.');
         } catch (\Exception $e) {
-            return redirect()->route('corporate_admin.fgpcategory.index')->with('error', 'Failed to delete user.');
+            return redirect()->route('fgpcategory.index')->with('error', 'Failed to delete user.');
         }
     }
 }

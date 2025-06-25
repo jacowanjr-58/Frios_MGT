@@ -30,7 +30,7 @@
                                             <div class="col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Business Name</label>
-                                                    <div class="form-control-plaintext">{{ $franchise->business_name }}</div>
+                                                    <div class="form-control-plaintext">{{ $franchise->business_name  ?? 'N/A'}}</div>
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label">Address 1</label>
@@ -73,9 +73,11 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <a href="{{ route('corporate_admin.franchise.edit', $franchise->franchisee_id) }}" class="btn btn-primary mt-3">
-                                            Edit Franchise
-                                        </a>
+                                        @can('franchises.edit')
+                                            <a href="{{ route('franchise.edit', $franchise->franchise_id) }}" class="btn btn-primary mt-3">
+                                                Edit Franchise
+                                            </a>
+                                        @endcan
                                     </div>
                                 </div>
                             </div>

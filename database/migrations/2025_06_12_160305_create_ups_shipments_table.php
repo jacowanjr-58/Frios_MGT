@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('ups_shipments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('fgp_ordersID');
-            $table->foreign('fgp_ordersID')->references('fgp_ordersID')->on('fgp_orders')->onDelete('cascade');
+            $table->unsignedBigInteger('fgp_order_id');
+            $table->foreign('fgp_order_id')->references('id')->on('fgp_orders')->onDelete('cascade');
             $table->string('shipment_id')->nullable();
             $table->string('tracking_number')->nullable();
             $table->string('label_format')->default('PDF');
             $table->string('label_file_path')->nullable();
             $table->json('raw_response')->nullable();
             $table->timestamps();
-});
+        });
     }
 
     /**

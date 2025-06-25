@@ -42,7 +42,7 @@
 
                                                 <div class="row">
                                                     @php
-                                                        $franchisee = App\Models\User::where('franchisee_id' , $customer->franchisee_id)->first();
+                                                        $franchisee = App\Models\User::where('user_id' , $customer->user_id)->first();
                                                     @endphp
 
                                                     <div class="mb-3 col-md-3">
