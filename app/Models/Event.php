@@ -9,7 +9,7 @@ class Event extends Model
     protected $guarded = [];
 
     public function customer(){
-        return $this->belongsTo(Customer::class , 'customer_id' , 'customer_id');
+        return $this->belongsTo(Customer::class , 'customer_id' , 'id');
     }
 
     public function franchise(){

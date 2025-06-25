@@ -20,9 +20,9 @@ class CustomerController extends Controller
                     return Carbon::parse($customer->created_at)->format('M d, Y');
                 })
                 ->addColumn('action', function ($customer) {
-                    $viewUrl = route('franchise.customer.view', ['franchisee' => request()->route('franchisee'), 'id' => $customer->customer_id]);
-                    $editUrl = route('franchise.customer.edit', ['franchisee' => request()->route('franchisee'), 'id' => $customer->customer_id]);
-                    $deleteUrl = route('franchise.customer.delete', ['franchisee' => request()->route('franchisee'), 'id' => $customer->customer_id]);
+                    $viewUrl = route('franchise.customer.view', ['franchisee' => request()->route('franchisee'), 'id' => $customer->id]);
+                    $editUrl = route('franchise.customer.edit', ['franchisee' => request()->route('franchisee'), 'id' => $customer->id]);
+                    $deleteUrl = route('franchise.customer.delete', ['franchisee' => request()->route('franchisee'), 'id' => $customer->id]);
                     
                     return '
                     <div class="d-flex">
@@ -82,7 +82,7 @@ class CustomerController extends Controller
     }
 
     public function edit($franchisee, $id) {
-        $data['customer'] = Customer::where('customer_id', $id)->firstOrFail();
+        $data['customer'] = Customer::where('id', $id)->firstOrFail();
         return view('franchise_admin.customer.edit', $data);
     }
 
@@ -98,7 +98,7 @@ class CustomerController extends Controller
             'notes' => 'nullable|max:191',
         ]);
 
-        $customer = Customer::where('customer_id', $id)->update([
+        $customer = Customer::where('id', $id)->update([
             'franchise_id' => $franchisee,
             'name' => $request->name,
             'phone' => $request->phone,
@@ -114,12 +114,12 @@ class CustomerController extends Controller
     }
 
     public function view($franchisee, $id) {
-        $data['customer'] = Customer::where('customer_id', $id)->firstOrFail();
+        $data['customer'] = Customer::where('id', $id)->firstOrFail();
         return view('franchise_admin.customer.view', $data);
     }
 
     public function delete($franchisee, $id) {
-        $data['customer'] = Customer::where('customer_id', $id)->delete();
+        $data['customer'] = Customer::where('id', $id)->delete();
         return redirect()->route('franchise.customer', ['franchisee' => $franchisee])->with('success', 'Customer deleted successfully');
     }
 }

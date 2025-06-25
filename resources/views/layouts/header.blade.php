@@ -76,7 +76,7 @@
                         $currentRouteName = request()->route()->getName();
                         $user = auth()->user();
                         $selectedFranchiseId = request()->route('franchise') ?? $franchiseId ?? null;
-                     
+
                         $showDropdown = false;
                         $dropdownFranchises = collect();
                         
@@ -101,7 +101,7 @@
                                 <select id="franchise-select" class="form-select select2 flex-grow-1"
                                     onchange="updateFranchiseInCurrentRoute(this.value)">
                                     @foreach($dropdownFranchises as $franchise)
-                                        <option value="{{ $franchise->franchise_id }}" {{ $selectedFranchiseId == $franchise->franchise_id ? 'selected' : '' }}>
+                                        <option value="{{ $franchise->id }}" {{ $selectedFranchiseId == $franchise->id ? 'selected' : '' }}>
                                             {{ $franchise->business_name }} - {{ $franchise->frios_territory_name }}
                                         </option>
                                     @endforeach

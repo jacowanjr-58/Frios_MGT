@@ -15,7 +15,7 @@ return new class extends Migration {
                 $table->id();
                 $table->foreignId('franchise_id')->constrained('franchises', 'id');
                 $table->foreignId('fgp_item_id')->constrained('fgp_items', 'id');
-                $table->foreignId('location_id')->nullable()->constrained('locations', 'id');
+                $table->foreignId('inventory_location_id')->nullable()->constrained('inventory_locations', 'id');
                 $table->integer('stock_on_hand');
                 $table->dateTime('stock_count_date')->nullable();
                 $table->integer('pops_on_hand')->nullable();

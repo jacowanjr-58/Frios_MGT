@@ -121,7 +121,7 @@ class FranchiseStaffController extends Controller
     }
 
     public function edit($id) {
-        $data['customer'] = Customer::where('customer_id' , $id)->firstorfail();
+        $data['customer'] = Customer::where('id' , $id)->firstorfail();
         return view('franchise_staff.customer.edit' , $data);
     }
 
@@ -138,7 +138,7 @@ class FranchiseStaffController extends Controller
             'notes' => 'nullable|max:191',
         ]);
 
-        $customer = Customer::where('customer_id' , $id)->update([
+        $customer = Customer::where('id' , $id)->update([
             'franchise_id' => Auth::user()->franchise_id,
             'name' => $request->name,
             'phone' => $request->phone,

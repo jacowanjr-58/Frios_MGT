@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class InventoryLocation extends Model
 {
-    protected $table = 'locations';
+    protected $table = 'inventory_locations';
 
-    protected $primaryKey = 'locations_ID';
+    protected $primaryKey = 'id';
 
     public $incrementing = true;
     protected $keyType = 'int';

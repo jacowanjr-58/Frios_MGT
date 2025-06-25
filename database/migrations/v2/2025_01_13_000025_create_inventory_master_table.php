@@ -57,7 +57,7 @@ return new class extends Migration
         // Add new fields to inventory_allocations table
         Schema::table('inventory_allocations', function (Blueprint $table) {
             if (!Schema::hasColumn('inventory_allocations', 'allocated_cases')) {
-                $table->unsignedInteger('allocated_cases')->default(0)->after('location_id')->comment('Full cases allocated');
+                $table->unsignedInteger('allocated_cases')->default(0)->after('inventory_location_id')->comment('Full cases allocated');
             }
             if (!Schema::hasColumn('inventory_allocations', 'allocated_units')) {
                 $table->unsignedInteger('allocated_units')->default(0)->after('allocated_cases')->comment('Loose units allocated');

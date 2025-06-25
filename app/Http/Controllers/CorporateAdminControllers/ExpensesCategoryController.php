@@ -9,6 +9,7 @@ use App\Models\ExpenseSubCategory;
 use App\Models\Expense;
 use App\Models\Customer;
 use App\Models\Franchise;
+use App\Models\User;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
 
@@ -205,16 +206,22 @@ class ExpensesCategoryController extends Controller
 
     public function customer($franchisee)
     {
-      $franchisee = $franchisee ?? session('franchise_id');
+        // Use URL franchise parameter, don't override with session
         if (request()->ajax()) {
             $user = Auth::user();
-            $customers = Customer::where('franchise_id', $franchisee);
+            
+            // Start with customers query
+            $customers = Customer::query();
 
-            // Apply franchise filter from URL parameter first, then check for request filter
-            if ($franchisee) {
-                $customers->where('franchise_id', $franchisee);
-            } elseif (request()->has('franchise_filter') && request()->franchise_filter != '') {
+            // Apply franchise filter based on priority:
+            // 1. Header dropdown filter (from frontend)
+            // 2. URL franchise parameter
+            if (request()->has('franchise_filter') && request()->franchise_filter != '') {
+                // Header dropdown filter takes priority
                 $customers->where('franchise_id', request()->franchise_filter);
+            } elseif ($franchisee) {
+                // Use URL franchise parameter as fallback
+                $customers->where('franchise_id', $franchisee);
             }
 
             // If only count is requested, return just the count
@@ -224,16 +231,16 @@ class ExpensesCategoryController extends Controller
 
             return DataTables::of($customers)
                 ->addColumn('franchise', function ($customer) {
-                    $franchisee = Franchise::where('franchise_id', $customer->franchise_id)->first();
+                    $franchisee = Franchise::where('id', $customer->franchise_id)->first();
                     return $franchisee->business_name ?? '-';
                 })
                 ->filterColumn('franchise', function ($query, $keyword) {
-                    $query->whereHas('franchisee', function ($q) use ($keyword) {
+                    $query->whereHas('franchise', function ($q) use ($keyword) {
                         $q->where('business_name', 'like', "%$keyword%");
                     });
                 })
                 ->addColumn('action', function ($customer) {
-                    $viewUrl = route('franchise.franchise_customer.view', ['franchise' => $customer->franchise_id, 'id' => $customer->customer_id]);
+                    $viewUrl = route('franchise.franchise_customer.view', ['franchise' => $customer->franchise_id, 'id' => $customer->id]);
 
                     $actions = '<div class="d-flex">';
 
@@ -256,17 +263,21 @@ class ExpensesCategoryController extends Controller
         $customerCount = $franchisee ? Customer::where('franchise_id', $franchisee)->count() : Customer::count();
         $data['customerCount'] = $customerCount;
         $data['franchisee'] = $franchisee ? Franchise::find($franchisee) : null;
-        return view('corporate_admin.customer.index', $data)->with('franchiseeId', $franchisee);
+        $data['franchiseeId'] = $franchisee; // Ensure franchiseeId is available in view
+        
+        return view('corporate_admin.customer.index', $data);
     }
 
-    public function customerView($id)
+    public function customerView($franchisee, $id)
     {
         $user = Auth::user();
-       
-        $data['customer'] = Customer::where('customer_id', $id)->firstorfail();
+      
+        $data['customer']   = Customer::where('id', intval($id))->firstorfail();
+        $franchisee = User::where('id' , $data['customer']->user_id)->first();
 
-        return view('corporate_admin.franchise_customer.view', $data);
+        return view('corporate_admin.customer.view', $data, compact('franchisee'));
     }
+    
 
 
 

@@ -16,7 +16,7 @@ return new class extends Migration {
                 $table->id();
                 $table->foreignId('franchise_id')->constrained('franchises','id');
                 $table->foreignId('inventory_id')->constrained('inventories','id');
-                $table->foreignId('location_id')->constrained('locations','id');
+                $table->foreignId('inventory_location_id')->constrained('inventory_locations','id');
                 $table->foreignId('fgp_item_id')->constrained('fgp_items','id');
                 $table->string('custom_item_name')->nullable();
                 $table->string('location');

@@ -3,7 +3,6 @@
         ***********************************-->
 @php
     use Illuminate\Support\Facades\Auth;
-    session(['franchise_id' => 1]);
     $franchiseeId = request()->route('franchise') ?? session('franchise_id');
 @endphp
 <div class="deznav" style="margin-top:-8px;">
@@ -46,7 +45,7 @@
                 </a>
                 <ul aria-expanded="{{ Request::routeIs('franchise.*', 'owner.*') ? 'true' : 'false' }}"
                     class="{{ Request::routeIs('franchise.*', 'owner.*') ? 'mm-collapse mm-show' : '' }}">
-                    <li><a href="{{ route('franchise.index') }}">Franchise List {{  $franchiseeId }}</a></li>
+                    <li><a href="{{ route('franchise.index') }}">Franchise List </a></li>
                     <li><a href="{{ route('owner.index', ['franchise' => $franchiseeId]) }}">Franchise (Owners)</a></li>
                 </ul>
             </li>

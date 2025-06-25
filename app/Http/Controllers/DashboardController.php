@@ -6,7 +6,7 @@ use App\Models\Franchise;
 use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\OrderTransaction;
-use App\Models\InvoiceTransaction;
+use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -20,11 +20,12 @@ class DashboardController extends Controller
         $user = Auth::user();
         $userFranchises = $user->franchises;
         // If franchise is provided, authorize and use it
-        $firstFranchiseId = $userFranchises?->count() > 0
+        $firstFranchiseId = $userFranchises->isEmpty()
             ? $userFranchises->first()->id
             : Franchise::first()?->id;
 
         session(['franchise_id' => $firstFranchiseId]);
+
         if ($franchise) {
             if (!$user->franchises->pluck('id')->contains($franchise)) {
                 abort(403, 'Unauthorized.');
@@ -96,15 +97,15 @@ class DashboardController extends Controller
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->count();
 
-        $saleCount = InvoiceTransaction::where('franchise_id', $franchiseId)
+        $saleCount = Transaction::where('franchise_id', $franchiseId)
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->count();
 
-        $orderAmount = OrderTransaction::where('franchise_id', $franchiseId)
+        $orderAmount = Transaction::where('franchise_id', $franchiseId)
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->sum('amount');
 
-        $invoiceAmount = InvoiceTransaction::where('franchise_id', $franchiseId)
+        $invoiceAmount = Transaction::where('franchise_id', $franchiseId)
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->sum('amount');
 
@@ -113,10 +114,10 @@ class DashboardController extends Controller
         // Enhanced Dashboard Insights
 
         // 1. Top 5 Flavors Ordered (franchise-specific)
-        $topFlavors = DB::table('fgp_order_details')
-            ->join('fgp_orders', 'fgp_order_details.fgp_order_id', '=', 'fgp_orders.id')
-            ->join('fgp_items', 'fgp_order_details.fgp_item_id', '=', 'fgp_items.id')
-            ->select('fgp_items.name', 'fgp_items.image1', DB::raw('SUM(fgp_order_details.unit_number) as total_ordered'))
+        $topFlavors = DB::table('fgp_order_items')
+            ->join('fgp_orders', 'fgp_order_items.fgp_order_id', '=', 'fgp_orders.id')
+            ->join('fgp_items', 'fgp_order_items.fgp_item_id', '=', 'fgp_items.id')
+            ->select('fgp_items.name', 'fgp_items.image1', DB::raw('SUM(fgp_order_items.quantity) as total_ordered'))
             ->where('fgp_orders.franchise_id', $franchiseId)
             ->where('fgp_orders.status', 'delivered')
             ->whereBetween('fgp_orders.created_at', [$dateRange['start'], $dateRange['end']])
@@ -160,7 +161,7 @@ class DashboardController extends Controller
             'events' => $events,
             'topFlavors' => $topFlavors,
             'calendarEvents' => $calendarEvents,
-            'couponCount' => InvoiceTransaction::where('franchise_id', $franchiseId)->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])->count() + OrderTransaction::where('franchise_id', $franchiseId)->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])->count(),
+            'couponCount' => Transaction::where('franchise_id', $franchiseId)->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])->count() + Transaction::where('franchise_id', $franchiseId)->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])->count(),
             'salesData' => $this->getSalesData($franchiseId, $filter, $dateRange),
             'totalInventory' => DB::table('inventory_master')->sum('total_quantity'),
             'totalAllocated' => DB::table('franchise_event_items')
@@ -172,7 +173,7 @@ class DashboardController extends Controller
             'totalPopOrders' => DB::table('fgp_orders')
                 ->where('franchise_id', $franchiseId)
                 ->where('status', 'delivered')
-                ->whereBetween('date_transaction', [$dateRange['start'], $dateRange['end']])
+                ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
                 ->count(),
             'totalFlavors' => DB::table('fgp_items')->count(),
             'totalFlavorCategories' => DB::table('fgp_categories')->count(),
@@ -180,7 +181,7 @@ class DashboardController extends Controller
                 ->where('franchise_id', $franchiseId)
                 ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
                 ->sum('amount'),
-            'totalCharges' => DB::table('additionalcharges')
+            'totalCharges' => DB::table('additional_charges')
                 ->where('franchise_id', $franchiseId)
                 ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
                 ->sum('charge_price'),
@@ -231,7 +232,7 @@ class DashboardController extends Controller
 
     private function getSalesData($franchiseId, $filter, $dateRange)
     {
-        $query = InvoiceTransaction::where('franchise_id', $franchiseId)
+        $query = Transaction::where('franchise_id', $franchiseId)
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']]);
 
         if ($filter === 'today') {

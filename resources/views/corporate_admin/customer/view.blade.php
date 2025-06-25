@@ -41,10 +41,7 @@
 
 
                                                 <div class="row">
-                                                    @php
-                                                        $franchisee = App\Models\User::where('user_id' , $customer->user_id)->first();
-                                                    @endphp
-
+                                                  
                                                     <div class="mb-3 col-md-3">
                                                         <label class="form-label">Franchise Name</label>
                                                         <input type="text" disabled class="form-control @error('name') is-invalid @enderror"

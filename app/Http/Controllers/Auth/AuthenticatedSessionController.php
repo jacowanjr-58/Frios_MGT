@@ -31,14 +31,17 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
         $request->session()->regenerate();
         $user = Auth::user();
+
         // Get user's franchises (corrected relationship name)
         $userFranchises = $user->franchises;
         // Get the first franchise ID for redirection
-        $firstFranchiseId = $userFranchises?->count() > 0
+        $firstFranchiseId = $userFranchises->isEmpty()
             ? $userFranchises->first()->id
             : Franchise::first()?->id;
 
         session(['franchise_id' => $firstFranchiseId]);
+
+
         if ($user->role == 'super_admin') {
             return redirect()->intended(route('dashboard', absolute: false))
                 ->with('success', 'Welcome Back, ' . $user->name);

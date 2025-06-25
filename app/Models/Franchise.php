@@ -10,6 +10,7 @@ class Franchise extends Model
     use HasFactory;
 
     protected $table = 'franchises';
+    protected $primaryKey = 'id'; // Ensure this matches database
 
     protected $fillable = [
         'user_id',

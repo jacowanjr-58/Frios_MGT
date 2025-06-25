@@ -11,7 +11,7 @@ class Customer extends Model
     use HasFactory;
 
     protected $table = 'customers'; // Table name
-
+    protected $primaryKey = 'id';
     protected $guarded = [];
 
 

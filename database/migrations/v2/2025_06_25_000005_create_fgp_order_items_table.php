@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('fgp_order_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('fgp_order_id')->constrained('fgp_orders', 'id');
-            $table->string('item'); // Can be free text or linked to inventory
+            $table->foreignId('fgp_item_id')->constrained('fgp_items', 'id');
             $table->integer('quantity');
             $table->decimal('unit_price', 10, 2);
             $table->decimal('price', 10, 2);

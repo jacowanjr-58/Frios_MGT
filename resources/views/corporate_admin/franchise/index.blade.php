@@ -176,36 +176,40 @@
         @push('scripts')
             <script>
                 $(document).ready(function () {
+                    var columns = [
+                        { data: 'business_name', name: 'business_name' },
+                        {
+                            data: 'contact_number',
+                            name: 'contact_number',
+                            render: function (data, type, row) {
+                                return data && data.trim() !== '' ? data : 'N/A';
+                            }
+                        },
+                        { data: 'customer_count', name: 'customer_count', orderable: false, searchable: false },
+                        {
+                            data: 'frios_territory_name',
+                            name: 'frios_territory_name',
+                            render: function (data, type, row) {
+                                return data && data.trim() !== '' ? data : 'N/A';
+                            }
+                        },
+                        { data: 'city', name: 'city' },
+                        { data: 'state', name: 'state' },
+                        { data: 'zip_code', name: 'zip_code' },
+                        { data: 'location_zip', name: 'location_zip' }
+                    ];
+
+                    // Add action column if user has permissions
+                    @canany(['franchises.edit', 'franchises.delete'])
+                        columns.push({ data: 'action', name: 'action', orderable: false, searchable: false });
+                    @endcanany
+
                     $('#franchise-table').DataTable({
                         processing: true,
                         serverSide: true,
                         ajax: "{{ route('franchise.index') }}",
-                        columns: [
-                            { data: 'business_name', name: 'business_name' },
-                            {
-                                data: 'contact_number',
-                                name: 'contact_number',
-                                render: function (data, type, row) {
-                                    return data && data.trim() !== '' ? data : 'N/A';
-                                }
-                            },
-                            { data: 'customer_count', name: 'customer_count', orderable: false, searchable: false },
-                            {
-                                data: 'frios_territory_name',
-                                name: 'frios_territory_name',
-                                render: function (data, type, row) {
-                                    return data && data.trim() !== '' ? data : 'N/A';
-                                }
-                            },
-
-                            { data: 'city', name: 'city' },
-                            { data: 'state', name: 'state' },
-                            { data: 'zip_code', name: 'zip_code' },
-                            { data: 'location_zip', name: 'location_zip' },
-                            { data: 'action', name: 'action', orderable: false, searchable: false },
-                            { data: 'created_at', name: 'created_at', visible: false }
-                        ],
-                        order: [[6, 'desc']], // Order by created_at column
+                        columns: columns,
+                        order: [[0, 'asc']], // Order by business name
                         language: {
                             paginate: {
                                 next: '<i class="fa fa-angle-double-right"></i>',

@@ -51,15 +51,15 @@
 				</div>
 
                 <!-- Filter Section -->
-                <div class="row mb-4">
+                <!-- <div class="row mb-4">
                     <div class="col-xl-4 col-lg-6">
                         <div class="form-group">
                             <label for="franchise-filter" class="form-label">Filter by Franchise:</label>
                             <select id="franchise-filter" class="form-select select2 flex-grow-1">
                                 <option value="">All Franchises</option>
                                 @foreach(\App\Models\Franchise::all() as $franchise)
-                                    <option value="{{ $franchise->franchise_id }}" 
-                                        {{ request('franchise_filter') == $franchise->franchise_id ? 'selected' : '' }}>
+                                    <option value="{{ $franchise->id }}" 
+                                        {{ request('franchise_filter') == $franchise->id ? 'selected' : '' }}>
                                         {{ $franchise->business_name ?? 'N/A' }} - {{ $franchise->frios_territory_name ?? 'N/A' }}
                                     </option>
                                 @endforeach
@@ -67,7 +67,7 @@
                         </div>
                         
                     </div>
-                </div>
+                </div> -->
 
                 <div class="row mb-4 align-items-center">
 
@@ -126,7 +126,15 @@
                 ajax: {
                     url: "{{ route('franchise.franchise_customer', ['franchise' => $franchiseeId]) }}",
                     data: function (d) {
-                        d.franchise_filter = $('#franchise-filter').val();
+                        // Get selected franchise from header dropdown
+                        var selectedFranchise = $('#franchise-select').val();
+                        if (selectedFranchise) {
+                            d.franchise_filter = selectedFranchise;
+                        }
+                        // Also check for local franchise filter if exists
+                        if ($('#franchise-filter').length && $('#franchise-filter').val()) {
+                            d.franchise_filter = $('#franchise-filter').val();
+                        }
                     }
                 },
                 columns: [
@@ -169,6 +177,18 @@
                 updateCustomerCount(selectedFranchise, selectedText);
                 
                 // Refresh table
+                table.draw();
+            });
+
+            // Listen for header dropdown changes
+            $(document).on('change', '#franchise-select', function() {
+                var selectedFranchise = $(this).val();
+                var selectedText = $(this).find('option:selected').text();
+                
+                // Update the customer count display based on header selection
+                updateCustomerCount(selectedFranchise, selectedText);
+                
+                // Refresh table to show filtered customers
                 table.draw();
             });
 
