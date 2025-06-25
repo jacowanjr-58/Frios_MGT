@@ -84,6 +84,7 @@ class UserManagementController extends Controller
     {
         $roles = Role::whereNotIn('id', [1, 3])->get();
         $franchises = Franchise::all();
+       
         return view('corporate_admin.users.create', compact('roles', 'franchises'));
     }
 

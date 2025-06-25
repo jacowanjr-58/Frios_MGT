@@ -76,6 +76,7 @@
                         $currentRouteName = request()->route()->getName();
                         $user = auth()->user();
                         $selectedFranchiseId = request()->route('franchise') ?? $franchiseId ?? null;
+                     
                         $showDropdown = false;
                         $dropdownFranchises = collect();
                         
@@ -92,7 +93,7 @@
                             }
                         }
                     @endphp
-                    @if($showDropdown && $currentRouteName != 'franchise.index' && $currentRouteName != 'owner.index')
+                    @if($showDropdown && $currentRouteName != 'franchise.index')
                         <div class="w-100 ml-32">
                             <div class="d-flex align-items-center gap-3">
                                 <label for="franchise-select" class="form-label mb-0 text-nowrap fw-semibold">Select

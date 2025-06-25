@@ -30,8 +30,8 @@ class ExpensesCategoryController extends Controller
                     });
                 })
                 ->addColumn('action', function ($subCategory) use ($franchisee) {
-                    $editUrl = route('expense-category.edit', ['franchisee' => $franchisee, 'id' => $subCategory->id]);
-                    $deleteUrl = route('expense-sub-category.delete', ['franchisee' => $franchisee, 'id' => $subCategory->id]);
+                    $editUrl = route('expense-category.edit', ['franchise' => $franchisee, 'id' => $subCategory->id]);
+                    $deleteUrl = route('expense-sub-category.delete', ['franchise' => $franchisee, 'id' => $subCategory->id]);
 
                     $actions = '<div class="d-flex">';
                     if (Auth::check() && Auth::user()->can('expense_categories.edit')) {
@@ -167,8 +167,8 @@ class ExpensesCategoryController extends Controller
                     return '$' . number_format($expense->amount);
                 })
                 ->addColumn('action', function ($expense) use ($franchisee) {
-                    $editUrl = route('franchise.expense.edit', ['franchisee' => $franchisee, 'id' => $expense->id]);
-                    $deleteUrl = route('franchise.expense.delete', ['franchisee' => $franchisee, 'id' => $expense->id]);
+                    $editUrl = route('franchise.expense.edit', ['franchise' => $franchisee, 'id' => $expense->id]);
+                    $deleteUrl = route('franchise.expense.delete', ['franchise' => $franchisee, 'id' => $expense->id]);
 
                     $actions = '<div class="d-flex">';
 
@@ -205,6 +205,7 @@ class ExpensesCategoryController extends Controller
 
     public function customer($franchisee)
     {
+      $franchisee = $franchisee ?? session('franchise_id');
         if (request()->ajax()) {
             $user = Auth::user();
             $customers = Customer::where('franchise_id', $franchisee);
@@ -232,7 +233,7 @@ class ExpensesCategoryController extends Controller
                     });
                 })
                 ->addColumn('action', function ($customer) {
-                    $viewUrl = route('franchise.franchise_customer.view', ['franchisee' => $customer->franchise_id, 'id' => $customer->customer_id]);
+                    $viewUrl = route('franchise.franchise_customer.view', ['franchise' => $customer->franchise_id, 'id' => $customer->customer_id]);
 
                     $actions = '<div class="d-flex">';
 
@@ -255,7 +256,7 @@ class ExpensesCategoryController extends Controller
         $customerCount = $franchisee ? Customer::where('franchise_id', $franchisee)->count() : Customer::count();
         $data['customerCount'] = $customerCount;
         $data['franchisee'] = $franchisee ? Franchise::find($franchisee) : null;
-        return view('corporate_admin.customer.index', $data);
+        return view('corporate_admin.customer.index', $data)->with('franchiseeId', $franchisee);
     }
 
     public function customerView($id)
@@ -282,10 +283,10 @@ class ExpensesCategoryController extends Controller
                 ->addColumn('action', function ($subCategory) use ($franchisee) {
                     return '
                     <div class="d-flex">
-                        <a href="' . route('franchise.expense-category.edit', ['franchisee' => $franchisee, 'id' => $subCategory->id]) . '" class="edit-expenseSubCategory">
+                        <a href="' . route('franchise.expense-category.edit', ['franchise' => $franchisee, 'id' => $subCategory->id]) . '" class="edit-expenseSubCategory">
                             <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
                         </a>
-                        <form action="' . route('franchise.expense-sub-category.delete', ['franchisee' => $franchisee, 'id' => $subCategory->id]) . '" method="POST" class="delete-form">
+                        <form action="' . route('franchise.expense-sub-category.delete', ['franchise' => $franchisee, 'id' => $subCategory->id]) . '" method="POST" class="delete-form">
                             ' . csrf_field() . '
                             ' . method_field('DELETE') . '
                             <button type="button" class="ms-4 delete-expense-category" 
@@ -380,7 +381,7 @@ class ExpensesCategoryController extends Controller
 
 
         // return redirect()
-        //     ->route('expense-category', ['franchisee' => $franchisee])
+        //     ->route('expense-category', ['franchise' => $franchisee])
         //     ->with('success', 'Expense Sub Category updated successfully');
     }
 
