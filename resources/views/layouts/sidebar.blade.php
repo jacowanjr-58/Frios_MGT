@@ -33,7 +33,7 @@
                     </ul>
                 </li>
             @endif
-            @endcanay
+            @endcanany
             @canany(['franchises.view', 'franchises.create', 'franchises.edit', 'franchises.delete', 'owners.view', 'owners.create', 'owners.edit', 'owners.delete'])
 
             <li class="{{ Request::routeIs('franchise.*', 'owner.*') ? 'mm-active' : '' }}">
@@ -119,7 +119,7 @@
             </li>
             @endcanany
 
-            <!-- @canany(['events.view', 'events.create', 'events.edit', 'events.delete'])
+             @canany(['events.view', 'events.create', 'events.edit', 'events.delete'])
             <li class="{{ Request::routeIs('events.*') ? 'mm-active' : '' }}">
                 <a class="has-arrow ai-icon {{ Request::routeIs('events.*') ? 'active' : '' }}"
                     href="javascript:void()"
@@ -164,7 +164,7 @@
                 </li>
             @endif
             @endcanany
-            <!-- @canany(['orders.view', 'orders.create', 'orders.edit', 'orders.delete'])
+           @canany(['orders.view', 'orders.create', 'orders.edit', 'orders.delete'])
             @if(auth()->user()->role !== 'corporate_admin' && $franchiseeId)
                 <li class="{{ Request::routeIs('franchise.orderpops.*') ? 'mm-active' : '' }}">
                     <a class="has-arrow ai-icon {{ Request::routeIs('franchise.orderpops.*') ? 'active' : '' }}"
@@ -185,7 +185,7 @@
                     </ul>
                 </li>
             @endif
-            @endcanany>
+            @endcanany
             @canany(['invoices.view', 'invoices.create', 'invoices.edit', 'invoices.delete'])
             @if(auth()->user()->role !== 'corporate_admin' && $franchiseeId)
                 <li class="{{ Request::routeIs('franchise.invoice.*', 'franchise.transaction') ? 'mm-active' : '' }}">
@@ -328,7 +328,7 @@
                 </a>
             </li>
             @endcanany
-            <!-- @canany(['events.view', 'events.create', 'events.edit', 'events.delete'])
+             @canany(['events.view', 'events.create', 'events.edit', 'events.delete'])
             <li class="{{ Request::routeIs('franchise_staff.events.*') ? 'mm-active' : '' }}">
                 <a class="has-arrow ai-icon {{ Request::routeIs('franchise_staff.events.*') ? 'active' : '' }}"
                     href="javascript:void()"
@@ -344,7 +344,7 @@
                     </li>
                 </ul>
             </li>
-            @endcanany>
+            @endcanany
         </ul>
         <div class="copyright">
             <p><strong>Frios Management System</strong> © <span class="current-year">2023</span> All Rights Reserved
