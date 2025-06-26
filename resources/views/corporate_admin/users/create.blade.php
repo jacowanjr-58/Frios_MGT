@@ -68,7 +68,7 @@
                                                             @enderror
                                                         </div>
 
-                                                      
+
 
                                                         <div class="mb-3 col-md-6">
                                                             <label class="form-label">Role <span class="text-danger">*</span></label>
@@ -93,7 +93,7 @@
                                                                 name="franchise_id" id="franchisee_select">
                                                                 <option value="">Select Franchise</option>
                                                                 @foreach ($franchises as $franchise)
-                                                                    <option value="{{ $franchise->franchise_id }}" {{ old('franchise_id') == $franchise->franchise_id ? 'selected' : '' }}>
+                                                                    <option value="{{ $franchise->id }}" {{ old('franchise_id') == $franchise->id ? 'selected' : '' }}>
                                                                     {{ $franchise->business_name ?? 'N/A' }} - {{ $franchise->frios_territory_name ?? 'N/A' }}
                                                                     </option>
                                                                 @endforeach
@@ -186,7 +186,7 @@
                 // Role selection logic
                 function handleRoleChange() {
                     const selectedRole = roleSelect.value;
-                    
+
                     if (selectedRole === 'corporate_admin') {
                         // Hide franchise field for corporate admin
                         franchiseField.style.display = 'none';
@@ -209,4 +209,4 @@
             });
         </script>
 
-@endsection 
+@endsection
