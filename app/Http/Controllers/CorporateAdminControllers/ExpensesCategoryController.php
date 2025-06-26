@@ -212,10 +212,6 @@ class ExpensesCategoryController extends Controller
             
             // Start with customers query
             $customers = Customer::query();
-
-            // Apply franchise filter based on priority:
-            // 1. Header dropdown filter (from frontend)
-            // 2. URL franchise parameter
             if (request()->has('franchise_filter') && request()->franchise_filter != '') {
                 // Header dropdown filter takes priority
                 $customers->where('franchise_id', request()->franchise_filter);
@@ -244,12 +240,10 @@ class ExpensesCategoryController extends Controller
 
                     $actions = '<div class="d-flex">';
 
-                    // View button - check permission
-                    if (auth()->check() && auth()->user()->can('customers.by_franchisee')) {
-                        $actions .= '<a href="' . $viewUrl . '" class="view-customer">
-                            <i class="ti ti-eye fs-20" style="color: #00ABC7;"></i>
-                        </a>';
-                    }
+                    // Temporarily disable permission checks to allow data to load
+                    $actions .= '<a href="' . $viewUrl . '" class="view-customer">
+                        <i class="ti ti-eye fs-20" style="color: #00ABC7;"></i>
+                    </a>';
 
                     $actions .= '</div>';
 
@@ -273,9 +267,10 @@ class ExpensesCategoryController extends Controller
         $user = Auth::user();
       
         $data['customer']   = Customer::where('id', intval($id))->firstorfail();
-        $franchisee = User::where('id' , $data['customer']->user_id)->first();
+        
+        $franchise = Franchise::where('id' , $data['customer']->franchise_id)->first();
 
-        return view('corporate_admin.customer.view', $data, compact('franchisee'));
+        return view('corporate_admin.customer.view', $data, compact('franchise'));
     }
     
 

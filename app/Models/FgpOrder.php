@@ -68,6 +68,11 @@ class FgpOrder extends Model
         return $this->hasMany(FgpOrderDetail::class, 'fgp_order_id');
     }
 
+    public function orderItems()
+    {
+        return $this->hasMany(FgpOrderItem::class, 'fgp_order_id');
+    }
+
     public function orderDetails()
     {
         return $this->hasMany(FgpOrderDetail::class, 'fgp_order_id');

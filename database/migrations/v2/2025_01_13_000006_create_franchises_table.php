@@ -15,7 +15,6 @@ return new class extends Migration
         if (! Schema::hasTable('franchises')) {
             Schema::create('franchises', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('user_id')->nullable()->constrained('users', 'id');
                 $table->string('business_name');
                 $table->string('contact_number')->nullable();
                 $table->string('address1');

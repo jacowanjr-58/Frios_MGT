@@ -395,6 +395,30 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage-expenses',
             'manage-customers',
             'manage-events',
+             // Franchises Management (Corporate Admin)
+             'franchises.view',
+             'franchises.create',
+             'franchises.edit',
+             'franchises.delete',
+             'owners.view',
+             'owners.create',
+             'owners.edit',
+             'owners.delete',
+             'frios_flavors.view',
+             'frios_flavors.create',
+             'frios_flavors.edit',
+             'frios_flavors.delete',
+             'frios_flavors.categories',
+             'frios_availability.view',
+             'frios_availability.create',
+             'frios_availability.edit',
+             'frios_availability.delete',
+
+
+             'flavor_category.view',
+             'flavor_category.create',
+             'flavor_category.update',
+             'flavor_category.delete',
         ];
         $franchiseAdmin->givePermissionTo($franchiseAdminPermissions);
 

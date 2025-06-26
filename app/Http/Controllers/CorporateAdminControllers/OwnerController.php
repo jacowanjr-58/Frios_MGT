@@ -9,21 +9,44 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 
 class OwnerController extends Controller
 {
     public function index($franchise)
     {
-        $franchiseeId = $franchise;
-        $totalUsers = User::where('role', 'franchise_admin')->count();
 
+       
+        $franchiseId = intval($franchise);
+        
         if (request()->ajax()) {
+            // Start with base query for franchise_admin users
             $users = User::where('role', 'franchise_admin');
+            
+            // Apply franchise filter based on priority:
+            // 1. Header dropdown filter (from frontend)
+            // 2. URL franchise parameter
+            if (request()->has('franchise_filter') && request()->franchise_filter != '') {
+                // Header dropdown filter takes priority
+                $users->whereHas('franchises', function($query) {
+                    $query->where('franchise_id', request()->franchise_filter);
+                });
+            } elseif ($franchise && $franchise != '0') {
+                // Use URL franchise parameter as fallback
+                $users->whereHas('franchises', function($query) use ($franchise) {
+                    $query->where('franchise_id', $franchise);
+                });
+            }
+            
+            // If only count is requested, return just the count
+            if (request()->has('count_only')) {
+                return response()->json(['count' => $users->count()]);
+            }
 
             return DataTables::of($users)
                 ->addColumn('franchise', function ($user) {
-                    $franchises = $user->franchisees;
+                    $franchises = $user->franchises;
                     if ($franchises->isEmpty()) {
                         return '<span class="text-muted">No Franchise Assigned</span>';
                     }
@@ -38,23 +61,23 @@ class OwnerController extends Controller
                     return ucwords(str_replace('_', ' ', $user->role));
                 })
                 ->addColumn('formatted_date', function ($user) {
-                    return $user->created_date ? Carbon::parse($user->created_date)->format('d/m/Y') : 'N/A';
+                    return $user->created_at ? Carbon::parse($user->created_at)->format('d-m-Y') : 'N/A';
                 })
                 ->addColumn('action', function ($user) {
-                    $editUrl = route('owner.edit', $user->user_id);
-                    $deleteUrl = route('owner.destroy', $user->user_id);
+                    $editUrl = route('owner.edit', $user->id);
+                    $deleteUrl = route('owner.destroy', $user->id);
 
                     $actions = '<div class="d-flex">';
                     
                     // Edit button - check permission
-                    if (Auth::check() && Auth::user()->can('owners.edit')) {
+                    if (Auth::check() && Gate::allows('owners.edit')) {
                         $actions .= '<a href="'.$editUrl.'" class="edit-user">
                             <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
                         </a>';
                     }
                     
                     // Delete button - check permission
-                    if (Auth::check() && Auth::user()->can('owners.delete')) {
+                    if (Auth::check() && Gate::allows('owners.delete')) {
                         $actions .= '<form action="'.$deleteUrl.'" method="POST">
                             '.csrf_field().'
                             '.method_field('DELETE').'
@@ -71,18 +94,32 @@ class OwnerController extends Controller
                 ->rawColumns(['action', 'franchise'])
                 ->make(true);
         }
-
-        return view('corporate_admin.owners.index', compact('totalUsers', 'franchiseeId'));
+        
+        // Calculate total users for non-AJAX requests
+        $query = User::where('role', 'franchise_admin');
+        if (request()->has('franchise_filter') && request()->franchise_filter != '') {
+            // Header dropdown filter takes priority
+            $query->whereHas('franchises', function($q) {
+                $q->where('franchise_id', request()->franchise_filter);
+            });
+        } elseif ($franchise && $franchise != '0') {
+            // Use URL franchise parameter as fallback
+            $query->whereHas('franchises', function($q) use ($franchise) {
+                $q->where('franchise_id', $franchise);
+            });
+        }
+        $totalUsers = $query->count();
+        
+        return view('corporate_admin.owners.index', compact('totalUsers', 'franchiseId'));
     }
 
     // Show create form
-
-    public function create()
+    public function create($franchise)
     {
-       
+        $franchiseId = intval($franchise);
         $franchises = Franchise::whereDoesntHave('users')->get();
 
-        return view('corporate_admin.owners.create', compact('franchises'));
+        return view('corporate_admin.owners.create', compact('franchises', 'franchiseId'));
     }
 
 
@@ -136,15 +173,15 @@ class OwnerController extends Controller
         // Assign the role using Spatie Role Permission
         $user->assignRole('franchise_admin');
         // Attach franchise
-        $user->franchisees()->attach($request->franchise_id);
+        $user->franchises()->attach($request->franchise_id);
 
         return redirect()->route('owner.index')->with('success', 'Owner created successfully.');
     }
 
     public function edit(User $owner)
     {
-        // Get the franchisees assigned to this user
-        $assignedFranchiseIds = $owner->franchisees->pluck('franchise_id');
+        // Get the franchises assigned to this user
+        $assignedFranchiseIds = $owner->franchises->pluck('franchise_id');
     
         // Franchises not assigned to any user
         $availableFranchises = Franchise::whereDoesntHave('users')->get();
@@ -210,13 +247,13 @@ class OwnerController extends Controller
             $owner->update(['password' => bcrypt($request->password)]);
         }
 
-        $owner->franchisees()->sync($request->franchise_id);
+        $owner->franchises()->sync($request->franchise_id);
         return redirect()->route('owner.index')->with('success', 'Owner updated successfully.');
     }
     public function destroy($id)
     {
         try {
-            $user = User::where('user_id', $id)->firstOrFail(); // Find user by user_id
+            $user = User::findOrFail($id); // Find user by id
             
             // Delete contract document if exists
             if ($user->contract_document_path && file_exists(public_path($user->contract_document_path))) {

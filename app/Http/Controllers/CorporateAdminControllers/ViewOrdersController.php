@@ -238,10 +238,10 @@ class ViewOrdersController extends Controller
         }
     }
 
-    public function viewordersDetail(Request $request)
+    public function viewordersDetail(Request $request, $franchiseId)
     {
         $orderId = $request->input('id');
-
+        $franchiseId = intval($franchiseId);
         $orderDetails = DB::table('fgp_order_details as od')
                     ->join('fgp_items as fi', 'od.fgp_item_id', '=', 'fi.id')
         ->where('od.fgp_order_id', $orderId)
@@ -258,7 +258,7 @@ class ViewOrdersController extends Controller
         }
 
         // Return HTML view instead of JSON
-        return view('corporate_admin.view_orders.detail_modal', compact('orderDetails', 'order'))->render();
+        return view('corporate_admin.view_orders.detail_modal', compact('orderDetails', 'order', 'franchiseId'))->render();
     }
 
     public function updateStatus(Request $request)

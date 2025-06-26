@@ -426,7 +426,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('vieworders.index', ['franchise' => $franchiseeId]) }}",
+                    url: "{{ route('franchise.vieworders', ['franchise' => $franchiseId]) }}", // Changed from franchiseeId to franchiseId  
                     data: function(d) {
                         d.status = $('#statusFilter').val();
                         d.shipping_address = $('#shippingAddressFilter').val();
@@ -494,7 +494,7 @@
 
         function loadFlavors() {
             $.ajax({
-                url: '/vieworders/{{ $franchiseeId }}/flavors',
+                url: '/franchise/{{ $franchiseId }}/vieworders/flavors',
                 method: 'GET',
                 success: function(response) {
                     var flavorSelect = $('#flavorFilter');
@@ -516,7 +516,7 @@
 
         function loadShippingAddresses() {
             $.ajax({
-                url: '/vieworders/{{ $franchiseeId }}/shipping-addresses',
+                    url: '/franchise/{{ $franchiseId }}/vieworders/shipping-addresses',
                 method: 'GET',
                 success: function(response) {
                     var addressSelect = $('#shippingAddressFilter');
@@ -536,36 +536,36 @@
             });
         }
 
-        function viewOrderDetails(orderId) {
-            console.log('Loading order details for ID:', orderId);
-            
-            $.ajax({
-                url: '{{ route('vieworders.detail') }}',
-                method: 'GET',
-                data: { id: orderId },
-                beforeSend: function() {
-                    $('#orderModal .modal-body').html('<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div><p class="mt-2">Loading order details...</p></div>');
-                    $('#orderModal .modal-title').text('Order Details - Loading...');
-                    $('#orderModal').modal('show');
-                },
-                success: function(response) {
-                    console.log('Order details loaded successfully');
-                    $('#orderModal .modal-body').html(response);
-                    $('#orderModal .modal-title').text('Order Details');
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error loading order details:', error);
-                    console.error('Response:', xhr.responseText);
-                    $('#orderModal .modal-body').html('<div class="alert alert-danger"><i class="fa fa-exclamation-triangle me-2"></i>Error loading order details. Please try again.<br><small>Error: ' + error + '</small></div>');
-                    $('#orderModal .modal-title').text('Error Loading Order Details');
-                }
-            });
-        }
+    function viewOrderDetails(orderId) {
+        console.log('Loading order details for ID:', orderId);
+        
+        $.ajax({
+            url: '{{ route('franchise.vieworders.detail', ['franchise' => $franchiseId]) }}',
+            method: 'GET',
+            data: { id: orderId },
+            beforeSend: function() {
+                $('#orderModal .modal-body').html('<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div><p class="mt-2">Loading order details...</p></div>');
+                $('#orderModal .modal-title').text('Order Details - Loading...');
+                $('#orderModal').modal('show');
+            },
+            success: function(response) {
+                console.log('Order details loaded successfully');
+                $('#orderModal .modal-body').html(response);
+                $('#orderModal .modal-title').text('Order Details');
+            },
+            error: function(xhr, status, error) {
+                console.error('Error loading order details:', error);
+                console.error('Response:', xhr.responseText);
+                $('#orderModal .modal-body').html('<div class="alert alert-danger"><i class="fa fa-exclamation-triangle me-2"></i>Error loading order details. Please try again.<br><small>Error: ' + error + '</small></div>');
+                $('#orderModal .modal-title').text('Error Loading Order Details');
+            }
+        });
+    }
 
         function changeOrderStatus(orderId, status) {
             if (confirm('Are you sure you want to change the order status?')) {
                 $.ajax({
-                    url: "{{ route('franchise.vieworders.updateStatus', ['franchise' => $franchiseeId]) }}",
+                    url: "{{ route('franchise.vieworders.updateStatus', ['franchise' => $franchiseId]) }}",
                     method: 'POST',
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),

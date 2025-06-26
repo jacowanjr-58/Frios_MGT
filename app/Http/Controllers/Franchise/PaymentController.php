@@ -217,7 +217,7 @@ class PaymentController extends Controller
 
     public function stripe()
     {
-        $data['stripe'] = StripeModel::where('franchise_id', Auth::user()->franchise_id)->first();
+        $data['stripe'] = StripeModel::where('id', Auth::user()->franchise_id)->first();
         return view('franchise_admin.stripe.index', $data);
     }
 

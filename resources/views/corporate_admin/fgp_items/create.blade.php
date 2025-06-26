@@ -18,7 +18,7 @@
             <div class="form-head mb-4 d-flex flex-wrap align-items-center">
                 <div class="me-auto">
                     <h2 class="font-w600 mb-0">Dashboard \</h2>
-                    <p>Add Flaover Item</p>
+                    <p>Add Flavor Item</p>
                 </div>
 
                 <a href="javascript:history.back()" class="btn btn-secondary btn-sm">
@@ -41,7 +41,7 @@
                                             <!-- Display Success Message -->
 
 
-                                            <form action="{{ route('franchise.fgpitem.store', ['franchisee' => request()->route('franchisee')]) }}" method="POST" enctype="multipart/form-data">
+                                            <form action="{{ route('franchise.fgpitem.store', ['franchise' => $franchise]) }}" method="POST" enctype="multipart/form-data">
                                                 @csrf
 
                                                 <div class="row">
@@ -49,10 +49,10 @@
                                                     <div class="col-md-6">
                                                         <!-- Item Name -->
                                                         <div class="mb-3">
-                                                            <label for="item_name" class="form-label">Item Name <span class="text-danger">*</span></label>
-                                                            <input type="text" class="form-control @error('item_name') is-invalid @enderror" 
-                                                                   id="item_name" name="item_name" value="{{ old('item_name') }}" required>
-                                                            @error('item_name')
+                                                            <label for="name" class="form-label">Item Name <span class="text-danger">*</span></label>
+                                                            <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                                                                   id="name" name="name" value="{{ old('name') }}" required>
+                                                            @error('name')
                                                                 <div class="invalid-feedback">{{ $message }}</div>
                                                             @enderror
                                                         </div>
@@ -61,26 +61,26 @@
                                                         <div class="mb-3">
                                                             <label class="form-label">Case Cost <span class="text-danger">*</span></label>
                                                             <input type="number" step="0.01" class="form-control @error('case_cost') is-invalid @enderror"
-                                                                   name="case_cost" value="{{ old('case_cost') }}" placeholder="Enter Case Cost">
+                                                                   name="case_cost" value="{{ old('case_cost') }}" placeholder="Enter Case Cost" required>
                                                             @error('case_cost')
-                                                                <div class="text-danger">{{ $message }}</div>
+                                                                <div class="invalid-feedback">{{ $message }}</div>
                                                             @enderror
                                                         </div>
 
                                                       <!-- Category Selection -->
                                                       <div class="mb-3">
-                                                        <label for="category_id" class="form-label">Category <span class="text-danger">*</span></label>
-                                                        <select class="form-control @error('category_id') is-invalid @enderror" 
-                                                                id="category_id" name="category_id" required>
+                                                        <label for="fgp_category_id" class="form-label">Category <span class="text-danger">*</span></label>
+                                                        <select class="form-control select2 @error('fgp_category_id') is-invalid @enderror" 
+                                                                id="fgp_category_id" name="fgp_category_id" required>
                                                             <option value="">Select Category</option>
                                                             @foreach($categories as $category)
-                                                                <option value="{{ $category->category_ID }}" 
-                                                                    {{ old('category_ID') == $category->category_ID ? 'selected' : '' }}>
+                                                                <option value="{{ $category->id }}" 
+                                                                    {{ old('fgp_category_id') == $category->id ? 'selected' : '' }}>
                                                                     {{ $category->name }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
-                                                        @error('category_id')
+                                                        @error('fgp_category_id')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     </div>
@@ -93,10 +93,10 @@
                                                         <!-- Description -->
                                                         <div class="mb-3">
                                                             <label class="form-label">Description</label>
-                                                            <input type="text" class="form-control @error('description') is-invalid @enderror"
-                                                                   name="description" value="{{ old('description') }}" placeholder="Enter Description">
+                                                            <textarea class="form-control @error('description') is-invalid @enderror"
+                                                                   name="description" placeholder="Enter Description">{{ old('description') }}</textarea>
                                                             @error('description')
-                                                                <div class="text-danger">{{ $message }}</div>
+                                                                <div class="invalid-feedback">{{ $message }}</div>
                                                             @enderror
                                                         </div>
 
@@ -105,34 +105,34 @@
                                                             <label class="form-label">Internal Inventory <span class="text-danger">*</span></label>
                                                             <input type="number" class="form-control @error('internal_inventory') is-invalid @enderror"
                                                                    name="internal_inventory" value="{{ old('internal_inventory') }}"
-                                                                   placeholder="Enter Inventory Count">
+                                                                   placeholder="Enter Inventory Count" required>
                                                             @error('internal_inventory')
-                                                                <div class="text-danger">{{ $message }}</div>
+                                                                <div class="invalid-feedback">{{ $message }}</div>
                                                             @enderror
                                                         </div>
 
                                                         <!-- Image Uploads -->
                                                         <div class="mb-3">
                                                             <label class="form-label">Image 1</label>
-                                                            <input type="file" class="form-control @error('image1') is-invalid @enderror" name="image1">
+                                                            <input type="file" class="form-control @error('image1') is-invalid @enderror" name="image1" accept="image/*">
                                                             @error('image1')
-                                                                <div class="text-danger">{{ $message }}</div>
+                                                                <div class="invalid-feedback">{{ $message }}</div>
                                                             @enderror
                                                         </div>
 
                                                         <div class="mb-3">
                                                             <label class="form-label">Image 2</label>
-                                                            <input type="file" class="form-control @error('image2') is-invalid @enderror" name="image2">
+                                                            <input type="file" class="form-control @error('image2') is-invalid @enderror" name="image2" accept="image/*">
                                                             @error('image2')
-                                                                <div class="text-danger">{{ $message }}</div>
+                                                                <div class="invalid-feedback">{{ $message }}</div>
                                                             @enderror
                                                         </div>
 
                                                         <div class="mb-3">
                                                             <label class="form-label">Image 3</label>
-                                                            <input type="file" class="form-control @error('image3') is-invalid @enderror" name="image3">
+                                                            <input type="file" class="form-control @error('image3') is-invalid @enderror" name="image3" accept="image/*">
                                                             @error('image3')
-                                                                <div class="text-danger">{{ $message }}</div>
+                                                                <div class="invalid-feedback">{{ $message }}</div>
                                                             @enderror
                                                         </div>
                                                     </div>

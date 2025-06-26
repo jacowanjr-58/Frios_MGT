@@ -14,11 +14,8 @@ return new class extends Migration
         if (! Schema::hasTable('fgp_categories')) {
         Schema::create('fgp_categories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('franchise_id')->constrained('franchises', 'id');
             $table->string('name');
-            $table->json('type'); // Change from string to json for multiple values
-            $table->foreignId('created_by')->constrained('users', 'id');
-            $table->foreignId('updated_by')->constrained('users', 'id');
+            $table->string('type'); 
             $table->timestamps();
         });
         }

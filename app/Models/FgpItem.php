@@ -16,17 +16,19 @@ class FgpItem extends Model
     public $timestamps = true; // Ensure timestamps are handled
 
     protected $fillable = [
-        'category_id',
+        'fgp_category_id',
         'name',
         'description',
         'case_cost',
         'internal_inventory',
+        'split_factor',
         'dates_available',
         'image1',
         'image2',
         'image3',
         'orderable',
-        'split_factor',
+        'created_by',
+        'updated_by',
     ];
 
     protected static function booted()
@@ -65,6 +67,11 @@ class FgpItem extends Model
     public function franchise()
     {
         return $this->belongsTo(Franchise::class, 'franchise_id');
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(FgpOrderItem::class, 'fgp_item_id');
     }
 
     public function orderDetails()

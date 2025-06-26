@@ -10,8 +10,10 @@ use App\Models\FgpItem;
 use App\Models\Customer;
 use App\Models\FgpOrder;
 use Carbon\Carbon;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\Facades\DataTables;
+use App\Enums\FgpOrders;    
 
 class FranchiseStaffController extends Controller
 {
@@ -62,17 +64,68 @@ class FranchiseStaffController extends Controller
     }
 
 
-    public function flavors($franchise_id){
+    public function flavors(Request $request, $franchise_id){
 
-        $deliveredOrders = FgpOrder::where('status', 'delivered')->where('franchise_id' , $franchise_id)->get();
+        $deliveredOrders = FgpOrder::where('status', FgpOrders::DELIVERED->value)->where('franchise_id' , $franchise_id)->count();
        
-        $shippedOrders = FgpOrder::where('status', 'shipped')->where('franchise_id' , $franchise_id)->count();
-        $paidOrders = FgpOrder::where('status', 'paid')->where('franchise_id' , $franchise_id)->count();
+        $shippedOrders = FgpOrder::where('status', FgpOrders::SHIPPED->value)->where('franchise_id' , $franchise_id)->count();
+        $paidOrders = FgpOrder::where('status', FgpOrders::PAID->value)->where('franchise_id' , $franchise_id)->count();
         $pendingOrders = FgpOrder::where('status', 'pending')->where('franchise_id' , $franchise_id)->count();
 
+        // dd($deliveredOrders,$shippedOrders,$paidOrders,$pendingOrders);
         $orders = FgpOrder::where('franchise_id' , $franchise_id)->get();
 
         $totalOrders = $orders->count();
+
+        if ($request->ajax()) {
+            $query = FgpOrder::with(['franchise', 'customer'])
+                ->where('franchise_id', $franchise_id);
+
+            return DataTables::of($query)
+                ->addColumn('user_name', function ($order) use ($franchise_id) {
+                    // Try to get franchise from relationship first, then fallback to direct query
+                    if ($order->franchise) {
+                        return $order->franchise->business_name;
+                    }
+                    
+                    // Fallback: direct query
+                    $franchise = \App\Models\Franchise::find($franchise_id);
+                    return $franchise ? $franchise->business_name : 'N/A';
+                })
+                ->addColumn('items_ordered', function ($order) {
+                    $itemCount = DB::table('fgp_order_items')->where('fgp_order_id', $order->id)->count();
+                    return '<span class="cursor-pointer text-primary order-detail-trigger" data-id="' . $order->id . '">' . $itemCount . ' items</span>';
+                })
+                ->addColumn('status', function ($order) {
+                    return ucfirst($order->status ?? 'pending');
+                })
+                ->addColumn('total_price', function ($order) {
+                    $totalAmount = DB::table('fgp_order_items')
+                        ->where('fgp_order_id', $order->id)
+                        ->selectRaw('SUM(quantity * unit_price) as total')
+                        ->value('total');
+                    return '$' . number_format($totalAmount ?? 0, 2);
+                })
+                ->addColumn('order_date', function ($order) {
+                    return $order->created_at ? \Carbon\Carbon::parse($order->created_at)->format('M d, Y h:i A') : 'N/A';
+                })
+                ->filterColumn('user_name', function ($query, $keyword) {
+                    $query->whereHas('franchise', function ($q) use ($keyword) {
+                        $q->where('business_name', 'like', "%{$keyword}%");
+                    });
+                })
+                ->filterColumn('status', function ($query, $keyword) {
+                    $query->where('status', 'like', "%{$keyword}%");
+                })
+                ->filterColumn('order_date', function ($query, $keyword) {
+                    $query->where(function ($q) use ($keyword) {
+                        $q->whereDate('created_at', 'like', "%{$keyword}%")
+                          ->orWhere('created_at', 'like', "%{$keyword}%");
+                    });
+                })
+                ->rawColumns(['items_ordered'])
+                ->make(true);
+        }
        
 
         return view('franchise_staff.flavors.index', compact('deliveredOrders', 'shippedOrders', 'pendingOrders','paidOrders', 'orders', 'totalOrders','franchise_id'));

@@ -22,6 +22,14 @@ class CustomerSeeder extends Seeder
             return;
         }
 
+        // Get the first user ID for created_by and updated_by
+        $firstUserId = \App\Models\User::first()?->id;
+        
+        if (!$firstUserId) {
+            $this->command->error('No users found. Please ensure users are created first.');
+            return;
+        }
+
         $customers = [
             [
                 'franchise_id' => $franchises[array_rand($franchises)],
@@ -33,8 +41,8 @@ class CustomerSeeder extends Seeder
                 'email' => 'sarah.johnson@email.com',
                 'phone' => '(512) 555-1234',
                 'notes' => 'Regular customer, prefers vanilla flavors. Birthday parties frequent.',
-                'created_by' => 1,
-                'updated_by' => 1,
+                'created_by' => $firstUserId,
+                'updated_by' => $firstUserId,
             ],
             [
                 'franchise_id' => $franchises[array_rand($franchises)],
@@ -46,8 +54,8 @@ class CustomerSeeder extends Seeder
                 'email' => 'michael.rodriguez@gmail.com',
                 'phone' => '(214) 555-5678',
                 'notes' => 'Corporate event coordinator. Books large orders for company events.',
-                'created_by' => 1,
-                'updated_by' => 1,
+                'created_by' => $firstUserId,
+                'updated_by' => $firstUserId,
             ],
             [
                 'franchise_id' => $franchises[array_rand($franchises)],
@@ -59,8 +67,8 @@ class CustomerSeeder extends Seeder
                 'email' => 'emily.chen@outlook.com',
                 'phone' => '(713) 555-9012',
                 'notes' => 'School teacher. Orders for classroom celebrations and end-of-year parties.',
-                'created_by' => 1,
-                'updated_by' => 1,
+                'created_by' => $firstUserId,
+                'updated_by' => $firstUserId,
             ],
             [
                 'franchise_id' => $franchises[array_rand($franchises)],
@@ -72,8 +80,8 @@ class CustomerSeeder extends Seeder
                 'email' => 'david.thompson@yahoo.com',
                 'phone' => '(210) 555-3456',
                 'notes' => 'Wedding planner. Needs custom flavors and large quantities for events.',
-                'created_by' => 1,
-                'updated_by' => 1,
+                'created_by' => $firstUserId,
+                'updated_by' => $firstUserId,
             ],
             [
                 'franchise_id' => $franchises[array_rand($franchises)],
@@ -85,8 +93,8 @@ class CustomerSeeder extends Seeder
                 'email' => 'jennifer.martinez@email.com',
                 'phone' => '(817) 555-7890',
                 'notes' => 'PTA mom. Organizes school fundraisers and sports team celebrations.',
-                'created_by' => 1,
-                'updated_by' => 1,
+                'created_by' => $firstUserId,
+                'updated_by' => $firstUserId,
             ],
         ];
 

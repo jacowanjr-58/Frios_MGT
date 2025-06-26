@@ -17,9 +17,6 @@ class DatabaseSeeder extends Seeder
         // Run roles and permissions seeder first
         $this->call([
             RolesAndPermissionsSeeder::class,
-            FranchiseSeeder::class,
-            // CustomerSeeder::class,
-            // FgpOrderSeeder::class,
         ]);
 
         // Define users to create/update
@@ -85,8 +82,18 @@ class DatabaseSeeder extends Seeder
         }
 
         // Create user-franchise relationships after all users are created
+            // $this->call([
+            //     UserFranchiseSeeder::class,
+            // ]);
+
+        // Run other seeders after users are created
         $this->call([
             UserFranchiseSeeder::class,
+            FranchiseSeeder::class,
+            // CustomerSeeder::class,
+            FgpCategorySeeder::class,
+            // FgpOrderSeeder::class,
+            // FgpOrderItemSeeder::class,
         ]);
     }
 
@@ -153,6 +160,7 @@ class DatabaseSeeder extends Seeder
 
                     // Frios Availability Management (view-only by default)
                     'frios_availability.view',
+                    'frios_availability.update',
 
                     // Flavor Category Management (view-only by default)
                     'flavor_category.view',

@@ -605,7 +605,7 @@
     </div>
 
     <!-- Custom Styles -->
-    <style>
+    <style scoped>
         .statistics-card {
             border: none;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);

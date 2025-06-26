@@ -41,7 +41,7 @@
         </style>
     @endpush
     @can('owners.view')
-    <!--**********************************
+    <!--**********************************corp
                 Content body start
             ***********************************-->
     <div class="content-body default-height">
@@ -57,7 +57,7 @@
 
                 @can('owners.create')
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                        <a href="{{ route('owner.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+
+                        <a href="{{ route('owner.create', ['franchise' => $franchiseId] ) }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+
                             New Owner</a>
                     </div>
                     <div class="col-xl-9 col-lg-8">
@@ -137,18 +137,32 @@
     @push('scripts')
         <script>
             $(document).ready(function () {
-                $('#owners-table').DataTable({
+                var columns = [
+                    { data: 'name', name: 'name' },
+                    { data: 'franchise', name: 'franchise' },
+                    { data: 'email', name: 'email' },
+                    { data: 'formatted_role', name: 'formatted_role' },
+                    { data: 'formatted_date', name: 'formatted_date' }
+                ];
+
+                @canany(['owners.edit', 'owners.delete'])
+                    columns.push({ data: 'action', name: 'action', orderable: false, searchable: false });
+                @endcanany
+
+                var table = $('#owners-table').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "{{ route('owner.index', ['franchisee' => $franchiseeId]) }}",
-                    columns: [
-                        { data: 'name', name: 'name' },
-                        { data: 'franchisee', name: 'franchisee' },
-                        { data: 'email', name: 'email' },
-                        { data: 'formatted_role', name: 'formatted_role' },
-                        { data: 'formatted_date', name: 'formatted_date' },
-                        { data: 'action', name: 'action', orderable: false, searchable: false }
-                    ],
+                    ajax: {
+                        url: "{{ route('owner.index', ['franchise' => $franchiseId]) }}",
+                        data: function (d) {
+                            // Get selected franchise from header dropdown
+                            var selectedFranchise = $('#franchise-select').val();
+                            if (selectedFranchise) {
+                                d.franchise_filter = selectedFranchise;
+                            }
+                        }
+                    },
+                    columns: columns,
                     language: {
                         paginate: {
                             next: '<i class="fa fa-angle-double-right"></i>',
@@ -179,8 +193,43 @@
                         });
                     }
                 });
+
+                // Listen for header dropdown changes
+                $(document).on('change', '#franchise-select', function() {
+                    var selectedFranchise = $(this).val();
+                    
+                    // Refresh table to show filtered owners
+                    table.draw();
+                    
+                    // Update the owner count display based on header selection
+                    if (selectedFranchise) {
+                        // Show loading state
+                        $('.fs-22').text('Loading...');
+                        
+                        // Make AJAX call to get franchise-specific owner count
+                        $.ajax({
+                            url: '{{ route("owner.index", ["franchise" => $franchiseId]) }}',
+                            type: 'GET',
+                            data: {
+                                franchise_filter: selectedFranchise,
+                                count_only: true
+                            },
+                            success: function(response) {
+                                if (response.count !== undefined) {
+                                    $('.fs-22').text(response.count + ' Owners');
+                                }
+                            },
+                            error: function() {
+                                $('.fs-22').text('Error');
+                            }
+                        });
+                    } else {
+                        // Show total count for all franchises
+                        $('.fs-22').text('{{ $totalUsers }} Owners');
+                    }
+                });
             });
         </script>
     @endpush
 
-@endsection
+@endsection 

@@ -68,14 +68,12 @@
         <div class="row mb-4 align-items-center">
             
                 @can('frios_flavors.create')
-                <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0"></div>
-                    <a href="{{ route('fgpitem.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Item</a>
-                    </div>
+                <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
+                    <a href="{{ route('franchise.fgpitem.create', ['franchise' => $franchise]) }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Item</a>
+                </div>
+                @endcan
 
                 <div class="col-xl-9 col-lg-8">
-                @else
-                    <div class="col-xl-12">
-                    @endcan
                 <div class="card m-0">
                     <div class="card-body py-3 py-md-2">
                         <div class="d-sm-flex d-block align-items-center">
@@ -119,7 +117,7 @@
                                 <td>
                                     @can('frios_availability.update')
                                         <label class="toggle-switch">
-                                            <input type="checkbox" class="toggle-input" data-id="{{ $flavor->fgp_item_id }}" {{ $flavor->orderable ? 'checked' : '' }}>
+                                            <input type="checkbox" class="toggle-input" data-id="{{ $flavor->id }}" {{ $flavor->orderable ? 'checked' : '' }}>
                                             <span class="slider"></span>
                                         </label>
                                     @else
@@ -134,7 +132,7 @@
                                 @foreach(range(1, 12) as $month)
                                     <td>
                                         @can('frios_availability.update')
-                                            <input type="checkbox" class="month-checkbox" data-flavor-id="{{ $flavor->fgp_item_id }}" data-month="{{ $month }}"
+                                            <input type="checkbox" class="month-checkbox" data-flavor-id="{{ $flavor->id }}" data-month="{{ $month }}"
                                             {{ in_array($month, $datesAvailable) ? 'checked' : '' }}>
                                         @else
                                             <input type="checkbox" disabled {{ in_array($month, $datesAvailable) ? 'checked' : '' }} title="You don't have permission to update availability">
@@ -170,15 +168,17 @@
 $(document).ready(function () {
     // Check if user has update permissions (controlled by PHP)
     var hasUpdatePermission = {{ auth()->user() && auth()->user()->can('frios_availability.update') ? 'true' : 'false' }};
+    console.log('hasUpdatePermission',hasUpdatePermission);
+
     
     if (hasUpdatePermission) {
         // Use event delegation for toggle-input and month-checkbox (only if user has update permission)
         $('#example5').on('change', '.toggle-input', function () {
             let flavorId = $(this).data('id');
             let orderable = $(this).is(':checked') ? 1 : 0;
-
+            console.log('orderable',orderable);
             $.ajax({
-                url: `/corporate_admin/fgpitem/update-status/${flavorId}`,
+                url: `/franchise/{{ $franchise }}/fgpitem/update-status/${flavorId}`,
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
@@ -208,7 +208,7 @@ $(document).ready(function () {
             let available = $(this).is(':checked') ? 1 : 0;
 
             $.ajax({
-                url: `/corporate_admin/fgpitem/update-month/${flavorId}`,
+                url: `/franchise/{{ $franchise }}/fgpitem/update-month/${flavorId}`,
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",

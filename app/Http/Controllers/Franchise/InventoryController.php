@@ -25,7 +25,7 @@ class InventoryController extends Controller
         $user = Auth::user();
 
         // Verify that the user has access to this franchisee
-        $hasAccess = DB::table('user_franchisees')
+        $hasAccess = DB::table('user_franchises')
             ->where('user_id', $user->user_id)
             ->where('franchise_id', (int) $franchisee)
             ->exists();
@@ -88,7 +88,7 @@ class InventoryController extends Controller
         $user = Auth::user();
 
         // Verify that the user has access to this franchisee
-        $hasAccess = DB::table('user_franchisees')
+        $hasAccess = DB::table('user_franchises')
             ->where('user_id', $user->user_id)
             ->where('franchise_id', (int) $franchisee)
             ->exists();
@@ -120,7 +120,7 @@ class InventoryController extends Controller
         $user = Auth::user();
 
         // Verify that the user has access to this franchisee
-        $hasAccess = DB::table('user_franchisees')
+        $hasAccess = DB::table('user_franchises')
             ->where('user_id', $user->user_id)
             ->where('franchise_id', (int) $franchisee)
             ->exists();
@@ -241,7 +241,7 @@ class InventoryController extends Controller
         $user = Auth::user();
         
         // Verify that the user has access to this franchisee
-        $hasAccess = DB::table('user_franchisees')
+        $hasAccess = DB::table('user_franchises')
             ->where('user_id', $user->user_id)
             ->where('franchise_id', (int) $franchisee)
             ->exists();
@@ -291,7 +291,7 @@ class InventoryController extends Controller
         $user = Auth::user();
         
         // Verify that the user has access to this franchisee
-        $hasAccess = DB::table('user_franchisees')
+        $hasAccess = DB::table('user_franchises')
             ->where('user_id', $user->user_id)
             ->where('franchise_id', (int) $franchisee)
             ->exists();

@@ -35,9 +35,9 @@ class AuthenticatedSessionController extends Controller
         // Get user's franchises (corrected relationship name)
         $userFranchises = $user->franchises;
         // Get the first franchise ID for redirection
-        $firstFranchiseId = $userFranchises->isEmpty()
-            ? $userFranchises->first()->id
-            : Franchise::first()?->id;
+        $firstFranchiseId = $userFranchises->isNotEmpty()
+        ? $userFranchises->first()->id
+        : Franchise::first()?->id;
 
         session(['franchise_id' => $firstFranchiseId]);
 

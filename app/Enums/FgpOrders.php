@@ -13,7 +13,4 @@ enum FgpOrders: string
     case ON_HOLD = 'On Hold';
     case AWAITING_SHIPMENT = 'Awaiting Shipment';
     case AWAITING_PAYMENT = 'Awaiting Payment';
-    case SHIPPED = 'Shipped';
-    case DELIVERED = 'Delivered';
-    case CANCELLED = 'Cancelled';
 }

@@ -40,7 +40,7 @@
                                             <!-- Display Success Message -->
 
 
-                                            <form action="{{ route('franchise.fgpcategory.update', ['franchisee' => request()->route('franchisee'), 'fgpcategory' => $fgpcategory->category_ID]) }}" method="POST">
+                                            <form action="{{ route('franchise.fgpcategory.update', ['fgpcategory' => $fgpcategory->id]) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
 
@@ -48,10 +48,13 @@
 
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Category Type <span class="text-danger">*</span></label>
-                                                        <select class="form-control @error('type') is-invalid @enderror" name="type"> <!-- Removed multiple attribute -->
-                                                            <option value="Availability" {{ $fgpcategory->type == 'Availability' ? 'selected' : '' }}>Availability</option>
-                                                            <option value="Flavor" {{ $fgpcategory->type == 'Flavor' ? 'selected' : '' }}>Flavor</option>
-                                                            <option value="Allergen" {{ $fgpcategory->type == 'Allergen' ? 'selected' : '' }}>Allergen</option>
+                                                        <select class="form-control select2 @error('type') is-invalid @enderror" name="type"> <!-- Removed multiple attribute -->
+                                                            <option value="">Select Category Type</option>  
+                                                            @foreach ($types as $type)
+                                                                <option value="{{ $type }}" {{ (is_array($fgpcategory->type) ? in_array($type, $fgpcategory->type) : $fgpcategory->type == $type) ? 'selected' : '' }}>
+                                                                    {{ ucfirst(str_replace('_', ' ', $type)) }}
+                                                                </option>
+                                                            @endforeach
                                                         </select>
                                                         @error('type')
                                                             <div class="text-danger">{{ $message }}</div>
@@ -59,16 +62,7 @@
                                                     </div>
 
                                                     <!-- Include Select2 for better UI -->
-                                                    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet">
-                                                    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
-                                                    <script>
-                                                        $(document).ready(function() {
-                                                            $('select[name="type"]').select2({
-                                                                placeholder: "Select Category Type",
-                                                                allowClear: true
-                                                            });
-                                                        });
-                                                    </script>
+                                        
 
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Category Name <span class="text-danger">*</span></label>

@@ -1,116 +1,116 @@
 @extends('layouts.app')
 @section('content')
 
-@can('flavor_category.create')
-    <!--**********************************
-                Content body start
-            ***********************************-->
-    <div class=" content-body default-height">
-        <!-- row -->
-        <div class="container-fluid">
-            <!-- <div class="page-titles">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
-                            <li class="breadcrumb-item active"><a href="javascript:void(0)">Analytics</a></li>
-                        </ol>
-                    </div> -->
-            <div class="form-head mb-4 d-flex flex-wrap align-items-center">
-                <div class="me-auto">
-                    <h2 class="font-w600 mb-0">Dashboard \</h2>
-                    <p>Add Category</p>
+    @can('flavor_category.create')
+        <!--**********************************
+                                Content body start
+                            ***********************************-->
+        <div class=" content-body default-height">
+            <!-- row -->
+            <div class="container-fluid">
+                <!-- <div class="page-titles">
+                                        <ol class="breadcrumb">
+                                            <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
+                                            <li class="breadcrumb-item active"><a href="javascript:void(0)">Analytics</a></li>
+                                        </ol>
+                                    </div> -->
+                <div class="form-head mb-4 d-flex flex-wrap align-items-center">
+                    <div class="me-auto">
+                        <h2 class="font-w600 mb-0">Dashboard \</h2>
+                        <p>Add Category</p>
+                    </div>
+
+                    <a href="javascript:history.back()" class="btn btn-secondary btn-sm">
+                        <i class="fa fa-arrow-left me-2"></i> Back
+                    </a>
                 </div>
 
-                <a href="javascript:history.back()" class="btn btn-secondary btn-sm">
-                    <i class="fa fa-arrow-left me-2"></i> Back
-                </a>
-            </div>
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="row">
+                            <div class="col-xl-12">
+                                <div class="col-xl-12 col-lg-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Add Category</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="basic-form">
 
-            <div class="row">
-                <div class="col-xl-12">
-                    <div class="row">
-                        <div class="col-xl-12">
-                            <div class="col-xl-12 col-lg-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h4 class="card-title">Add Category</h4>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="basic-form">
-
-                                            <!-- Display Success Message -->
+                                                <!-- Display Success Message -->
 
 
-                                            <form action="{{ route('franchise.fgpcategory.store', ['franchisee' => request()->route('franchisee')]) }}" method="POST">
-                                                @csrf
+                                                <form
+                                                    action="{{ route('franchise.fgpcategory.store') }}"         
+                                                    method="POST">
+                                                    @csrf
 
-                                                <div class="row">
+                                                    <div class="row">
 
-                                                    <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Category Type <span class="text-danger">*</span></label>
-                                                        <select class="form-control @error('type') is-invalid @enderror" name="type">
-                                                            <option value="" selected disabled>Select Category Type</option>
-                                                            <option value="Availability" {{ old('type') == 'Availability' ? 'selected' : '' }}>Availability</option>
-                                                            <option value="Flavor" {{ old('type') == 'Flavor' ? 'selected' : '' }}>Flavor</option>
-                                                            <option value="Allergen" {{ old('type') == 'Allergen' ? 'selected' : '' }}>Allergen</option>
-                                                        </select>
-                                                        @error('type')
-                                                            <div class="text-danger">{{ $message }}</div>
-                                                        @enderror
+                                                        <div class="mb-3 col-md-6">
+                                                            <label class="form-label">Category Type <span
+                                                                    class="text-danger">*</span></label>
+                                                            <select class="form-control select2" name="type">
+                                                                <option value="" selected disabled>Select Category Type</option>
+                                                                @foreach ($types as $type)
+                                                                    <option value="{{ $type }}">
+                                                                        {{ ucfirst(str_replace('_', ' ', $type)) }}</option>
+                                                                @endforeach
+                                                            </select>
+
+                                                            @error('type')
+                                                                <div class="text-danger">{{ $message }}</div>
+                                                            @enderror
+
+                                                        </div>
+
+
+
+
+                                                        <div class="mb-3 col-md-6">
+                                                            <label class="form-label">Category Name <span
+                                                                    class="text-danger">*</span></label>
+                                                            <input type="text"
+                                                                class="form-control @error('name') is-invalid @enderror"
+                                                                name="name" value="{{ old('name') }}" placeholder="Subcategory">
+                                                            @error('name')
+                                                                <div class="text-danger">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
                                                     </div>
+                                                    <button type="submit" class="btn btn-primary bg-primary">Add
+                                                        Category</button>
+                                                </form>
 
-                                                    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet">
-                                                    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
-                                                    <script>
-                                                        $(document).ready(function() {
-                                                            $('select[name="type"]').select2({
-                                                                placeholder: "Select Category Type",
-                                                                allowClear: true
-                                                            });
-                                                        });
-                                                    </script>
-
-
-                                                    <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Category Name <span class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                                            name="name" value="{{ old('name') }}" placeholder="Subcategory">
-                                                        @error('name')
-                                                            <div class="text-danger">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-                                                </div>
-                                                <button type="submit" class="btn btn-primary bg-primary">Add Category</button>
-                                            </form>
-
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
+
+
                         </div>
-
-
-
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!--**********************************
-                Content body end
-            ***********************************-->
-@else
-    <div class="content-body default-height">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="alert alert-warning text-center" role="alert">
-                        <i class="ti ti-alert-circle fs-20 me-2"></i>
-                        <strong>Access Denied!</strong> You don't have permission to create Flavor Categories.
+        <!--**********************************
+                                Content body end
+                            ***********************************-->
+    @else
+        <div class="content-body default-height">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="alert alert-warning text-center" role="alert">
+                            <i class="ti ti-alert-circle fs-20 me-2"></i>
+                            <strong>Access Denied!</strong> You don't have permission to create Flavor Categories.
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-@endcan
+    @endcan
 
 @endsection
