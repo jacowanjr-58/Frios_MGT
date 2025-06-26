@@ -33,7 +33,7 @@
                     </ul>
                 </li>
             @endif
-            @endcan
+            @endcanay
             @canany(['franchises.view', 'franchises.create', 'franchises.edit', 'franchises.delete', 'owners.view', 'owners.create', 'owners.edit', 'owners.delete'])
 
             <li class="{{ Request::routeIs('franchise.*', 'owner.*') ? 'mm-active' : '' }}">
@@ -50,7 +50,7 @@
                 </ul>
             </li>
 
-            @endcan
+            @endcanany
             @canany(['frios_flavors.view', 'frios_flavors.create', 'frios_flavors.edit', 'frios_flavors.delete', 'frios_flavors.categories'])
             <li class="{{ Request::routeIs('franchise.fgpitem.*', 'franchise.fgpcategory.*') ? 'mm-active' : '' }}">
                 <a class="has-arrow ai-icon {{ Request::routeIs('franchise.fgpitem.*', 'franchise.fgpcategory.*') ? 'active' : '' }}"
@@ -72,7 +72,7 @@
                             Flavor Categories</a></li>
                 </ul>
             </li>
-            @endcan
+            @endcanany
             @canany(['franchise_orders.view', 'franchise_orders.create', 'franchise_orders.edit', 'franchise_orders.delete', 'franchise_orders.edit_charges'])
             <li class="{{ Request::routeIs('vieworders.*', 'orderposps', 'additionalcharges.*') ? 'mm-active' : '' }}">
                 <a class="has-arrow ai-icon {{ Request::routeIs('vieworders.*', 'orderposps', 'additionalcharges.*') ? 'active' : '' }}"
@@ -88,7 +88,7 @@
                     <li><a href="{{ route('additionalcharges.index', ['franchise' => $franchiseeId]) }}">Edit Charges</a></li>
                 </ul>
             </li>
-            @endcan
+            @endcanany
             @canany(['transactions.view'])
             <li class="{{ Request::routeIs('transaction', 'franchise.transaction') ? 'mm-active' : '' }}">
                 <a class="has-arrow ai-icon {{ Request::routeIs('transaction', 'franchise.transaction') ? 'active' : '' }}"
@@ -101,7 +101,7 @@
                     <li><a href="{{ route('transaction', ['franchise' => $franchiseeId]) }}">Payments by franchise</a></li>
                 </ul>
             </li>
-            @endcan
+            @endcanany
             @canany(['expenses.categories', 'expenses.by_franchisee'])
             <li class="{{ Request::routeIs('expense-category', 'expense.franchise') ? 'mm-active' : '' }}">
                 <a class="has-arrow ai-icon {{ Request::routeIs('expense-category', 'expense.franchise') ? 'active' : '' }}"
@@ -117,7 +117,7 @@
                     {{-- <li><a href="edit_expense_categories.html">Edit Expense Categories</a></li> --}}
                 </ul>
             </li>
-            @endcan
+            @endcanany
 
             <!-- @canany(['events.view', 'events.create', 'events.edit', 'events.delete'])
             <li class="{{ Request::routeIs('events.*') ? 'mm-active' : '' }}">
@@ -133,7 +133,7 @@
                     <li><a href="{{ route('events.report') }}">Report</a></li>
                 </ul>
             </li>
-            @endcan -->
+            @endcanany>
             @canany(['inventory.view', 'inventory.create', 'inventory.edit', 'inventory.delete'])
             @if(auth()->user()->role !== 'corporate_admin' && $franchiseeId)
                 <li class="{{ Request::routeIs('franchise.inventory.*', 'franchise.locations.*') ? 'mm-active' : '' }}">
@@ -163,7 +163,7 @@
                     </ul>
                 </li>
             @endif
-            @endcan
+            @endcanany
             <!-- @canany(['orders.view', 'orders.create', 'orders.edit', 'orders.delete'])
             @if(auth()->user()->role !== 'corporate_admin' && $franchiseeId)
                 <li class="{{ Request::routeIs('franchise.orderpops.*') ? 'mm-active' : '' }}">
@@ -185,7 +185,7 @@
                     </ul>
                 </li>
             @endif
-            @endcan -->
+            @endcanany>
             @canany(['invoices.view', 'invoices.create', 'invoices.edit', 'invoices.delete'])
             @if(auth()->user()->role !== 'corporate_admin' && $franchiseeId)
                 <li class="{{ Request::routeIs('franchise.invoice.*', 'franchise.transaction') ? 'mm-active' : '' }}">
@@ -208,7 +208,7 @@
                     </ul>
                 </li>
             @endif
-            @endcan
+            @endcanany
             @canany(['expenses.view', 'expenses.create', 'expenses.edit', 'expenses.delete'])
             @if(auth()->user()->role !== 'corporate_admin' && $franchiseeId)
                 <li class="{{ Request::routeIs('franchise.expense', 'franchise.expense-category') ? 'mm-active' : '' }}">
@@ -228,7 +228,7 @@
                     </ul>
                 </li>
             @endif
-            @endcan
+            @endcanany
 
             @canany(['events.view', 'events.create', 'events.edit', 'events.delete'])
             @if(auth()->user()->role !== 'corporate_admin' && $franchiseeId)
@@ -253,7 +253,7 @@
                     </ul>
                 </li>
             @endif
-            @endcan
+            @endcanany
             @canany(['pos.view'])
             <li class="{{ Request::routeIs('franchise_staff.pos') ? 'mm-active' : '' }}">
                 <a class="ai-icon {{ Request::routeIs('franchise_staff.pos') ? 'active' : '' }}"
@@ -263,7 +263,7 @@
                     <span class="nav-text">POS</span>
                 </a>
             </li>
-            @endcan
+            @endcanany
             @can('flavors.view')
                 <li class="{{ Request::routeIs('franchise.flavors') ? 'mm-active' : '' }}">
                     <a class="ai-icon {{ Request::routeIs('franchise.flavors') ? 'active' : '' }}"
@@ -287,15 +287,15 @@
                     <ul aria-expanded="{{ Request::routeIs('franchise.franchise_customer') ? 'true' : 'false' }}"
                         class="{{ Request::routeIs('franchise.franchise_customer') ? 'mm-collapse mm-show' : '' }}">
                         <li>
-                           
+
                             <a
                                 href="{{ route('franchise.franchise_customer', ['franchise' => $franchiseeId]) }}">Customers
                             (Franchise) </a>
-                   
+
                     </li>
                 </ul>
             </li>
-            @endcan
+            @endcanany
 
             @if(!$user->hasRole('corporate_admin'))
             @canany(['customers.view', 'customers.create', 'customers.edit', 'customers.delete'])
@@ -317,7 +317,7 @@
                 </ul>
             </li>
             @endif
-            @endcan
+            @endcanany
             @canany(['sales.view', 'sales.create', 'sales.edit', 'sales.delete'])
             <li class="{{ Request::routeIs('franchise_staff.sales.*') ? 'mm-active' : '' }}">
                 <a class="ai-icon {{ Request::routeIs('franchise_staff.sales.*') ? 'active' : '' }}"
@@ -327,7 +327,7 @@
                     <span class="nav-text">Sales</span>
                 </a>
             </li>
-            @endcan
+            @endcanany
             <!-- @canany(['events.view', 'events.create', 'events.edit', 'events.delete'])
             <li class="{{ Request::routeIs('franchise_staff.events.*') ? 'mm-active' : '' }}">
                 <a class="has-arrow ai-icon {{ Request::routeIs('franchise_staff.events.*') ? 'active' : '' }}"
@@ -344,7 +344,7 @@
                     </li>
                 </ul>
             </li>
-            @endcan -->
+            @endcanany>
         </ul>
         <div class="copyright">
             <p><strong>Frios Management System</strong> © <span class="current-year">2023</span> All Rights Reserved
