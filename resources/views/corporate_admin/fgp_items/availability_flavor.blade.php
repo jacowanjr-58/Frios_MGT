@@ -115,7 +115,7 @@
                             @foreach ($flavors as $flavor)
                             <tr>
                                 <td>
-                                    @can('frios_availability.update')
+                                    @can('frios_availability.edit')
                                         <label class="toggle-switch">
                                             <input type="checkbox" class="toggle-input" data-id="{{ $flavor->id }}" {{ $flavor->orderable ? 'checked' : '' }}>
                                             <span class="slider"></span>
@@ -131,7 +131,7 @@
                                 @php $datesAvailable = json_decode($flavor->dates_available, true) ?? []; @endphp
                                 @foreach(range(1, 12) as $month)
                                     <td>
-                                        @can('frios_availability.update')
+                                        @can('frios_availability.edit')
                                             <input type="checkbox" class="month-checkbox" data-flavor-id="{{ $flavor->id }}" data-month="{{ $month }}"
                                             {{ in_array($month, $datesAvailable) ? 'checked' : '' }}>
                                         @else
@@ -167,7 +167,7 @@
 <script>
 $(document).ready(function () {
     // Check if user has update permissions (controlled by PHP)
-    var hasUpdatePermission = {{ auth()->user() && auth()->user()->can('frios_availability.update') ? 'true' : 'false' }};
+    var hasUpdatePermission = {{ auth()->user()->can('frios_availability.edit') ? 'true' : 'false' }};
     console.log('hasUpdatePermission',hasUpdatePermission);
 
     

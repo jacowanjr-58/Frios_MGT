@@ -50,15 +50,12 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::name('franchise.')->group(function () {
-
-        Route::middleware('permission:frios_flavors.categories')->group(function () {
-            Route::get('/fgpcategory', [FgpCategoryController::class, 'index'])->name('fgpcategory.index');
-            Route::get('/fgpcategory/create', [FgpCategoryController::class, 'create'])->name('fgpcategory.create');
-            Route::post('/fgpcategory', [FgpCategoryController::class, 'store'])->name('fgpcategory.store');
-            Route::get('/fgpcategory/{fgpcategory}/edit', [FgpCategoryController::class, 'edit'])->name('fgpcategory.edit');
-            Route::put('/fgpcategory/{fgpcategory}', [FgpCategoryController::class, 'update'])->name('fgpcategory.update');
-            Route::delete('/fgpcategory/{fgpcategory}', [FgpCategoryController::class, 'destroy'])->name('fgpcategory.destroy');
-        });
+        Route::get('/fgpcategory', [FgpCategoryController::class, 'index'])->name('fgpcategory.index')->middleware('permission:flavor_category.view');
+        Route::get('/fgpcategory/create', [FgpCategoryController::class, 'create'])->name('fgpcategory.create')->middleware('permission:flavor_category.create');
+        Route::post('/fgpcategory', [FgpCategoryController::class, 'store'])->name('fgpcategory.store')->middleware('permission:flavor_category.create');
+        Route::get('/fgpcategory/{fgpcategory}/edit', [FgpCategoryController::class, 'edit'])->name('fgpcategory.edit')->middleware('permission:flavor_category.edit');
+        Route::put('/fgpcategory/{fgpcategory}', [FgpCategoryController::class, 'update'])->name('fgpcategory.update')->middleware('permission:flavor_category.edit');
+        Route::delete('/fgpcategory/{fgpcategory}', [FgpCategoryController::class, 'destroy'])->name('fgpcategory.destroy')->middleware('permission:flavor_category.delete');
     });
 
     // fgp Category routes
@@ -152,9 +149,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('customer/{id}/edit', [CustomerController::class, 'edit'])->name('customer.edit')->middleware('permission:customers.edit');
             Route::put('customer/{id}/update', [CustomerController::class, 'update'])->name('customer.update')->middleware('permission:customers.edit');
             Route::delete('customer/{id}/delete', [CustomerController::class, 'delete'])->name('customer.delete')->middleware('permission:customers.delete');
-
         });
-
     });
 
 

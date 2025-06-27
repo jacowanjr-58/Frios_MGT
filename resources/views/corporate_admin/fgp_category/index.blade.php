@@ -98,7 +98,7 @@
                                             <th>Name</th>
                                             <th>Type</th>
                                             <th>Flavor Items</th>
-                                            @canany(['flavor_category.update', 'flavor_category.delete'])
+                                            @canany(['flavor_category.edit', 'flavor_category.delete'])
                                                 <th>Actions</th>
                                             @endcanany
                                         </tr>
@@ -111,8 +111,8 @@
 
             </div>
             <!--**********************************
-                                    Content body end
-                                ***********************************-->
+                    Content body end
+                ***********************************-->
     @else
             <div class="content-body default-height">
                 <div class="container-fluid">
@@ -155,12 +155,12 @@
                     ];
 
                     // Add action column if user has update or delete permissions
-                    @canany(['flavor_category.update', 'flavor_category.delete'])
+                    @canany(['flavor_category.edit', 'flavor_category.delete'])
                         columns.push({ data: 'action', name: 'action', orderable: false, searchable: false });
                     @endcanany
 
                     // Add hidden created_at column for sorting
-                    columns.push({ data: 'created_at', name: 'created_at', visible: false });
+                    columns.push({ data: 'created_at', visible: false });
 
                     // Determine the sort column index (created_at is always last)
                     var sortColumnIndex = columns.length - 1;
@@ -168,6 +168,7 @@
                     var table = $('#category-table').DataTable({
                         processing: true,
                         serverSide: true,
+                        responsive: true,
                         ajax: {
                             url: "{{ route('franchise.fgpcategory.index') }}",
                             data: function (d) {

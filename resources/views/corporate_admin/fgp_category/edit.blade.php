@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
 
-@can('flavor_category.update')
+@can('flavor_category.edit')
     <!--**********************************
                 Content body start
             ***********************************-->

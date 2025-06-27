@@ -4,25 +4,18 @@ namespace App\Http\Controllers\CorporateAdminControllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\FgpCategory; // Import the model
-use App\Models\Franchise;
+use App\Models\FgpCategory;
 use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Facades\Auth;
 
 class FgpCategoryController extends Controller
 {
     // Display all categories
     public function index()
     {
-        // Check permission for viewing flavor categories
-        if (!Auth::check() || !Auth::user()->can('flavor_category.view')) {
-            abort(403, 'Unauthorized access to Flavor Categories');
-        }
-
         if (request()->ajax()) {
             // Start with categories query
             $categories = FgpCategory::query();
-          
+
             // If only count is requested, return just the count
             if (request()->has('count_only')) {
                 return response()->json(['count' => $categories->count()]);
@@ -36,28 +29,28 @@ class FgpCategoryController extends Controller
                     $editUrl = route('franchise.fgpcategory.edit', ['franchise' => $category->id, 'fgpcategory' => $category->id]);
                     $deleteUrl = route('franchise.fgpcategory.destroy', ['franchise' => $category->id, 'fgpcategory' => $category->id]);
 
-                    $actions = '<div class="d-flex">';
-                    
+                    $actions = '<div class="d-flex align-items-center">';
+
                     // Edit button - check permission
-                    if (Auth::check() && Auth::user()->can('flavor_category.update') && $category->id > 12) {
-                        $actions .= '<a href="'.$editUrl.'" class="edit-category">
-                            <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
-                        </a>';
+                    if (auth()->user()->can('flavor_category.edit')) {
+                        $actions .= '<a href="' . $editUrl . '" class="btn ' . ($category->id <= 12 ? 'disabled' : '') . '">
+                                <i class="ti ti-edit fs-20 text-warning"></i>
+                            </a>';
                     }
-                    
+
                     // Delete button - check permission and ID condition
-                    if (Auth::check() && Auth::user()->can('flavor_category.delete') && $category->id > 12) {
-                        $actions .= '<form action="'.$deleteUrl.'" method="POST">
-                            '.csrf_field().'
-                            '.method_field('DELETE').'
-                            <button type="submit" class="ms-4 delete-category">
-                                <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
+                    if (auth()->user()->can('flavor_category.delete')) {
+                        $actions .= '<form action="' . $deleteUrl . '" method="POST">
+                            ' . csrf_field() . '
+                            ' . method_field('DELETE') . '
+                            <button type="submit" class="btn ' . ($category->id <= 12 ? 'disabled' : '') . '">
+                                <i class="ti ti-trash fs-20 text-danger"></i>
                             </button>
                         </form>';
                     }
-                    
+
                     $actions .= '</div>';
-                    
+
                     return $actions;
                 })
                 ->rawColumns(['action'])
@@ -67,7 +60,7 @@ class FgpCategoryController extends Controller
         // Get category count for the specific franchise
         $totalCategories = FgpCategory::count();
         $franchiseData = null;
-        
+
         return view('corporate_admin.fgp_category.index', [
             'totalCategories' => $totalCategories,
             'franchiseData' => $franchiseData
@@ -77,27 +70,14 @@ class FgpCategoryController extends Controller
     // Show form to create a new category
     public function create()
     {
-        
-        // Check permission for creating flavor categories
-        if (!Auth::check() || !Auth::user()->can('flavor_category.create')) {
-            abort(403, 'Unauthorized access to create Flavor Categories');
-        }
-
         $types = FgpCategory::select('type')->distinct()->pluck('type');
-    
+
         return view('corporate_admin.fgp_category.create', compact('types'));
     }
 
     // Store the new category
     public function store(Request $request)
     {
-        
-        
-        // Check permission for creating flavor categories
-        if (!Auth::check() || !Auth::user()->can('flavor_category.create')) {
-            abort(403, 'Unauthorized access to create Flavor Categories');
-        }
-        
         $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'required|string|max:255',
@@ -106,7 +86,7 @@ class FgpCategoryController extends Controller
         FgpCategory::create([
             'name' => $request->name,
             'type' => $request->type, // Store as array to match model cast
-          
+
         ]);
 
         return redirect()->route('franchise.fgpcategory.index')->with('success', 'Category created successfully.');
@@ -116,8 +96,12 @@ class FgpCategoryController extends Controller
     // Show edit form
     public function edit(FgpCategory $fgpcategory)
     {
+        if ($fgpcategory->id <= 12) {
+            return redirect()->route('franchise.fgpcategory.index')->with('error', 'Unauthorized access to edit Flavor Categories');
+        }
+
         $types = FgpCategory::select('type')->distinct()->pluck('type');
-    
+
         return view('corporate_admin.fgp_category.edit', compact('fgpcategory', 'types'));
     }
 
@@ -125,9 +109,13 @@ class FgpCategoryController extends Controller
     // Update category
     public function update(Request $request, FgpCategory $fgpcategory)
     {
+        if ($fgpcategory->id <= 12) {
+            return redirect()->route('franchise.fgpcategory.index')->with('error', 'Unauthorized access to edit Flavor Categories');
+        }
+
         $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
+            'name' => 'required|max:255',
+            'type' => 'required|max:255',
         ]);
 
         $fgpcategory->update([
@@ -142,6 +130,10 @@ class FgpCategoryController extends Controller
     // Delete category
     public function destroy(FgpCategory $fgpcategory)
     {
+        if ($fgpcategory->id <= 12) {
+            return redirect()->route('franchise.fgpcategory.index')->with('error', 'Unauthorized access to delete Flavor Categories');
+        }
+
         try {
             $fgpcategory->delete();
             return redirect()->route('franchise.fgpcategory.index')->with('success', 'Category deleted successfully.');

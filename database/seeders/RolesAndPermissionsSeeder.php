@@ -57,31 +57,30 @@ class RolesAndPermissionsSeeder extends Seeder
             'franchises.create',
             'franchises.edit',
             'franchises.delete',
+
             // Franchisee/Owner Management (Corporate Admin)
             'owners.view',
             'owners.create',
             'owners.edit',
             'owners.delete',
 
+            // Flavor Category Management (Corporate Admin)
+            'flavor_category.view',
+            'flavor_category.create',
+            'flavor_category.edit',
+            'flavor_category.delete',
+
             // Frios Flavors Management (Corporate Admin)
             'frios_flavors.view',
             'frios_flavors.create',
             'frios_flavors.edit',
             'frios_flavors.delete',
-            'frios_flavors.categories',
 
             // Frios Availability Management (Corporate Admin)
             'frios_availability.view',
             'frios_availability.create',
             'frios_availability.edit',
             'frios_availability.delete',
-            'frios_availability.update',
-
-            // Flavor Category Management (Corporate Admin)
-            'flavor_category.view',
-            'flavor_category.create',
-            'flavor_category.update',
-            'flavor_category.delete',
 
             // Franchise Orders Management (Corporate Admin)
             'franchise_orders.view',
@@ -150,13 +149,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'invoices.edit',
             'invoices.delete',
 
-
             // Transactions (Franchise Admin)
             'transactions.view',
             'transactions.create',
             'transactions.edit',
             'transactions.delete',
-
 
             // POS System (Franchise Staff)
             'pos.view',
@@ -171,17 +168,14 @@ class RolesAndPermissionsSeeder extends Seeder
             'sales.edit',
             'sales.delete',
 
-
             // Flavors (Franchise Staff)
             'flavors.view',
-
 
             // Staff Management (Franchise Admin & Manager)
             'staff.view',
             'staff.create',
             'staff.edit',
             'staff.delete',
-
 
             // Locations (Franchise Admin & Manager)
             'locations.view',
@@ -285,7 +279,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'frios_availability.create',
             'frios_availability.edit',
             'frios_availability.delete',
-            'frios_availability.update',
 
             //flavors
             'frios_flavors.view',
@@ -296,7 +289,7 @@ class RolesAndPermissionsSeeder extends Seeder
             //flavor_category
             'flavor_category.view',
             'flavor_category.create',
-            'flavor_category.update',
+            'flavor_category.edit',
             'flavor_category.delete',
 
             //customers
@@ -320,6 +313,23 @@ class RolesAndPermissionsSeeder extends Seeder
         $corporateAdminPermissions = [
             'dashboard.view',
 
+            // Role Management (for corporate_admin to assign permissions)
+            'roles.view',
+            'permissions.assign',
+            'permissions.view',
+
+            // User Management (for corporate_admin to assign permissions)
+            'users.view',
+            'users.create',
+            'users.edit',
+            'users.delete',
+
+            // Staff Management (Franchise Admin & Manager)
+            'staff.view',
+            'staff.create',
+            'staff.edit',
+            'staff.delete',
+
             // Franchise List - Full Access
             'franchises.view',
             'franchises.create',
@@ -332,46 +342,41 @@ class RolesAndPermissionsSeeder extends Seeder
             'owners.edit',
             'owners.delete',
 
-            // by_franchisee
-            'customers.by_franchisee',
+            //flavor_category
+            'flavor_category.view',
+            'flavor_category.create',
+            'flavor_category.edit',
+            'flavor_category.delete',
 
-
-            //expenses
-            'expenses.view',
-            'expenses.create',
-            'expenses.edit',
-            'expenses.delete',
-            'expenses.categories',
-            'expenses.by_category',
-            'expenses.by_franchisee',
-
+            // Frios Flavors Management (Corporate Admin)
+            'frios_flavors.view',
+            'frios_flavors.create',
+            'frios_flavors.edit',
+            'frios_flavors.delete',
 
             //availability
             'frios_availability.view',
             'frios_availability.create',
             'frios_availability.edit',
             'frios_availability.delete',
-            'frios_availability.update',
 
-            //flavors
-            'frios_flavors.view',
-            'frios_flavors.create',
-            'frios_flavors.edit',
-            'frios_flavors.delete',
+            //orders
+            'orders.view',
+            'orders.create',
+            'orders.edit',
+            'orders.delete',
 
+            // Additional Charges Management (Corporate Admin)
+            'additional_charges.view',
+            'additional_charges.create',
+            'additional_charges.edit',
+            'additional_charges.delete',
 
-            //flavor_category
-            'flavor_category.view',
-            'flavor_category.create',
-            'flavor_category.update',
-            'flavor_category.delete',
-
-            //customers
-            'customers.view',
-            'customers.create',
-            'customers.edit',
-            'customers.delete',
-            'customers.by_franchisee',
+            //expenses
+            'expenses.view',
+            'expenses.categories',
+            'expenses.by_category',
+            'expenses.by_franchisee',
 
             //expense_categories
             'expense_categories.view',
@@ -379,8 +384,45 @@ class RolesAndPermissionsSeeder extends Seeder
             'expense_categories.edit',
             'expense_categories.delete',
 
+            'inventory.view',
+            'inventory.locations',
 
+            // Events Management (All roles)
+            'events.view',
+            'events.create',
+            'events.edit',
+            'events.delete',
+            'events.calendar',
+            'events.report',
+
+            // Get Paid/Invoices (Franchise Admin)
+            'invoices.view',
+
+            // POS System (Franchise Staff)
+            'pos.view',
+            'pos.create',
+            'pos.edit',
+            'pos.delete',
+            'pos.access',
+
+            // Sales Management (Franchise Staff)
+            'sales.view',
+
+            // Transactions (Franchise Admin)
+            'transactions.view',
+            'transactions.edit',
+
+            // by_franchisee
+            'customers.by_franchisee',
+
+            //customers
+            'customers.view',
+            'customers.create',
+            'customers.edit',
+            'customers.delete',
+            'customers.by_franchisee',
         ];
+
         $corporateAdmin->givePermissionTo($corporateAdminPermissions);
 
         // Assign permissions to franchise_admin
@@ -454,7 +496,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'frios_flavors.create',
             'frios_flavors.edit',
             'frios_flavors.delete',
-            'frios_flavors.categories',
             'frios_availability.view',
             'frios_availability.create',
             'frios_availability.edit',
@@ -463,7 +504,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
             'flavor_category.view',
             'flavor_category.create',
-            'flavor_category.update',
+            'flavor_category.edit',
             'flavor_category.delete',
         ];
         $franchiseAdmin->givePermissionTo($franchiseAdminPermissions);

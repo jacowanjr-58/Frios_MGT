@@ -283,9 +283,8 @@ class FgpItemsController extends Controller
 
 public function updateStatus(Request $request, $id)
 {
-  
     // Check permission for updating Frios Availability
-    if (!Auth::check() || !Auth::user()->can('frios_availability.update')) {
+    if (!Auth::check() || !Auth::user()->can('frios_availability.edit')) {
         return response()->json(['success' => false, 'message' => 'Unauthorized access'], 403);
     }
 
@@ -301,7 +300,7 @@ public function updateStatus(Request $request, $id)
 public function updateMonth(Request $request, $id)
 {
     // Check permission for updating Frios Availability
-    if (!Auth::check() || !Auth::user()->can('frios_availability.update')) {
+    if (!Auth::check() || !Auth::user()->can('frios_availability.edit')) {
         return response()->json(['success' => false, 'message' => 'Unauthorized access'], 403);
     }
 
