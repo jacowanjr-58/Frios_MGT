@@ -201,7 +201,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'additional_charges.edit',
             'additional_charges.delete',
 
-                        // Sidebar-specific permissions for permission-based access control
+            // Sidebar-specific permissions for permission-based access control
             'manage-franchises',
             'manage-flavors',
             'manage-frios-availability',
@@ -222,6 +222,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'use-pos',
             'view-flavors',
             'manage-customers',
+            
 
         ];
 
@@ -270,6 +271,47 @@ class RolesAndPermissionsSeeder extends Seeder
             // by_franchisee
             'customers.by_franchisee',
 
+            //expenses
+            'expenses.view',
+            'expenses.create',
+            'expenses.edit',
+            'expenses.delete',
+            'expenses.categories',
+            'expenses.by_category',
+            'expenses.by_franchisee',
+
+            //availability
+            'frios_availability.view',
+            'frios_availability.create',
+            'frios_availability.edit',
+            'frios_availability.delete',
+            'frios_availability.update',
+
+            //flavors
+            'frios_flavors.view',
+            'frios_flavors.create',
+            'frios_flavors.edit',
+            'frios_flavors.delete',
+
+            //flavor_category
+            'flavor_category.view',
+            'flavor_category.create',
+            'flavor_category.update',
+            'flavor_category.delete',
+
+            //customers
+            'customers.view',
+            'customers.create',
+            'customers.edit',
+            'customers.delete',
+            'customers.by_franchisee',
+
+            //expense_categories
+            'expense_categories.view',
+            'expense_categories.create',
+            'expense_categories.edit',
+            'expense_categories.delete',
+
         ];
         $superAdmin->givePermissionTo($superAdminPermissions);
         // $superAdmin->givePermissionTo(Permission::all());
@@ -278,62 +320,66 @@ class RolesAndPermissionsSeeder extends Seeder
         $corporateAdminPermissions = [
             'dashboard.view',
 
-            // User & Role Management (view-only by default, Super Admin has full access)
-            'roles.view',
-            'permissions.view',
-            'users.view',
-
-            // Franchises Management (view-only by default, Super Admin has full access)
+            // Franchise List - Full Access
             'franchises.view',
+            'franchises.create',
+            'franchises.edit',
+            'franchises.delete',
+
+            // Franchise Owners - Full Access
             'owners.view',
+            'owners.create',
+            'owners.edit',
+            'owners.delete',
 
-            // Frios Flavors Management (view-only by default)
-            'frios_flavors.view',
-            'frios_flavors.categories',
-
-            // Frios Availability Management (view-only by default)
-            'frios_availability.view',
-
-            // Flavor Category Management (view-only by default)
-            'flavor_category.view',
-
-            // Franchise Orders Management (view-only by default)
-            'franchise_orders.view',
-
-            // Payments Management (view-only by default)
-            'payments.view',
-            'payments.by_franchisee',
-
-            // Expense Categories Management (view-only by default)
-            'expense_categories.view',
-
-            // Additional Charges Management (view-only by default)
-            'additional_charges.view',
-
-            // View-only access to specified modules
-            'customers.view',
+            // by_franchisee
             'customers.by_franchisee',
-            'events.view',
-            'events.calendar',
-            'events.report',
-            'orders.view',
-            'flavors.view',
-            'inventory.view',
+
+
+            //expenses
             'expenses.view',
+            'expenses.create',
+            'expenses.edit',
+            'expenses.delete',
+            'expenses.categories',
+            'expenses.by_category',
             'expenses.by_franchisee',
 
-            // Sidebar permissions (view-only)
-            'manage-franchises',
-            'manage-flavors',
-            'manage-frios-availability',
-            'manage-flavor-categories',
-            'manage-franchise-orders',
-            'view-payments',
-            'view-customers',
-            'view-events',
-            'view-inventory',
-            'view-orders',
-            'view-expenses',
+
+            //availability
+            'frios_availability.view',
+            'frios_availability.create',
+            'frios_availability.edit',
+            'frios_availability.delete',
+            'frios_availability.update',
+
+            //flavors
+            'frios_flavors.view',
+            'frios_flavors.create',
+            'frios_flavors.edit',
+            'frios_flavors.delete',
+
+
+            //flavor_category
+            'flavor_category.view',
+            'flavor_category.create',
+            'flavor_category.update',
+            'flavor_category.delete',
+
+            //customers
+            'customers.view',
+            'customers.create',
+            'customers.edit',
+            'customers.delete',
+            'customers.by_franchisee',
+
+            //expense_categories
+            'expense_categories.view',
+            'expense_categories.create',
+            'expense_categories.edit',
+            'expense_categories.delete',
+
+
         ];
         $corporateAdmin->givePermissionTo($corporateAdminPermissions);
 
@@ -395,30 +441,30 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage-expenses',
             'manage-customers',
             'manage-events',
-             // Franchises Management (Corporate Admin)
-             'franchises.view',
-             'franchises.create',
-             'franchises.edit',
-             'franchises.delete',
-             'owners.view',
-             'owners.create',
-             'owners.edit',
-             'owners.delete',
-             'frios_flavors.view',
-             'frios_flavors.create',
-             'frios_flavors.edit',
-             'frios_flavors.delete',
-             'frios_flavors.categories',
-             'frios_availability.view',
-             'frios_availability.create',
-             'frios_availability.edit',
-             'frios_availability.delete',
+            // Franchises Management (Corporate Admin)
+            'franchises.view',
+            'franchises.create',
+            'franchises.edit',
+            'franchises.delete',
+            'owners.view',
+            'owners.create',
+            'owners.edit',
+            'owners.delete',
+            'frios_flavors.view',
+            'frios_flavors.create',
+            'frios_flavors.edit',
+            'frios_flavors.delete',
+            'frios_flavors.categories',
+            'frios_availability.view',
+            'frios_availability.create',
+            'frios_availability.edit',
+            'frios_availability.delete',
 
 
-             'flavor_category.view',
-             'flavor_category.create',
-             'flavor_category.update',
-             'flavor_category.delete',
+            'flavor_category.view',
+            'flavor_category.create',
+            'flavor_category.update',
+            'flavor_category.delete',
         ];
         $franchiseAdmin->givePermissionTo($franchiseAdminPermissions);
 

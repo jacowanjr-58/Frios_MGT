@@ -63,9 +63,9 @@ class OwnerController extends Controller
                 ->addColumn('formatted_date', function ($user) {
                     return $user->created_at ? Carbon::parse($user->created_at)->format('d-m-Y') : 'N/A';
                 })
-                ->addColumn('action', function ($user) {
-                    $editUrl = route('owner.edit', $user->id);
-                    $deleteUrl = route('owner.destroy', $user->id);
+                ->addColumn('action', function ($user) use ($franchise) {
+                    $editUrl = route('owner.edit', ['franchise' => $franchise, 'owner' => $user->id]);
+                    $deleteUrl = route('owner.destroy', ['franchise' => $franchise, 'owner' => $user->id]);
 
                     $actions = '<div class="d-flex">';
                     
@@ -110,7 +110,7 @@ class OwnerController extends Controller
         }
         $totalUsers = $query->count();
         
-        return view('corporate_admin.owners.index', compact('totalUsers', 'franchiseId'));
+        return view('corporate_admin.owners.index', compact('totalUsers', 'franchiseId', 'franchise'));
     }
 
     // Show create form
@@ -118,25 +118,25 @@ class OwnerController extends Controller
     {
         $franchiseId = intval($franchise);
         $franchises = Franchise::whereDoesntHave('users')->get();
-
+       
         return view('corporate_admin.owners.create', compact('franchises', 'franchiseId'));
     }
 
 
-    public function store(Request $request)
+    public function store(Request $request, $franchise)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
-            'franchise_id' => 'required|exists:franchisees,franchise_id',
+            'franchise_id' => 'required|exists:franchises,id',    
             'ein_ssn' => 'nullable|string|max:255',
             'contract_document' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // 10MB max
             'date_joined' => 'nullable|date',
             // 'clearance' => 'nullable|string',
             // 'security' => 'nullable|string',
         ], [
-            'franchise_id.required' => 'Franchise is required.', // Custom error message
+            'franchise_id.required' => 'Franchise is required.', // Custom error message    
             'franchise_id.exists' => 'Selected franchise does not exist.', // Custom error message for invalid franchise
             'contract_document.mimes' => 'Contract document must be a PDF, DOC, or DOCX file.',
             'contract_document.max' => 'Contract document must not exceed 10MB.',
@@ -173,36 +173,40 @@ class OwnerController extends Controller
         // Assign the role using Spatie Role Permission
         $user->assignRole('franchise_admin');
         // Attach franchise
-        $user->franchises()->attach($request->franchise_id);
+        $user->franchises()->attach($request->franchise_id); 
 
-        return redirect()->route('owner.index')->with('success', 'Owner created successfully.');
+        return redirect()->route('owner.index', ['franchise' => $franchise])->with('success', 'Owner created successfully.');
     }
 
-    public function edit(User $owner)
+    public function edit($franchise, User $owner)
     {
-        // Get the franchises assigned to this user
-        $assignedFranchiseIds = $owner->franchises->pluck('franchise_id');
+        $franchise = intval($franchise);
     
-        // Franchises not assigned to any user
+        // Eager load franchises
+        $owner->load('franchises');
+    
+        $assignedFranchiseIds = $owner->franchises->pluck('id');
+    
+        // Get franchises not assigned to any user
         $availableFranchises = Franchise::whereDoesntHave('users')->get();
     
-        // Franchises assigned to this user (should still appear in the dropdown)
-        $assignedFranchises = Franchise::whereIn('franchise_id', $assignedFranchiseIds)->get();
+        // Get franchises already assigned to this user
+        $assignedFranchises = Franchise::whereIn('id', $assignedFranchiseIds)->get();
     
-        // Merge both collections and remove duplicates
-        $franchises = $availableFranchises->merge($assignedFranchises)->unique('franchise_id');
+        // Combine and ensure uniqueness
+        $franchises = $availableFranchises->merge($assignedFranchises)->unique('id');
     
-        return view('corporate_admin.owners.edit', compact('owner', 'franchises'));
+        return view('corporate_admin.owners.edit', compact('owner', 'franchises', 'franchise'));
     }
     
 
-    public function update(Request $request, User $owner)
+    public function update(Request $request, $franchise, User $owner)
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $owner->user_id . ',user_id', // Corrected validation
+            'email' => 'required|email|unique:users,email,' . $owner->id . ',id', // Corrected validation   
             'password' => 'nullable|min:6',
-            'franchise_id' => 'nullable|exists:franchisees,franchise_id',
+            'franchise_id' => 'nullable|exists:franchises,id',
             'ein_ssn' => 'nullable|string|max:255',
             'contract_document' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // 10MB max
             'date_joined' => 'nullable|date',
@@ -248,12 +252,12 @@ class OwnerController extends Controller
         }
 
         $owner->franchises()->sync($request->franchise_id);
-        return redirect()->route('owner.index')->with('success', 'Owner updated successfully.');
+        return redirect()->route('owner.index', ['franchise' => $franchise])->with('success', 'Owner updated successfully.');
     }
-    public function destroy($id)
+    public function destroy($franchise, $owner)
     {
         try {
-            $user = User::findOrFail($id); // Find user by id
+            $user = User::findOrFail($owner); // Find user by id
             
             // Delete contract document if exists
             if ($user->contract_document_path && file_exists(public_path($user->contract_document_path))) {
@@ -262,9 +266,9 @@ class OwnerController extends Controller
             
             $user->delete();
 
-            return redirect()->route('owner.index')->with('success', 'User deleted successfully.');
+            return redirect()->route('owner.index', ['franchise' => $franchise])->with('success', 'User deleted successfully.');
         } catch (\Exception $e) {
-            return redirect()->route('owner.index')->with('error', 'Failed to delete user.');
+            return redirect()->route('owner.index', ['franchise' => $franchise])->with('error', 'Failed to delete user.');
         }
     }
 

@@ -66,12 +66,12 @@ class RolePermissionController extends Controller
                     $html = '<div class="d-flex gap-1">';
                     
                     // Edit button - check permission
-                    if (auth()->check() && auth()->user()->can('roles.edit')) {
+                    if (Auth::check() && Auth::user()->can('roles.edit') && !$isProtected) {
                         $html .= '<a href="'.$editUrl.'" class="btn btn-primary btn-sm" title="Edit Role"><i class="fa fa-edit"></i></a>';
                     }
                     
                     // Delete button - check permission and role protection
-                    if (auth()->check() && auth()->user()->can('roles.delete') && !$isProtected) {
+                    if (Auth::check() && Auth::user()->can('roles.delete') && !$isProtected) {
                         $html .= '<form action="'.$deleteUrl.'" method="POST" style="display: inline;" class="delete-form">';
                         $html .= csrf_field() . method_field('DELETE');
                         $html .= '<button type="submit" class="btn btn-danger btn-sm delete-role" title="Delete Role"><i class="fa fa-trash"></i></button>';

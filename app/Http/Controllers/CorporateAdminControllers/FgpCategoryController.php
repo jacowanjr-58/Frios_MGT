@@ -39,7 +39,7 @@ class FgpCategoryController extends Controller
                     $actions = '<div class="d-flex">';
                     
                     // Edit button - check permission
-                    if (Auth::check() && Auth::user()->can('flavor_category.update')) {
+                    if (Auth::check() && Auth::user()->can('flavor_category.update') && $category->id > 12) {
                         $actions .= '<a href="'.$editUrl.'" class="edit-category">
                             <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
                         </a>';

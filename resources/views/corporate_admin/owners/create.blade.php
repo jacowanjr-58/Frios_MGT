@@ -49,7 +49,7 @@
                                     <div class="card-body">
                                         <div class="basic-form">
                                             <!-- Display Success Message -->
-                                            <form action="{{ route('owner.store') }}" method="POST" enctype="multipart/form-data">
+                                            <form action="{{ route('owner.store', ['franchise' => $franchiseId]) }}" method="POST" enctype="multipart/form-data">
                                                 @csrf
 
                                                 <div class="row">
@@ -90,11 +90,11 @@
                                                         <label class="form-label">Assign Franchise <span
                                                                 class="text-danger">*</span></label>
                                                         <select
-                                                            class="form-control select2 @error('franchise_id') is-invalid @enderror"
+                                                            class="form-control select2"
                                                             name="franchise_id[]" multiple="multiple">
                                                             <option value="">Select Franchise</option>
                                                             @foreach ($franchises as $franchise)
-                                                                <option value="{{ $franchise->franchise_id }}">
+                                                                <option value="{{ $franchise->id }}">
                                                                 {{ $franchise->business_name ?? 'N/A' }} - {{ $franchise->frios_territory_name ?? 'N/A' }}
                                                                 </option>
                                                             @endforeach

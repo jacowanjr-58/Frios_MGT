@@ -39,7 +39,7 @@
 
 
 
-                                            <form action="{{ route('franchise_staff.customer.store', ['franchisee' => request()->route('franchisee')]) }}" method="POST">
+                                            <form action="{{ route('franchise_staff.customer.store', ['franchise' => request()->route('franchise')]) }}" method="POST">
                                                 @csrf
 
                                                 <div class="row">

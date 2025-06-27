@@ -39,7 +39,7 @@
 
 
 
-                                            <form action="{{ route('franchise_staff.customer.update' , $customer->customer_id) }}" method="POST">
+                                            <form action="{{ route('franchise_staff.customer.update' , ['franchise' => $franchiseId, 'id' => $customer->id]) }}" method="POST"> 
                                                 @method('PUT')
                                                 @csrf
 

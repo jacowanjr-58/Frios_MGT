@@ -52,7 +52,7 @@
                                             <!-- Display Success Message -->
 
 
-                                            <form action="{{ route('owner.update', $owner->user_id) }}" method="POST" enctype="multipart/form-data">
+                                            <form action="{{ route('owner.update', ['franchise' => $franchise, 'owner' => $owner->id]) }}" method="POST" enctype="multipart/form-data">
                                                 @csrf
                                                 @method('PUT')
 
@@ -75,22 +75,24 @@
                                                         @error('password') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
 
+                                                   
                                                     <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Assign Franchise <span
-                                                                class="text-danger">*</span></label>
+                                                        <label class="form-label">Assign Franchise <span class="text-danger">*</span></label>
                                                         <select
-                                                            class="form-control select2 @error('franchise_id') is-invalid @enderror"
-                                                            name="franchise_id[]" multiple="multiple">
-                                                            <option value="">Select Franchise</option>
-                                                            @foreach ($franchises as $franchise)
-                                                                <option value="{{ $franchise->franchise_id }}"
-                                                                    {{ $owner->franchisees->contains('franchise_id', $franchise->franchise_id) ? 'selected' : '' }}>
-                                                                    {{ $franchise->business_name ?? 'N/A' }} - {{ $franchise->frios_territory_name ?? 'N/A' }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
+    class="form-control select2"
+    name="franchise_id[]" multiple="multiple">
+    <option value="">Select Franchise</option>
+    @foreach ($franchises as $franchise)
+        <option value="{{ $franchise->id }}"
+            {{ in_array($franchise->id, $owner->franchises->pluck('id')->toArray()) ? 'selected' : '' }}>
+            {{ $franchise->business_name ?? 'N/A' }} - {{ $franchise->frios_territory_name ?? 'N/A' }}
+        </option>
+    @endforeach
+</select>
+
                                                         @error('franchise_id') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
+
 
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">EIN/SSN</label>

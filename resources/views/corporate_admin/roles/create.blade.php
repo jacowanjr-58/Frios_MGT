@@ -3,13 +3,17 @@
 @section('title', 'Create Role')
 
 @section('content')
+    <!--**********************************
+                Content body start
+            ***********************************-->
+    <div class="content-body default-height">
         <div class="container-fluid">
         <div class="page-titles">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('roles.index') }}" class="btn btn-secondary btn-sm">
+                <!-- <li class="breadcrumb-item"><a href="{{ route('roles.index') }}" class="btn btn-secondary btn-sm">
                     <i class="fas fa-arrow-left me-2"></i>Back to Roles
-                </a></li>
+                </a></li> -->
                 <li class="breadcrumb-item active">Create Role</li>
             </ol>
         </div>
@@ -21,7 +25,7 @@
                         <h4 class="card-title">Create New Role</h4>
                         <div class="card-action">
                             <a href="{{ route('roles.index') }}" class="btn btn-secondary btn-sm">
-                                <i class="fas fa-arrow-left me-2"></i>Back to Roles
+                                <i class="fas fa-arrow-left me-2 text-white" style="color: white !important;position: relative;top: -8px;left: -5px;"></i>Back to Roles
                                 </a>
                             </div>
                         </div>
@@ -52,15 +56,15 @@
                                     <div class="mb-3">
                                 <label class="form-label">Permissions</label>
                                 <div class="row">
-                                    @foreach($permissions->groupBy(function($permission) { return explode('.', $permission->name)[0]; }) as $module => $modulePermissions)
+                                    @foreach($permissions as $module => $modulePermissions)
                                     <div class="col-md-6 col-lg-4 mb-3">
                                         <div class="card">
                                             <div class="card-header py-2">
-                                                <h6 class="mb-0">{{ ucfirst(str_replace('_', ' ', $module)) }}</h6>
+                                                <h6 class="mb-0 text-white">{{ $module }}</h6>
                                         <div class="form-check">
                                                     <input class="form-check-input module-checkbox" type="checkbox" 
-                                                           id="module_{{ $module }}" data-module="{{ $module }}">
-                                                    <label class="form-check-label" for="module_{{ $module }}">
+                                                           id="module_{{ Str::slug($module) }}" data-module="{{ Str::slug($module) }}">
+                                                    <label class="form-check-label text-white" for="module_{{ Str::slug($module) }}">
                                                         Select All
                                             </label>
                                         </div>
@@ -69,11 +73,11 @@
                                                         @foreach($modulePermissions as $permission)
                                                 <div class="form-check">
                                                                 <input class="form-check-input permission-checkbox" type="checkbox"
-                                                           value="{{ $permission->name }}" id="permission_{{ $permission->id }}" 
-                                                           name="permissions[]" data-module="{{ $module }}"
-                                                           {{ in_array($permission->name, old('permissions', [])) ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="permission_{{ $permission->id }}">
-                                                        {{ ucfirst(str_replace(['_', '.'], [' ', ' '], $permission->name)) }}
+                                                           value="{{ $permission['id'] }}" id="permission_{{ $permission['id'] }}" 
+                                                           name="permissions[]" data-module="{{ Str::slug($module) }}"
+                                                           {{ in_array($permission['id'], old('permissions', [])) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="permission_{{ $permission['id'] }}">
+                                                        {{ $permission['display_name'] }}
                                                                 </label>
                                                             </div>
                                                         @endforeach
@@ -97,6 +101,11 @@
             </div>
         </div>
     </div>
+    </div>
+    <!--**********************************
+                Content body end
+            ***********************************-->
+
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {

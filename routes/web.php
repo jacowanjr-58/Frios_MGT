@@ -154,19 +154,7 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     });
 
     // Customer
-    Route::prefix('{franchise}')->group(function () {
-        // Customer view routes
-        Route::middleware('permission:customers.view')->group(function () {
-            Route::get('customer', [CustomerController::class, 'index'])->name('customer');
-            Route::get('customer/{id}/view', [CustomerController::class, 'view'])->name('customer.view');
-        });
-
-        Route::get('customer-create', [CustomerController::class, 'create'])->name('customer.create')->middleware('permission:customers.create');
-        Route::post('customer-store', [CustomerController::class, 'store'])->name('customer.store')->middleware('permission:customers.create');
-        Route::get('customer/{id}/edit', [CustomerController::class, 'edit'])->name('customer.edit')->middleware('permission:customers.edit');
-        Route::put('customer/{id}/update', [CustomerController::class, 'update'])->name('customer.update')->middleware('permission:customers.edit');
-        Route::delete('customer/{id}/delete', [CustomerController::class, 'delete'])->name('customer.delete')->middleware('permission:customers.delete');
-    });
+   
 
     Route::prefix('{franchise}')->group(function () {
         // Payment routes

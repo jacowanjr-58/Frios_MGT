@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Franchise\CustomerController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CorporateAdminControllers\CorporateAdminController;
@@ -38,9 +39,8 @@ Route::middleware(['auth'])->group(function () {
 
 
     // Owner routes
-    Route::middleware('permission:owners.view')->group(function () {
-        Route::get('/franchise/{franchise}/owner', [OwnerController::class, 'index'])->name('owner.index');
-
+    Route::prefix('franchise/{franchise}')->middleware('permission:owners.view')->group(function () {
+        Route::get('/owner', [OwnerController::class, 'index'])->name('owner.index');
         Route::get('/owner/create', [OwnerController::class, 'create'])->name('owner.create')->middleware('permission:owners.create');
         Route::post('/owner', [OwnerController::class, 'store'])->name('owner.store')->middleware('permission:owners.create');
         Route::get('/owner/{owner}/edit', [OwnerController::class, 'edit'])->name('owner.edit')->middleware('permission:owners.edit');
@@ -49,7 +49,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::name('franchise.')->group(function () {
-            
+
         Route::middleware('permission:frios_flavors.categories')->group(function () {
             Route::get('/fgpcategory', [FgpCategoryController::class, 'index'])->name('fgpcategory.index');
             Route::get('/fgpcategory/create', [FgpCategoryController::class, 'create'])->name('fgpcategory.create');
@@ -58,13 +58,13 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/fgpcategory/{fgpcategory}', [FgpCategoryController::class, 'update'])->name('fgpcategory.update');
             Route::delete('/fgpcategory/{fgpcategory}', [FgpCategoryController::class, 'destroy'])->name('fgpcategory.destroy');
         });
-       
+
     });
 
     // fgp Category routes
-        Route::prefix('franchise/{franchise}')->name('franchise.')->group(function () {
+    Route::prefix('franchise/{franchise}')->name('franchise.')->group(function () {
 
-       
+
         // fgp items routes (Frios Flavors)
         Route::middleware('permission:frios_flavors.view')->group(function () {
             Route::get('/fgpitem', [FgpItemsController::class, 'index'])->name('fgpitem.index');
@@ -73,7 +73,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/fgpitem/{fgpitem}/edit', [FgpItemsController::class, 'edit'])->name('fgpitem.edit');
             Route::put('/fgpitem/{fgpitem}', [FgpItemsController::class, 'update'])->name('fgpitem.update');
             Route::delete('/fgpitem/{fgpitem}', [FgpItemsController::class, 'destroy'])->name('fgpitem.destroy');
-            
+
         });
 
         Route::middleware('permission:frios_availability.view')->group(function () {
@@ -143,6 +143,21 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:customers.by_franchisee')->prefix('franchise')->name('franchise.')->group(function () {
         Route::get('{franchise}/franchise_customer', [ExpensesCategoryController::class, 'customer'])->name('franchise_customer');
         Route::get('{franchise}/franchise_customer/{id}/view', [ExpensesCategoryController::class, 'customerView'])->name('franchise_customer.view');
+    });
+
+    Route::prefix('{franchise}')->group(function () {
+        // Customer view routes
+        Route::middleware('permission:customers.view')->group(function () {
+            Route::get('customer', [CustomerController::class, 'index'])->name('customer');
+            Route::get('customer/{id}/view', [CustomerController::class, 'view'])->name('customer.view');
+            Route::get('customer-create', [CustomerController::class, 'create'])->name('customer.create')->middleware('permission:customers.create');
+            Route::post('customer-store', [CustomerController::class, 'store'])->name('customer.store')->middleware('permission:customers.create');
+            Route::get('customer/{id}/edit', [CustomerController::class, 'edit'])->name('customer.edit')->middleware('permission:customers.edit');
+            Route::put('customer/{id}/update', [CustomerController::class, 'update'])->name('customer.update')->middleware('permission:customers.edit');
+            Route::delete('customer/{id}/delete', [CustomerController::class, 'delete'])->name('customer.delete')->middleware('permission:customers.delete');
+
+        });
+
     });
 
     // Payment

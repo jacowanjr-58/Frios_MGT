@@ -39,8 +39,8 @@ class FranchiseController extends Controller
                     $customerCount = Customer::where('franchise_id', $franchisee->id)->count();
                     $franchiseCustomerUrl = route('franchise.franchise_customer', ['franchise' => $franchisee->id]);
                     
-                    return '<a href="' . $franchiseCustomerUrl . '" class="text-primary fw-bold text-decoration-none">
-                                <span class="badge bg-info fs-12">' . $customerCount . ' Customers</span>
+                    return '<a href="' . $franchiseCustomerUrl . '" class="text-primary fw-bold text-decoration-none bg-color-primary">
+                                <span class="badge bg-primary fs-12">' . $customerCount . ' Customers</span>
                             </a>';
                 })
                 ->addColumn('action', function ($franchisee) {

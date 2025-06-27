@@ -132,18 +132,19 @@ class FranchiseStaffController extends Controller
     }
 
 
-    public function index() {
+    public function index($franchise) {
        
-        $data['customers'] = Customer::where('franchise_id' , Auth::user()->franchise_id)->get();
-        $data['customerCount'] = Customer::where('franchise_id' , Auth::user()->franchise_id)->count();
-        return view('franchise_staff.customer.index' ,$data);
+        $data['customers'] = Customer::where('franchise_id' , intval($franchise))->get();
+        $data['customerCount'] = Customer::where('franchise_id' , intval($franchise))->count();
+        $franchiseId = $franchise;
+        return view('franchise_staff.customer.index' ,$data , compact('franchiseId'));
     }
 
     public function create( $franchise ) {
         return view('franchise_staff.customer.create', compact('franchise'));
     }
 
-    public function store(Request $request){
+    public function store(Request $request, $franchise){
         $request->validate([
             'name' => 'required|max:191',
             'phone' => 'nullable|numeric|digits_between:8,16',
@@ -157,8 +158,8 @@ class FranchiseStaffController extends Controller
         ]);
 
         $customer = Customer::create([
-            'franchise_id' => Auth::user()->franchise_id,
-            'user_id' => Auth::user()->user_id ?? 0,
+            'franchise_id' => $franchise,
+            'id' => Auth::user()->user_id ?? 0,
             'name' => $request->name,
             'phone' => $request->phone,
             'email' => $request->email,
@@ -167,32 +168,34 @@ class FranchiseStaffController extends Controller
             'address1' => $request->address1,
             'address2' => $request->address2,
             'notes' => $request->notes,
+            
         ]);
 
 
-        return redirect()->route('franchise_staff.customer')->with('success' , 'Customer created successfully');
+        return redirect()->route('franchise_staff.customer', ['franchise' => $franchise])->with('success' , 'Customer created successfully');
     }
 
-    public function edit($id) {
+    public function edit($franchise, $id) {
         $data['customer'] = Customer::where('id' , $id)->firstorfail();
-        return view('franchise_staff.customer.edit' , $data);
+        $franchiseId = $franchise;
+        return view('franchise_staff.customer.edit' , $data , compact('franchiseId'));
     }
 
-    public function update(Request $request , $id){
+    public function update(Request $request, $franchise, $id){
         $request->validate([
             'name' => 'required|max:191',
-            'phone' => 'nullalbe|numeric|digits_between:8,16',
-            'email' => 'nullalbe|email|max:191',
-    'zip_code' => 'nullalbe|digits:5', // 5 digits zip code
-    'state' => 'nullalbe|alpha|size:2', // 2-letter state code (alphabetic)
+            'phone' => 'nullable|numeric|digits_between:8,16',
+            'email' => 'nullable|email|max:191',
+    'zip_code' => 'nullable|digits:5', // 5 digits zip code
+    'state' => 'nullable|alpha|size:2', // 2-letter state code (alphabetic)
 
-            'address1' => 'nullalbe|max:191',
+            'address1' => 'nullable|max:191',
             'address2' => 'nullable|max:191',
             'notes' => 'nullable|max:191',
         ]);
 
         $customer = Customer::where('id' , $id)->update([
-            'franchise_id' => Auth::user()->franchise_id,
+            'franchise_id' => $franchise,
             'name' => $request->name,
             'phone' => $request->phone,
             'email' => $request->email,
@@ -204,17 +207,17 @@ class FranchiseStaffController extends Controller
         ]);
 
 
-        return redirect()->route('franchise_staff.customer')->with('success' , 'Customer updated successfully');
+        return redirect()->route('franchise_staff.customer', ['franchise' => $franchise])->with('success' , 'Customer updated successfully');
     }
 
-    public function view($id) {
-        $data['customer'] = Customer::where('customer_id' , $id)->firstorfail();
+    public function view($franchise, $id) {
+        $data['customer'] = Customer::where('id' , $id)->firstorfail();
         return view('franchise_staff.customer.view' , $data);
     }
 
-    public function delete($id) {
-        $data['customer'] = Customer::where('customer_id' , $id)->delete();
-        return redirect()->route('franchise_staff.customer')->with('success' , 'Customer deleted successfully');
+    public function delete($franchise, $id) {
+        $data['customer'] = Customer::where('id' , $id)->delete();
+        return redirect()->route('franchise_staff.customer', ['franchise' => $franchise])->with('success' , 'Customer deleted successfully');
     }
 
     public function flavorsDetail(Request $request)
