@@ -19,47 +19,47 @@ class FranchiseAdminController extends Controller
         $franchiseId = $franchise;
         $user = Auth::user();
         $userFranchises = $user->franchises;
-        
+
         // Get the first franchise ID for redirection
-        $firstFranchiseId = $userFranchises?->count() > 0 
-            ? $userFranchises->first()->franchise_id 
-            : Franchise::first()->franchise_id;
-    
+        $firstFranchiseId = $userFranchises?->count() > 0
+            ? $userFranchises->first()->id
+            : Franchise::first()->id;
+
         // Redirect /dashboard to /franchise/9/dashboard
         if (request()->is('dashboard') && !$franchise ) {
             return redirect('/franchise/'.$firstFranchiseId.'/dashboard');
         }
 
         // if ($user->hasRole('franchise_admin')) {
-           
+
         //     return redirect('/franchise/'.$firstFranchiseId.'/dashboard');
-           
+
         // }
 
         // Get default date range (current month)
         $dateRange = $this->getDateRange('month');
-        
+
         // Get all dashboard data using centralized method from DashboardController
         $dashboardController = new \App\Http\Controllers\DashboardController();
         $data = $dashboardController->getDashboardData($franchiseId, $dateRange, 'month');
 
         session(['franchise_id' => $franchiseId]);
-        
+
         if ($user->hasRole('corporate_admin')) {
-            return view('dashboard.corporate_dashboard', $data);    
+            return view('dashboard.corporate_dashboard', $data);
         } else {
             // dd('s');
             return view('dashboard.franchise_admin_dashboard', $data);
         }
     }
-    
+
     /**
      * Helper method to get date range (copied from DashboardController for consistency)
      */
     private function getDateRange($filter, $fromDate = null, $toDate = null)
     {
         $now = Carbon::now();
-        
+
         switch ($filter) {
             case 'today':
                 return [
@@ -96,7 +96,7 @@ class FranchiseAdminController extends Controller
 
     public function selectFranchise()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $franchises = $user->franchises;
 
         $franchiseCount = $franchises->count();
@@ -111,7 +111,7 @@ class FranchiseAdminController extends Controller
         }
 
         if ($franchiseCount === 1) {
-            $franchiseId = $franchises->first()->franchise_id;
+            $franchiseId = $franchises->first()->id;
 
             return redirect()->route('franchise.dashboard', ['franchise' => $franchiseId]);
         }
@@ -123,7 +123,8 @@ class FranchiseAdminController extends Controller
 
     public function setFranchise(Request $request)
     {
-        $request->validate(['franchise_id' => 'required|exists:franchises,franchise_id']);
+
+        $request->validate(['franchise_id' => 'required|exists:franchises,id']);
         // Store the selected franchise_id in session
         session(['franchise_id' => $request->franchise_id]);
 
@@ -133,7 +134,7 @@ class FranchiseAdminController extends Controller
 
     public function setSessionFranchise(Request $request)
     {
-        $request->validate(['franchise_id' => 'required|exists:franchises,franchise_id']);
+        $request->validate(['franchise_id' => 'required|exists:franchises,id']);
 
         session(['franchise_id' => $request->franchise_id]);
 

@@ -143,9 +143,9 @@
                     <p><strong>City:</strong> {{ $franchise->city }}</p>
                     <p><strong>State:</strong> {{ $franchise->state }}</p>
                     <p><strong>Address:</strong> {{ $franchise->address1 }} {{ $franchise->address2 }}</p>
-                    <form action="{{ route('franchise.set_franchisee') }}" method="POST">
+                    <form action="{{ route('franchise.set_franchise') }}" method="POST">
                         @csrf
-                        <input type="hidden" name="franchise_id" value="{{ $franchise->franchise_id }}">
+                        <input type="hidden" name="franchise_id" value="{{ $franchise->id }}">
                         <button type="submit">Select</button>
                     </form>
                 </div>
@@ -157,4 +157,4 @@
         </div>
     </div>
 </body>
-</html> 
+</html>

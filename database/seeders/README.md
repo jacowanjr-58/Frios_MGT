@@ -6,10 +6,10 @@ This document explains the role and permission system seeders for the Frios Mana
 
 The system includes comprehensive role-based access control (RBAC) using Laravel Spatie Permission package with four main roles:
 
-- **Corporate Admin** - Full system access
-- **Franchise Admin** - Franchise-level management access  
-- **Franchise Manager** - Limited franchise operations access
-- **Franchise Staff** - Basic operational access (POS, Sales, etc.)
+- **Corporate Admin** - Full system access with exception of Franchise proprietary data manipulation (customer list, events, inventory, etc.)
+- **Franchise Admin** - Franchise-level management access  (ability for multi-Franchise management)
+- **Franchise Manager** - Franchise operations and management access exclusive of bank setup, payment setup, critical delete
+- **Franchise Staff** - Basic Franchise operational access (POS, Sales, etc.), View Event, Pops, Inventory
 
 ## Seeders Structure
 
@@ -61,36 +61,67 @@ php artisan db:seed --class=PermissionManagementSeeder
 
 ### Corporate Admin Modules
 - **Franchises**: `franchises.view`, `franchises.create`, `franchises.edit`, `franchises.delete`
-- **Owners**: `owners.view`, `owners.create`, `owners.edit`, `owners.delete`
-- **Frios Flavors**: `frios_flavors.view`, `frios_flavors.create`, `frios_flavors.edit`, `frios_flavors.delete`, `frios_flavors.categories`
-- **Franchise Orders**: `franchise_orders.view`, `franchise_orders.create`, `franchise_orders.edit`, `franchise_orders.delete`,  `franchise_orders.edit_charges`
-- **Payments**: `payments.view`, `payments.create`, `payments.edit`, `payments.delete`, `payments.by_franchisee`
+- **Owners** (Franchise Admin): `owners.view`, `owners.create`, `owners.edit`, `owners.delete`
+- **Frios Flavors**: `frios_flavors.view`, `frios_flavors.create`, `frios_flavors.edit`, `frios_flavors.delete`, `frios_flavors.categories`, `frios_flavors.bulk_availability`
+- **Franchise Orders** (all): `franchise_orders.view`, `franchise_orders.create`, `franchise_orders.edit`, `franchise_orders.delete`,  `franchise_orders.edit_charges`, 'franchise_orders.collect_payment', 'franchise_orders.view_discrepancy'
+- **Payments** (for Orders): `payments.view`, `payments.create`, `payments.edit`, `payments.delete`, `payments.by_franchisee`
 - **Role Management**: `roles.view`, `roles.create`, `roles.edit`, `roles.delete`, `permissions.assign`, `permissions.view`
+- **ACH/BANK**: 'ach_franchise.view_connect',
+- **STRIPE**: 'stripe_franchise.view_connect',  'stripe_corporate.connect', 'stripe_corporate.disconnect',
+- **Events**: 'events.view', 'events.create', 'events.edit', 'events.delete', 'events.viewAll' (can see all Franchise events)
+- **Sales**(total POS/Invoice): `sales.view`, 'sales.by_franchise', 'sales.aggregate'
+- **Expenses**: `expenses.view`,  `expenses.by_category`, `expenses.by_franchisee`, `expenses.categories`, 'expenses.categories.create', 'expenses.categories.edit' 
 
 ### Franchise Admin Modules
+- **Franchises**: `franchises.view`
+- **Owners**: 'owners.view'
+- **ACH/BANK**: 'ach_franchise.connect', 'ach_franchise.disconnect'
+- **STRIPE**: 'stripe_franchise.view_connect',  'stripe_franchise.connect', 'stripe_franchise.disconnect',
+- **Frios Flavors**: `frios_flavors.view` (view availability)
 - **Inventory**: `inventory.view`, `inventory.create`, `inventory.edit`, `inventory.delete`, `inventory.bulk_adjust`, `inventory.bulk_price_adjust`, `inventory.allocate`, `inventory.locations`
-- **Orders**: `orders.view`, `orders.create`, `orders.edit`, `orders.delete`,  `orders.pops`
+- **Franchise Orders** (franchise): `franchise_orders.view`, `franchise_orders.create`, `franchise_orders.edit`, `franchise_orders.delete`, 'franchise_orders.view_discrepancy', 'franchise_orders.add_discrepancy'
+<!-- - **Orders** (franchise): `orders.view`, `orders.create`, `orders.edit`, `orders.delete`,  `orders.pops` -->
 - **Invoices**: `invoices.view`, `invoices.create`, `invoices.edit`, `invoices.delete`
-- **Transactions**: `transactions.view`, `transactions.create`, `transactions.edit`, `transactions.delete`
-- **Staff Management**: `staff.view`, `staff.create`, `staff.edit`, `staff.delete`
+- **Transactions** (payments?): `transactions.view`, `transactions.create`, `transactions.edit`, `transactions.delete`
+- **Staff Management**(Managers & Staff): `staff.view`, `staff.create`, `staff.edit`, `staff.delete`
+- **Role Management**(franchise): `permissions.assign`, `permissions.view`
+- **Events**(franchise): 'events.view', 'events.create', 'events.edit', 'events.delete'
+- **Customers**: `customers.view`, `customers.create`, `customers.edit`, 'customers.delete'
+- **POS**: `pos.view`, `pos.create`, `pos.edit`, `pos.delete`, `pos.access`
+- **Sales**: `sales.view`, `sales.create`, `sales.edit`, `sales.delete`
+- **Expenses** (franchise): `expenses.view`, `expenses.create`, `expenses.edit`, `expenses.delete`, 
 
 ### Franchise Manager Modules
-- **Inventory**: Limited to `inventory.view`, `inventory.edit`, `inventory.locations`
-- **Locations**: `locations.view`, `locations.create`, `locations.edit`, `locations.delete`
-- **Orders**: `orders.view`, `orders.create`, `orders.edit`, `orders.delete`, `orders.pops`
-- **Staff Management**: `staff.view`, `staff.create`, `staff.edit`, `staff.delete`
+- **Franchises**: `franchises.view`
+- **Owners**: 'owners.view'
+- **Frios Flavors**: `frios_flavors.view` (view availability)
+- **Inventory**: `inventory.view`, `inventory.create`, `inventory.edit`, `inventory.delete`, `inventory.bulk_adjust`, `inventory.bulk_price_adjust`, `inventory.allocate`, `inventory.locations`
+- **Franchise Orders** (franchise): `franchise_orders.view`, `franchise_orders.create`, `franchise_orders.edit`, `franchise_orders.delete`, 'franchise_orders.view_discrepancy', 'franchise_orders.add_discrepancy'
+<!-- - **Orders**: `orders.view`, `orders.create`, `orders.edit`, `orders.delete`,  `orders.pops` -->
+- **Invoices**: `invoices.view`, `invoices.create`, `invoices.edit`, `invoices.delete`
+- **Transactions** (payments?): `transactions.view`, `transactions.create`, `transactions.edit`, `transactions.delete`
+- **Staff Management**(Managers & Staff): `staff.view`, `staff.create`, `staff.edit`, `staff.delete`
+- **Role Management**(franchise staff): `permissions.assign`, `permissions.view`
+- **Events**(franchise): 'events.view', 'events.create', 'events.edit', 'events.delete'
+- **Customers**: `customers.view`, `customers.create`, `customers.edit`, 'customers.delete'
+- **POS**: `pos.view`, `pos.create`, `pos.edit`, `pos.delete`, `pos.access`
+- **Sales**: `sales.view`, `sales.create`, `sales.edit`, `sales.delete`
+- **Expenses** (franchise): `expenses.view`, `expenses.create`, `expenses.edit`, `expenses.delete`, 
 
 ### Franchise Staff Modules
 - **POS**: `pos.view`, `pos.create`, `pos.edit`, `pos.delete`, `pos.access`
 - **Sales**: `sales.view`, `sales.create`, `sales.edit`, `sales.delete`
 - **Flavors**: `flavors.view`
 - **Customers**: `customers.view`, `customers.create`, `customers.edit`
+- **Frios Flavors**: `frios_flavors.view`
+- **Inventory**: `inventory.view`,
+- **Events**(franchise): 'events.view',
 
-### Shared Modules (All Roles)
+<!-- ### Shared Modules (All Roles) 
 - **Dashboard**: `dashboard.view`
 - **Customers**: `customers.view`, `customers.create`, `customers.edit`, `customers.delete`,  `customers.by_franchisee`
 - **Events**: `events.view`, `events.create`, `events.edit`, `events.delete`, `events.calendar`, `events.report`
-- **Expenses**: `expenses.view`, `expenses.create`, `expenses.edit`, `expenses.delete`, `expenses.by_category`, `expenses.by_franchisee`, `expenses.categories`
+- **Expenses**: `expenses.view`, `expenses.create`, `expenses.edit`, `expenses.delete`, `expenses.by_category`, `expenses.by_franchisee`, `expenses.categories` -->
 
 ## Permission Assignment Logic
 
@@ -102,13 +133,14 @@ php artisan db:seed --class=PermissionManagementSeeder
 ### Franchise Admin
 - **Franchise Management**: Full access to franchise-level operations
 - **Staff Management**: Can create, edit, and delete franchise managers and staff
+- **Permission Management**: Can assign/revoke permissions to managers/staff
 - **Financial Access**: Can manage invoices, transactions, and expenses
 - **No Corporate Access**: Cannot access franchise creation, owner management, or system-wide settings
 
 ### Franchise Manager
 - **Operational Management**: Can manage day-to-day operations
-- **Limited Staff Access**: Can manage franchise staff but with restrictions
-- **No Financial Access**: Cannot access invoices or transactions
+- **Staff Access**: Can manage franchise staff but with restrictions
+- **Financial Access**: Can access invoices or transactions; Cannot setup/delete bank or payments services
 - **Location Management**: Can manage franchise locations and inventory allocation
 
 ### Franchise Staff
