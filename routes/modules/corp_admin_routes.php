@@ -49,7 +49,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::name('franchise.')->group(function () {
-            
+
         Route::middleware('permission:frios_flavors.categories')->group(function () {
             Route::get('/fgpcategory', [FgpCategoryController::class, 'index'])->name('fgpcategory.index');
             Route::get('/fgpcategory/create', [FgpCategoryController::class, 'create'])->name('fgpcategory.create');
@@ -58,13 +58,12 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/fgpcategory/{fgpcategory}', [FgpCategoryController::class, 'update'])->name('fgpcategory.update');
             Route::delete('/fgpcategory/{fgpcategory}', [FgpCategoryController::class, 'destroy'])->name('fgpcategory.destroy');
         });
-       
     });
 
     // fgp Category routes
-        Route::prefix('franchise/{franchise}')->name('franchise.')->group(function () {
+    Route::prefix('franchise/{franchise}')->name('franchise.')->group(function () {
 
-       
+
         // fgp items routes (Frios Flavors)
         Route::middleware('permission:frios_flavors.view')->group(function () {
             Route::get('/fgpitem', [FgpItemsController::class, 'index'])->name('fgpitem.index');
@@ -73,7 +72,6 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/fgpitem/{fgpitem}/edit', [FgpItemsController::class, 'edit'])->name('fgpitem.edit');
             Route::put('/fgpitem/{fgpitem}', [FgpItemsController::class, 'update'])->name('fgpitem.update');
             Route::delete('/fgpitem/{fgpitem}', [FgpItemsController::class, 'destroy'])->name('fgpitem.destroy');
-            
         });
 
         Route::middleware('permission:frios_availability.view')->group(function () {

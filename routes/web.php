@@ -48,7 +48,7 @@ Route::get('/test-logout', function () {
 })->middleware('auth')->name('test.logout');
 
 Route::middleware(StripeMiddleware::class)->group(function () {
-// 
+    //
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard')->middleware('auth');
     Route::get('/load-more-events', [DashboardController::class, 'loadMoreEvents'])->name('loadMoreEvents')->middleware('auth');
     Route::post('/dashboard/filter', [DashboardController::class, 'filterDashboard'])->name('dashboard.filter')->middleware('auth');
@@ -98,16 +98,13 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     });
 
 
-   
+
     // Order pops routes
     Route::middleware('permission:orders.view')->group(function () {
         Route::get('{franchise}/orderpops', [OrderPopsController::class, 'index'])->name('orderpops.index');
         Route::get('{franchise}/orderpops/view', [OrderPopsController::class, 'viewOrders'])->name('orderpops.view');
-        
+
         Route::get('{franchise}/orderpops/confirm/page', [OrderPopsController::class, 'showConfirmPage'])->name('orderpops.confirm.page');
-    
-    
-    
     });
 
     Route::get('/orderpops/create', [OrderPopsController::class, 'create'])->name('orderpops.create')->middleware('permission:orders.create');
@@ -228,7 +225,6 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
             Route::delete('expense-sub-category/{id}/delete', [ExpensesCategoryController::class, 'deleteExpense'])->name('expense-sub-category.delete');
         });
     });
-
 });
 Route::middleware(['auth'])->prefix('franchise')->name('franchise.')->group(function () {
 
@@ -407,8 +403,4 @@ Route::prefix('franchise')->name('franchise.')->middleware(['auth'])->group(func
         Route::put('/{location}', [InventoryLocationController::class, 'update'])->name('update')->middleware('permission:locations.edit');
         Route::delete('/{location}', [InventoryLocationController::class, 'destroy'])->name('destroy')->middleware('permission:locations.delete');
     });
-
-    
 });
-
-
