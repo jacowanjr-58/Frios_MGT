@@ -14,12 +14,12 @@ class FranchiseController extends Controller
     // Show all franchises
     public function index()
     {
-       
         $franchiseeId = session('franchise_id');
         $totalFranchises = Franchise::count();
-        if (request()->ajax()) {
-            $franchisees = Franchise::query();
 
+        $franchisees = Franchise::withCount('customers');
+
+        if (request()->ajax()) {
             return DataTables::of($franchisees)
                 ->addColumn('location_zip', function ($franchisee) {
                     $zipCodes = explode(',', $franchisee->location_zip);
@@ -36,11 +36,10 @@ class FranchiseController extends Controller
                     $query->where('location_zip', 'like', "%$keyword%");
                 })
                 ->addColumn('customer_count', function ($franchisee) {
-                    $customerCount = Customer::where('franchise_id', $franchisee->id)->count();
                     $franchiseCustomerUrl = route('franchise.franchise_customer', ['franchise' => $franchisee->id]);
                     
-                    return '<a href="' . $franchiseCustomerUrl . '" class="text-primary fw-bold text-decoration-none bg-color-primary">
-                                <span class="badge bg-primary fs-12">' . $customerCount . ' Customers</span>
+                    return '<a href="'.$franchiseCustomerUrl.'" class="text-primary">
+                                '.$franchisee->customers_count.'
                             </a>';
                 })
                 ->addColumn('action', function ($franchisee) {

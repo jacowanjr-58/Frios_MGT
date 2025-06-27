@@ -19,7 +19,7 @@ class FgpCategory extends Model
     // Many-to-many relationship with FgpItem
     public function items()
     {
-        return $this->belongsToMany(FgpItem::class, 'fgp_category_fgp_item', 'category_id', 'fgp_item_id');
+        return $this->hasMany(FgpItem::class);
     }
 
     public function getFormattedCreatedAtAttribute()

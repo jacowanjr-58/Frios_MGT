@@ -97,7 +97,7 @@
                                         <tr>
                                             <th>Name</th>
                                             <th>Type</th>
-                                            <th>Created Date</th>
+                                            <th>Flavor Items</th>
                                             @canany(['flavor_category.update', 'flavor_category.delete'])
                                                 <th>Actions</th>
                                             @endcanany
@@ -147,8 +147,11 @@
                     // Build columns array based on user permissions
                     var columns = [
                         { data: 'name', name: 'name' },
-                        { data: 'type', name: 'type' },
-                        { data: 'created_at', name: 'created_at' }
+                        { data: 'type', name: 'type', render: function(data) {
+                                return '<span class="text-secondary">' + data + '</span>';
+                            } 
+                        },
+                        { data: 'flavor_items', name: 'flavor_items' }
                     ];
 
                     // Add action column if user has update or delete permissions

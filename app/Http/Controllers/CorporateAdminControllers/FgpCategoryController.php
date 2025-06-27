@@ -29,8 +29,8 @@ class FgpCategoryController extends Controller
             }
 
             return DataTables::of($categories)
-                ->addColumn('created_at', function ($category) {
-                    return $category->formatted_created_at;
+                ->addColumn('flavor_items', function ($category) {
+                    return $category->items->count();
                 })
                 ->addColumn('action', function ($category) {
                     $editUrl = route('franchise.fgpcategory.edit', ['franchise' => $category->id, 'fgpcategory' => $category->id]);

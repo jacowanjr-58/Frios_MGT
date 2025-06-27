@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Super Admin',
                 'email' => 'superadmin@friospops.com',
-                'password' => 'password',
+                'password' => 'FriosAdmin456$',
                 'role' => 'super_admin'
             ],
             [
@@ -88,8 +88,8 @@ class DatabaseSeeder extends Seeder
 
         // Run other seeders after users are created
         $this->call([
-            UserFranchiseSeeder::class,
             FranchiseSeeder::class,
+            UserFranchiseSeeder::class,
             // CustomerSeeder::class,
             FgpCategorySeeder::class,
             // FgpOrderSeeder::class,

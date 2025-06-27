@@ -9,11 +9,7 @@ class Franchise extends Model
 {
     use HasFactory;
 
-    protected $table = 'franchises';
-    protected $primaryKey = 'id'; // Ensure this matches database
-
     protected $fillable = [
-        'user_id',
         'business_name',
         'contact_number',
         'frios_territory_name',
@@ -26,13 +22,7 @@ class Franchise extends Model
         'ACH_data_API',
         'pos_service_API'
     ];
-
-    // Relationship with User
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
+    
     /**
      * Define many-to-many relationship with User through user_franchises
      */
