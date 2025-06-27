@@ -14,7 +14,6 @@ return new class extends Migration
         if (! Schema::hasTable('expense_categories')) {
         Schema::create('expense_categories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('franchise_id')->constrained('franchises','id');
             $table->string('category');
             $table->timestamps();
         });

@@ -92,6 +92,7 @@ class DatabaseSeeder extends Seeder
             UserFranchiseSeeder::class,
             // CustomerSeeder::class,
             FgpCategorySeeder::class,
+            // ExpenseCategorySeeder::class,
             // FgpOrderSeeder::class,
             // FgpOrderItemSeeder::class,
         ]);

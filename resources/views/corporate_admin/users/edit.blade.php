@@ -46,7 +46,7 @@
                                                     </div>
                                                 @endif
 
-                                                <form action="{{ route('users.update', $user->user_id) }}" method="POST">
+                                                <form action="{{ route('users.update', $user->id) }}" method="POST">
                                                     @csrf
                                                     @method('PUT')
 
@@ -76,10 +76,14 @@
                                                             <select class="form-control @error('role') is-invalid @enderror" name="role" id="role_select">
                                                                 <option value="">Select Role</option>
                                                                 @foreach($roles as $role)
+                                                                    @if(auth()->user()->hasRole('corporate_admin') && $role->name == 'corporate_admin')
+                                                                    @continue
+                                                                    @else
                                                                     <option value="{{ $role->name }}" 
                                                                         {{ old('role', $user->roles->first()?->name) == $role->name ? 'selected' : '' }}>
                                                                         {{ ucfirst(str_replace('_', ' ', $role->name)) }}
                                                                     </option>
+                                                                    @endif
                                                                 @endforeach
                                                             </select>
                                                             @error('role')

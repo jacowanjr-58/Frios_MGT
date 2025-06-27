@@ -67,13 +67,13 @@
         
         <div class="row mb-4 align-items-center">
             
-                @can('frios_flavors.create')
+                <!-- @can('frios_flavors.create')
                 <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
                     <a href="{{ route('franchise.fgpitem.create', ['franchise' => $franchise]) }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Item</a>
                 </div>
-                @endcan
+                @endcan -->
 
-                <div class="col-xl-9 col-lg-8">
+                <div class="col-xl-12 col-lg-8">
                 <div class="card m-0">
                     <div class="card-body py-3 py-md-2">
                         <div class="d-sm-flex d-block align-items-center">

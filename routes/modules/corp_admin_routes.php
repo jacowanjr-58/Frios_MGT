@@ -20,6 +20,7 @@ use App\Http\Controllers\CorporateAdminControllers\PaymentController as CorpPaym
 use App\Http\Controllers\CorporateAdminControllers\RolePermissionController;
 use App\Http\Controllers\CorporateAdminControllers\UserManagementController;
 use App\Http\Controllers\Franchise\EventController;
+use App\Http\Controllers\Franchise\ExpenseController;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/corporate/dashboard', [CorporateAdminController::class, 'dashboard'])->middleware('permission:dashboard.view');
@@ -125,17 +126,15 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Expense Category
-    Route::prefix('franchise/{franchise}')->group(function () {
-        Route::get('expense-category', [ExpensesCategoryController::class, 'index'])->name('expense-category');
-        Route::get('expense-category/create', [ExpensesCategoryController::class, 'create'])->name('expense-category.create');
-        Route::post('expense-category/store', [ExpensesCategoryController::class, 'store'])->name('expense-category.store');
-        Route::post('expense-sub-category/store', [ExpensesCategoryController::class, 'Substore'])->name('expense-sub-category.store');
-        Route::get('expense-category/{id}/edit', [ExpensesCategoryController::class, 'edit'])->name('expense-category.edit');
-        Route::put('expense-category/{id}/update', [ExpensesCategoryController::class, 'update'])->name('expense-category.update');
-        Route::delete('expense-sub-category/{id}/delete', [ExpensesCategoryController::class, 'delete'])->name('expense-sub-category.delete');
-    });
+    Route::get('expense-category', [ExpensesCategoryController::class, 'index'])->name('expense-category');
+    Route::get('expense-category/create', [ExpensesCategoryController::class, 'create'])->name('expense-category.create');
+    Route::post('expense-category/store', [ExpensesCategoryController::class, 'store'])->name('expense-category.store');
+    Route::post('expense-sub-category/store', [ExpensesCategoryController::class, 'Substore'])->name('expense-sub-category.store');
+    Route::get('expense-category/{id}/edit', [ExpensesCategoryController::class, 'edit'])->name('expense-category.edit');
+    Route::put('expense-category/{id}/update', [ExpensesCategoryController::class, 'update'])->name('expense-category.update');
+    Route::delete('expense-category/{id}/delete', [ExpensesCategoryController::class, 'delete'])->name('expense-category.delete');
 
-    Route::get('/franchise/{franchise}/expense', [ExpensesCategoryController::class, 'expense'])->name('expense.franchise')->middleware('permission:expenses.by_franchisee');
+    // Route::get('/franchise/{franchise}/expense', [ExpenseController::class, 'index'])->name('expense.franchise')->middleware('permission:expenses.by_franchisee');
 
     // Customer
     Route::middleware('permission:customers.by_franchisee')->prefix('franchise')->name('franchise.')->group(function () {
@@ -156,6 +155,23 @@ Route::middleware(['auth'])->group(function () {
 
         });
 
+    });
+
+
+    Route::prefix('franchise/{franchise}')->name('franchise.')->group(function () {
+        Route::get('/expenses_by_franchise', [ExpenseController::class, 'index'])->name('expenses_by_franchise');
+
+        Route::get('/expenses_by_franchise-create', [ExpenseController::class, 'create'])->name('expenses_by_franchise-create')->middleware('permission:expenses.create');
+
+        Route::post('/expenses_by_franchise-store', [ExpenseController::class, 'store'])->name('expenses_by_franchise-store')->middleware('permission:expenses.create');
+
+        Route::get('/expenses_by_franchise/{id}/edit', [ExpenseController::class, 'edit'])->name('expenses_by_franchise-edit')->middleware('permission:expenses.edit');
+
+        Route::put('/expenses_by_franchise/{id}/update', [ExpenseController::class, 'update'])->name('expenses_by_franchise-update')->middleware('permission:expenses.edit');
+
+        Route::delete('/expenses_by_franchise/{id}/delete', [ExpenseController::class, 'delete'])->name('expenses_by_franchise-delete')->middleware('permission:expenses.delete');
+
+        Route::get('/get-subcategories/{category_id}', [ExpenseController::class, 'getSubCategories'])->name('getSubCategories');
     });
 
     // Payment

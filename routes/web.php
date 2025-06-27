@@ -136,22 +136,8 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
     });
 
     // Expense
-    Route::prefix('{franchise}')->group(function () {
-        // Expense view routes
-        Route::middleware('permission:expenses.view')->group(function () {
-            Route::get('expense', [ExpenseController::class, 'index'])->name('expense');
-            Route::get('get-subcategories/{category_id}', [ExpenseController::class, 'getSubCategories'])->name('getSubCategories');
-        });
-
-        Route::get('expense-create', [ExpenseController::class, 'create'])->name('expense.create')->middleware('permission:expenses.create');
-        Route::post('expense-store', [ExpenseController::class, 'store'])->name('expense.store')->middleware('permission:expenses.create');
-        Route::get('expense/{id}/edit', [ExpenseController::class, 'edit'])->name('expense.edit')->middleware('permission:expenses.edit');
-        Route::put('expense/{id}/update', [ExpenseController::class, 'update'])->name('expense.update')->middleware('permission:expenses.edit');
-        Route::delete('expense/{id}/delete', [ExpenseController::class, 'delete'])->name('expense.delete')->middleware('permission:expenses.delete');
-    });
-
     // Customer
-   
+
 
     Route::prefix('{franchise}')->group(function () {
         // Payment routes

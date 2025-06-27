@@ -28,11 +28,11 @@ class Expense extends Model
     }
 
     public function category(){
-        return $this->belongsTo(ExpenseCategory::class);
+        return $this->belongsTo(ExpenseCategory::class, 'expense_category_id');
     }
 
     public function sub_category(){
-        return $this->belongsTo(ExpenseSubCategory::class);
+        return $this->belongsTo(ExpenseSubCategory::class, 'expense_sub_category_id');
     }
 
     public function franchise()
@@ -43,7 +43,7 @@ class Expense extends Model
 
 public function subcategory()
 {
-    return $this->belongsTo(Subcategory::class);
+    return $this->belongsTo(ExpenseSubCategory::class, 'expense_sub_category_id');
 }
 
 

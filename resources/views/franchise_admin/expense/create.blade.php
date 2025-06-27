@@ -3,12 +3,24 @@
     <style>
         div#sub_category_list {
             width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         #sub_category_placeholder {
             padding-top: 15px;
             font-size: 15px;
             font-weight: 500;
+            cursor: pointer;
+        }
+
+        .dropdown-item {
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
         }
     </style>
 
@@ -48,56 +60,42 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="basic-form">
-
-
-
                                             <form id="stripe-payment-form"
-                                                action="{{ route('franchise.expense.store', ['franchisee' => request()->route('franchisee')]) }}"
+                                                action="{{ route('franchise.expenses_by_franchise-store', ['franchise' => $franchiseId]) }}"
                                                 method="POST">
                                                 @csrf
 
                                                 <div class="row">
-
-                                                    <div class="mb-3 col-md-4">
-                                                        <label class="form-label">Main Name <span
-                                                                class="text-danger">*</span></label>
-                                                        <input type="text"
-                                                            class="form-control @error('name') is-invalid @enderror"
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Main Name <span class="text-danger">*</span></label>
+                                                        <input type="text" class="form-control @error('name') is-invalid @enderror"
                                                             name="name" value="{{ old('name') }}" placeholder="Name">
                                                         @error('name')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
 
-                                                    <div class="mb-3 col-md-4">
-                                                        <label class="form-label">Amount <span
-                                                                class="text-danger">*</span></label>
-                                                        <input type="number"
-                                                            class="form-control @error('amount') is-invalid @enderror"
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Amount <span class="text-danger">*</span></label>
+                                                        <input type="number" class="form-control @error('amount') is-invalid @enderror"
                                                             name="amount" value="{{ old('amount') }}" placeholder="Amount">
                                                         @error('amount')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
 
-                                                    <div class="mb-3 col-md-4">
-                                                        <label class="form-label">Date <span
-                                                                class="text-danger">*</span></label>
-                                                        <input type="date"
-                                                            class="form-control @error('date') is-invalid @enderror"
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Date <span class="text-danger">*</span></label>
+                                                        <input type="date" class="form-control @error('date') is-invalid @enderror"
                                                             name="date" id="date" value="{{ old('date') }}">
-
-
                                                         @error('date')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
 
                                                     <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Category <span
-                                                                class="text-danger">*</span></label>
-                                                        <select name="category_id" id="category_id"
-                                                            class="form-control  @error('category_id') is-invalid @enderror">
+                                                        <label class="form-label">Category <span class="text-danger">*</span></label>
+                                                        <select name="category_id" id="category_id" class="form-control select2">
                                                             <option value="">Please Select</option>
                                                             @foreach ($ExpenseCategories as $ExpenseCategory)
                                                                 <option value="{{ $ExpenseCategory->id }}">
@@ -110,58 +108,24 @@
                                                         @enderror
                                                     </div>
 
-                                                    <div class="col-md-6">
-                                                        <label class="form-label">Sub Category <span
-                                                                class="text-danger">*</span></label>
-
-                                                        <!-- This div will serve as the dropdown -->
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Sub Category <span class="text-danger">*</span></label>
                                                         <div id="sub_category_div" class="dropdown">
-                                                            <div id="sub_category_placeholder" class="form-control">Please
-                                                                Select</div>
-                                                            <div id="sub_category_list" class="dropdown-menu"
-                                                                style="display: none;"></div>
+                                                            <div id="sub_category_placeholder" class="form-control">Please Select</div>
+                                                            <div id="sub_category_list" class="dropdown-menu" style="display: none;"></div>
                                                         </div>
-
-                                                        <!-- Hidden input field to store selected value -->
-                                                        <input type="hidden" name="sub_category_id" id="sub_category_id"
-                                                            class="form-control">
-
+                                                        <input type="hidden" name="sub_category_id" id="sub_category_id" class="form-control">
                                                         @error('sub_category_id')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-
-                                                    {{-- <div class="col-md-6 mb-3">
-                                                        <input type="text" id="cardholder-name" name="cardholder_name"
-                                                            placeholder="Cardholder Name" class="form-control">
-                                                    </div>
-
-                                                    <div class="col-md-6 mb-3">
-                                                        <div id="card-number-element" class="form-control"></div>
-                                                    </div>
-
-                                                    <div class="col-md-6 mb-3">
-                                                        <div id="card-expiry-element" class="form-control"></div>
-                                                    </div>
-
-                                                    <div class="col-md-6 mb-3">
-                                                        <div id="card-cvc-element" class="form-control"></div>
-                                                        <input type="hidden" name="stripeToken" id="stripeToken">
-                                                    </div>
-
-                                                    <div id="card-errors" class="text-danger mb-3"></div> --}}
-
                                                 </div>
-                                                {{-- <button type="submit" class="btn btn-primary bg-primary"
-                                                    id="submit-button" disabled>
-                                                    Add Expense
-                                                </button> --}}
-                                                <button type="submit" class="btn btn-primary bg-primary">
-                                                    Add Expense
-                                                </button>
-
+                                                <div class="row mt-3">
+                                                    <div class="col-12">
+                                                        <button type="submit" class="btn btn-primary bg-primary">Add Expense</button>
+                                                    </div>
+                                                </div>
                                             </form>
-
                                         </div>
                                     </div>
                                 </div>
@@ -257,43 +221,62 @@
 
     <script>
         $(document).ready(function () {
-            $('#sub_category_div').on('click', function () {
-                $('#sub_category_list').toggle();
-            });
+            // Initialize select2
+            $('.select2').select2();
 
-            $(document).on('click', '.sub_category_option', function () {
-                var selectedText = $(this).text();
-                var selectedValue = $(this).data('id');
-                $('#sub_category_placeholder').text(selectedText);
-                $('#sub_category_id').val(selectedValue);
-                $('#sub_category_list').hide();
-            });
-
-            $('#category_id').on('change', function () {
-                var categoryID = $(this).val();
-                var franchisee = '{{ $franchiseId }}'; 
-              
-                if (categoryID) {
+            // Handle category change
+            $('#category_id').on('change', function() {
+                var categoryId = $(this).val();
+                if (categoryId) {
                     $.ajax({
-                        url: '/franchise/' + franchisee + '/get-subcategories/' + categoryID,
+                        url: "{{ route('franchise.getSubCategories', ['franchise' => $franchiseId, 'category_id' => ':categoryId']) }}".replace(':categoryId', categoryId),
                         type: 'GET',
-                        dataType: 'json',
-                        success: function (response) {
-                            $('#sub_category_list').empty();
-                            $.each(response.data, function (index, subCategory) {
-                                $('#sub_category_list').append(
-                                    '<div class="dropdown-item sub_category_option" data-id="' +
-                                    subCategory.id + '">' + subCategory
-                                        .sub_category + '</div>'
-                                );
+                        success: function(response) {
+                            var subCategories = response.data;
+                            var subCategoryList = $('#sub_category_list');
+                            subCategoryList.empty();
+
+                            // Add subcategories to dropdown
+                            subCategories.forEach(function(subCategory) {
+                                var item = $('<div class="dropdown-item" data-id="' + subCategory.id + '">' + 
+                                           subCategory.category + '</div>');
+                                subCategoryList.append(item);
                             });
+
+                            // Reset placeholder
+                            $('#sub_category_placeholder').text('Please Select');
+                            $('#sub_category_id').val('');
                         },
-                        error: function () {
-                            alert('Failed to fetch sub-categories. Please try again.');
+                        error: function(xhr, status, error) {
+                            console.error('Error fetching subcategories:', error);
                         }
                     });
                 } else {
+                    // Reset subcategory dropdown when no category is selected
                     $('#sub_category_list').empty();
+                    $('#sub_category_placeholder').text('Please Select');
+                    $('#sub_category_id').val('');
+                }
+            });
+
+            // Handle subcategory dropdown toggle
+            $('#sub_category_div').on('click', function() {
+                $('#sub_category_list').toggle();
+            });
+
+            // Handle subcategory selection
+            $(document).on('click', '#sub_category_list .dropdown-item', function() {
+                var id = $(this).data('id');
+                var text = $(this).text();
+                $('#sub_category_id').val(id);
+                $('#sub_category_placeholder').text(text);
+                $('#sub_category_list').hide();
+            });
+
+            // Close dropdown when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('#sub_category_div').length) {
+                    $('#sub_category_list').hide();
                 }
             });
         });

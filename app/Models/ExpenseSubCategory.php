@@ -8,11 +8,11 @@ use Illuminate\Support\Facades\Auth;
 class ExpenseSubCategory extends Model
 {
     protected $guarded = [];
-
-    public function category(){
-        return $this->belongsTo(ExpenseCategory::class);
+    public function expenseCategory()
+    {
+        return $this->belongsTo(ExpenseCategory::class, 'expense_category_id');
     }
-
+    
     protected static function booted()
     {
         static::creating(function ($expenseSubCategory) {

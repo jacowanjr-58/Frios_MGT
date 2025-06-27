@@ -125,7 +125,7 @@
             $('#expense-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('expense.franchisee', ['franchisee' => $franchiseeId]) }}",
+                ajax: "{{ route('franchise.expense', ['franchise' => $franchiseId]) }}",
                 columns: [
                     { data: 'franchise', name: 'franchise' },
                     { data: 'name', name: 'name' },

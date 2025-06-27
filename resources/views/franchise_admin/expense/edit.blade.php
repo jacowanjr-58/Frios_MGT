@@ -2,13 +2,26 @@
 @section('content')
 <style>
     div#sub_category_list {
-    width: 100%;
-}
-#sub_category_placeholder{
-    padding-top: 15px;
-    font-size: 15px;
-    font-weight: 500;
-}
+        width: 100%;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    #sub_category_placeholder {
+        padding-top: 15px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+    .dropdown-item {
+        padding: 10px 15px;
+        cursor: pointer;
+    }
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+    }
+    .dropdown-item.selected {
+        background-color: #e9ecef;
+    }
 </style>
 
 
@@ -48,15 +61,13 @@
                                     <div class="card-body">
                                         <div class="basic-form">
 
-
-
-                                            <form action="{{ route('franchise.expense.update' , ['franchisee' => request()->route('franchisee'), 'id' => $expense->id]) }}" method="POST">
+                                            <form action="{{ route('franchise.expenses_by_franchise-update' , ['franchise' => $franchiseId, 'id' => $expense->id]) }}" method="POST">
                                                 @method('PUT')
                                                 @csrf
 
                                                 <div class="row">
  
-                                                    <div class="mb-3 col-md-4">
+                                                    <div class="mb-3 col-md-6">
                                                         <label class="form-label">Main Name <span class="text-danger">*</span></label>
                                                         <input type="text" class="form-control @error('name') is-invalid @enderror"
                                                             name="name" value="{{ $expense->name }}" placeholder="Name">
@@ -65,7 +76,7 @@
                                                         @enderror
                                                     </div>
 
-                                                    <div class="mb-3 col-md-4">
+                                                    <div class="mb-3 col-md-6">
                                                         <label class="form-label">Amount <span class="text-danger">*</span></label>
                                                         <input type="number" class="form-control @error('amount') is-invalid @enderror"
                                                             name="amount" value="{{ $expense->amount }}" placeholder="Amount">
@@ -74,7 +85,7 @@
                                                         @enderror
                                                     </div>
 
-                                                    <div class="mb-3 col-md-4">
+                                                    <div class="mb-3 col-md-6">
                                                         <label class="form-label">Date <span class="text-danger">*</span></label>
                                                         <input type="date" class="form-control @error('date') is-invalid @enderror"
                                                         name="date" id="date" value="{{ $expense->date }}">
@@ -87,11 +98,11 @@
 
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Category <span class="text-danger">*</span></label>
-                                                        <select name="category_id" id="category_id" class="form-control @error('category_id') is-invalid @enderror">
+                                                        <select name="category_id" id="category_id" class="form-control select2">
                                                             <option value="">Please Select</option>
                                                             @foreach ($ExpenseCategories as $ExpenseCategory)
                                                                 <option value="{{ $ExpenseCategory->id }}"
-                                                                        {{ $ExpenseCategory->id == $expense->category_id ? 'selected' : '' }}>
+                                                                        {{ $ExpenseCategory->id == $expense->expense_category_id ? 'selected' : '' }}>
                                                                     {{ $ExpenseCategory->category }}
                                                                 </option>
                                                             @endforeach
@@ -107,8 +118,8 @@
                                                         <!-- This div will serve as the dropdown -->
                                                         <div id="sub_category_div" class="dropdown">
                                                             <div id="sub_category_placeholder" class="form-control">
-                                                                @if($expense->sub_category_id)
-                                                                    {{ $expense->sub_category->sub_category }}  <!-- Assuming you have a relationship set up -->
+                                                                @if($expense->expense_sub_category_id)
+                                                                    {{ $expense->sub_category->category }}
                                                                 @else
                                                                     Please Select
                                                                 @endif
@@ -117,7 +128,7 @@
                                                         </div>
 
                                                         <!-- Hidden input field to store selected value -->
-                                                        <input type="hidden" name="sub_category_id" id="sub_category_id" value="{{ $expense->sub_category_id }}" class="form-control">
+                                                        <input type="hidden" name="sub_category_id" id="sub_category_id" value="{{ $expense->expense_sub_category_id }}" class="form-control">
 
                                                         @error('sub_category_id')
                                                             <div class="text-danger">{{ $message }}</div>
@@ -146,86 +157,83 @@
                 Content body end
             ***********************************-->
 
+@push('scripts')
 <script>
 $(document).ready(function() {
-    // Toggle dropdown visibility on click
-    $('#sub_category_div').on('click', function() {
-        $('#sub_category_list').toggle();  // Toggle the visibility of the dropdown options
-    });
+    // Initialize select2
+    $('.select2').select2();
 
-    // When an option is selected
-    $(document).on('click', '.sub_category_option', function() {
-        var selectedText = $(this).text();
-        var selectedValue = $(this).data('id');
-
-        // Update the placeholder text with the selected option
-        $('#sub_category_placeholder').text(selectedText);
-
-        // Set the selected value in the hidden input
-        $('#sub_category_id').val(selectedValue);
-
-        // Hide the dropdown after selection
-        $('#sub_category_list').hide();
-    });
-
-    // Fetch subcategories based on category selection
-    $('#category_id').on('change', function() {
-        var categoryID = $(this).val();
-        var franchisee = '{{ $franchiseId }}'; 
-        console.log(franchisee);
-        // Reset sub-category selection if category changes
-        $('#sub_category_id').val('');  // Clear the hidden input value
-        $('#sub_category_placeholder').text('Please Select');  // Reset placeholder text
-        $('#sub_category_list').empty();  // Clear the sub-category list
-
-        if (categoryID) {
-          
+    // Function to load subcategories
+    function loadSubCategories(categoryId, selectedSubCategoryId = null) {
+        if (categoryId) {
             $.ajax({
-                url: '/franchise/' + franchisee + '/get-subcategories/' + categoryID,
+                url: '/franchise/{{ $franchiseId }}/get-subcategories/' + categoryId,
                 type: 'GET',
                 dataType: 'json',
                 success: function(response) {
-                    $('#sub_category_list').empty();  // Clear the list before appending new options
+                    $('#sub_category_list').empty();
                     $.each(response.data, function(index, subCategory) {
-                        var isSelected = subCategory.id == $('#sub_category_id').val() ? 'selected' : '';
+                        var isSelected = selectedSubCategoryId && selectedSubCategoryId == subCategory.id;
                         $('#sub_category_list').append(
-                            '<div class="dropdown-item sub_category_option ' + isSelected + '" data-id="' + subCategory.id + '">' + subCategory.sub_category + '</div>'
+                            '<div class="dropdown-item sub_category_option ' + (isSelected ? 'selected' : '') + 
+                            '" data-id="' + subCategory.id + '">' + subCategory.category + '</div>'
                         );
+
+                        // If this is the selected subcategory, update the placeholder
+                        if (isSelected) {
+                            $('#sub_category_placeholder').text(subCategory.category);
+                            $('#sub_category_id').val(subCategory.id);
+                        }
                     });
                 },
                 error: function() {
-                    alert('Failed to fetch sub-categories. Please try again.');
+                    console.error('Failed to fetch sub-categories');
                 }
             });
         } else {
-            $('#sub_category_list').empty();  // If no category is selected, clear the sub-category list
+            $('#sub_category_list').empty();
+            $('#sub_category_placeholder').text('Please Select');
+            $('#sub_category_id').val('');
         }
+    }
+
+    // Toggle dropdown visibility
+    $('#sub_category_div').on('click', function() {
+        $('#sub_category_list').toggle();
     });
 
-    // If category is already selected on page load, fetch subcategories
-    var selectedCategory = $('#category_id').val();
-    if (selectedCategory) {
-        $.ajax({
+    // Handle subcategory selection
+    $(document).on('click', '.sub_category_option', function() {
+        var selectedText = $(this).text();
+        var selectedValue = $(this).data('id');
+        $('#sub_category_placeholder').text(selectedText);
+        $('#sub_category_id').val(selectedValue);
+        $('#sub_category_list').hide();
+        $('.sub_category_option').removeClass('selected');
+        $(this).addClass('selected');
+    });
 
-            url: '/franchise/' + franchisee + '/get-subcategories/' + selectedCategory,
-            type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                $('#sub_category_list').empty();  // Clear the list before appending new options
-                $.each(response.data, function(index, subCategory) {
-                    var isSelected = subCategory.id == $('#sub_category_id').val() ? 'selected' : '';
-                    $('#sub_category_list').append(
-                        '<div class="dropdown-item sub_category_option ' + isSelected + '" data-id="' + subCategory.id + '">' + subCategory.sub_category + '</div>'
-                    );
-                });
-            },
-            error: function() {
-                alert('Failed to fetch sub-categories. Please try again.');
-            }
-        });
+    // Handle category change
+    $('#category_id').on('change', function() {
+        var categoryId = $(this).val();
+        loadSubCategories(categoryId);
+    });
+
+    // Load initial subcategories if category is selected
+    var initialCategoryId = $('#category_id').val();
+    var initialSubCategoryId = '{{ $expense->expense_sub_category_id }}';
+    if (initialCategoryId) {
+        loadSubCategories(initialCategoryId, initialSubCategoryId);
     }
-});
 
+    // Close dropdown when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('#sub_category_div').length) {
+            $('#sub_category_list').hide();
+        }
+    });
+});
 </script>
+@endpush
 
 @endsection

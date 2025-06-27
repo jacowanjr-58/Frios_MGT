@@ -21,7 +21,6 @@ class UserManagementController extends Controller
     {
         // Only count users not assigned to any franchise
         $totalUsers = User::with('franchises')->count();
-
         if (request()->ajax()) {
             // Only get users who are not assigned to any franchise
             $users = User::with('roles','franchises');

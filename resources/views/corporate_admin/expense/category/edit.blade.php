@@ -85,10 +85,7 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="basic-form">
-
-
-
-                                            <form action="{{ route('expense-category.update' , ['franchisee' => $franchiseeId, 'id' => $expenseSubCategory->id]) }}" method="POST">
+                                            <form action="{{ route('expense-category.update', ['id' => $expenseSubCategory->id]) }}" method="POST">
                                                 @method('PUT')
                                                 @csrf
 
@@ -96,30 +93,30 @@
 
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Main Category <span class="text-danger">*</span></label>
-                                                        <select name="category_id" id="category_id" class="form-control  @error('category_id') is-invalid @enderror">
+                                                        <select name="expense_category_id" id="expense_category_id" class="form-control  @error('expense_category_id') is-invalid @enderror">
                                                             <option value="">Please Select</option>
                                                             @foreach ($ExpenseCategories as $ExpenseCategory)
-                                                                <option value="{{ $ExpenseCategory->id }}" {{ $ExpenseCategory->id == $expenseSubCategory->category_id ? 'selected' : '' }}>{{ $ExpenseCategory->category }}</option>
+                                                                <option value="{{ $ExpenseCategory->id }}" {{ $ExpenseCategory->id == $expenseSubCategory->expense_category_id ? 'selected' : '' }}>{{ $ExpenseCategory->category }}</option>
                                                             @endforeach
                                                         </select>
-                                                        @error('category_id')
+                                                        @error('expense_category_id')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
 
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Sub Category <span class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control @error('sub_category') is-invalid @enderror"
-                                                            name="sub_category" value="{{ $expenseSubCategory->sub_category }}" placeholder="Sub Category">
-                                                        @error('sub_category')
+                                                        <input type="text" class="form-control @error('category') is-invalid @enderror"
+                                                            name="category" value="{{ $expenseSubCategory->category }}" placeholder="Sub Category">
+                                                        @error('category')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
 
                                                     <div class="mb-3 col-md-12">
                                                         <label class="form-label">Sub Category Description <span class="text-danger">*</span></label>
-                                                        <textarea name="sub_category_description" id="sub_category_description" cols="10" rows="5" class="@error('sub_category_description') is-invalid @enderror form-control">{{ $expenseSubCategory->sub_category_description }}</textarea>
-                                                        @error('sub_category_description')
+                                                        <textarea name="description" id="description" cols="10" rows="5" class="@error('description') is-invalid @enderror form-control">{{ $expenseSubCategory->description }}</textarea>
+                                                        @error('description')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>

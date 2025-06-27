@@ -141,7 +141,9 @@ class FranchiseStaffController extends Controller
     }
 
     public function create( $franchise ) {
-        return view('franchise_staff.customer.create', compact('franchise'));
+     
+        $franchiseId = intval($franchise);
+        return view('franchise_staff.customer.create', compact('franchiseId'));
     }
 
     public function store(Request $request, $franchise){
