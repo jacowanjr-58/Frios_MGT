@@ -58,7 +58,6 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/fgpcategory/{fgpcategory}', [FgpCategoryController::class, 'update'])->name('fgpcategory.update');
             Route::delete('/fgpcategory/{fgpcategory}', [FgpCategoryController::class, 'destroy'])->name('fgpcategory.destroy');
         });
-
     });
 
     // fgp Category routes
@@ -73,7 +72,6 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/fgpitem/{fgpitem}/edit', [FgpItemsController::class, 'edit'])->name('fgpitem.edit');
             Route::put('/fgpitem/{fgpitem}', [FgpItemsController::class, 'update'])->name('fgpitem.update');
             Route::delete('/fgpitem/{fgpitem}', [FgpItemsController::class, 'destroy'])->name('fgpitem.destroy');
-
         });
 
         Route::middleware('permission:frios_availability.view')->group(function () {
