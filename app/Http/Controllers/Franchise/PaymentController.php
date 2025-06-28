@@ -20,10 +20,10 @@ use App\Models\Franchise;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\FranchiseEventItem;
-use App\Models\InvoiceTransaction;
+use App\Models\Transaction;
 use App\Models\Stripe as StripeModel;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
@@ -37,7 +37,7 @@ class PaymentController extends Controller
 
         if (request()->ajax()) {
             if (request()->get('table') === 'invoice') {
-                $invoices = InvoiceTransaction::where('franchise_id', $franchiseeId)
+                $invoices = Transaction::where('franchise_id', $franchiseeId)
                     ->with('invoice');
 
                 return DataTables::of($invoices)
@@ -125,10 +125,10 @@ class PaymentController extends Controller
         ];
 
         $data['inoviceAmount'] = [
-            'daily' => InvoiceTransaction::where('franchise_id', $franchiseeId)->whereDate('created_at', $today)->sum('amount'),
-            'weekly' => InvoiceTransaction::where('franchise_id', $franchiseeId)->whereBetween('created_at', [$startOfWeek, now()])->sum('amount'),
-            'monthly' => InvoiceTransaction::where('franchise_id', $franchiseeId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
-            'yearly' => InvoiceTransaction::where('franchise_id', $franchiseeId)->whereBetween('created_at', [$startOfYear, now()])->sum('amount'),
+            'daily' => Transaction::where('franchise_id', $franchiseeId)->whereDate('created_at', $today)->sum('amount'),
+            'weekly' => Transaction::where('franchise_id', $franchiseeId)->whereBetween('created_at', [$startOfWeek, now()])->sum('amount'),
+            'monthly' => Transaction::where('franchise_id', $franchiseeId)->whereBetween('created_at', [$startOfMonth, now()])->sum('amount'),
+            'yearly' => Transaction::where('franchise_id', $franchiseeId)->whereBetween('created_at', [$startOfYear, now()])->sum('amount'),
         ];
 
         $data['totalAmount'] = [
@@ -139,7 +139,7 @@ class PaymentController extends Controller
         ];
 
         $data['orderTransactions'] = OrderTransaction::where('franchise_id', $franchiseeId)->get();
-        $data['invoiceTransactions'] = InvoiceTransaction::where('franchise_id', $franchiseeId)->get();
+        $data['invoiceTransactions'] = Transaction::where('franchise_id', $franchiseeId)->get();
         return view('franchise_admin.payment.transaction', $data);
     }
 
@@ -257,7 +257,7 @@ Stripe::setApiKey(config('services.stripe.secret'));
 
         if ($session->payment_status === 'paid') {
 
-            InvoiceTransaction::create([
+            Transaction::create([
                 'invoice_id' => $invoice->id,
                 'franchise_id' => $invoice->franchise_id,
                 'user_id' => $invoice->user_id ?? null,
