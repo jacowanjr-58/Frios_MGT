@@ -1,10 +1,7 @@
 <?php
 
 namespace Database\Seeders;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -80,11 +77,6 @@ class DatabaseSeeder extends Seeder
 
             $this->command->info("User {$userData['email']} processed with role {$userData['role']}");
         }
-
-        // Create user-franchise relationships after all users are created
-            // $this->call([
-            //     UserFranchiseSeeder::class,
-            // ]);
 
         // Run other seeders after users are created
         $this->call([

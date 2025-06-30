@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Franchise;
 use App\Models\User;
@@ -14,6 +13,8 @@ class FranchiseSeeder extends Seeder
      */
     public function run(): void
     {
+        $superAdmin = User::where('email', 'superadmin@friospops.com')->first(); // Get superadmin user
+
         $franchises = [
             [
                 'business_name' => 'Frios Gourmet Pops - Downtown Austin',
@@ -27,6 +28,8 @@ class FranchiseSeeder extends Seeder
                 'location_zip' => '78701',
                 'ACH_data_API' => json_encode(['account' => 'ACH_AUSTIN_001', 'routing' => '111000025']),
                 'pos_service_API' => json_encode(['terminal_id' => 'POS_AUSTIN_001', 'merchant_id' => 'MERCHANT_001']),
+                'created_by' => $superAdmin->id,
+                'updated_by' => $superAdmin->id,
             ],
             [
                 'business_name' => 'Austin',
@@ -40,6 +43,8 @@ class FranchiseSeeder extends Seeder
                 'location_zip' => '75240',
                 'ACH_data_API' => json_encode(['account' => 'ACH_DALLAS_001', 'routing' => '111000026']),
                 'pos_service_API' => json_encode(['terminal_id' => 'POS_DALLAS_001', 'merchant_id' => 'MERCHANT_002']),
+                'created_by' => $superAdmin->id,
+                'updated_by' => $superAdmin->id,
             ],
             [
                 'business_name' => 'Houston Heights',
@@ -53,6 +58,8 @@ class FranchiseSeeder extends Seeder
                 'location_zip' => '77008',
                 'ACH_data_API' => json_encode(['account' => 'ACH_HOUSTON_001', 'routing' => '111000027']),
                 'pos_service_API' => json_encode(['terminal_id' => 'POS_HOUSTON_001', 'merchant_id' => 'MERCHANT_003']),
+                'created_by' => $superAdmin->id,
+                'updated_by' => $superAdmin->id,
             ],
             [
                 'business_name' => 'San Antonio Riverwalk',
@@ -66,6 +73,8 @@ class FranchiseSeeder extends Seeder
                 'location_zip' => '78205',
                 'ACH_data_API' => json_encode(['account' => 'ACH_SANANTONIO_001', 'routing' => '111000028']),
                 'pos_service_API' => json_encode(['terminal_id' => 'POS_SANANTONIO_001', 'merchant_id' => 'MERCHANT_004']),
+                'created_by' => $superAdmin->id,
+                'updated_by' => $superAdmin->id,
             ],
             [
                 'business_name' => 'Fort Worth Stockyards',
@@ -79,6 +88,8 @@ class FranchiseSeeder extends Seeder
                 'location_zip' => '76164',
                 'ACH_data_API' => json_encode(['account' => 'ACH_FORTWORTH_001', 'routing' => '111000029']),
                 'pos_service_API' => json_encode(['terminal_id' => 'POS_FORTWORTH_001', 'merchant_id' => 'MERCHANT_005']),
+                'created_by' => $superAdmin->id,
+                'updated_by' => $superAdmin->id,
             ],
             // [
             //     'business_name' => 'El Paso West',
@@ -92,6 +103,8 @@ class FranchiseSeeder extends Seeder
             //     'location_zip' => '79912',
             //     'ACH_data_API' => json_encode(['account' => 'ACH_ELPASO_001', 'routing' => '111000030']),
             //     'pos_service_API' => json_encode(['terminal_id' => 'POS_ELPASO_001', 'merchant_id' => 'MERCHANT_006']),
+            //     'created_by' => $superAdmin->id,
+            //     'updated_by' => $superAdmin->id,
             // ],
             // [
             //     'business_name' => 'Plano Legacy',
@@ -105,6 +118,8 @@ class FranchiseSeeder extends Seeder
             //     'location_zip' => '75023',
             //     'ACH_data_API' => json_encode(['account' => 'ACH_PLANO_001', 'routing' => '111000031']),
             //     'pos_service_API' => json_encode(['terminal_id' => 'POS_PLANO_001', 'merchant_id' => 'MERCHANT_007']),
+            //     'created_by' => $superAdmin->id,
+            //     'updated_by' => $superAdmin->id,
             // ],
             // [
             //     'business_name' => 'Arlington Entertainment',
@@ -118,6 +133,8 @@ class FranchiseSeeder extends Seeder
             //     'location_zip' => '76011',
             //     'ACH_data_API' => json_encode(['account' => 'ACH_ARLINGTON_001', 'routing' => '111000032']),
             //     'pos_service_API' => json_encode(['terminal_id' => 'POS_ARLINGTON_001', 'merchant_id' => 'MERCHANT_008']),
+            //     'created_by' => $superAdmin->id,
+            //     'updated_by' => $superAdmin->id,
             // ],
             // [
             //     'business_name' => 'The Woodlands Market',
@@ -131,6 +148,8 @@ class FranchiseSeeder extends Seeder
             //     'location_zip' => '77380',
             //     'ACH_data_API' => json_encode(['account' => 'ACH_WOODLANDS_001', 'routing' => '111000033']),
             //     'pos_service_API' => json_encode(['terminal_id' => 'POS_WOODLANDS_001', 'merchant_id' => 'MERCHANT_009']),
+            //     'created_by' => $superAdmin->id,
+            //     'updated_by' => $superAdmin->id,
             // ],
             // [
             //     'business_name' => 'Corpus Christi Bay',
@@ -144,6 +163,8 @@ class FranchiseSeeder extends Seeder
             //     'location_zip' => '78401',
             //     'ACH_data_API' => json_encode(['account' => 'ACH_CORPUSCHRISTI_001', 'routing' => '111000034']),
             //     'pos_service_API' => json_encode(['terminal_id' => 'POS_CORPUSCHRISTI_001', 'merchant_id' => 'MERCHANT_010']),
+            //     'created_by' => $superAdmin->id,
+            //     'updated_by' => $superAdmin->id,
             // ],
         ];
 
@@ -154,8 +175,10 @@ class FranchiseSeeder extends Seeder
             $createdFranchises[] = $franchise;
         }
         $this->command->info('Created 10 franchise records successfully!');
+
+        $user = User::where('email', 'franchiseadmin@friospops.com')->first(); // Get franchiseadmin user
+
         // Create user-franchise relationships (optional - assigns franchises to existing users)
-        $user = User::where('email', 'franchiseadmin@friospops.com')->first(); // Get first 10 users if they exist
         if ($user) {
             foreach ($createdFranchises as $index => $franchise) {
                     // Create relationship in user_franchises pivot table

@@ -11,7 +11,7 @@ class FgpCategoryFgpItemTableSeeder extends Seeder
     {
         DB::table('fgp_category_fgp_item')->insert([
             ['fgp_category_id' => 2,  'fgp_item_id' => 2],
-            ['fgp_category_id' => 2,  'fgp_item_id' => 5],
+            // ['fgp_category_id' => 2,  'fgp_item_id' => 5],
             // ... continue for every pivot row from fgp_category_fgp_item.sql ...
         ]);
     }

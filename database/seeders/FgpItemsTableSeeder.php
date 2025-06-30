@@ -26,8 +26,8 @@ class FgpItemsTableSeeder extends Seeder
                 'orderable'          => 1,
                 'created_by'         => 2,
                 'updated_by'         => 2,
-                'created_at'         => '2025-06-29 00:19:33',
-                'updated_at'         => '2025-06-29 21:43:58',
+                'created_at'         => now(),
+                'updated_at'         => now(),
             ],
             // ... repeat for the remaining items ...
         ]);

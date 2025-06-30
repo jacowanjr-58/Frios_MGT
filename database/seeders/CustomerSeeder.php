@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
+use App\Models\User;
 use App\Models\Customer;
 use App\Models\Franchise;
+use Illuminate\Database\Seeder;
 
 class CustomerSeeder extends Seeder
 {
@@ -22,8 +22,8 @@ class CustomerSeeder extends Seeder
             return;
         }
 
-        // Get the first user ID for created_by and updated_by
-        $firstUserId = \App\Models\User::first()?->id;
+        // Get the superadmin user ID for created_by and updated_by
+        $firstUserId = User::where('email', 'superadmin@friospops.com')->first()->id;
         
         if (!$firstUserId) {
             $this->command->error('No users found. Please ensure users are created first.');

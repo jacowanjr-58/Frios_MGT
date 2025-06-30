@@ -2,15 +2,14 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\FgpOrder;
-use App\Models\FgpItem;
-use App\Models\FgpCategory;
-use App\Models\Franchise;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use App\Models\FgpItem;
+use App\Models\FgpOrder;
+use App\Models\Franchise;
+use App\Models\FgpCategory;
 use Faker\Factory as Faker;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class FgpOrderItemSeeder extends Seeder
 {
@@ -35,9 +34,9 @@ class FgpOrderItemSeeder extends Seeder
             $this->command->warn('No FgpItems found. Creating dummy items for testing.');
             
             // Get required foreign key values
-            $firstUserId = \App\Models\User::first()?->id;
-            $firstFranchiseId = \App\Models\Franchise::first()?->id;
-            $firstCategoryId = \App\Models\FgpCategory::first()?->id;
+            $firstUserId = User::first()?->id;
+            $firstFranchiseId = Franchise::first()?->id;
+            $firstCategoryId = FgpCategory::first()?->id;
             
             if (!$firstUserId) {
                 $this->command->error('No users found. Please ensure users are created first.');
