@@ -78,7 +78,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/fgpitem/update-month/{id}', [FgpItemsController::class, 'updateMonth'])->name('fgpitem.updateMonth');
         });
 
-        Route::post('/fgpitem/update-orderable', [FgpItemsController::class, 'updateOrderable'])->name('fgpitem.updateOrderable');
+       Route::post('/fgpitem/update-orderable', [FgpItemsController::class, 'updateOrderable'])->name('fgpitem.updateOrderable');
     });
 
     // Additional charges routes

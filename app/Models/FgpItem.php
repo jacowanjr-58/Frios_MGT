@@ -15,8 +15,13 @@ class FgpItem extends Model
     protected $table = 'fgp_items'; // Ensure table name is correct
     public $timestamps = true; // Ensure timestamps are handled
 
+
+    protected $casts = [
+        'dates_available' => 'array',
+    ];
+    
     protected $fillable = [
-        'fgp_category_id',
+        //'fgp_category_id',
         'name',
         'description',
         'case_cost',
@@ -61,7 +66,7 @@ class FgpItem extends Model
     // Many-to-many relationship with FgpCategory
     public function categories()
     {
-        return $this->belongsToMany(FgpCategory::class, 'fgp_category_fgp_item', 'fgp_item_id', 'category_id');
+        return $this->belongsToMany(FgpCategory::class, 'fgp_category_fgp_item', 'fgp_item_id', 'fgp_category_id');
     }
 
     public function franchise()

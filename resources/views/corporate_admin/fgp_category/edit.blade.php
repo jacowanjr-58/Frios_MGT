@@ -25,70 +25,42 @@
                 </a>
             </div>
 
-            <div class="row">
+           <div class="row">
                 <div class="col-xl-12">
-                    <div class="row">
-                        <div class="col-xl-12">
-                            <div class="col-xl-12 col-lg-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h4 class="card-title">Edit Category</h4>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="basic-form">
-
-                                            <!-- Display Success Message -->
-
-
-                                            <form action="{{ route('franchise.fgpcategory.update', ['fgpcategory' => $fgpcategory->id]) }}" method="POST">
-                                                @csrf
-                                                @method('PUT')
-
-                                                <div class="row">
-
-                                                    <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Category Type <span class="text-danger">*</span></label>
-                                                        <select class="form-control select2 @error('type') is-invalid @enderror" name="type"> <!-- Removed multiple attribute -->
-                                                            <option value="">Select Category Type</option>  
-                                                            @foreach ($types as $type)
-                                                                <option value="{{ $type }}" {{ (is_array($fgpcategory->type) ? in_array($type, $fgpcategory->type) : $fgpcategory->type == $type) ? 'selected' : '' }}>
-                                                                    {{ ucfirst(str_replace('_', ' ', $type)) }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                        @error('type')
-                                                            <div class="text-danger">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <!-- Include Select2 for better UI -->
-                                        
-
-                                                    <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Category Name <span class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                                            name="name" value="{{ old('name', $fgpcategory->name) }}" required>
-                                                        @error('name') <div class="text-danger">{{ $message }}</div> @enderror
-                                                    </div>
-                                                </div>
-
-                                                <button type="submit" class="btn btn-primary bg-primary">Update Category</button>
-                                            </form>
-
-
-
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Edit Category</h4>
                         </div>
+                        <div class="card-body">
+                            <form action="{{ route('franchise.fgpcategory.update', $fgpcategory->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
 
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Category Name</label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                        value="{{ old('name', $fgpcategory->name) }}" required>
+                                </div>
 
+                                <div class="mb-3">
+                                    <label for="parent_id" class="form-label">Parent Category</label>
+                                    <select class="form-select" name="parent_id" id="parent_id">
+                                        <option value="">-- No Parent (Top Level) --</option>
+                                        @foreach($parents as $parent)
+                                        <option value="{{ $parent->id }}" {{ $fgpcategory->parent_id ==
+                                            $parent->id ? 'selected' : '' }}>
+                                            {{ $parent->name }}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
+                                <button type="submit" class="btn btn-primary">Update Category</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+             </div>
         </div>
     </div>
     <!--**********************************

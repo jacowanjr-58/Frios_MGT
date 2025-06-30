@@ -51,7 +51,7 @@
             <div class="form-head mb-4 d-flex flex-wrap align-items-center">
                 <div class="me-auto">
                     <h2 class="font-w600 mb-0">Dashboard \</h2>
-                    <p>Flover Items List</p>
+                    <p>Flavor Items List</p>
                 </div>
 
             </div>
@@ -88,7 +88,7 @@
                                         </svg>
                                         <div class="media-body">
                                             <p class="mb-1 fs-12">Total Flavor Items</p>
-                                            <h3 class="mb-0 font-w600 fs-22">{{ $totalItems }} Flavor Items</h3>
+                                            <h3 class="mb-0 font-w600 fs-22">{{ $totalItems }} Pop Flavors</h3>
                                         </div>
                                     </div>
 

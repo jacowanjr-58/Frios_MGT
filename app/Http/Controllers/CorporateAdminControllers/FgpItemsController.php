@@ -5,127 +5,99 @@ namespace App\Http\Controllers\CorporateAdminControllers;
 use App\Models\FgpItem;
 use App\Models\FgpCategory;
 use App\Models\Franchise;
-use App\Models\FgpOrder;
-use App\Models\FgpOrderItem;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 use Yajra\DataTables\DataTables;
 
 class FgpItemsController extends Controller
 {
-    public function index( $franchise)
+    public function index($franchise)
     {
-       
-        $franchise = Franchise::find(intval($franchise));
-        
-        if (request()->ajax()) {
-            // Updated filtering logic: Get FGP items that have been ordered by the selected franchise
-            // Logic: franchise_id → fgp_orders → fgp_order_items → fgp_item_id
-            $items = FgpItem::whereHas('orderItems', function ($query) use ($franchise) {
-                $query->whereHas('order', function ($orderQuery) use ($franchise) {
-                    $orderQuery->where('franchise_id', $franchise->id);
-                });
-            })->with('categories');
+        $franchise = Franchise::findOrFail(intval($franchise));
 
-            $totalItems = $items->count();
+        if (request()->ajax()) {
+            // Show ALL items, not filtered by franchise (FGP items are global cororate items)
+            $items = FgpItem::with('categories');
+
 
             return DataTables::of($items)
                 ->addColumn('categories', function ($item) {
-                    $formattedCategories = '';
-                    if($item->categories->isNotEmpty()) {
-                        foreach($item->categories as $category) {
-                            $formattedCategories .= '<span class="badge bg-primary me-2 mb-1">'.$category->name.'</span>';
-                        }
-                    } else {
-                        $formattedCategories = 'No Category';
-                    }
-                    return '<div class="d-flex flex-wrap">'.$formattedCategories.'</div>';
-                })
-                ->filterColumn('categories', function ($query, $keyword) {
-                    $query->whereHas('categories', function ($q) use ($keyword) {
-                        $q->where('name', 'like', "%$keyword%");
-                    });
+                    return $item->categories->pluck('name')
+                        ->map(fn($name) => "<span class='badge bg-primary me-2 mb-1'>{$name}</span>")
+                        ->implode(' ');
                 })
                 ->addColumn('action', function ($item) use ($franchise) {
-                    // Check if user has any permissions for actions
-                    if (!auth()->check() || !(auth()->user()->can('frios_flavors.edit') || auth()->user()->can('frios_flavors.delete'))) {
-                        return ''; // Return empty string if no permissions
-                    }
-
-                    $editUrl = route('franchise.fgpitem.edit', ['franchise' => $franchise->id, 'fgpitem' => $item->id]);
-                    $deleteUrl = route('franchise.fgpitem.destroy', ['franchise' => $franchise->id, 'fgpitem' => $item->id]);
+                    $editUrl = route('franchise.fgpitem.edit', [$franchise->id, $item->id]);
+                    $deleteUrl = route('franchise.fgpitem.destroy', [$franchise->id, $item->id]);
 
                     $actions = '<div class="d-flex">';
-                    
-                    // Edit button - check permission
-                    if (auth()->user()->can('frios_flavors.edit')) {
-                        $actions .= '<a href="'.$editUrl.'" class="edit-user">
-                            <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
-                        </a>';
+                    if (Auth::user()->can('frios_flavors.edit')) {
+                        $actions .= "<a href='{$editUrl}' class='edit-user'><i class='ti ti-edit fs-20 text-warning'></i></a>";
                     }
-                    
-                    // Delete button - check permission
-                    if (auth()->user()->can('frios_flavors.delete')) {
-                        $actions .= '<form action="'.$deleteUrl.'" method="POST">
-                            '.csrf_field().'
-                            '.method_field('DELETE').'
-                            <button type="submit" class="ms-4 delete-fgpitem">
-                                <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
-                            </button>
-                        </form>';
+                    if (Auth::user()->can('frios_flavors.delete')) {
+                        $actions .= "<form action='{$deleteUrl}' method='POST' class='ms-2'>"
+                            . csrf_field() . method_field('DELETE')
+                            . "<button type='submit' class='delete-fgpitem'><i class='ti ti-trash fs-20 text-danger'></i></button></form>";
                     }
-                    
                     $actions .= '</div>';
-                    
+
                     return $actions;
                 })
-                ->rawColumns(['action', 'categories'])
+                ->rawColumns(['categories', 'action'])
                 ->make(true);
         }
 
-        // Get total items for this franchise (based on orders)
-        $totalItems = FgpItem::whereHas('orderItems', function ($query) use ($franchise) {
-            $query->whereHas('order', function ($orderQuery) use ($franchise) {
-                $orderQuery->where('franchise_id', $franchise->id);
-            });
-        })->count();
 
-        return view('corporate_admin.fgp_items.index', compact('totalItems' , 'franchise'));
+        $totalItems =  FgpItem::with('categories')->count();
+        return view('corporate_admin.fgp_items.index', compact('totalItems', 'franchise'));
     }
+
+
 
     public function create($franchise)
     {
-        $categorizedCategories = [
-            'Availability' => FgpCategory::where('type', 'Availability')->get(),
-            'Flavor' => FgpCategory::where('type', 'Flavor')->get(),
-            'Allergen' => FgpCategory::where('type', 'Allergen')->get()
-        ];
+        $franchise = Franchise::findOrFail(intval($franchise));
+        // Load top-level categories with their child subcategories
+        $parents = FgpCategory::with('children')->whereNull('parent_id')->get();
 
-        $categories = FgpCategory::all();
-
-        return view('corporate_admin.fgp_items.create', compact('categorizedCategories', 'categories', 'franchise'));
+        return view('corporate_admin.fgp_items.create', compact('parents', 'franchise'));
     }
+
+
+    /*
+### How Category Selections Are Stored
+1. **Form Submission**: In your `create` and `edit` forms, you send an array `category_ids[]` containing selected subcategory IDs.
+2. **Validation**: Controller validates each `category_ids.*` exists in `fgp_categories`.
+3. **Sync Method**: Calling `$item->categories()->sync($request->category_ids)`:
+   - **Sync** wipes out any existing pivot records for that item and inserts new records for each supplied ID.
+   - Pivot table is `fgp_category_fgp_item` (with columns `fgp_item_id` and `fgp_category_id`).
+   - Ensures the DB reflects exactly the set of categories the user selected.
+4. **Eloquent Relations**: The `categories()` relation on `FgpItem` (`belongsToMany(FgpCategory::class, 'fgp_category_fgp_item')`) governs this pivot sync.
+
+This approach keeps your many-to-many assignments clean and in sync with user selections.
+ */
+
 
     public function store(Request $request, $franchise)
     {
-       
-        $franchise = Franchise::find(intval($franchise));
-        $franchise_id = $franchise->id;
-        
+        $franchise = Franchise::findOrFail(intval($franchise));
+
+        // Validate input including array of category IDs
         $validated = $request->validate([
-            'fgp_category_id' => 'required|exists:fgp_categories,id',   
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:fgp_items,name',
             'description' => 'nullable|string',
             'case_cost' => 'required|numeric|min:0',
             'internal_inventory' => 'required|integer|min:0',
             'image1' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'image2' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'image3' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'category_ids'   => 'array',
+            'category_ids.*' => 'exists:fgp_categories,id'
         ]);
 
-        // Handle image uploads
         if ($request->hasFile('image1')) {
             $validated['image1'] = $request->file('image1')->store('images/fgp_items', 'public');
         }
@@ -136,84 +108,65 @@ class FgpItemsController extends Controller
             $validated['image3'] = $request->file('image3')->store('images/fgp_items', 'public');
         }
 
-        // Create the FgpItem with proper field names matching migration
-        $item = FgpItem::create([
-            'fgp_category_id' => $validated['fgp_category_id'],
-            'name' => $validated['name'],
-            'description' => $validated['description'],
-            'case_cost' => $validated['case_cost'],
-            'internal_inventory' => $validated['internal_inventory'],
-            'split_factor' => 48, // Default value from migration
-            'image1' => $validated['image1'] ?? null,
-            'image2' => $validated['image2'] ?? null,
-            'image3' => $validated['image3'] ?? null,
-            'orderable' => 1, // Default value from migration
-            'created_by' => auth()->id(),
-            'updated_by' => auth()->id(),
-        ]);
 
-        return redirect()->route('franchise.fgpitem.index', ['franchise' => $franchise->id])->with('success', 'Flavor Item added successfully.');
+        // Create the item
+        $item = FgpItem::create($validated);
+
+        // Sync selected categories to pivot table fgp_category_fgp_item
+        // This will insert or update rows linking the item to each selected category ID.
+        $item->categories()->sync($request->category_ids ?? []);
+
+        return redirect()->route('franchise.fgpitem.index', $franchise->id)
+            ->with('success', 'Item created successfully.');
     }
 
 
 
-    public function edit(FgpItem $fgpitem, $franchise)
+    public function edit($franchise, FgpItem $fgpitem)
     {
-        $categorizedCategories = [
-            'Availability' => FgpCategory::whereJsonContains('type', 'Availability')->get(),
-            'Flavor' => FgpCategory::whereJsonContains('type', 'Flavor')->get(),
-            'Allergen' => FgpCategory::whereJsonContains('type', 'Allergen')->get()
-        ];
+        $franchise = Franchise::findOrFail(intval($franchise));
+        $parents = FgpCategory::with('children')->whereNull('parent_id')->get();
 
-        // Fetch selected categories for the item
-        $selectedCategories = $fgpitem->categories->pluck('category_ID')->toArray();
-
-        return view('corporate_admin.fgp_items.edit', compact('fgpitem', 'categorizedCategories', 'selectedCategories', 'franchise'));
+        return view('corporate_admin.fgp_items.edit', compact('parents', 'franchise', 'fgpitem'));
     }
 
-    public function update(Request $request, FgpItem $fgpitem)
+
+
+
+    public function update(Request $request, $franchise, FgpItem $fgpitem)
     {
+        $franchise = Franchise::findOrFail(intval($franchise));
+
         $validated = $request->validate([
-            'category_ID' => 'required|array',
-            'category_ID.*' => 'exists:fgp_categories,category_ID',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'case_cost' => 'required|numeric',
-            'internal_inventory' => 'required|integer',
-            'image1' => 'nullable|image',
-            'image2' => 'nullable|image',
-            'image3' => 'nullable|image',
+            'name'               => 'required|string|max:255',
+            'description'        => 'nullable|string',
+            'case_cost'          => 'required|numeric|min:0',
+            'internal_inventory' => 'required|integer|min:0',
+            'image1'             => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image2'             => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image3'             => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'category_ids'       => 'array',
+            'category_ids.*'     => 'exists:fgp_categories,id'
         ]);
 
-        // Preserve old images if new images are not uploaded
-        $validated['image1'] = $request->hasFile('image1') ?
-            $request->file('image1')->store('images/fgp_items', 'public') : $fgpitem->image1;
+        if ($request->hasFile('image1')) {
+            $validated['image1'] = $request->file('image1')->store('images/fgp_items', 'public');
+        }
+        if ($request->hasFile('image2')) {
+            $validated['image2'] = $request->file('image2')->store('images/fgp_items', 'public');
+        }
+        if ($request->hasFile('image3')) {
+            $validated['image3'] = $request->file('image3')->store('images/fgp_items', 'public');
+        }
 
-        $validated['image2'] = $request->hasFile('image2') ?
-            $request->file('image2')->store('images/fgp_items', 'public') : $fgpitem->image2;
 
-        $validated['image3'] = $request->hasFile('image3') ?
-            $request->file('image3')->store('images/fgp_items', 'public') : $fgpitem->image3;
+        $fgpitem->update($validated);
+        // Sync pivot relations for edits as well
+        $fgpitem->categories()->sync($request->category_ids ?? []);
 
-        // Update the item
-        $fgpitem->update([
-            'name' => $validated['name'],
-            'description' => $validated['description'] ?? null,
-            'case_cost' => $validated['case_cost'],
-            'internal_inventory' => $validated['internal_inventory'],
-            'image1' => $validated['image1'],
-            'image2' => $validated['image2'],
-            'image3' => $validated['image3'],
-            'orderable' => 1,
-        ]);
-
-        // Sync categories in the pivot table
-        $fgpitem->categories()->sync($validated['category_ID']);
-
-        return redirect()->route('corporate_admin.fgpitem.index')->with('success', 'Fgp Item updated successfully.');
+        return redirect()->route('franchise.fgpitem.index', $franchise->id)
+            ->with('success', 'Item updated successfully.');
     }
-
-
 
     public function destroy(FgpItem $fgpitem)
     {
@@ -239,18 +192,22 @@ class FgpItemsController extends Controller
                 return response()->json(['success' => true]);
             }
 
-            return redirect()->route('corporate_admin.fgpitem.index')->with('success', 'Fgp Item deleted successfully.');
+            return redirect()->route('fgpitem.index')->with('success', 'Fgp Item deleted successfully.');
         } catch (\Exception $e) {
             if (request()->ajax()) {
                 return response()->json(['success' => false, 'message' => 'Failed to delete Fgp Item.']);
             }
 
-            return redirect()->route('corporate_admin.fgpitem.index')->with('error', 'Failed to delete Fgp Item.');
+            return redirect()->route('fgpitem.index')->with('error', 'Failed to delete Fgp Item.');
         }
     }
 
+
+    //this is used in the index.blade.php to update the orderable status of an item
+    //it is called via an AJAX request when the user toggles the orderable switch
     public function updateOrderable(Request $request)
     {
+
         try {
             $item = FgpItem::findOrFail($request->id);
             $item->orderable = $request->orderable;
@@ -264,64 +221,78 @@ class FgpItemsController extends Controller
 
     public function availability($franchise)
     {
-            // Check permission for viewing Frios Availability
-    if (!Auth::check() || !Auth::user()->can('frios_availability.view')) {
-        abort(403, 'Unauthorized access to Frios Availability');
-    }
-
-        // Get flavors that have been ordered by this franchise using orderItems relationship
-        $flavors = FgpItem::whereHas('orderItems', function ($query) use ($franchise) {
-            $query->whereHas('order', function ($orderQuery) use ($franchise) {
-                $orderQuery->where('franchise_id', $franchise);
-            });
-        })->with('categories')->get();
-        
-        $totalItems = $flavors->count();
-
-        return view('corporate_admin.fgp_items.availability_flavor', compact('flavors','totalItems' , 'franchise'));
-    }
-
-public function updateStatus(Request $request, $id)
-{
-    // Check permission for updating Frios Availability
-    if (!Auth::check() || !Auth::user()->can('frios_availability.edit')) {
-        return response()->json(['success' => false, 'message' => 'Unauthorized access'], 403);
-    }
-
-    $item = FgpItem::findOrFail($id);
-    $item->orderable = $request->orderable;
-    $item->save();
-
-    return response()->json(['success' => true, 'message' => 'Orderable status updated successfully.']);
-}
-
-
-
-public function updateMonth(Request $request, $id)
-{
-    // Check permission for updating Frios Availability
-    if (!Auth::check() || !Auth::user()->can('frios_availability.edit')) {
-        return response()->json(['success' => false, 'message' => 'Unauthorized access'], 403);
-    }
-
-    $item = FgpItem::findOrFail($id);
-    $datesAvailable = json_decode($item->dates_available, true) ?? [];
-
-    if ($request->available) {
-        if (!in_array($request->month, $datesAvailable)) {
-            $datesAvailable[] = $request->month;
+        // Check permission for viewing Frios Availability
+        if (!Auth::check() || !Auth::user()->can('frios_availability.view')) {
+            abort(403, 'Unauthorized access to Frios Availability');
         }
-    } else {
-        $datesAvailable = array_filter($datesAvailable, fn($m) => $m != $request->month);
+
+        // List flavors to bulk edit their availability.
+        $flavors = FgpItem::with('categories')->orderby('name')->get();
+
+        $totalItems = $flavors->count();
+        return view('corporate_admin.fgp_items.availability_flavor', compact('flavors', 'totalItems', 'franchise'));
     }
 
-    $item->dates_available = json_encode(array_values($datesAvailable));
-    $item->save();
 
-    return response()->json(['success' => true, 'message' => 'Availability updated successfully.']);
-}
+    //this is used in the availability_flavor.blade.php to update the orderable status of an item
+    //it is called via an AJAX request when the user toggles the orderable switch
+    public function updateStatus(Request $request, $franchise, $id)
+    {
+        // Check permission for updating Frios Availability
+        if (!Auth::check() || !Auth::user()->can('frios_availability.edit')) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized access'], 403);
+        }
+
+        $item = FgpItem::findOrFail($id);
+        $item->orderable = $request->orderable;
+        $item->save();
+
+        return response()->json(['success' => true, 'message' => 'Orderable status updated successfully.']);
+    }
 
 
 
+    public function updateMonth(Request $request, $franchise, $id)
+    {
+        // Check permission for updating Frios Availability
+        if (!Auth::check() || !Auth::user()->can('frios_availability.edit')) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized access'], 403);
+        }
 
+        $item = FgpItem::findOrFail($id);
+        $datesAvailable = json_decode($item->dates_available, true) ?? [];
+
+        if ($request->available) {
+            if (!in_array($request->month, $datesAvailable)) {
+                $datesAvailable[] = $request->month;
+            }
+        } else {
+            $datesAvailable = array_filter($datesAvailable, fn($m) => $m != $request->month);
+        }
+
+        $item->dates_available = json_encode(array_values($datesAvailable));
+        $item->save();
+
+        return response()->json(['success' => true, 'message' => 'Availability updated successfully.']);
+    }
+
+
+    public function calendarView()
+    {
+        $months = collect(range(1, 12))->mapWithKeys(function ($m) {
+            return [$m => \Carbon\Carbon::create()->month($m)->format('M')];
+        });
+
+        $flavors = FgpItem::orderBy('name')->get();
+
+        // Build month -> pops list
+        $flavorsByMonth = [];
+        foreach ($months as $num => $label) {
+            $flavorsByMonth[$num] = $flavors->filter(function ($flavor) use ($num) {
+                return in_array($num, $flavor->dates_available ?? []);
+            });
+        }
+
+        return view('corporate_admin.fgp_items.viewCalendar', compact('months', 'flavorsByMonth'));
+    }
 }

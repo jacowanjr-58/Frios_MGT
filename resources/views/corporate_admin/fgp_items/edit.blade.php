@@ -33,7 +33,7 @@
                             <div class="col-xl-12 col-lg-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h4 class="card-title">Edit Flaover Item</h4>
+                                        <h4 class="card-title">Edit Pop Flavor Item</h4>
                                     </div>
                                     <div class="card-body">
                                         <div class="basic-form">
@@ -41,7 +41,7 @@
                                             <!-- Display Success Message -->
 
 
-                                            <form action="{{ route('franchise.fgpitem.update', ['franchise' => $franchise, 'fgpitem' => $fgpitem->fgp_item_id]) }}" method="POST" enctype="multipart/form-data">
+                                            <form action="{{ route('franchise.fgpitem.update', ['franchise' => $franchise, 'fgpitem' => $fgpitem->id]) }}" method="POST" enctype="multipart/form-data">
                                                 @csrf
                                                 @method('PUT')
 
@@ -56,38 +56,35 @@
                                                             @error('name') <div class="text-danger">{{ $message }}</div> @enderror
                                                         </div>
 
-                                                        <!-- Case Cost -->
-                                                        <div class="mb-3 ">
-                                                            <label class="form-label">Case Cost <span class="text-danger">*</span></label>
-                                                            <input type="number" step="0.01" class="form-control @error('case_cost') is-invalid @enderror"
-                                                                   name="case_cost" value="{{ old('case_cost', $fgpitem->case_cost) }}" placeholder="Enter Case Cost">
-                                                            @error('case_cost') <div class="text-danger">{{ $message }}</div> @enderror
-                                                        </div>
+
 
                                                        <!-- Category Selection -->
-                                                       <div class="mb-3">
-                                                        <label class="form-label">Category <span class="text-danger">*</span></label>
-                                                        <div class="form-control" style="height: auto; padding: 10px;">
-                                                            @foreach ($categorizedCategories as $categoryGroup => $categories)
-                                                                <h6 class="fw-bold p-2">{{ $categoryGroup }}</h6>
-                                                                @foreach ($categories as $category)
+                                                    <div class="mb-3">
+                                                        @foreach($parents as $parent)
+                                                        <div class="card mb-3">
+                                                            <div class="card-header d-flex align-items-center justify-content-between" style="cursor:pointer;"
+                                                                data-bs-toggle="collapse" data-bs-target="#catCollapse{{ $parent->id }}" aria-expanded="false"
+                                                                aria-controls="catCollapse{{ $parent->id }}">
+                                                                <strong>{{ $parent->name }}</strong>
+                                                                <span class="dropdown-toggle ms-2" style="transition: transform 0.2s;" aria-hidden="true"></span>
+                                                            </div>
+                                                            <div id="catCollapse{{ $parent->id }}" class="collapse">
+                                                                <div class="card-body">
+                                                                    @foreach($parent->children as $child)
                                                                     <div class="form-check">
-                                                                        <input class="form-check-input" type="checkbox" name="category_ID[]"
-                                                                            value="{{ $category->category_ID }}" id="category_{{ $category->category_ID }}"
-                                                                            {{ in_array($category->category_ID, $selectedCategories) ? 'checked' : '' }}>
-                                                                        <label class="form-check-label" for="category_{{ $category->category_ID }}">
-                                                                            {{ $category->name }}
+                                                                        <input class="form-check-input" type="checkbox" name="category_ids[]" value="{{ $child->id }}"
+                                                                            id="cat{{ $child->id }}" {{ (isset($fgpItem) && $fgpItem->categories->contains($child->id)) ?
+                                                                        'checked' : '' }}>
+                                                                        <label class="form-check-label" for="cat{{ $child->id }}">
+                                                                            {{ $child->name }}
                                                                         </label>
                                                                     </div>
-                                                                @endforeach
-                                                                <hr>
-                                                            @endforeach
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        @error('category_ID')
-                                                            <div class="text-danger">{{ $message }}</div>
-                                                        @enderror
+                                                        @endforeach
                                                     </div>
-
 
                                                     </div>
 
@@ -108,6 +105,14 @@
                                                                    name="internal_inventory" value="{{ old('internal_inventory', $fgpitem->internal_inventory) }}"
                                                                    placeholder="Enter Inventory Count">
                                                             @error('internal_inventory') <div class="text-danger">{{ $message }}</div> @enderror
+                                                        </div>
+
+                                                        <!-- Case Cost -->
+                                                        <div class="mb-3 ">
+                                                            <label class="form-label">Case Cost <span class="text-danger">*</span></label>
+                                                            <input type="number" step="0.01" class="form-control @error('case_cost') is-invalid @enderror" name="case_cost"
+                                                                value="{{ old('case_cost', $fgpitem->case_cost) }}" placeholder="Enter Case Cost">
+                                                            @error('case_cost') <div class="text-danger">{{ $message }}</div> @enderror
                                                         </div>
 
                                                           <!-- Image Uploads -->

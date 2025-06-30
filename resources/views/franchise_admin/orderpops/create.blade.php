@@ -36,24 +36,19 @@
 
                 {{-- Three columns --}}
                 <div class="row mb-4">
-                    @foreach(['Availability','Flavor','Allergen'] as $colType)
-                    <div class="col-md-4 border-start @if($colType==='Availability') border-0 @endif p-4">
-                        <h4 class="text-center bg-dark text-white py-2 rounded">{{ $colType }}</h4>
+                    @foreach($categories as $parentCategory)
+                    <div class="col-md-4 border-start ...">
+                        <h4 class="text-center bg-dark text-white py-2 rounded">{{ $parentCategory->name }}</h4>
 
-                        @foreach($categoriesByType[$colType] ?? [] as $category)
-                        {{-- Sub‐category heading --}}
+                        @foreach($parentCategory->children as $subcategory)
                         <div class="subcategory-label bg-secondary text-white text-center py-1 my-3 rounded">
-                            {{ $category->name }}
+                            {{ $subcategory->name }}
                         </div>
-
-                        {{-- Pops in this subcategory --}}
                         <div class="d-flex flex-wrap gap-3 justify-content-center">
-                            @foreach($category->items as $item)
-                            <div class="pop-icon text-center" data-id="{{ $item->fgp_item_id }}"
-                                data-name="{{ $item->name }}" data-unit-cost="{{ $item->case_cost }}"
-                                data-image="{{ asset('storage/' . $item->image1) }}">
-                                <img src="{{ asset('storage/' . $item->image1) }}" alt="{{ $item->name }}"
-                                    class="pop-image rounded">
+                            @foreach($subcategory->items as $item)
+                            <div class="pop-icon" data-id="{{ $item->fgp_item_id }}" data-name="{{ $item->name }}"
+                                data-unit-cost="{{ $item->case_cost }}" data-image="{{ asset('storage/' . $item->image1) }}">
+                                <img src="{{ asset('storage/' . $item->image1) }}" alt="{{ $item->name }}" class="pop-image rounded">
                                 <div class="unit-cost">${{ number_format($item->case_cost, 2) }}</div>
                                 <div class="pop-overlay">{{ $item->name }}</div>
                             </div>

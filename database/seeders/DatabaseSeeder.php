@@ -91,7 +91,10 @@ class DatabaseSeeder extends Seeder
             FranchiseSeeder::class,
             UserFranchiseSeeder::class,
             // CustomerSeeder::class,
-            FgpCategorySeeder::class,
+            FgpCategoriesTableSeeder::class,
+            FgpItemsTableSeeder::class,
+            FgpCategoryFgpItemTableSeeder::class,
+
             // ExpenseCategorySeeder::class,
             // FgpOrderSeeder::class,
             // FgpOrderItemSeeder::class,
@@ -146,7 +149,7 @@ class DatabaseSeeder extends Seeder
                 $corporateAdminPermissions = [
                     'dashboard.view',
 
-                  
+
                 ];
                 $user->givePermissionTo($corporateAdminPermissions);
                 break;

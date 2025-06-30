@@ -68,6 +68,12 @@ Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name(
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
 
+// View fgp items availability calendar
+Route::middleware('auth')->group(
+    function () {
+        Route::get('/pops/calendar', [FgpItemsController::class, 'calendarView'])
+            ->name('pops.viewCalendar');
+    });
 
 Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name('franchise.')->group(function () {
     Route::get('/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard')->middleware('permission:dashboard.view');

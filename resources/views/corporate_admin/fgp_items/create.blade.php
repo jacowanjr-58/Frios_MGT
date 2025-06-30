@@ -33,7 +33,7 @@
                             <div class="col-xl-12 col-lg-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h4 class="card-title">Add Flavor Item</h4>
+                                        <h4 class="card-title">Add Pop Flavor</h4>
                                     </div>
                                     <div class="card-body">
                                         <div class="basic-form">
@@ -50,41 +50,41 @@
                                                         <!-- Item Name -->
                                                         <div class="mb-3">
                                                             <label for="name" class="form-label">Item Name <span class="text-danger">*</span></label>
-                                                            <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                                                            <input type="text" class="form-control @error('name') is-invalid @enderror"
                                                                    id="name" name="name" value="{{ old('name') }}" required>
                                                             @error('name')
                                                                 <div class="invalid-feedback">{{ $message }}</div>
                                                             @enderror
                                                         </div>
 
-                                                        <!-- Case Cost -->
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Case Cost <span class="text-danger">*</span></label>
-                                                            <input type="number" step="0.01" class="form-control @error('case_cost') is-invalid @enderror"
-                                                                   name="case_cost" value="{{ old('case_cost') }}" placeholder="Enter Case Cost" required>
-                                                            @error('case_cost')
-                                                                <div class="invalid-feedback">{{ $message }}</div>
-                                                            @enderror
-                                                        </div>
 
                                                       <!-- Category Selection -->
-                                                      <div class="mb-3">
-                                                        <label for="fgp_category_id" class="form-label">Category <span class="text-danger">*</span></label>
-                                                        <select class="form-control select2 @error('fgp_category_id') is-invalid @enderror" 
-                                                                id="fgp_category_id" name="fgp_category_id" required>
-                                                            <option value="">Select Category</option>
-                                                            @foreach($categories as $category)
-                                                                <option value="{{ $category->id }}" 
-                                                                    {{ old('fgp_category_id') == $category->id ? 'selected' : '' }}>
-                                                                    {{ $category->name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                        @error('fgp_category_id')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
+                                                  <div class="mb-3">
+                                                        @foreach($parents as $parent)
+                                                        <div class="card mb-3">
+                                                            <div class="card-header d-flex align-items-center justify-content-between" style="cursor:pointer;"
+                                                                data-bs-toggle="collapse" data-bs-target="#catCollapse{{ $parent->id }}" aria-expanded="false"
+                                                                aria-controls="catCollapse{{ $parent->id }}">
+                                                                <strong>{{ $parent->name }}</strong>
+                                                                <span class="dropdown-toggle ms-2" style="transition: transform 0.2s;" aria-hidden="true"></span>
+                                                            </div>
+                                                            <div id="catCollapse{{ $parent->id }}" class="collapse">
+                                                                <div class="card-body">
+                                                                    @foreach($parent->children as $child)
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input" type="checkbox" name="category_ids[]" value="{{ $child->id }}"
+                                                                            id="cat{{ $child->id }}" {{ (isset($fgpItem) && $fgpItem->categories->contains($child->id)) ?
+                                                                        'checked' : '' }}>
+                                                                        <label class="form-check-label" for="cat{{ $child->id }}">
+                                                                            {{ $child->name }}
+                                                                        </label>
+                                                                    </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        @endforeach
                                                     </div>
-
 
                                                     </div>
 
@@ -100,12 +100,22 @@
                                                             @enderror
                                                         </div>
 
+                                                        <!-- Case Cost -->
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Case Cost <span class="text-danger">*</span></label>
+                                                            <input type="number" step="0.01" class="form-control @error('case_cost') is-invalid @enderror" name="case_cost"
+                                                                value="{{ old('case_cost') }}" placeholder="Enter Case Cost" required >
+                                                            @error('case_cost')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+
                                                         <!-- Internal Inventory -->
                                                         <div class="mb-3">
                                                             <label class="form-label">Internal Inventory <span class="text-danger">*</span></label>
                                                             <input type="number" class="form-control @error('internal_inventory') is-invalid @enderror"
                                                                    name="internal_inventory" value="{{ old('internal_inventory') }}"
-                                                                   placeholder="Enter Inventory Count" required>
+                                                                   placeholder="Enter Inventory Count" >
                                                             @error('internal_inventory')
                                                                 <div class="invalid-feedback">{{ $message }}</div>
                                                             @enderror

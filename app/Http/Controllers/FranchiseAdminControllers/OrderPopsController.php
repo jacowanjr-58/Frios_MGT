@@ -30,7 +30,7 @@ class OrderPopsController extends Controller
 {
     public function index($franchisee=null)
     {
-      
+
         $franchiseeId = intval($franchisee);
         $currentMonth = strval(Carbon::now()->format('n'));
 
@@ -93,33 +93,18 @@ class OrderPopsController extends Controller
     {
         $currentMonth = (string) Carbon::now()->month;
 
-        $items = FgpItem::with('categories')
-            ->where('orderable', 1)
-            ->where('internal_inventory', '>', 0)
-            ->get()
-            ->filter(function ($item) use ($currentMonth) {
-                $months = json_decode($item->dates_available, true);
-                return in_array($currentMonth, $months ?? []);
-            });
+        $categories = FgpCategory::with(['children.items' => function ($q) use ($currentMonth) {
+            $q->select('fgp_items.fgp_item_id', 'fgp_items.name', 'fgp_items.image1', 'fgp_items.case_cost')
+                ->where('orderable', 1)
+                ->where('internal_inventory', '>', 0)
+                ->whereJsonContains('dates_available', $currentMonth)
+                ->orderBy('fgp_items.name');
+        }])
+            ->whereNull('parent_id')
+            ->orderBy('name')
+            ->get();
 
-        $categoriesByType = FgpCategory::select('category_ID', 'name', 'type')
-            ->with(['items' => function ($q) {
-                $q->select(
-                        'fgp_items.fgp_item_id',
-                        'fgp_items.name',
-                        'fgp_items.image1',
-                        'fgp_items.case_cost'
-                    )
-                    ->where('fgp_items.orderable', 1)
-                    ->where('fgp_items.internal_inventory', '>', 0)
-                    ->whereJsonContains('fgp_items.dates_available', (string) Carbon::now()->month)
-                    ->orderBy('fgp_items.name');
-            }])
-            ->orderBy('type')
-            ->get()
-            ->groupBy('type');
-
-        return view('franchise_admin.orderpops.create', compact('categoriesByType'));
+        return view('franchise_admin.orderpops.create', compact('categories'));
     }
 
     public function confirmOrder(Request $request)
@@ -145,7 +130,7 @@ class OrderPopsController extends Controller
         $items = session('ordered_items', []);
 
         if (empty($items)) {
-            return redirect()->route('franchise.orderpops.index')->withErrors('No items selected.');
+            return redirect()->route('orderpops', ['franchise' => $franchiseeId])->withErrors('No items selected.');
         }
 
         $franchiseeId = Auth::user()->franchise_id;
@@ -322,7 +307,7 @@ class OrderPopsController extends Controller
     {
         $franchiseeId = intval($franchisee);
 
-     
+
         if (request()->ajax()) {
             $orders = FgpOrder::with([
                 'orderDetails.flavor',
@@ -339,14 +324,14 @@ class OrderPopsController extends Controller
                     return Carbon::parse($order->date_transaction)->format('M d, Y');
                 })
                 ->addColumn('shipping', function($order) {
-                    return $order->ship_to_name . '<br>' . 
-                           $order->fullShippingAddress() . '<br>' . 
+                    return $order->ship_to_name . '<br>' .
+                           $order->fullShippingAddress() . '<br>' .
                            $order->ship_to_phone;
                 })
                 ->addColumn('tracking', function($order) {
                     if ($order->tracking_number) {
-                        return '<a href="https://www.ups.com/track?tracknum=' . $order->tracking_number . '" target="_blank">' . 
-                               $order->tracking_number . 
+                        return '<a href="https://www.ups.com/track?tracknum=' . $order->tracking_number . '" target="_blank">' .
+                               $order->tracking_number .
                                '</a>';
                     }
                     return '—';
@@ -359,8 +344,8 @@ class OrderPopsController extends Controller
                     return '<div><strong>Ordered:</strong> ' . $order->flavorSummary() . '</div>';
                 })
                 ->addColumn('paid_status', function($order) {
-                    return $order->is_paid ? 
-                        '<span class="badge bg-success">Paid</span>' : 
+                    return $order->is_paid ?
+                        '<span class="badge bg-success">Paid</span>' :
                         '<span class="badge bg-danger">Unpaid</span>';
                 })
                 ->addColumn('delivery_status', function($order) {
