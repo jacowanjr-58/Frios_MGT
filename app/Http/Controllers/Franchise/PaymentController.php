@@ -2,32 +2,34 @@
 
 namespace App\Http\Controllers\Franchise;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Customer;
-use App\Models\FgpItem;
-use Illuminate\Support\Facades\Http;
-use App\Models\InventoryAllocation;
-use App\Models\ExpenseTransaction;
-use App\Models\OrderTransaction;
-use App\Models\EventTransaction;
-use App\Models\Expense;
-use App\Models\ExpenseCategory;
-use App\Models\ExpenseSubCategory;
-use App\Models\FgpOrder;
-use App\Models\FgpOrderDetail;
-use App\Models\Franchise;
-use App\Models\Invoice;
-use App\Models\InvoiceItem;
-use App\Models\FranchiseEventItem;
-use App\Models\Transaction;
-use App\Models\Stripe as StripeModel;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Stripe\Stripe;
+use App\Models\Expense;
+use App\Models\FgpItem;
+use App\Models\Invoice;
+use App\Models\Customer;
+use App\Models\FgpOrder;
+use Stripe\StripeClient;
+use App\Models\Franchise;
+use App\Models\InvoiceItem;
+use App\Models\Transaction;
+use Illuminate\Http\Request;
 use Stripe\Checkout\Session;
+use App\Models\FgpOrderDetail;
+use App\Models\ExpenseCategory;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\EventTransaction;
+use App\Models\OrderTransaction;
 use Yajra\DataTables\DataTables;
+use App\Models\ExpenseSubCategory;
+use App\Models\ExpenseTransaction;
+use App\Models\FranchiseEventItem;
+use App\Models\InventoryAllocation;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use App\Models\Stripe as StripeModel;
 
 class PaymentController extends Controller
 {
@@ -47,8 +49,8 @@ class PaymentController extends Controller
                             $query->whereHas('invoice', function($q) use ($searchValue) {
                                 $q->where('name', 'like', "%{$searchValue}%");
                             })
-                            ->orWhere('amount', 'like', "%{$searchValue}%")
-                            ->orWhere('status', 'like', "%{$searchValue}%");
+                                ->orWhere('amount', 'like', "%{$searchValue}%")
+                                ->orWhere('status', 'like', "%{$searchValue}%");
                         }
                     })
                     ->addColumn('name', function ($transaction) {
@@ -82,8 +84,8 @@ class PaymentController extends Controller
                             $searchValue = request()->get('search')['value'];
                             $query->where(function($q) use ($searchValue) {
                                 $q->where('cardholder_name', 'like', "%{$searchValue}%")
-                                  ->orWhere('amount', 'like', "%{$searchValue}%")
-                                  ->orWhere('stripe_status', 'like', "%{$searchValue}%");
+                                    ->orWhere('amount', 'like', "%{$searchValue}%")
+                                    ->orWhere('stripe_status', 'like', "%{$searchValue}%");
                             });
                         }
                     })
@@ -217,8 +219,31 @@ class PaymentController extends Controller
 
     public function stripe()
     {
-        $data['stripe'] = StripeModel::where('id', Auth::user()->franchise_id)->first();
-        return view('franchise_admin.stripe.index', $data);
+        $user = Auth::user();
+
+        if (!$user->stripe_account_id) {
+            return redirect('/dashboard')->with('error', 'No Stripe account found.');
+        }
+
+        $stripe = new StripeClient(config('stripe.secret_key'));
+
+        // Retrieve connected account
+        $account = $stripe->accounts->retrieve($user->stripe_account_id);
+
+        if ($account->charges_enabled) {
+            // Optional: store status if needed
+            $user->stripe_onboarding_complete = true;
+            $user->save();
+
+            return redirect('/dashboard')->with('success', 'Stripe account connected successfully!');
+        } else {
+            // Still incomplete or under review
+            Log::warning('Stripe account not fully active: ' . $user->stripe_account_id);
+            return redirect('/dashboard')->with('warning', 'Your Stripe account setup is not yet complete.');
+        }
+
+        // $data['stripe'] = StripeModel::where('id', Auth::user()->franchise_id)->first();
+        // return view('franchise_admin.stripe.index', $data);
     }
 
     public function stripePost(Request $request)
@@ -251,7 +276,7 @@ class PaymentController extends Controller
         $invoice = Invoice::findOrFail($invoiceId);
 
 
-Stripe::setApiKey(config('services.stripe.secret'));
+        Stripe::setApiKey(config('services.stripe.secret'));
 
         $session = Session::retrieve($invoice->stripe_session_id);
 
@@ -281,6 +306,6 @@ Stripe::setApiKey(config('services.stripe.secret'));
         $invoice = Invoice::findOrFail($invoiceId);
 
         // Handle cancel logic
-       dd('Payment Cancelled! Please try again.');
+        dd('Payment Cancelled! Please try again.');
     }
 }

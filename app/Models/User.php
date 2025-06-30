@@ -31,6 +31,7 @@ class User extends Authenticatable
         'contract_document_path',
         'date_joined',
         'stripe_account_id',
+        'stripe_onboarding_complete',
     ];
 
     /**
