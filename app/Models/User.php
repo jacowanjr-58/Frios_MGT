@@ -30,6 +30,7 @@ class User extends Authenticatable
         'ein_ssn_hash',
         'contract_document_path',
         'date_joined',
+        'stripe_account_id',
     ];
 
     /**

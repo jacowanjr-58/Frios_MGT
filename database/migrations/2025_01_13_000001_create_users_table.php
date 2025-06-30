@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('ein_ssn_hash')->nullable();
             $table->string('contract_document_path')->nullable();
             $table->date('date_joined')->nullable();
+            $table->string('stripe_account_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
           });
