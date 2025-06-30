@@ -51,7 +51,6 @@ class FgpOrderSeeder extends Seeder
             $deliveredAt = $isDelivered ? $faker->dateTimeBetween('-30 days', 'now') : null;
     
             FgpOrder::create([
-                'customer_id' => $faker->randomElement($customers),
                 'franchise_id' => $faker->randomElement($franchises),
                 'order_num' => 'ORD-' . str_pad($i, 6, '0', STR_PAD_LEFT),
                 'ACH_data' => json_encode([
@@ -83,7 +82,7 @@ class FgpOrderSeeder extends Seeder
                 'is_delivered' => $isDelivered,
                 'delivered_at' => $deliveredAt,
                 'shipstation_webhook_event' => $status === 'Delivered' ? 'item_shipped' : null,
-                'status' => $status,
+               
                 'created_by' => $faker->randomElement($users),
                 'updated_by' => $faker->randomElement($users),
                 'created_at' => $faker->dateTimeBetween('-90 days', 'now'),

@@ -82,14 +82,14 @@ class DatabaseSeeder extends Seeder
         $this->call([
             FranchiseSeeder::class,
             UserFranchiseSeeder::class,
-            // CustomerSeeder::class,
+            CustomerSeeder::class,
             FgpCategoriesTableSeeder::class,
             FgpItemsTableSeeder::class,
             FgpCategoryFgpItemTableSeeder::class,
 
-            // ExpenseCategorySeeder::class,
-            // FgpOrderSeeder::class,
-            // FgpOrderItemSeeder::class,
+            ExpenseCategorySeeder::class,
+            FgpOrderSeeder::class,
+            FgpOrderItemSeeder::class,
         ]);
     }
 
@@ -132,6 +132,13 @@ class DatabaseSeeder extends Seeder
                     // by_franchisee
                     'customers.by_franchisee',
 
+                    //orders
+                    'orders.view',
+                    'orders.create',
+                    'orders.edit',
+                    'orders.delete',
+                
+
                 ];
                 $user->givePermissionTo($superAdminPermissions);
                 break;
@@ -157,11 +164,13 @@ class DatabaseSeeder extends Seeder
                     'inventory.bulk_price_adjust',
                     'inventory.allocate',
                     'inventory.locations',
+
+                    // Orders
                     'orders.view',
                     'orders.create',
-                    'orders.edit',
-                    'orders.delete',
-                    'orders.pops',
+                  
+                
+
                     'invoices.view',
                     'invoices.create',
                     'invoices.edit',
@@ -213,11 +222,12 @@ class DatabaseSeeder extends Seeder
                     'locations.create',
                     'locations.edit',
                     'locations.delete',
+
+                    // Orders
                     'orders.view',
                     'orders.create',
-                    'orders.edit',
-                    'orders.delete',
-                    'orders.pops',
+              
+        
                     'expenses.view',
                     'expenses.create',
                     'expenses.edit',

@@ -89,22 +89,21 @@
                 </li>
             @endcanany
 
-            @canany(['franchise_orders.view', 'franchise_orders.create', 'franchise_orders.edit',
-                'franchise_orders.delete', 'franchise_orders.edit_charges'])
-                <li class="{{ Request::routeIs('vieworders.*', 'orderpops', 'additionalcharges.*') ? 'mm-active' : '' }}">
-                    <a class="has-arrow ai-icon {{ Request::routeIs('vieworders.*', 'orderpops', 'additionalcharges.*') ? 'active' : '' }}"
+            @canany(['orders.view', 'orders.create', 'orders.edit', 'orders.delete'])
+                <li class="{{ Request::routeIs('orders.*', 'orderpops', 'additionalcharges.*') ? 'mm-active' : '' }}">
+                    <a class="has-arrow ai-icon {{ Request::routeIs('orders.*', 'orderpops', 'additionalcharges.*') ? 'active' : '' }}"
                         href="javascript:void()"
-                        aria-expanded="{{ Request::routeIs('vieworders.*', 'orderpops', 'additionalcharges.*') ? 'true' : 'false' }}">
+                        aria-expanded="{{ Request::routeIs('orders.*', 'orderpops', 'additionalcharges.*') ? 'true' : 'false' }}">
                         <i class="bi bi-cart-plus-fill"></i>
                         <span class="nav-text">Franchise Orders</span>
                     </a>
-                    <ul aria-expanded="{{ Request::routeIs('vieworders.*', 'orderpops', 'additionalcharges.*') ? 'true' : 'false' }}"
-                        class="{{ Request::routeIs('vieworders.*', 'orderpops', 'additionalcharges.*') ? 'mm-collapse mm-show' : '' }}">
-                        <li><a href="{{ route('franchise.vieworders', ['franchise' => $franchiseeId]) }}">View Orders</a>
+                    <ul aria-expanded="{{ Request::routeIs('orders.*', 'orderpops', 'additionalcharges.*') ? 'true' : 'false' }}"
+                        class="{{ Request::routeIs('orders.*', 'orderpops', 'additionalcharges.*') ? 'mm-collapse mm-show' : '' }}">
+                        <li><a href="{{ route('franchise.orders', ['franchise' => $franchiseeId]) }}"> Orders</a>
                         </li>
                         <!-- <li><a href="{{ route('orderpops', ['franchise' => $franchiseeId]) }}">Edit/Delete Orders</a></li> -->
-                        <li><a href="{{ route('additionalcharges.index', ['franchise' => $franchiseeId]) }}">Edit
-                                Charges</a></li>
+                        <!-- <li><a href="{{ route('additionalcharges.index', ['franchise' => $franchiseeId]) }}">Edit
+                                Charges</a></li> -->
                     </ul>
                 </li>
             @endcanany
@@ -224,7 +223,7 @@
                                     Pops</a></li>
                             <li><a href="{{ route('franchise.orderpops.view', ['franchise' => $franchiseeId]) }}">View
                                     Orders</a></li>
-                            <li><a href="{{ route('vieworders.index', ['franchise' => $franchiseeId]) }}">View Orders</a>
+                            <li><a href="{{ route('franchise.orders', ['franchise' => $franchiseeId]) }}">View Orders</a>
                             </li>
                         </ul>
                     </li>

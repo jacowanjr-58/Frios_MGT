@@ -82,12 +82,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'frios_availability.edit',
             'frios_availability.delete',
 
-            // Franchise Orders Management (Corporate Admin)
-            'franchise_orders.view',
-            'franchise_orders.create',
-            'franchise_orders.edit',
-            'franchise_orders.delete',
-            'franchise_orders.edit_charges',
+            // Orders  (Corporate Admin)
+            'orders.view',
+            'orders.create',
+            'orders.edit',
+            'orders.delete',
+           
 
             // Payments Management (Corporate Admin)
             'payments.view',
@@ -141,7 +141,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'orders.create',
             'orders.edit',
             'orders.delete',
-            'orders.pops',
+            
 
             // Get Paid/Invoices (Franchise Admin)
             'invoices.view',
@@ -200,7 +200,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage-flavors',
             'manage-frios-availability',
             'manage-flavor-categories',
-            'manage-franchise-orders',
+           
             'view-payments',
             'view-expenses',
             'view-customers',
@@ -304,6 +304,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'expense_categories.create',
             'expense_categories.edit',
             'expense_categories.delete',
+
+            //orders
+            'orders.view',
+            'orders.create',
+          
 
         ];
         $superAdmin->givePermissionTo($superAdminPermissions);
@@ -436,11 +441,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'inventory.bulk_price_adjust',
             'inventory.allocate',
             'inventory.locations',
+
+            //orders
             'orders.view',
             'orders.create',
-            'orders.edit',
-            'orders.delete',
-            'orders.pops',
+          
+          
             'invoices.view',
             'invoices.create',
             'invoices.edit',
@@ -519,11 +525,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'locations.create',
             'locations.edit',
             'locations.delete',
+
+            //orders
             'orders.view',
             'orders.create',
-            'orders.edit',
-            'orders.delete',
-            'orders.pops',
+         
+         
             'expenses.view',
             'expenses.create',
             'expenses.edit',
@@ -577,6 +584,14 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage-customers',
             'view-sales',
             'view-events',
+
+
+            //orders
+            'orders.view',
+            'orders.create',
+          
+
+
         ];
         $franchiseStaff->givePermissionTo($franchiseStaffPermissions);
 

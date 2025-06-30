@@ -220,7 +220,7 @@
 
     /* Ensure Select2 dropdown appears properly */
     .select2-container {
-        z-index: 9999 !important;
+        /* z-index: 9999 !important; */
     }
 
     .select2-dropdown {

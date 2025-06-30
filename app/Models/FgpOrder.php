@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class FgpOrder extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'fgp_orders';
 
@@ -21,6 +22,7 @@ class FgpOrder extends Model
         'date_transaction' => 'datetime',
         'label_created_at' => 'datetime',
         'delivered_at' => 'datetime',
+        'deleted_at' => 'datetime',
         'is_delivered' => 'boolean',
         'is_paid' => 'boolean',
     ];
@@ -59,7 +61,7 @@ class FgpOrder extends Model
     }
 
     public function getOrderNum() : string{
-            return "FGP-" . $this->id;
+            return $this->order_num ?? "FGP-" . $this->id;
     }
 
     //Note the Plural for adding to OrderDetails
@@ -88,11 +90,7 @@ class FgpOrder extends Model
         );
     }
 
-    // 🔗 Optional: link to customer (if used)
-    public function customer()
-    {
-        return $this->belongsTo(Customer::class, 'customer_id');
-    }
+
 
     public function flavorSummary()
     {

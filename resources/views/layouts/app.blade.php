@@ -68,7 +68,6 @@
             position: fixed !important;
         }
 
-
         /* .btn-outline-yellow:hover {
     color: #FDE68A;
     border: 1px solid #FDE68A;

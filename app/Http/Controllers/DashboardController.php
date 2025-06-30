@@ -119,7 +119,7 @@ class DashboardController extends Controller
             ->join('fgp_items', 'fgp_order_items.fgp_item_id', '=', 'fgp_items.id')
             ->select('fgp_items.name', 'fgp_items.image1', DB::raw('SUM(fgp_order_items.quantity) as total_ordered'))
             ->where('fgp_orders.franchise_id', $franchiseId)
-            ->where('fgp_orders.status', 'Delivered')
+            // ->where('fgp_orders.status', 'Delivered')
             ->whereBetween('fgp_orders.created_at', [$dateRange['start'], $dateRange['end']])
             ->groupBy('fgp_items.id', 'fgp_items.name', 'fgp_items.image1')
             ->orderBy('total_ordered', 'desc')
@@ -172,7 +172,7 @@ class DashboardController extends Controller
                 ->sum('franchise_event_items.quantity'),
             'totalPopOrders' => DB::table('fgp_orders')
                 ->where('franchise_id', $franchiseId)
-                ->where('status', 'Delivered')
+                // ->where('status', 'Delivered')
                 ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
                 ->count(),
             'totalFlavors' => DB::table('fgp_items')->count(),
@@ -191,7 +191,7 @@ class DashboardController extends Controller
                 ->count(),  
             'monthlyPopOrders' => DB::table('fgp_orders')
                 ->where('franchise_id', $franchiseId)
-                ->where('status', 'Delivered')
+                // ->where('status', 'Delivered')
                 ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
                 ->count(),
         ];

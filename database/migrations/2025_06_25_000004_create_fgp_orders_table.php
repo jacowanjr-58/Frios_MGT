@@ -14,7 +14,6 @@ return new class extends Migration
         if (! Schema::hasTable('fgp_orders')) {
         Schema::create('fgp_orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('customer_id')->nullable()->constrained('customers', 'id');
             $table->foreignId('franchise_id')->nullable()->constrained('franchises', 'id');
             $table->string('order_num')->unique();
             $table->json('ACH_data')->nullable();
@@ -37,10 +36,9 @@ return new class extends Migration
             $table->boolean('is_delivered')->default(0);
             $table->timestamp('delivered_at')->nullable();
             $table->string('shipstation_webhook_event')->nullable();
-            $table->string('status')->default('Pending');
             $table->foreignId('created_by')->nullable()->constrained('users', 'id');
             $table->foreignId('updated_by')->nullable()->constrained('users', 'id');
-         
+            $table->softDeletes();
             $table->timestamps();
         });
         }
