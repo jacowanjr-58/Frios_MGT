@@ -137,7 +137,7 @@ class DatabaseSeeder extends Seeder
                     'orders.create',
                     'orders.edit',
                     'orders.delete',
-                
+
 
                 ];
                 $user->givePermissionTo($superAdminPermissions);
@@ -168,8 +168,8 @@ class DatabaseSeeder extends Seeder
                     // Orders
                     'orders.view',
                     'orders.create',
-                  
-                
+
+
 
                     'invoices.view',
                     'invoices.create',
@@ -226,8 +226,8 @@ class DatabaseSeeder extends Seeder
                     // Orders
                     'orders.view',
                     'orders.create',
-              
-        
+
+
                     'expenses.view',
                     'expenses.create',
                     'expenses.edit',

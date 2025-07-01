@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -9,97 +10,8 @@ class FgpItemsTableSeeder extends Seeder
 {
     public function run()
     {
-        DB::table('fgp_items')->insert([
-            [
-                'id'                 => 1,
-                'franchise_id'       => 1,
-                'name'               => 'Strawberry Swirl',
-                'description'        => 'Strawberry flavored ice cream swirl pop',
-                'case_cost'          => 50.00,
-                'internal_inventory' => 15,
-                'split_factor'       => 48,
-                'dates_available'    => json_encode(["1","2","3","4","5"]),
-                'image1'             => 'images/fgp_items/strawberry.png',
-                'image2'             => null,
-                'image3'             => null,
-                'orderable'          => 1,
-                'created_by'         => 1,
-                'updated_by'         => 1,
-                'created_at'         => now(),
-                'updated_at'         => now(),
-            ],
-            [
-                'id'                 => 2,
-                'franchise_id'       => 3,
-                'name'               => 'Birthday Cake',
-                'description'        => 'Classic birthday cake ice cream in a pop form',
-                'case_cost'          => 65.00,
-                'internal_inventory' => 10,
-                'split_factor'       => 48,
-                'dates_available'    => json_encode(["1","2","3","4","5","6","7","8","9","10","11","12"]),
-                'image1'             => 'images/fgp_items/birthday.png',
-                'image2'             => null,
-                'image3'             => null,
-                'orderable'          => 1,
-                'created_by'         => 2,
-                'updated_by'         => 2,
-                'created_at'         => now(),
-                'updated_at'         => now(),
-            ],
-            [
-                'id'                 => 3,
-                'franchise_id'       => 2,
-                'name'               => 'Chocolate Fudge',
-                'description'        => 'Rich chocolate fudge flavored ice cream pop',
-                'case_cost'          => 60.00,
-                'internal_inventory' => 8,
-                'split_factor'       => 48,
-                'dates_available'    => json_encode(["2","4","6","8"]),
-                'image1'             => 'images/fgp_items/chocolate.png',
-                'image2'             => null,
-                'image3'             => null,
-                'orderable'          => 1,
-                'created_by'         => 3,
-                'updated_by'         => 3,
-                'created_at'         => now(),
-                'updated_at'         => now(),
-            ],
-            [
-                'id'                 => 4,
-                'franchise_id'       => 1,
-                'name'               => 'Mint Chip',
-                'description'        => 'Refreshing mint with chocolate chips ice cream pop',
-                'case_cost'          => 55.00,
-                'internal_inventory' => 12,
-                'split_factor'       => 48,
-                'dates_available'    => json_encode(["3","6","9","12"]),
-                'image1'             => 'images/fgp_items/mint.png',
-                'image2'             => null,
-                'image3'             => null,
-                'orderable'          => 1,
-                'created_by'         => 4,
-                'updated_by'         => 4,
-                'created_at'         => now(),
-                'updated_at'         => now(),
-            ],
-            [
-                'id'                 => 5,
-                'franchise_id'       => 2,
-                'name'               => 'Cookies & Cream',
-                'description'        => 'Vanilla ice cream with cookie bits',
-                'case_cost'          => 58.00,
-                'internal_inventory' => 9,
-                'split_factor'       => 48,
-                'dates_available'    => json_encode(["1","5","7","11"]),
-                'image1'             => 'images/fgp_items/cookies.png',
-                'image2'             => null,
-                'image3'             => null,
-                'orderable'          => 1,
-                'created_by'         => 5,
-                'updated_by'         => 5,
-                'created_at'         => now(),
-                'updated_at'         => now(),
-            ],
-        ]);
+        // Make sure you’ve copied fgp_items.sql into database/seeders/sql/
+        $path = database_path('seeders/sql/fgp_items.sql');
+        DB::unprepared(file_get_contents($path));
     }
 }

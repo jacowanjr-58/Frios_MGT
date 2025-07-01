@@ -9,10 +9,8 @@ class FgpCategoryFgpItemTableSeeder extends Seeder
 {
     public function run()
     {
-        DB::table('fgp_category_fgp_item')->insert([
-            ['fgp_category_id' => 2,  'fgp_item_id' => 2],
-            // ['fgp_category_id' => 2,  'fgp_item_id' => 5],
-            // ... continue for every pivot row from fgp_category_fgp_item.sql ...
-        ]);
+        // Make sure you’ve copied fgp_category_fgp_item.sql into database/seeders/sql/
+        $path = database_path('seeders/sql/fgp_category_fgp_item.sql');
+        DB::unprepared(file_get_contents($path));
     }
 }
