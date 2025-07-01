@@ -66,8 +66,7 @@
                                     <th>Role</th>
                                     <th>Phone no</th>
                                     <th>Created Date</th>
-                                    <th>Role & Permissions</th>
-                                    @canany(['staff.edit', 'staff.delete'])
+                                    @canany(['roles.view', 'staff.edit', 'staff.delete'])
                                         <th>Actions</th>
                                     @endcanany
                                 </tr>
@@ -95,16 +94,14 @@
                                         </td>
                                         <td>{{ $user->created_date ? \Carbon\Carbon::parse($user->created_date)->format('d/m/Y') : 'N/A' }}
                                         </td>
-                                        <td>
-                                            @can('permissions.view')
-                                                <a href="{{ route('roles.show', $user->roles->first()->id) }}" class="btn btn-link btn-sm p-0 ms-2" title="View role and permissions">
-                                                    <i class="ti ti-eye fs-20" style="color: #00ABC7;"></i>
-                                                </a>
-                                            @endcan
-                                        </td>
                                         @canany(['staff.edit', 'staff.delete'])
                                             <td>
                                                 <div class="d-flex justify-content-center align-items-center">
+                                                    @can('permissions.view')
+                                                        <a href="{{ route('roles.show', $user->roles->first()->id) }}" class="btn btn-link btn-sm p-0 me-4" title="View role and permissions">
+                                                            <i class="fas fa-user-shield fs-20" style="color: #00ABC7;"></i>
+                                                        </a>
+                                                    @endcan
                                                     @can('staff.edit')
 
                                                         <a href="{{ route('franchise.staff.edit', ['franchise' => $franchiseeId, 'staff' => $user->id]) }}" class="edit-user">
