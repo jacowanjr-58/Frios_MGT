@@ -6,8 +6,6 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
-use App\Models\Stripe as StripeModel;
 class StripeMiddleware
 {
     /**
@@ -17,24 +15,19 @@ class StripeMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-       
-        if (Auth::user()->role == "franchise_admin") {
-
+        if (Auth::user()->hasRole('franchise_admin')) {
 
             // $franchiseeId = Auth::user()->franchise_id;
             $user = Auth::user();
            
             // $franchiseeId =  $user->load('franchisees');
             // $user = User::where('franchise_id', $franchiseeId)->first();
-            if ($user->stripe_account_id == null) {
-                return redirect()->route('franchise.stripe')->with('error', 'You have not connect a Stripe account yet. Please connect one to proceed.');
-            } else {
-            
-                return $next($request);
+            if (!$user->stripe_account_id) {
+                return redirect()->route('franchise.stripe.onboard')->with('error', 'You have not connect a Stripe account yet. Please connect one to proceed.');
             }
 
-        } else {
-            return $next($request);
         }
+
+        return $next($request);
     }
 }

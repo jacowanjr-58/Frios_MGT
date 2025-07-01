@@ -239,7 +239,7 @@ class PaymentController extends Controller
         } else {
             // Still incomplete or under review
             Log::warning('Stripe account not fully active: ' . $user->stripe_account_id);
-            return redirect('/dashboard')->with('warning', 'Your Stripe account setup is not yet complete.');
+            return to_route('franchise.stripe.onboard')->with('warning', 'Your Stripe account setup is not yet complete.');
         }
 
         // $data['stripe'] = StripeModel::where('id', Auth::user()->franchise_id)->first();
