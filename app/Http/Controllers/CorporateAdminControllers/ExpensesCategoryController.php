@@ -17,7 +17,7 @@ class ExpensesCategoryController extends Controller
 {
     public function index()
     {
-       
+
         if (request()->ajax()) {
             $expenseSubCategories = ExpenseSubCategory::with('expenseCategory');
 
@@ -213,7 +213,7 @@ class ExpensesCategoryController extends Controller
         // Use URL franchise parameter, don't override with session
         if (request()->ajax()) {
             $user = Auth::user();
-            
+
             // Start with customers query
             $customers = Customer::query();
             if (request()->has('franchise_filter') && request()->franchise_filter != '') {
@@ -262,21 +262,21 @@ class ExpensesCategoryController extends Controller
         $data['customerCount'] = $customerCount;
         $data['franchisee'] = $franchisee ? Franchise::find($franchisee) : null;
         $data['franchiseeId'] = $franchisee; // Ensure franchiseeId is available in view
-        
+
         return view('corporate_admin.customer.index', $data);
     }
 
     public function customerView($franchisee, $id)
     {
         $user = Auth::user();
-      
+
         $data['customer']   = Customer::where('id', intval($id))->firstorfail();
-        
+
         $franchise = Franchise::where('id' , $data['customer']->franchise_id)->first();
 
         return view('corporate_admin.customer.view', $data, compact('franchise'));
     }
-    
+
 
 
 
@@ -299,7 +299,7 @@ class ExpensesCategoryController extends Controller
                         <form action="' . route('franchise.expense-sub-category.delete', ['franchise' => $franchisee, 'id' => $subCategory->id]) . '" method="POST" class="delete-form">
                             ' . csrf_field() . '
                             ' . method_field('DELETE') . '
-                            <button type="button" class="ms-4 delete-expense-category" 
+                            <button type="button" class="ms-4 delete-expense-category"
                                 data-id="' . $subCategory->id . '"
                                 data-name="' . $subCategory->sub_category . '">
                                 <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
@@ -395,6 +395,12 @@ class ExpensesCategoryController extends Controller
         //     ->with('success', 'Expense Sub Category updated successfully');
     }
 
+
+    public function viewExpensesCategories()
+    {
+        $categories = ExpenseCategory::with('expenseSubCategories')->get();
+        return view('corporate_admin.expense.category.view', compact('categories'));
+    }
 
     public function deleteExpense($id)
     {

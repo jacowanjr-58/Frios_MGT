@@ -130,7 +130,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('expense-category/{id}/edit', [ExpensesCategoryController::class, 'edit'])->name('expense-category.edit');
     Route::put('expense-category/{id}/update', [ExpensesCategoryController::class, 'update'])->name('expense-category.update');
     Route::delete('expense-category/{id}/delete', [ExpensesCategoryController::class, 'delete'])->name('expense-category.delete');
-
+    Route::get('/expense-categories/view', [ExpensesCategoryController::class, 'viewExpensesCategories'])
+    ->name('expense-categories.view');
     // Route::get('/franchise/{franchise}/expense', [ExpenseController::class, 'index'])->name('expense.franchise')->middleware('permission:expenses.by_franchisee');
 
     // Customer

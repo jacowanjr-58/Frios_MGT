@@ -14,133 +14,87 @@ class ExpenseCategorySeeder extends Seeder
      */
     public function run(): void
     {
-        // Create 5 Expense Categories
+        $now = Carbon::now();
+
+        // Define the full category hierarchy
         $categories = [
-            [
-                'category' => 'Office Expenses',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+            'Inventory & Supplies' => [
+                'Frozen Gourmet Pops – Primary inventory costs',
+                'Dry Ice / Ice Packs – Essential for keeping pops frozen',
+                'Packaging & Napkins – Cups, spoons, napkins, serving trays',
+                'Cleaning Supplies – Sanitizers, wipes, gloves',
+                'Utensils & Equipment – Scoopers, knives, cutting boards',
             ],
-            [
-                'category' => 'Marketing & Advertising',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+            'Vehicle & Equipment Costs' => [
+                'Truck Lease / Loan Payment – Monthly lease or purchase payment',
+                'Truck Maintenance & Repairs – Oil changes, tire replacements, engine repairs',
+                'Vehicle Insurance – Required for business operation',
+                'Fuel Costs – Gas or diesel expenses',
+                'Generator Fuel / Maintenance – If using a separate power source',
+                'Permits & Registration – Food truck licensing, health permits, and local business registrations',
             ],
-            [
-                'category' => 'Equipment & Supplies',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+            'Staffing & Payroll' => [
+                'Employee Wages – Hourly wages for staff',
+                'Payroll Taxes – Social Security, Medicare, unemployment taxes',
+                'Workers\' Compensation Insurance – Required in most states',
+                'Uniforms & Branded Gear – Shirts, aprons, hats',
             ],
-            [
-                'category' => 'Utilities & Maintenance',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+            'Commissary & Storage' => [
+                'Commissary Rent – If required by the city for food truck operations',
+                'Cold Storage Rental – Extra freezer space if needed',
+                'Equipment Storage Fees – For off-truck storage of supplies',
             ],
-            [
-                'category' => 'Travel & Transportation',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+            'Marketing & Advertising' => [
+                'Social Media Ads – Paid promotions on Facebook, Instagram, etc.',
+                'Branded Wraps & Stickers – Truck wraps, menu boards, promotional decals',
+                'Website & SEO Costs – If maintaining a website',
+                'Promotional Giveaways – Free samples, customer rewards',
+                'Event Fees & Vendor Booth Costs – Entry fees for fairs, markets, and festivals',
+            ],
+            'Payment Processing & POS' => [
+                'Credit Card Processing Fees – Stripe, Square, or PayPal transaction fees',
+                'POS System Subscription – Monthly fee for POS software',
+                'ACH & Bank Transfer Fees – If using invoicing for large orders',
+            ],
+            'Administrative & Office Expenses' => [
+                'Business Licenses & Fees – Renewals, state filings',
+                'Accounting & Bookkeeping – QuickBooks, Xero, or an accountant',
+                'Software Subscriptions – Scheduling, payroll, or communication tools',
+                'Phone & Internet – If using a mobile hotspot for POS',
+            ],
+            'Miscellaneous' => [
+                'Event Commissions & Revenue Shares – If paying event organizers a percentage of sales',
+                'Emergency Repairs – Unexpected equipment or truck breakdowns',
+                'Donations & Sponsorships – Community engagement, school events',
             ],
         ];
 
-        // Insert categories and get their IDs
-        foreach ($categories as $categoryData) {
-            ExpenseCategory::create($categoryData);
+        // Insert categories and subcategories
+        foreach ($categories as $mainCategory => $subCategories) {
+            $category = ExpenseCategory::create([
+                'category' => $mainCategory,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+
+            foreach ($subCategories as $subCat) {
+                // Split subcategory into name and description if possible
+                $parts = explode(' – ', $subCat, 2);
+                $name = trim($parts[0]);
+                $desc = isset($parts[1]) ? trim($parts[1]) : null;
+
+                ExpenseSubCategory::create([
+                    'expense_category_id' => $category->id,
+                    'category' => $name,
+                    'description' => $desc,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]);
+            }
         }
 
-        // Get the created categories
-        $officeExpenses = ExpenseCategory::where('category', 'Office Expenses')->first();
-        $marketing = ExpenseCategory::where('category', 'Marketing & Advertising')->first();
-        $equipment = ExpenseCategory::where('category', 'Equipment & Supplies')->first();
-        $utilities = ExpenseCategory::where('category', 'Utilities & Maintenance')->first();
-        $travel = ExpenseCategory::where('category', 'Travel & Transportation')->first();
-
-        // Create 5 Expense Sub Categories (1 for each main category)
-        $subCategories = [
-            [
-                'expense_category_id' => $officeExpenses->id,
-                'category' => 'Office Supplies',
-                'description' => 'Stationery, paper, pens, and other office supplies required for daily operations.',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'expense_category_id' => $marketing->id,
-                'category' => 'Social Media Advertising',
-                'description' => 'Expenses related to social media campaigns, sponsored posts, and digital marketing.',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'expense_category_id' => $equipment->id,
-                'category' => 'Kitchen Equipment',
-                'description' => 'Equipment purchases and maintenance for kitchen operations including freezers, blenders, and tools.',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'expense_category_id' => $utilities->id,
-                'category' => 'Electricity Bills',
-                'description' => 'Monthly electricity bills and power-related expenses for the franchise location.',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'expense_category_id' => $travel->id,
-                'category' => 'Fuel & Gas',
-                'description' => 'Vehicle fuel costs and transportation expenses for business operations.',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-        ];
-
-        // Create additional sub-categories to have more variety
-        $additionalSubCategories = [
-            [
-                'expense_category_id' => $officeExpenses->id,
-                'category' => 'Software Subscriptions',
-                'description' => 'Monthly software subscriptions and digital tools for business operations.',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'expense_category_id' => $marketing->id,
-                'category' => 'Print Materials',
-                'description' => 'Brochures, flyers, business cards, and other printed marketing materials.',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'expense_category_id' => $equipment->id,
-                'category' => 'POS System',
-                'description' => 'Point of sale system equipment, tablets, printers, and related hardware.',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'expense_category_id' => $utilities->id,
-                'category' => 'Internet & Phone',
-                'description' => 'Internet service, phone bills, and communication expenses.',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'expense_category_id' => $travel->id,
-                'category' => 'Delivery Expenses',
-                'description' => 'Delivery vehicle costs, maintenance, and transportation for customer orders.',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-        ];
-
-        // Insert all sub-categories
-        foreach (array_merge($subCategories, $additionalSubCategories) as $subCategoryData) {
-            ExpenseSubCategory::create($subCategoryData);
-        }
-
-        // Output completion message
         echo "✅ ExpenseCategorySeeder completed successfully!\n";
-        echo "   - Created 5 Expense Categories\n";
-        echo "   - Created 10 Expense Sub-Categories (2 per category)\n";
+        echo "   - Created " . count($categories) . " Expense Categories\n";
+        echo "   - Created " . array_sum(array_map('count', $categories)) . " Expense Sub-Categories\n";
     }
-} 
+}
