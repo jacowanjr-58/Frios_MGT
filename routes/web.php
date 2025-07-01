@@ -5,34 +5,21 @@ use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\GoogleController;
-
 use App\Http\Controllers\FranchiseAdminControllers\AdminProfileController;
 use App\Http\Controllers\FranchiseAdminControllers\FranchiseAdminController;
 use App\Http\Controllers\FranchiseAdminControllers\OrderPopsController;
 use App\Http\Controllers\FranchiseAdminControllers\StaffController;
-
-use App\Http\Controllers\FranchiseManagerControllers\FranchiseManagerController;
-
-use App\Http\Controllers\CorporateAdminControllers\OwnerController;
 use App\Http\Controllers\CorporateAdminControllers\FgpItemsController;
-use App\Http\Controllers\CorporateAdminControllers\FranchiseController;
 use App\Http\Controllers\CorporateAdminControllers\ExpensesCategoryController;
-
-
 use App\Http\Controllers\Franchise\EventController;
 use App\Http\Controllers\Franchise\StripeController;
-use App\Http\Controllers\Franchise\ExpenseController;
-use App\Http\Controllers\Franchise\CustomerController;
-use App\Http\Controllers\Franchise\InventoryController;
 use App\Http\Controllers\Franchise\PaymentController;
 use App\Http\Controllers\Franchise\InventoryLocationController;
 use App\Http\Controllers\Franchise\InvoiceController;
 use App\Http\Controllers\Franchise\AccountController;
 use App\Http\Controllers\FranchiseStaffController\FranchiseStaffController;
 use App\Http\Middleware\StripeMiddleware;
-use Illuminate\Support\Facades\DB;
 
 
 Route::get('/', function () {
@@ -47,12 +34,11 @@ Route::get('/test-logout', function () {
     return redirect('/')->with('message', 'Logged out successfully from test route!');
 })->middleware('auth')->name('test.logout');
 
-Route::middleware(StripeMiddleware::class)->group(function () {
-    //
-    Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard')->middleware('auth');
-    Route::get('/load-more-events', [DashboardController::class, 'loadMoreEvents'])->name('loadMoreEvents')->middleware('auth');
-    Route::post('/dashboard/filter', [DashboardController::class, 'filterDashboard'])->name('dashboard.filter')->middleware('auth');
-    Route::post('/franchise/{franchise}/dashboard/filter', [DashboardController::class, 'filterDashboard'])->name('franchise.dashboard.filter')->middleware('auth');
+Route::middleware(['auth', StripeMiddleware::class])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('/load-more-events', [DashboardController::class, 'loadMoreEvents'])->name('loadMoreEvents');
+    Route::post('/dashboard/filter', [DashboardController::class, 'filterDashboard'])->name('dashboard.filter');
+    Route::post('/franchise/{franchise}/dashboard/filter', [DashboardController::class, 'filterDashboard'])->name('franchise.dashboard.filter');
 });
 
 Route::middleware('auth')->group(function () {
@@ -63,10 +49,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile/{profile}', [AdminProfileController::class, 'update'])->name('profile.update');
 });
 
-
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
-
 
 // View fgp items availability calendar
 Route::middleware('auth')->group(
@@ -206,8 +190,8 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
         });
     });
 });
-Route::middleware(['auth'])->prefix('franchise')->name('franchise.')->group(function () {
 
+Route::middleware(['auth'])->prefix('franchise')->name('franchise.')->group(function () {
     Route::get('/select', [FranchiseAdminController::class, 'selectFranchise'])->name('select_franchise')->middleware('permission:franchises.view');
     Route::post('/set-franchise', [FranchiseAdminController::class, 'setFranchise'])->name('set_franchise')->middleware('permission:franchises.view');
     Route::post('/set-session-franchise', [FranchiseAdminController::class, 'setSessionFranchise'])->name('set_session_franchise');
@@ -220,10 +204,8 @@ Route::get('/payment/cancel', function () {
     return 'Payment was cancelled.';
 })->name('payment.cancell');
 
-
-
 // Stripe Connect
-Route::get('/stripe/onboard', [StripeController::class, 'createConnectedAccount'])->name('franchise.stripe.onboard');
+Route::get('/stripe/onboard', [StripeController::class, 'createConnectedAccount'])->name('franchise.stripe.onboard')->middleware('auth');
 Route::get('/stripe/refresh', [StripeController::class, 'refreshOnboarding'])->name('franchise.stripe.refresh');
 Route::get('/stripe/return', [StripeController::class, 'returnOnboarding'])->name('franchise.stripe.return');
 
@@ -231,9 +213,10 @@ Route::get('/pay/{recipient}', [StripeController::class, 'showPayForm'])->name('
 Route::post('/pay/{recipient}/intent', [StripeController::class, 'createPaymentIntent'])->name('franchise.pay.intent');
 
 // Stripe
-Route::get('stripe', [PaymentController::class, 'stripe'])->name('franchise.stripe');
-Route::post('stripes', [PaymentController::class, 'stripePost'])->name('franchise.stripe.post');
-
+Route::middleware('auth')->group(function () {
+    Route::get('stripe', [PaymentController::class, 'stripe'])->name('franchise.stripe');
+    Route::post('stripes', [PaymentController::class, 'stripePost'])->name('franchise.stripe.post');
+});
 
 // Route::middleware(['auth', 'role:franchise_admin'])->prefix('franchise_admin')->name('franchise.')->group(function () {
 //     Route::get('/franchise/dashboard', [FranchiseAdminController::class, 'dashboard']);
@@ -267,27 +250,12 @@ Route::post('stripes', [PaymentController::class, 'stripePost'])->name('franchis
 // });
 
 
-
-
-/*
- |--------------------------------------------------------------------------
- | Module Route Files
- |--------------------------------------------------------------------------
- |
- | Rather than individually writing each `require`, you can auto-load them:
- |
- */
-
-foreach (glob(__DIR__ . '/modules/*.php') as $routeFile) {
-    require $routeFile;
-}
-
-
 // TEMP ROUTE
 Route::get('/linkstorage', function () {
     Artisan::call('storage:link');
     return "Storage link created successfully!";
 });
+
 // Route::get('/linkstorage', function () {
 //     $targetFolder = base_path() . '/storage/app/public';
 //     $linkFolder = $_SERVER['DOCUMENT_ROOT'] . '/storage';
@@ -299,6 +267,7 @@ Route::get('/linkstorage2', function () {
     $linkFolder = $_SERVER['DOCUMENT_ROOT'] . '/public/storage';
     symlink($targetFolder, $linkFolder);
 });
+
 // Clear Cache facade value:
 Route::get('/clear_cache', function () {
     $exitCode = Artisan::call('cache:clear');
@@ -340,11 +309,6 @@ Route::get('/config_cache', function () {
 Route::get('/payment/success/{invoice}', [PaymentController::class, 'success'])->name('payment.success');
 Route::get('/payment/cancel/{invoice}', [PaymentController::class, 'cancel'])->name('payment.cancel');
 
-require __DIR__ . '/auth.php';
-
-
-
-
 Route::prefix('franchise')->name('franchise.')->middleware(['auth'])->group(function () {
     Route::get('{franchise}/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard')->middleware('permission:dashboard.view');
 
@@ -366,7 +330,6 @@ Route::prefix('franchise')->name('franchise.')->middleware(['auth'])->group(func
     });
 
     // Flavors routes
-
     Route::get('{franchise}/flavors', [FranchiseStaffController::class, 'flavors'])->name('flavors');
     Route::get('{franchise}/flavors/detail', [FranchiseStaffController::class, 'flavorsDetail'])->name('flavors.detail');
 
@@ -384,3 +347,18 @@ Route::prefix('franchise')->name('franchise.')->middleware(['auth'])->group(func
         Route::delete('/{location}', [InventoryLocationController::class, 'destroy'])->name('destroy')->middleware('permission:locations.delete');
     });
 });
+
+/*
+ |--------------------------------------------------------------------------
+ | Module Route Files
+ |--------------------------------------------------------------------------
+ |
+ | Rather than individually writing each `require`, you can auto-load them:
+ |
+ */
+
+ foreach (glob(__DIR__ . '/modules/*.php') as $routeFile) {
+    require $routeFile;
+}
+
+require __DIR__ . '/auth.php';

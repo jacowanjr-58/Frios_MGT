@@ -16,12 +16,13 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         // Clear cache
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-
+        
         // Truncate roles and permissions tables
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('role_has_permissions')->truncate();
         DB::table('model_has_roles')->truncate();
         DB::table('model_has_permissions')->truncate();
+        DB::table('model_has_roles')->truncate();
         DB::table('roles')->truncate();
         DB::table('permissions')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
@@ -329,12 +330,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'users.edit',
             'users.delete',
 
-            // Staff Management (Franchise Admin & Manager)
-            'staff.view',
-            'staff.create',
-            'staff.edit',
-            'staff.delete',
-
             // Franchise List - Full Access
             'franchises.view',
             'franchises.create',
@@ -432,6 +427,12 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Assign permissions to franchise_admin
         $franchiseAdminPermissions = [
+
+            'staff.view',
+            'staff.create',
+            'staff.edit',
+            'staff.delete',
+
             'dashboard.view',
             'inventory.view',
             'inventory.create',
@@ -445,7 +446,6 @@ class RolesAndPermissionsSeeder extends Seeder
             //orders
             'orders.view',
             'orders.create',
-          
           
             'invoices.view',
             'invoices.create',
@@ -470,10 +470,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'events.delete',
             'events.calendar',
             'events.report',
-            'staff.view',
-            'staff.create',
-            'staff.edit',
-            'staff.delete',
+
             'locations.view',
             'locations.create',
             'locations.edit',
@@ -494,10 +491,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'franchises.create',
             'franchises.edit',
             'franchises.delete',
-            'owners.view',
-            'owners.create',
-            'owners.edit',
-            'owners.delete',
+
             'frios_flavors.view',
             'frios_flavors.create',
             'frios_flavors.edit',
@@ -506,7 +500,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'frios_availability.create',
             'frios_availability.edit',
             'frios_availability.delete',
-
 
             'flavor_category.view',
             'flavor_category.create',
@@ -529,7 +522,6 @@ class RolesAndPermissionsSeeder extends Seeder
             //orders
             'orders.view',
             'orders.create',
-         
          
             'expenses.view',
             'expenses.create',
@@ -561,6 +553,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Assign permissions to franchise_staff (mostly view permissions)
         $franchiseStaffPermissions = [
+            'staff.view',
             'dashboard.view',
             'pos.view',
             'pos.create',
@@ -585,13 +578,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'view-sales',
             'view-events',
 
-
             //orders
             'orders.view',
             'orders.create',
-          
-
-
         ];
         $franchiseStaff->givePermissionTo($franchiseStaffPermissions);
 

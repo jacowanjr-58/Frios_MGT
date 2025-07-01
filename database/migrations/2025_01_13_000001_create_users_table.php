@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('contract_document_path')->nullable();
             $table->date('date_joined')->nullable();
             $table->string('stripe_account_id')->nullable();
+            $table->unsignedInteger('stripe_onboarding_complete')->default(0);
             $table->rememberToken();
             $table->timestamps();
           });
