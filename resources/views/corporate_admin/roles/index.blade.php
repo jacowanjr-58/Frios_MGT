@@ -112,7 +112,7 @@
                                     <th style="width: 80px;">Id</th>
                                     <th>Name</th>
                                     <th>Permissions</th>
-                                    @canany(['roles.edit', 'roles.delete'])
+                                    @canany(['roles.view', 'roles.edit', 'roles.delete'])
                                         <th style="width: 120px;">Action</th>
                                     @endcanany
                                 </tr>
