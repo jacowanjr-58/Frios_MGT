@@ -79,7 +79,7 @@
                     @php
                         $currentRouteName = request()->route()->getName();
                         $user = auth()->user();
-                        $selectedFranchiseId = request()->route('franchise') ?? $franchiseId ?? null;
+                        $selectedFranchiseId = request()->route('franchise') ?? session('franchise_id') ?? null;
 
                         $showDropdown = false;
                         $dropdownFranchises = collect();
@@ -148,7 +148,11 @@
                             </a>
                             @endrole
                             @role('franchise_admin')
+<<<<<<< Updated upstream
                             <a href="{{ route('franchise.dashboard', ['franchise' => $franchiseeId]) }}" class="dropdown-item ai-icon d-flex">
+=======
+                            <a href="{{ route('franchise.dashboard', ['franchise' => request()->route('franchise') ?? session('franchise_id')]) }}" class="dropdown-item ai-icon d-flex">
+>>>>>>> Stashed changes
                                 <svg id="icon-user1" xmlns="http://www.w3.org/2000/svg" class="text-primary" width="18"
                                     height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round">
@@ -159,7 +163,11 @@
                             </a>
                             @endrole
                             @role('franchise_admin')
+<<<<<<< Updated upstream
                             <a href="{{ route('franchise.staff.index', ['franchise' => $franchiseeId]) }}"
+=======
+                            <a href="{{ route('franchise.staff.index', ['franchise' => request()->route('franchise') ?? session('franchise_id')]) }}"
+>>>>>>> Stashed changes
                                 class="dropdown-item ai-icon d-flex">
                                 <i class="bi bi-people-fill text-primary"></i>
                                 <span class="ms-2">Manage Users</span>
