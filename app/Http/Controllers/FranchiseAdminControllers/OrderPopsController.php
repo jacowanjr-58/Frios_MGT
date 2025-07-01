@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Services\ShipStationService;
 use Illuminate\Http\Request;
 use App\Models\AdditionalCharge;
+use App\Models\FgpOrderCharge;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -49,10 +50,10 @@ class OrderPopsController extends Controller
                 ->addColumn('checkbox', function($pop) {
                     return '<div class="form-check checkbox-secondary">
                         <input class="form-check-input pop-checkbox" type="checkbox"
-                            value="'.$pop->fgp_item_id.'"
-                            id="flexCheckDefault'.$pop->fgp_item_id.'">
+                            value="'.$pop->id.'"
+                            id="flexCheckDefault'.$pop->id.'">
                         <label class="form-check-label"
-                            for="flexCheckDefault'.$pop->fgp_item_id.'"></label>
+                            for="flexCheckDefault'.$pop->id.'"></label>
                     </div>';
                 })
                 ->addColumn('image', function($pop) {
@@ -154,26 +155,40 @@ class OrderPopsController extends Controller
         $minCases = 12;
         $factorCase = 3;
 
-        $validated = $request->validate([
+        // Define base validation rules
+        $rules = [
             'grandTotal' => 'required|numeric|min:1',
+            'subtotal' => 'nullable|numeric|min:0',
             'items' => 'required|array',
-            'items.*.fgp_item_id' => 'required|exists:fgp_items,fgp_item_id',
+            'items.*.fgp_item_id' => 'required|exists:fgp_items,id',
             'items.*.unit_cost' => 'required|numeric|min:0',
             'items.*.unit_number' => 'required|integer|min:1',
-            'ship_to_name' => 'required|string',
-            'ship_to_address1' => 'required|string',
-            'ship_to_city' => 'required|string',
-            'ship_to_state' => 'required|string',
-            'ship_to_zip' => 'required|string',
-            'ship_to_phone' => 'nullable|string',
-            'ship_to_country' => 'nullable|string',
-            'ship_method' => 'nullable|string'
-        ]);
+            'ship_to_name' => 'required|string|max:255',
+            'ship_to_address1' => 'required|string|max:255',
+            'ship_to_address2' => 'nullable|string|max:255',
+            'ship_to_city' => 'required|string|max:255',
+            'ship_to_state' => 'required|string|max:255',
+            'ship_to_zip' => 'required|string|max:20',
+            'ship_to_phone' => 'nullable|string|max:20',
+            'ship_to_country' => 'nullable|string|max:100',
+            'ship_method' => 'nullable|string|max:100',
+            'optional_charges' => 'nullable|array',
+            'optional_charges.*' => 'nullable|numeric',
+            'customer_id' => 'nullable|exists:customers,id',
+            'payment_reference' => 'nullable|string|max:255'
+        ];
 
+        // Add payment validation rules if payment is being made
         if ($request->is_paid === '1') {
             $rules['stripeToken'] = 'required|string';
             $rules['cardholder_name'] = 'required|string|max:191';
         }
+
+        $validated = $request->validate($rules);
+
+        // Get charges for order charge insertion
+        $requiredCharges = AdditionalCharge::where('charge_optional', 'required')->where('status', 1)->get();
+        $optionalCharges = AdditionalCharge::where('charge_optional', 'optional')->where('status', 1)->get();
 
         $totalCaseQty = collect($validated['items'])->sum('unit_number');
 
@@ -191,12 +206,13 @@ class OrderPopsController extends Controller
 
             try {
                 $charge = \Stripe\Charge::create([
-                    'amount' => $request->grandTotal * 100,
+                    'amount' => $validated['grandTotal'] * 100,
                     'currency' => 'usd',
-                    'description' => 'Order Payment by: ' . $request->cardholder_name,
-                    'source' => $request->stripeToken,
+                    'description' => 'Order Payment by: ' . $validated['cardholder_name'],
+                    'source' => $validated['stripeToken'],
                     'metadata' => [
                         'franchise_id' => $franchiseeId,
+                        'order_id' => $order->id ?? null,
                     ],
                 ]);
             } catch (\Exception $e) {
@@ -206,19 +222,19 @@ class OrderPopsController extends Controller
 
         $order = FgpOrder::create([
             'user_id' => Auth::user()->id,
-            'franchise_id' => $franchisee,
+            'franchise_id' => $franchiseeId,
             'date_transaction' => now(),
             'status' => 'Pending',
             'is_paid' => $request->is_paid === '1',
-            'ship_to_name' => $request->ship_to_name,
-            'ship_to_address1' => $request->ship_to_address1,
-            'ship_to_address2' => $request->ship_to_address2,
-            'ship_to_city' => $request->ship_to_city,
-            'ship_to_state' => $request->ship_to_state,
-            'ship_to_zip' => $request->ship_to_zip,
-            'ship_to_country' => $request->ship_to_country ?? 'US',
-            'ship_to_phone' => $request->ship_to_phone,
-            'ship_method' => $request->ship_method ?? 'Standard',
+            'ship_to_name' => $validated['ship_to_name'],
+            'ship_to_address1' => $validated['ship_to_address1'],
+            'ship_to_address2' => $validated['ship_to_address2'],
+            'ship_to_city' => $validated['ship_to_city'],
+            'ship_to_state' => $validated['ship_to_state'],
+            'ship_to_zip' => $validated['ship_to_zip'],
+            'ship_to_country' => $validated['ship_to_country'] ?? 'US',
+            'ship_to_phone' => $validated['ship_to_phone'],
+            'ship_method' => $validated['ship_method'] ?? 'Standard',
             'shipstation_status' => 'awaiting_shipment',
         ]);
 
@@ -226,6 +242,7 @@ class OrderPopsController extends Controller
 
         $orderItems = [];
         $noteLines[] = "Ordered Items:";
+        $itemsSubtotal = 0;
 
         foreach ($validated['items'] as $index => $item) {
             DB::table('fgp_order_details')->insert([
@@ -249,9 +266,38 @@ class OrderPopsController extends Controller
             $name = $fgpItem->name ?? 'Unnamed';
             $qty = $item['unit_number'];
             $cost = number_format($item['unit_cost'], 2);
-            $total = number_format($item['unit_number'] * $item['unit_cost'], 2);
+            $total = $item['unit_number'] * $item['unit_cost'];
+            $itemsSubtotal += $total;
 
-            $noteLines[] = "- {$name} | Qty: {$qty} | Cost: \${$cost} | Total: \${$total}";
+            $noteLines[] = "- {$name} | Qty: {$qty} | Cost: \${$cost} | Total: \$" . number_format($total, 2);
+        }
+
+        // Add subtotal and charges information to notes
+        $noteLines[] = "\nItems Subtotal: \$" . number_format($itemsSubtotal, 2);
+        
+        // Handle optional charges if present
+        if (!empty($validated['optional_charges'])) {
+            $noteLines[] = "\nAdditional Charges:";
+            $totalCharges = 0;
+            
+            foreach ($validated['optional_charges'] as $charge) {
+                if (!empty($charge)) {
+                    $chargeAmount = (float) $charge;
+                    $totalCharges += $chargeAmount;
+                    $noteLines[] = "- Additional Charge: \$" . number_format($chargeAmount, 2);
+                }
+            }
+            
+            if ($totalCharges > 0) {
+                $noteLines[] = "Total Additional Charges: \$" . number_format($totalCharges, 2);
+            }
+        }
+        
+        $noteLines[] = "\nGrand Total: \$" . number_format($validated['grandTotal'], 2);
+        
+        // Add payment reference if provided
+        if (!empty($validated['payment_reference'])) {
+            $noteLines[] = "Payment Reference: " . $validated['payment_reference'];
         }
 
         $invoiceNotes = implode("\n", $noteLines);
@@ -261,8 +307,8 @@ class OrderPopsController extends Controller
                 'franchise_id' => Auth::user()->franchise_id,
                 'fgp_order_id' => $order->id,
                 'order_num' => $orderNum,
-                'cardholder_name' => $request->cardholder_name,
-                'amount' => $request->grandTotal,
+                'cardholder_name' => $validated['cardholder_name'],
+                'amount' => $validated['grandTotal'],
                 'stripe_payment_intent_id' => $charge->id,
                 'stripe_payment_method' => $charge->payment_method ?? null,
                 'stripe_currency' => $charge->currency,
@@ -270,11 +316,11 @@ class OrderPopsController extends Controller
                 'stripe_status' => $charge->status,
             ]);
         } else {
-            Invoice::create([
+            $invoice = Invoice::create([
                 'franchise_id' => Auth::user()->franchise_id,
                 'name' => Auth::user()->name,
                 'order_num' => $orderNum,
-                'total_price' => $request->grandTotal,
+                'total_price' => $validated['grandTotal'],
                 'payment_status' => 'unpaid',
                 'direction' => 'payable',
                 'due_date'  =>  Carbon::now()->addDays(7),
@@ -285,25 +331,72 @@ class OrderPopsController extends Controller
         $shipStationPayload = [
             'order_number' =>  $orderNum,
             'order_email'  => Auth::user()->email,
-            'ship_to_name' => $request->ship_to_name,
-            'ship_to_address1' => $request->ship_to_address1,
-            'ship_to_address2' => $request->ship_to_address2,
-            'ship_to_city' => $request->ship_to_city,
-            'ship_to_state' => $request->ship_to_state,
-            'ship_to_zip' => $request->ship_to_zip,
-            'ship_to_country' => $request->ship_to_country ?? 'US',
-            'ship_to_phone' => $request->ship_to_phone,
-            'is_paid' => $request->has('stripeToken'),
-            'grandTotal' => $request->grandTotal,
+            'ship_to_name' => $validated['ship_to_name'],
+            'ship_to_address1' => $validated['ship_to_address1'],
+            'ship_to_address2' => $validated['ship_to_address2'],
+            'ship_to_city' => $validated['ship_to_city'],
+            'ship_to_state' => $validated['ship_to_state'],
+            'ship_to_zip' => $validated['ship_to_zip'],
+            'ship_to_country' => $validated['ship_to_country'] ?? 'US',
+            'ship_to_phone' => $validated['ship_to_phone'],
+            'is_paid' => $request->is_paid === '1',
+            'grandTotal' => $validated['grandTotal'],
             'invoice_id' => $invoice->id ?? null,
             'orderItems' => $orderItems,
         ];
 
-        $isPaid = $request->has('stripeToken');
+        $isPaid = $request->is_paid === '1';
         $invoiceId = $orderNum ?? null;
 
-        $shipstation = new ShipStationService();
+                $shipstation = new ShipStationService();
         $shipstation->sendOrder($shipStationPayload, $isPaid, $invoiceId);
+
+        // Calculate totals for order and charges
+        $additionalChargesTotal = 0;
+        
+        // Insert Required Charges into FgpOrderCharge table
+        foreach ($requiredCharges as $charge) {
+            $chargeAmount = $charge->charge_type === 'percentage' 
+                ? ($itemsSubtotal * $charge->charge_price / 100)
+                : $charge->charge_price;
+                
+            $additionalChargesTotal += $chargeAmount;
+            
+            FgpOrderCharge::create([
+                'order_id' => $order->id,
+                'charges_name' => $charge->charge_name,
+                'charge_amount' => $chargeAmount,
+                'charge_type' => $charge->charge_type,
+            ]);
+        }
+        
+        // Insert Optional Charges into FgpOrderCharge table
+        if (!empty($validated['optional_charges'])) {
+            foreach ($optionalCharges as $index => $charge) {
+                if (isset($validated['optional_charges'][$index]) && !empty($validated['optional_charges'][$index])) {
+                    $chargeAmount = $charge->charge_type === 'percentage' 
+                        ? ($itemsSubtotal * $charge->charge_price / 100)
+                        : $charge->charge_price;
+                        
+                    $additionalChargesTotal += $chargeAmount;
+                    
+                    \App\Models\AdditionalChargeOrder::create([
+                        'order_id' => $order->id,
+                        'charges_name' => $charge->charge_name,
+                        'charge_amount' => $chargeAmount,
+                        'charge_type' => $charge->charge_type,
+                    ]);
+                }
+            }
+        }
+        
+        // Update the order with correct amounts
+        $order->update([
+            'order_num' => $orderNum,
+            'amount' => $itemsSubtotal,
+            'additional_charges' => $additionalChargesTotal,
+            'total_amount' => $validated['grandTotal'],
+        ]);
 
         return redirect()->route('franchise.orderpops.view')
             ->with('success', 'Order placed successfully ' . ($request->is_paid === '1' ? 'and paid!' : '. An invoice has been generated.'));

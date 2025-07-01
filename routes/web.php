@@ -35,7 +35,7 @@ Route::get('/test-logout', function () {
 })->middleware('auth')->name('test.logout');
 
 // Route::middleware(['auth', StripeMiddleware::class])->group(function () {
-    Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
     Route::get('/load-more-events', [DashboardController::class, 'loadMoreEvents'])->name('loadMoreEvents');
     Route::post('/dashboard/filter', [DashboardController::class, 'filterDashboard'])->name('dashboard.filter');
@@ -58,7 +58,8 @@ Route::middleware('auth')->group(
     function () {
         Route::get('/pops/calendar', [FgpItemsController::class, 'calendarView'])
             ->name('pops.viewCalendar');
-    });
+    }
+);
 
 // Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name('franchise.')->group(function () {
 Route::middleware(['auth'])->prefix('franchise')->name('franchise.')->group(function () {
@@ -96,17 +97,20 @@ Route::middleware(['auth'])->prefix('franchise')->name('franchise.')->group(func
         Route::get('{franchise}/orderpops', [OrderPopsController::class, 'index'])->name('orderpops.index');
         Route::get('{franchise}/orderpops/view', [OrderPopsController::class, 'viewOrders'])->name('orders.view');
         Route::get('{franchise}/orderpops/confirm/page', [OrderPopsController::class, 'showConfirmPage'])->name('orderpops.confirm.page');
+
+
+        Route::get('/orderpops/create', [OrderPopsController::class, 'create'])->name('orderpops.create')->middleware('permission:orders.create');
+        Route::post('/orderpops/store', [OrderPopsController::class, 'store'])->name('orderpops.store')->middleware('permission:orders.create');
+        Route::get('/orderpops/{orderpops}/edit', [OrderPopsController::class, 'edit'])->name('orderpops.edit')->middleware('permission:orders.edit');
+        Route::put('/orderpops/{orderpops}', [OrderPopsController::class, 'update'])->name('orderpops.update')->middleware('permission:orders.edit');
+        Route::delete('/orderpops/{orderpops}', [OrderPopsController::class, 'destroy'])->name('orderpops.destroy')->middleware('permission:orders.delete');
+
+        Route::post('/orderpops/confirm', [OrderPopsController::class, 'confirmOrder'])->name('orderpops.confirm')->middleware('permission:orders.create');
+        Route::post('/orderpops/{order}/mark-delivered', [OrderPopsController::class, 'markDelivered'])
+            ->name('orderpops.markDelivered')->middleware('permission:orders.edit');
     });
 
-    Route::get('/orderpops/create', [OrderPopsController::class, 'create'])->name('orderpops.create')->middleware('permission:orders.create');
-    Route::post('/orderpops/store', [OrderPopsController::class, 'store'])->name('orderpops.store')->middleware('permission:orders.create');
-    Route::get('/orderpops/{orderpops}/edit', [OrderPopsController::class, 'edit'])->name('orderpops.edit')->middleware('permission:orders.edit');
-    Route::put('/orderpops/{orderpops}', [OrderPopsController::class, 'update'])->name('orderpops.update')->middleware('permission:orders.edit');
-    Route::delete('/orderpops/{orderpops}', [OrderPopsController::class, 'destroy'])->name('orderpops.destroy')->middleware('permission:orders.delete');
 
-    Route::post('/orderpops/confirm', [OrderPopsController::class, 'confirmOrder'])->name('orderpops.confirm')->middleware('permission:orders.create');
-    Route::post('/orderpops/{order}/mark-delivered', [OrderPopsController::class, 'markDelivered'])
-        ->name('orderpops.markDelivered')->middleware('permission:orders.edit');
     // });
 
 
@@ -358,7 +362,7 @@ Route::prefix('franchise')->name('franchise.')->middleware(['auth'])->group(func
  |
  */
 
- foreach (glob(__DIR__ . '/modules/*.php') as $routeFile) {
+foreach (glob(__DIR__ . '/modules/*.php') as $routeFile) {
     require $routeFile;
 }
 

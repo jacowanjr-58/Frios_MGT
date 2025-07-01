@@ -209,8 +209,8 @@
                 itemsHtml += `
                             <div style="border-bottom: 1px solid #eee; padding: 10px 0;">
                                 <strong>${index + 1}. ${item.name}</strong><br>
-                                <span style="color: #666;">Category: ${item.category}</span><br>
-                                <span style="color: #007bff;">Price: ${item.price}</span>
+                                Category: <span class="text-secondary"> ${item.category}</span><br>
+                                Price: <span class="text-primary"> ${item.price}</span>
                             </div>
                         `;
             });

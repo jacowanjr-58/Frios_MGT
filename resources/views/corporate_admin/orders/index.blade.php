@@ -267,14 +267,8 @@
             </div>
             <!-- Stats Card -->
             <div class="row mb-4 align-items-center">
-                <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                    @can('orders.create')
-                        <a href="{{ route('franchise.orders.create' ,   ['franchise' => $franchiseId]) }}"
-                            class="btn btn-secondary btn-lg btn-block rounded text-white">+ Add Order</a>
-                    @endcan
-
-                </div>
-                <div class="col-xl-9 col-lg-8">
+              
+                <div class="col-xl-12 col-lg-8">
                     <div class="card m-0">
                         <div class="card-body py-3 py-md-2">
                             <div class="d-flex align-items-center">
