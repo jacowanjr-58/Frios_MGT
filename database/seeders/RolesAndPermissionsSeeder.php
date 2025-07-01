@@ -293,6 +293,18 @@ class RolesAndPermissionsSeeder extends Seeder
             'flavor_category.edit',
             'flavor_category.delete',
 
+            //orders
+            'orders.view',
+            'orders.create',
+            'orders.edit',
+            'orders.delete',
+
+            // Additional Charges Management (Corporate Admin)
+            'additional_charges.view',
+            'additional_charges.create',
+            'additional_charges.edit',
+            'additional_charges.delete',
+
             //customers
             'customers.view',
             'customers.create',
@@ -305,12 +317,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'expense_categories.create',
             'expense_categories.edit',
             'expense_categories.delete',
-
-            //orders
-            'orders.view',
-            'orders.create',
-
-
         ];
         $superAdmin->givePermissionTo($superAdminPermissions);
         // $superAdmin->givePermissionTo(Permission::all());
@@ -324,11 +330,11 @@ class RolesAndPermissionsSeeder extends Seeder
             // 'permissions.assign',
             'permissions.view',
 
-            // User Management (for corporate_admin to assign permissions)
-            'users.view',
-            'users.create',
-            'users.edit',
-            'users.delete',
+            // Staff Management (for corporate_admin to assign permissions)
+            'staff.view',
+            'staff.create',
+            'staff.edit',
+            'staff.delete',
 
             // Franchise List - Full Access
             'franchises.view',
@@ -412,9 +418,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'transactions.view',
             'transactions.edit',
 
-            // by_franchisee
-            'customers.by_franchisee',
-
             //customers
             'customers.view',
             'customers.create',
@@ -428,8 +431,9 @@ class RolesAndPermissionsSeeder extends Seeder
         // Assign permissions to franchise_admin
         $franchiseAdminPermissions = [
 
+            'dashboard.view',
+
             'roles.view',
-            
             'permissions.view',
 
             'staff.view',
@@ -437,7 +441,19 @@ class RolesAndPermissionsSeeder extends Seeder
             'staff.edit',
             'staff.delete',
 
-            'dashboard.view',
+            'franchises.view',
+
+            'frios_flavors.view',
+            'frios_availability.view',
+            'flavor_category.view',
+
+            //orders
+            'orders.view',
+            'orders.create',
+
+            // Additional Charges Management (Corporate Admin)
+            'additional_charges.view',
+
             'inventory.view',
             'inventory.create',
             'inventory.edit',
@@ -447,10 +463,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'inventory.allocate',
             'inventory.locations',
 
-            //orders
-            'orders.view',
-            'orders.create',
-          
             'invoices.view',
             'invoices.create',
             'invoices.edit',
@@ -490,40 +502,29 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage-expenses',
             'manage-customers',
             'manage-events',
-            // Franchises Management (Corporate Admin)
-            'franchises.view',
-            'franchises.create',
-            'franchises.edit',
-            'franchises.delete',
-
-            'frios_flavors.view',
-            'frios_flavors.create',
-            'frios_flavors.edit',
-            'frios_flavors.delete',
-            'frios_availability.view',
-            'frios_availability.create',
-            'frios_availability.edit',
-            'frios_availability.delete',
-
-            'flavor_category.view',
-            'flavor_category.create',
-            'flavor_category.edit',
-            'flavor_category.delete',
-
-            // Additional Charges Management (Corporate Admin)
-            'additional_charges.view',
-            'additional_charges.create',
-            'additional_charges.edit',
-            'additional_charges.delete',
         ];
         $franchiseAdmin->givePermissionTo($franchiseAdminPermissions);
 
         // Assign permissions to franchise_manager
         $franchiseManagerPermissions = [
+            'dashboard.view',
             'roles.view',
             'permissions.view',
 
-            'dashboard.view',
+            'staff.view',
+            'staff.create',
+            'staff.edit',
+            'staff.delete',
+
+            'franchises.view',
+
+            //orders
+            'orders.view',
+            'orders.create',
+
+            // Additional Charges Management (Corporate Admin)
+            'additional_charges.view',
+
             'inventory.view',
             'inventory.edit',
             'inventory.locations',
@@ -531,10 +532,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'locations.create',
             'locations.edit',
             'locations.delete',
-
-            //orders
-            'orders.view',
-            'orders.create',
          
             'expenses.view',
             'expenses.create',
@@ -551,29 +548,33 @@ class RolesAndPermissionsSeeder extends Seeder
             'events.delete',
             'events.calendar',
             'events.report',
-            'staff.view',
-            'staff.create',
-            'staff.edit',
-            'staff.delete',
+
             // Sidebar permissions for franchise manager (view-only access)
             'view-inventory',
             'view-orders',
             'view-expenses',
             'view-customers',
             'view-events',
-
-            // Additional Charges Management (Corporate Admin)
-            'additional_charges.view',
-            'additional_charges.create',
-            'additional_charges.edit',
-            'additional_charges.delete',
         ];
         $franchiseManager->givePermissionTo($franchiseManagerPermissions);
 
         // Assign permissions to franchise_staff (mostly view permissions)
         $franchiseStaffPermissions = [
-            'staff.view',
             'dashboard.view',
+
+            'roles.view',
+            'permissions.view',
+
+            'staff.view',
+
+            'frios_flavors.view',
+            'frios_availability.view',
+            'flavor_category.view',
+
+            //orders
+            'orders.view',
+            'orders.create',
+            
             'pos.view',
             'pos.create',
             'pos.edit',
@@ -596,10 +597,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage-customers',
             'view-sales',
             'view-events',
-
-            //orders
-            'orders.view',
-            'orders.create',
         ];
         $franchiseStaff->givePermissionTo($franchiseStaffPermissions);
 

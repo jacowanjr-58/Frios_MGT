@@ -81,7 +81,7 @@ class UserManagementController extends Controller
      */
     public function create()
     {
-        $roles = Role::whereNotIn('id', [1, 3])->get();
+        $roles = Role::whereNotIn('id', [1])->get();
         $franchises = Franchise::all();
        
         return view('corporate_admin.users.create', compact('roles', 'franchises'));
@@ -94,18 +94,13 @@ class UserManagementController extends Controller
     {
         // Define base validation rules
         $rules = [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|min:3|max:255',
             'email' => 'required|email|unique:users,email',
             'phone_number' => 'nullable|string|regex:/^\(\d{3}\) \d{3}-\d{4}$/',
             'role' => [
                 'required',
                 'exists:roles,name',
-                function ($attribute, $value, $fail) {
-                    $role = Role::where('name', $value)->first();
-                    if ($role && in_array($role->id, [1, 3])) {
-                        $fail('The selected role is not allowed.');
-                    }
-                },
+                'not_in:super_admin',
             ],
             'password' => 'required|min:8|confirmed',
         ];

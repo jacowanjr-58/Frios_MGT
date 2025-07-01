@@ -12,11 +12,6 @@ use Illuminate\Support\Facades\Auth;
 
 class RolePermissionController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware(['auth', 'role:super_admin']);
-    // }
-
     /**
      * Display a listing of roles and their permissions
      */
@@ -106,8 +101,6 @@ class RolePermissionController extends Controller
      */
     public function store(Request $request)
     {
-       
-
         $request->validate([
             'name' => 'required|string|max:255|unique:roles,name',
             'permissions' => 'nullable|array',
