@@ -29,7 +29,7 @@
             <div class="form-head mb-4 d-flex flex-wrap align-items-center">
                 <div class="me-auto">
                     <h2 class="font-w600 mb-0">Dashboard \</h2>
-                    <p>Add User</p>
+                    <p>Add Staff</p>
                 </div>
 
                 <a href="javascript:history.back()" class="btn btn-secondary btn-sm">
@@ -44,7 +44,7 @@
                             <div class="col-xl-12 col-lg-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h4 class="card-title">Add User</h4>
+                                        <h4 class="card-title">Add Staff</h4>
                                     </div>
                                     <div class="card-body">
                                         <div class="basic-form">
@@ -52,10 +52,10 @@
                                             <!-- Display Success Message -->
 
                                             @role('franchise_admin')
-                                            <form action="{{ route('franchise.staff.store', ['franchisee' => request()->route('franchisee')]) }}" method="POST">
+                                            <form action="{{ route('franchise.staff.store', ['franchise' => request()->route('franchise')]) }}" method="POST">
                                             @endrole
                                             @role('franchise_manager')
-                                            <form action="{{ route('franchise.staff.store', ['franchisee' => request()->route('franchisee')]) }}" method="POST">
+                                            <form action="{{ route('franchise.staff.store', ['franchise' => request()->route('franchise')]) }}" method="POST">
                                             @endrole
                                                 @csrf
 
@@ -89,7 +89,7 @@
 
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Assign Role <span class="text-danger">*</span></label>
-                                                        <select class="form-control @error('role') is-invalid @enderror" name="role">
+                                                        <select class="select2 form-control @error('role') is-invalid @enderror" name="role">
                                                             <option value="">Select Role</option>
                                                             <option value="franchise_manager">Manager</option>
                                                             <option value="franchise_staff">Staff</option>

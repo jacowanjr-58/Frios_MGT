@@ -18,7 +18,7 @@
             <div class="row mb-4 align-items-center">
                 <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
                     @can('staff.create')
-                        <a href="{{ route('franchise.staff.create', ['franchisee' => $franchiseeId]) }}"
+                        <a href="{{ route('franchise.staff.create', ['franchise' => $franchiseeId]) }}"
                             class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Staff</a>
                     @endcan
                 </div>
@@ -66,7 +66,7 @@
                                     <th>Role</th>
                                     <th>Phone no</th>
                                     <th>Created Date</th>
-                                    @canany(['staff.edit', 'staff.delete'])
+                                    @canany(['roles.view', 'staff.edit', 'staff.delete'])
                                         <th>Actions</th>
                                     @endcanany
                                 </tr>
@@ -84,7 +84,7 @@
                                             @endif
                                         </td>
                                         <td>{{ $user->email }}</td>
-                                        <td>{{ ucwords(str_replace('_', ' ', $user->role)) }}</td>
+                                        <td><span class="badge bg-primary">{{ ucwords(str_replace('_', ' ', $user->roles->first()->name)) }}</span></td>
                                         <td>
                                             @if ($user->phone_number)
                                                 {{ $user->phone_number }}
@@ -96,15 +96,21 @@
                                         </td>
                                         @canany(['staff.edit', 'staff.delete'])
                                             <td>
-                                                <div class="d-flex">
+                                                <div class="d-flex justify-content-center align-items-center">
+                                                    @can('permissions.view')
+                                                        <a href="{{ route('roles.show', $user->roles->first()->id) }}" class="btn btn-link btn-sm p-0 me-4" title="View role and permissions">
+                                                            <i class="fas fa-user-shield fs-20" style="color: #00ABC7;"></i>
+                                                        </a>
+                                                    @endcan
                                                     @can('staff.edit')
-                                                        <a href="{{ route('franchise.staff.edit', ['franchisee' => $franchiseeId, 'staff' => $user->user_id]) }}" class="edit-user">
+
+                                                        <a href="{{ route('franchise.staff.edit', ['franchise' => $franchiseeId, 'staff' => $user->id]) }}" class="edit-user">
                                                             <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
                                                         </a>
                                                     @endcan
 
                                                     @can('staff.delete')
-                                                        <form action="{{ route('franchise.staff.destroy', ['franchisee' => $franchiseeId, 'staff' => $user->user_id]) }}"
+                                                        <form action="{{ route('franchise.staff.destroy', ['franchise' => $franchiseeId, 'staff' => $user->id]) }}"
                                                             method="POST"
                                                             onsubmit="return confirm('Are you sure you want to delete this user?')">
                                                             @csrf

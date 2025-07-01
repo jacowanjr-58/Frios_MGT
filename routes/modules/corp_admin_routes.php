@@ -193,6 +193,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{role}', [RolePermissionController::class, 'update'])->name('update')->middleware('permission:roles.edit');
         Route::delete('/{role}', [RolePermissionController::class, 'destroy'])->name('destroy')->middleware('permission:roles.delete');
         Route::get('/{role}/permissions', [RolePermissionController::class, 'getPermissions'])->name('permissions')->middleware('permission:permissions.view');
+        Route::get('/{role}/show', [RolePermissionController::class, 'show'])->name('show')->middleware('permission:roles.view');
     });
 
     // User Management (Restricted to corporate_admin only)

@@ -159,6 +159,14 @@ class RolePermissionController extends Controller
         return view('corporate_admin.roles.edit', compact('role', 'permissions', 'rolePermissions'));
     }
 
+    public function show(Role $role)
+    {
+        $permissions = $this->getGroupedPermissions();
+        $rolePermissions = $role->permissions->pluck('id')->toArray();
+        
+        return view('corporate_admin.roles.show', compact('role', 'permissions', 'rolePermissions'));
+    }
+
     /**
      * Update the specified role
      */
