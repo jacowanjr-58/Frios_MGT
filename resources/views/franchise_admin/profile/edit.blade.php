@@ -40,9 +40,9 @@
                                             <!-- Display Success Message -->
 
                                             @if($franchisee)
-                                                <form action="{{ route('franchise.profile.update', [$franchisee, $user->user_id]) }}" method="POST">
+                                                <form action="{{ route('franchise.profile.update', [$franchisee, $user->id]) }}" method="POST">
                                             @else
-                                            <form action="{{ route('profile.update', $user->user_id) }}" method="POST">
+                                            <form action="{{ route('profile.update', $user->id) }}" method="POST">
                                             @endif
                                                 @csrf
                                                 @method('PUT')
@@ -103,7 +103,30 @@
                                 </div>
                             </div>
                         </div>
-
+                        @if(!empty($permissionsByModule))
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Your Permissions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @foreach($permissionsByModule as $module => $actions)
+                                    <div class="col-md-4 mb-3">
+                                        <strong class="text-primary text-uppercase">{{ ucwords(str_replace('_', ' ', $module)) }}</strong>
+                                        <ul class="mb-0">
+                                            @foreach($actions as $action)
+                                            <li>{{ ucwords(str_replace('_', ' ', $action)) }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                        @else
+                        <div class="card mt-4">No Permissions</div>
+                            
+                        @endif
 
 
                     </div>
@@ -152,4 +175,8 @@
                     });
                 });
             </script>
+
+
+
+
 @endsection

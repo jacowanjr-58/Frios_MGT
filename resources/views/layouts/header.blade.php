@@ -137,7 +137,7 @@
                         </a>
                          <div class="dropdown-menu dropdown-menu-end">
                             @role('corporate_admin')
-                            <a href="{{ route('profile.index') }}" class="dropdown-item ai-icon d-flex">
+                            <a href="{{ route('profile.edit', Auth::user()->id) }}" class="dropdown-item ai-icon d-flex">
                                 <svg id="icon-user1" xmlns="http://www.w3.org/2000/svg" class="text-primary" width="18"
                                     height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round">
