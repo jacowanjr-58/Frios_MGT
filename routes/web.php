@@ -22,7 +22,7 @@ use App\Http\Controllers\FranchiseStaffController\FranchiseStaffController;
 use App\Http\Middleware\StripeMiddleware;
 
 
-Route::get('/', function () {
+Route::middleware('guest')->get('/', function () {
     return view('auth.login');
 });
 
