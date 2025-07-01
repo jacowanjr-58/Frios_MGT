@@ -61,8 +61,9 @@
                                             <div class="col-lg-12">
                                                 <div class="table-responsive rounded">
                                                     @if (!empty($items))
-                                                    @can('franchise_orders.create')
-                                                    <form action="{{ route('orderpops.store') }}" method="POST">
+                                                    <!-- @can('franchise_orders.create') -->
+                                                    <!-- @endcan -->
+                                                    <form  method="POST">
                                                         <div class="row">
                                                             <div class="mb-3 col-md-6">
                                                                 <label class="form-label">Franchise <span class="text-danger">*</span></label>
@@ -207,13 +208,13 @@
                                                         </table>
                                                         <button type="submit" class="btn btn-primary bg-primary">Confirm Order</button>
                                                     </form>
-                                                    @endcan
-                                                    @cannot('franchise_orders.create')
+                                                   
+                                                    <!-- @cannot('franchise_orders.create')
                                                     <div class="alert alert-warning">
                                                         <h5><i class="fa fa-lock me-2"></i>Access Denied</h5>
                                                         <p>You don't have permission to create franchise orders. Please contact your administrator for access.</p>
                                                     </div>
-                                                    @endcannot
+                                                    @endcannot -->
                                                 @else
                                                     <p>No items in the order.</p>
                                                 @endif

@@ -83,14 +83,14 @@ Route::middleware(['auth'])->group(function () {
 
     // Additional charges routes
     Route::middleware('permission:additional_charges.view')->group(function () {
-        Route::get('/franchise/{franchise}/additionalcharges', [AdditionalChargesController::class, 'index'])->name('additionalcharges.index');
+        Route::get('/additional-charges', [AdditionalChargesController::class, 'index'])->name('additional-charges.index');
 
-        Route::get('/additionalcharges/create', [AdditionalChargesController::class, 'create'])->name('additionalcharges.create')->middleware('permission:additional_charges.create');
-        Route::post('/additionalcharges', [AdditionalChargesController::class, 'store'])->name('additionalcharges.store')->middleware('permission:additional_charges.create');
-        Route::get('/additionalcharges/{additionalcharges}/edit', [AdditionalChargesController::class, 'edit'])->name('additionalcharges.edit')->middleware('permission:additional_charges.edit');
-        Route::put('/additionalcharges/{additionalcharges}', [AdditionalChargesController::class, 'update'])->name('additionalcharges.update')->middleware('permission:additional_charges.edit');
-        Route::delete('/additionalcharges/{additionalcharges}', [AdditionalChargesController::class, 'destroy'])->name('additionalcharges.destroy')->middleware('permission:additional_charges.delete');
-        Route::put('/additional-charges/status', [AdditionalChargesController::class, 'changeStatus'])->middleware('permission:additional_charges.edit');
+        Route::get('/additional-charges/create', [AdditionalChargesController::class, 'create'])->name('additional-charges.create')->middleware('permission:additional_charges.create');
+        Route::post('/additional-charges', [AdditionalChargesController::class, 'store'])->name('additional-charges.store')->middleware('permission:additional_charges.create');
+        Route::get('/additional-charges/{additionalcharges}/edit', [AdditionalChargesController::class, 'edit'])->name('additional-charges.edit')->middleware('permission:additional_charges.edit');
+        Route::put('/additional-charges/{additionalcharges}', [AdditionalChargesController::class, 'update'])->name('additional-charges.update')->middleware('permission:additional_charges.edit');
+        Route::delete('/additional-charges/{additionalcharges}', [AdditionalChargesController::class, 'destroy'])->name('additional-charges.destroy')->middleware('permission:additional_charges.delete');
+        Route::put('/additional-charges/status', [AdditionalChargesController::class, 'changeStatus'])->name('additional-charges.status')->middleware('permission:additional_charges.edit');
     });
 
     // View Orders routes
@@ -100,9 +100,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/franchise/{franchise}/orders/detail', [ViewOrdersController::class, 'ordersDetail'])->name('franchise.orders.detail');
 
         Route::get('/orders/customersorder/{customer_id}', [ViewOrdersController::class, 'showCustomer'])->name('customersorder.show');
-        Route::get('/franchise/{franchise}/orderpops', [ViewOrdersController::class, 'orderpops'])->name('orderpops');
-        Route::get('orderpops/confirm/page', [ViewOrdersController::class, 'confirmPage'])->name('confirm.page');
-        Route::get('get-customer/{customer_id}', [OrderPopsController::class, 'customer'])->name('orderpops.customer');
+        
+        
+        // Route::get('orderpops', [ViewOrdersController::class, 'orderpops'])->name('orderpops');
+        // Route::get('orderpops/confirm/page', [ViewOrdersController::class, 'confirmPage'])->name('confirm.page');
+        // Route::get('get-customer/{customer_id}', [OrderPopsController::class, 'customer'])->name('orderpops.customer');
     });
     Route::prefix('franchise/{franchise}')->name('franchise.')->group(function () {
         Route::get('/orders/create', [ViewOrdersController::class, 'create'])->name('orders.create')->middleware('permission:orders.create');

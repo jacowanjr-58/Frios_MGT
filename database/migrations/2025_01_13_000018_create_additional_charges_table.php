@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up()
     {
-        if (! Schema::hasTable('additional_charges')) {
-        Schema::create('additional_charges', function (Blueprint $table) {
+        if (! Schema::hasTable('fgp_additional_charges')) {
+        Schema::create('fgp_additional_charges', function (Blueprint $table) {
             $table->id();   
-            $table->foreignId('franchise_id')->constrained('franchises','id');
+           
             $table->string('charge_name');
             $table->decimal('charge_price', 10, 2);
             $table->string('charge_optional')->default('optional');
@@ -25,6 +25,6 @@ return new class extends Migration {
 
     public function down()
     {
-        Schema::dropIfExists('additional_charges');
+        Schema::dropIfExists('fgp_additional_charges');
     }
 };

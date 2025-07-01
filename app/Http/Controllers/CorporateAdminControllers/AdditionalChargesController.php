@@ -7,14 +7,17 @@ use App\Models\AdditionalCharge;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AdditionalChargesController extends Controller
 {
-    public function index($franchisee)
+    public function index()
     {
-        $franchiseeID = $franchisee;
         if (request()->ajax()) {
-            $charges = AdditionalCharge::where('franchise_id', $franchiseeID);
+            // Get franchise from session if available, otherwise show all charges
+            // $franchiseId = session('franchise_id');
+            $charges = AdditionalCharge::query();
+                
             return DataTables::of($charges)
                 ->addColumn('charge_amount', function ($charge) {
                     if ($charge->charge_type === 'percentage') {
@@ -31,7 +34,7 @@ class AdditionalChargesController extends Controller
                 ->addColumn('status', function ($charge) {
                     if (Auth::check() && Auth::user()->can('additional_charges.edit')) {
                         return '<label class="toggle-switch">
-                            <input type="checkbox" class="toggle-input" data-id="'.$charge->additionalcharges_id.'"
+                            <input type="checkbox" class="toggle-input" data-id="'.$charge->id.'"
                                 '. ($charge->status ? 'checked' : '') .'>
                             <span class="slider"></span>
                         </label>';
@@ -44,14 +47,14 @@ class AdditionalChargesController extends Controller
                     
                     // Edit action - check permission
                     if (Auth::check() && Auth::user()->can('additional_charges.edit')) {
-                        $actions .= '<a href="'.route('additionalcharges.edit', $charge->additionalcharges_id).'" class="edit-user">
+                        $actions .= '<a href="'.route('additional-charges.edit', $charge->id).'" class="edit-user">
                             <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
                         </a>';
                     }
                     
                     // Delete action - check permission
                     if (Auth::check() && Auth::user()->can('additional_charges.delete')) {
-                        $actions .= '<form action="'.route('additionalcharges.destroy', $charge->additionalcharges_id).'" method="POST" style="display:inline;">
+                        $actions .= '<form action="'.route('additional-charges.destroy', $charge->id).'" method="POST" style="display:inline;">
                             '.csrf_field().'
                             '.method_field('DELETE').'
                             <button type="submit" class="ms-4 delete-charge">
@@ -73,7 +76,7 @@ class AdditionalChargesController extends Controller
         }
 
         $totalCharges = AdditionalCharge::count();
-        return view('corporate_admin.additional_charges.index', compact('totalCharges', 'franchiseeID'));
+        return view('corporate_admin.additional_charges.index', compact('totalCharges'));
     }
     
     public function create()
@@ -101,7 +104,7 @@ class AdditionalChargesController extends Controller
         // Create the charge
         AdditionalCharge::create($validated);
     
-        return redirect()->route('corporate_admin.additionalcharges.index')
+        return redirect()->route('additional-charges.index')
             ->with('success', 'Additional charge added successfully.');
     }
     
@@ -135,31 +138,42 @@ class AdditionalChargesController extends Controller
         // Update the charge record
         $additionalcharges->update($request->all());
     
-        return redirect()->route('corporate_admin.additionalcharges.index')
+        return redirect()->route('additional-charges.index')
             ->with('success', 'Additional charge updated successfully.');
     }
     
     public function destroy(AdditionalCharge $additionalcharges)
     {
         $additionalcharges->delete();
-        return redirect()->route('corporate_admin.additionalcharges.index')
+        return redirect()->route('additional-charges.index')
             ->with('success', 'Additional charge deleted successfully.');
     }
 
     public function changeStatus(Request $request) {
         try {
-            AdditionalCharge::findOrFail($request->chargesId)->update([
-                'status' => $request->status == 'true' ? 1 : 0
+            $request->validate([
+                'chargesId' => 'required|integer',
+                'status' => 'required'
             ]);
+
+            $charge = AdditionalCharge::findOrFail($request->chargesId);
+            
+            // Convert status to boolean properly
+            $newStatus = filter_var($request->status, FILTER_VALIDATE_BOOLEAN);
+            
+            $charge->update(['status' => $newStatus]);
+            
             return response()->json([
                 'error' => false,
-                'message' => "Status updated successfully"
+                'message' => "Status updated successfully",
+                'new_status' => $newStatus
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
+            \Log::error('Error updating additional charge status: ' . $e->getMessage());
             return response()->json([
                 'error' => true,
-                'message' => $th->getMessage()
-            ]);
+                'message' => 'Failed to update status: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

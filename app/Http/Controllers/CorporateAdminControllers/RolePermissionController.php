@@ -60,18 +60,20 @@ class RolePermissionController extends Controller
                     $editUrl = route('roles.edit', $role);
                     $deleteUrl = route('roles.destroy', $role);
                     
-                    $protectedRoles = ['corporate_admin', 'franchise_admin', 'franchise_manager', 'franchise_staff','super_admin'];
+                    $protectedRoles = ['corporate_admin', 'franchise_admin', 'franchise_manager', 'franchise_staff','super_admin',];
                     $isProtected = in_array($role->name, $protectedRoles);
 
                     $html = '<div class="d-flex gap-1">';
                     
                     // Edit button - check permission
-                    if (Auth::check() && Auth::user()->can('roles.edit')) {
+                    if (Auth::check() && Auth::user()->can('roles.edit') && !$isProtected) {
                         $html .= '<a href="'.$editUrl.'" class="btn btn-primary btn-sm" title="Edit Role"><i class="fa fa-edit"></i></a>';
+                    }else{
+                        $html .= '<button class="btn btn-primary btn-sm" title="Edit Role" disabled><i class="fa fa-edit"></i></button>';
                     }
                     
                     // Delete button - check permission and role protection
-                    if (Auth::check() && Auth::user()->can('roles.delete')) {
+                    if (Auth::check() && Auth::user()->can('roles.delete') && !$isProtected) {
                         $html .= '<form action="'.$deleteUrl.'" method="POST" style="display: inline;" class="delete-form">';
                         $html .= csrf_field() . method_field('DELETE');
                         $html .= '<button type="submit" class="btn btn-danger btn-sm delete-role" title="Delete Role"><i class="fa fa-trash"></i></button>';

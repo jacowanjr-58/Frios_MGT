@@ -88,7 +88,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'orders.create',
             'orders.edit',
             'orders.delete',
-           
+
 
             // Payments Management (Corporate Admin)
             'payments.view',
@@ -142,7 +142,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'orders.create',
             'orders.edit',
             'orders.delete',
-            
+
 
             // Get Paid/Invoices (Franchise Admin)
             'invoices.view',
@@ -201,7 +201,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage-flavors',
             'manage-frios-availability',
             'manage-flavor-categories',
-           
+
             'view-payments',
             'view-expenses',
             'view-customers',
@@ -217,7 +217,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'use-pos',
             'view-flavors',
             'manage-customers',
-            
+
 
         ];
 
@@ -309,7 +309,7 @@ class RolesAndPermissionsSeeder extends Seeder
             //orders
             'orders.view',
             'orders.create',
-          
+
 
         ];
         $superAdmin->givePermissionTo($superAdminPermissions);
@@ -505,6 +505,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'flavor_category.create',
             'flavor_category.edit',
             'flavor_category.delete',
+
+            // Additional Charges Management (Corporate Admin)
+            'additional_charges.view',
+            'additional_charges.create',
+            'additional_charges.edit',
+            'additional_charges.delete',
         ];
         $franchiseAdmin->givePermissionTo($franchiseAdminPermissions);
 
@@ -548,6 +554,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'view-expenses',
             'view-customers',
             'view-events',
+
+            // Additional Charges Management (Corporate Admin)
+            'additional_charges.view',
+            'additional_charges.create',
+            'additional_charges.edit',
+            'additional_charges.delete',
         ];
         $franchiseManager->givePermissionTo($franchiseManagerPermissions);
 

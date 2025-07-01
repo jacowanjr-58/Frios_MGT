@@ -9,9 +9,8 @@ class AdditionalCharge extends Model
 {
     use HasFactory;
 
-    protected $table = 'additionalcharges'; // Table name
-    protected $primaryKey = 'additionalcharges_id'; // Primary key
-
+    protected $table = 'fgp_additional_charges'; // Table name
+   
     protected $fillable = [
         'charge_name',
         'charge_price',
@@ -26,14 +25,14 @@ class AdditionalCharge extends Model
             if (Auth::check()) {
                 $additionalCharge->created_by = Auth::id();
                 $additionalCharge->updated_by = Auth::id();
-                $additionalCharge->franchise_id = session('franchise_id') ?? null;
+               // $additionalCharge->franchise_id = session('franchise_id') ?? null;
             }
         });
 
         static::updating(function ($additionalCharge) {
             if (Auth::check()) {
                 $additionalCharge->updated_by = Auth::id();
-                $additionalCharge->franchise_id = session('franchise_id') ?? null;
+               // $additionalCharge->franchise_id = session('franchise_id') ?? null;
             }
         });
     }

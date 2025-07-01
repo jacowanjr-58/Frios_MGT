@@ -41,7 +41,7 @@
                                             @can('additional_charges.edit')
                                             <!-- Display Success Message -->
 
-                                            <form action="{{ route('additionalcharges.update', $additionalcharges->additionalcharges_id) }}" method="POST">
+                                            <form action="{{ route('additional-charges.update', $additionalcharges->id) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
 
@@ -120,7 +120,7 @@
                                             <div class="alert alert-warning">
                                                 <h5><i class="fa fa-lock me-2"></i>Access Denied</h5>
                                                 <p>You don't have permission to edit additional charges. Please contact your administrator for access.</p>
-                                                <a href="{{ route('additionalcharges.index') }}" class="btn btn-secondary btn-sm">
+                                                <a href="{{ route('additional-charges.index') }}" class="btn btn-secondary btn-sm">
                                                     <i class="fa fa-arrow-left me-2"></i>Back to Additional Charges List
                                                 </a>
                                             </div>

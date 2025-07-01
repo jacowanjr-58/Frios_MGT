@@ -109,8 +109,12 @@
 
                 @can('additional_charges.create')
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                        <a href="{{ route('additionalcharges.create') }}"
-                            class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Charges</a>
+                        @if (Auth::check() && Auth::user()->can('additional_charges.create'))
+                            <a href="{{ route('additional-charges.create') }}"
+                                class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Charges</a>
+                        @else
+                            <button class="btn btn-secondary btn-lg btn-block rounded text-white" disabled>+ New Charges</button>
+                        @endif
                     </div>
                     <div class="col-xl-9 col-lg-8">
                 @else
@@ -137,7 +141,7 @@
                                     </svg>
                                     <div class="media-body">
                                         <p class="mb-1 fs-12">Total Charges</p>
-                                        <h3 class="mb-0 font-w600 fs-22">{{ $totalCharges }} categories</h3>
+                                        <h3 class="mb-0 font-w600 fs-22">{{ $totalCharges }} Charges</h3>
                                     </div>
                                 </div>
                             </div>
@@ -172,7 +176,7 @@
                 var table = $('#charges-table').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "{{ route('additionalcharges.index', ['franchisee' => $franchiseeID]) }}",
+                    ajax: "{{ route('additional-charges.index') }}",
                     columns: [
                         { data: 'charge_name', name: 'charge_name' },
                         { data: 'charge_amount', name: 'charge_price' },
@@ -204,26 +208,100 @@
                         });
 
                         $('.toggle-input').change(function (e) {
+                          
                             e.preventDefault();
 
-                            let status = $(this).is(':checked');
-                            let id = $(this).attr('data-id');
+                            let $toggle = $(this);
+                            let newStatus = $toggle.is(':checked');
+                            let oldStatus = !newStatus; // The previous status
+                            let id = $toggle.attr('data-id');
+
+                            // Immediately revert the toggle - it will be set properly after confirmation
+                            $toggle.prop('checked', oldStatus);
+
+                            // Show confirmation dialog
+                            Swal.fire({
+                                title: 'Confirm Status Change',
+                                text: `Are you sure you want to ${newStatus ? 'activate' : 'deactivate'} this additional charge?`,
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Yes, ' + (newStatus ? 'activate' : 'deactivate') + ' it!',
+                                cancelButtonText: 'Cancel'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // User confirmed - proceed with status update
+                                    updateChargeStatus($toggle, newStatus, id);
+                                }
+                                // If cancelled, toggle stays in original position (already reverted above)
+                            });
+                        });
+
+                        function updateChargeStatus($toggle, status, id) {
+                            // Disable the toggle while processing
+                            $toggle.prop('disabled', true);
 
                             $.ajax({
                                 type: "PUT",
-                                url: "{{ url('corporate_admin/additional-charges/status') }}",
+                                url: "{{ route('additional-charges.status') }}",
                                 headers: {
-                                    'x-csrf-token': "{{ csrf_token() }}"
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                                 },
                                 data: {
                                     chargesId: id,
                                     status: status,
                                 },
                                 success: function (response) {
-                                    console.log(response);
+                                    console.log('Status update response:', response);
+                                    
+                                    if (response.error) {
+                                        // Show error message
+                                        Swal.fire({
+                                            title: 'Error!',
+                                            text: response.message,
+                                            icon: 'error',
+                                            confirmButtonText: 'OK'
+                                        });
+                                    } else {
+                                        // Update the toggle to the new status
+                                        $toggle.prop('checked', response.new_status);
+                                        
+                                        // Show success message
+                                        Swal.fire({
+                                            title: 'Success!',
+                                            text: `Additional charge has been ${response.new_status ? 'activated' : 'deactivated'} successfully.`,
+                                            icon: 'success',
+                                            timer: 2000,
+                                            showConfirmButton: false
+                                        });
+                                        
+                                        console.log('Status updated successfully to:', response.new_status);
+                                    }
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error('AJAX Error:', {xhr, status, error});
+                                    console.error('Response Text:', xhr.responseText);
+                                    
+                                    let errorMessage = 'An error occurred while updating the status.';
+                                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                                        errorMessage = xhr.responseJSON.message;
+                                    }
+                                    
+                                    // Show error message
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: errorMessage,
+                                        icon: 'error',
+                                        confirmButtonText: 'OK'
+                                    });
+                                },
+                                complete: function() {
+                                    // Re-enable the toggle
+                                    $toggle.prop('disabled', false);
                                 }
                             });
-                        });
+                        }
                     }
                 });
             });

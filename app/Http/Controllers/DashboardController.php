@@ -181,8 +181,8 @@ class DashboardController extends Controller
                 ->where('franchise_id', $franchiseId)
                 ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
                 ->sum('amount'),
-            'totalCharges' => DB::table('additional_charges')
-                ->where('franchise_id', $franchiseId)
+            'totalCharges' => DB::table('fgp_additional_charges')
+                // ->where('franchise_id', $franchiseId)
                 ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
                 ->sum('charge_price'),
             'totalCustomers' => DB::table('customers')

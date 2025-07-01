@@ -31,19 +31,19 @@ class OrderPopsController extends Controller
     public function index($franchisee=null)
     {
 
-        $franchiseeId = intval($franchisee);
+        $franchise = intval($franchisee);
         $currentMonth = strval(Carbon::now()->format('n'));
 
         $pops = FgpItem::where('orderable', 1)
             ->where('internal_inventory', '>', 0)
             ->get()
             ->filter(function ($pop) use ($currentMonth) {
-                $availableMonths = json_decode($pop->dates_available, true);
+                $availableMonths = $pop->dates_available;
                 return in_array($currentMonth, $availableMonths ?? []);
             });
-
+       
         $totalPops = $pops->count();
-
+        // dd($totalPops);
         if (request()->ajax()) {
             return DataTables::of($pops)
                 ->addColumn('checkbox', function($pop) {
@@ -86,7 +86,7 @@ class OrderPopsController extends Controller
                 ->make(true);
         }
 
-        return view('franchise_admin.orderpops.index', compact('pops', 'totalPops'));
+        return view('franchise_admin.orderpops.index', compact('pops', 'franchise', 'totalPops'));
     }
 
     public function create($franchisee=null)
@@ -107,8 +107,9 @@ class OrderPopsController extends Controller
         return view('franchise_admin.orderpops.create', compact('categories'));
     }
 
-    public function confirmOrder(Request $request)
+    public function confirmOrder(Request $request, $franchise)
     {
+        $franchise = intval($franchise);
         $items = json_decode($request->input('ordered_items'), true);
 
         if (empty($items)) {
@@ -116,30 +117,35 @@ class OrderPopsController extends Controller
         }
 
         foreach ($items as &$item) {
-            $item['case_cost'] = floatval(str_replace(['$', ','], '', $item['case_cost']));
+            // Handle both 'price' and 'case_cost' keys from different sources
+            if (isset($item['price']) && !isset($item['case_cost'])) {
+                $item['case_cost'] = $item['price'];
+                unset($item['price']);
+            }
+            
+            $item['case_cost'] = floatval(str_replace(['$', ','], '', $item['case_cost'] ?? 0));
             $item['quantity'] = $item['quantity'] ?? 1;
         }
-
+       
+      
         session(['ordered_items' => $items]);
-        return redirect()->route('franchise.orderpops.confirm.page');
+        return redirect()->route('franchise.orderpops.confirm.page', ['franchise' => $franchise]);
     }
 
-    public function showConfirmPage($franchisee)
+    public function showConfirmPage($franchise)
     {
-        $franchiseeId = intval($franchisee);
-        $items = session('ordered_items', []);
+        $franchise = intval($franchise);
+       
+        // Since items are stored in sessionStorage (browser), we'll handle them via JavaScript
+        // For now, return empty array and populate via JavaScript on page load
+        $items = [];
 
-        if (empty($items)) {
-            return redirect()->route('orderpops', ['franchise' => $franchiseeId])->withErrors('No items selected.');
-        }
-
-        $franchiseeId = Auth::user()->franchise_id;
-        $customers = Customer::where('franchise_id', $franchiseeId)->get();
-        $franchisee = Franchise::where('franchise_id', $franchiseeId)->get();
+        $customers = Customer::where('franchise_id', $franchise)->get();
+        $franchisee = Franchise::where('id', $franchise)->first(); // Use first() instead of get()
         $requiredCharges = AdditionalCharge::where('charge_optional', 'required')->where('status', 1)->get();
         $optionalCharges = AdditionalCharge::where('charge_optional', 'optional')->where('status', 1)->get();
 
-        return view('franchise_admin.orderpops.confirm', compact('items', 'requiredCharges', 'optionalCharges', 'customers', 'franchisee'));
+        return view('franchise_admin.orderpops.confirm', compact('items', 'requiredCharges', 'optionalCharges', 'customers', 'franchise', 'franchisee'));
     }
 
     public function store(Request $request , $franchisee)

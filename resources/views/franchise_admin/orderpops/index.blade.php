@@ -1,9 +1,11 @@
 @extends('layouts.app')
+
 @section('content')
 
+
     <!--**********************************
-                        Content body start
-                    ***********************************-->
+                                Content body start
+                            ***********************************-->
     <div class="content-body default-height">
         <!-- row -->
         <div class="container-fluid">
@@ -53,12 +55,10 @@
                 </div>
             </div>
 
-
             <div class="row">
                 <div class="col-lg-12">
                     <div class="table-responsive rounded">
                         <!-- New Order Button -->
-
                         <!-- Pops Table -->
                         <table id="popsTable" class="table customer-table display mb-4 fs-14 card-table">
                             <thead>
@@ -78,12 +78,6 @@
                                 </tr>
                             </thead>
                         </table>
-
-
-
-
-
-
                     </div>
                 </div>
             </div>
@@ -117,38 +111,9 @@
         </div>
     </td> --}}
     <!--**********************************
-                        Content body end
-                    ***********************************-->
+                                Content body end
+                            ***********************************-->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('.orderable-dropdown').change(function () {
-                let itemId = $(this).data('id');
-                let orderableValue = $(this).val();
-
-                $.ajax({
-                    url: "{{ route('fgpitem.updateOrderable') }}",
-                    type: "POST",
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        item_id: itemId,
-                        pop_orderable: orderableValue
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            toastr.success('Item updated successfully');
-                        } else {
-                            toastr.error('Failed to update item');
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        toastr.error('An error occurred');
-                        console.error('Error:', error);
-                    }
-                });
-            });
-        });
-    </script>
 
     @push('scripts')
         <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
@@ -160,7 +125,7 @@
             var table = $('#popsTable').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('franchise.orderpops.index', ['franchisee' => request()->route('franchisee')]) }}",
+                ajax: "{{ route('franchise.orderpops.index', ['franchise' => $franchise]) }}",
                 columns: [
                     { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
                     { data: 'name', name: 'name' },
@@ -171,86 +136,122 @@
                     { data: 'availability', name: 'availability', orderable: false }
                 ],
                 order: [[1, 'asc']],
-                drawCallback: function (settings) {
-                    // Reinitialize checkAll functionality after each draw
-                    $('#checkAll').on('change', function () {
-                        $('.pop-checkbox').prop('checked', $(this).prop('checked'));
-                    });
-                    $('.dataTables_paginate').addClass('paging_simple_numbers');
-                    $('.paginate_button').each(function () {
-                        if ($(this).hasClass('current')) {
-                            $(this).attr('aria-current', 'page');
+                pageLength: 25,
+                                    language: {
+                        paginate: {
+                            next: '<i class="fa fa-angle-double-right"></i>',
+                            previous: '<i class="fa fa-angle-double-left"></i>'
                         }
-                    });
-                    $('.paginate_button.previous, .paginate_button.next').attr({
-                        'role': 'link',
-                        'aria-disabled': function () {
-                            return $(this).hasClass('disabled') ? 'true' : 'false';
-                        }
-                    });
-                }
-            });
-
-            // Order button click handler
-            $('#orderButton').on('click', function () {
-                console.log("Confirm Order button clicked");
-
-                let checkedItems = [];
-
-                $('.pop-checkbox:checked').each(function () {
-                    const row = $(this).closest('tr');
-
-                    const itemDetails = {
-                        id: $(this).val(),
-                        name: row.find('td:eq(1)').text().trim(),
-                        image: row.find('td:eq(2) img').length ? row.find('td:eq(2) img').attr('src') : 'No Image',
-                        price: row.find('td:eq(3)').text().trim(),
-                        category: row.find('td:eq(4)').text().trim(),
-                        quantity: 1
-                    };
-
-                    console.log("Collected item details:", itemDetails);
-                    checkedItems.push(itemDetails);
+                    },
+                    drawCallback: function (settings) {
+                        // Reinitialize checkAll functionality after each draw
+                        $('#checkAll').on('change', function () {
+                            $('.pop-checkbox').prop('checked', $(this).prop('checked'));
+                        });
+                        $('.dataTables_paginate').addClass('paging_simple_numbers');
+                        $('.paginate_button').each(function () {
+                            if ($(this).hasClass('current')) {
+                                $(this).attr('aria-current', 'page');
+                            }
+                        });
+                        $('.paginate_button.previous, .paginate_button.next').attr({
+                            'role': 'link',
+                            'aria-disabled': function () {
+                                return $(this).hasClass('disabled') ? 'true' : 'false';
+                            }
+                        });
+                    }
                 });
 
-                console.log("Checked Items:", checkedItems);
+        // Order button click handler
+        $('#orderButton').on('click', function () {
+            console.log("Confirm Order button clicked");
+            let checkedItems = [];
+            $('.pop-checkbox:checked').each(function () {
+                const row = $(this).closest('tr');
 
-                if (checkedItems.length < 3) {
-                    alert("Please select at least three items to order.");
-                    console.log("Less than three items selected, alert displayed.");
-                    return;
+                const priceText = row.find('td:eq(3)').text().trim();
+                const priceValue = parseFloat(priceText.replace(/[^0-9.-]+/g,"")) || 0;
+                
+                const itemDetails = {
+                    id: $(this).val(),
+                    name: row.find('td:eq(1)').text().trim(),
+                    image: row.find('td:eq(2) img').length ? row.find('td:eq(2) img').attr('src') : 'No Image',
+                    price: priceText,
+                    priceValue: priceValue,
+                    category: row.find('td:eq(4)').text().trim(),
+                    quantity: 1
+                };
+
+                console.log("Collected item details:", itemDetails);
+                checkedItems.push(itemDetails);
+            });
+
+            console.log("Checked Items:", checkedItems);
+
+            if (checkedItems.length < 3) {
+                Swal.fire({
+                    title: 'Minimum Selection Required',
+                    text: 'Please select at least three items to order.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    customClass: {
+                        confirmButton: 'swal2-confirm'
+                    }
+                });
+                console.log("Less than three items selected, alert displayed.");
+                return;
+            }
+
+            // Create HTML content for selected items
+            let itemsHtml = '<div style="text-align: left; max-height: 300px; overflow-y: auto;">';
+            checkedItems.forEach((item, index) => {
+                itemsHtml += `
+                            <div style="border-bottom: 1px solid #eee; padding: 10px 0;">
+                                <strong>${index + 1}. ${item.name}</strong><br>
+                                <span style="color: #666;">Category: ${item.category}</span><br>
+                                <span style="color: #007bff;">Price: ${item.price}</span>
+                            </div>
+                        `;
+            });
+            itemsHtml += '</div>';
+
+            // Show SweetAlert confirmation dialog
+            Swal.fire({
+                title: 'Confirm Order',
+                html: `
+                            <p>You have selected <strong>${checkedItems.length}</strong> items for ordering:</p>
+                            ${itemsHtml}
+                            <br>
+                            <p>Do you want to proceed with this order?</p>
+                        `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Proceed',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-primary',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    console.log("User confirmed, proceeding to confirm page...");
+
+                    // Store selected items in sessionStorage for the confirm page
+                    sessionStorage.setItem('orderItems', JSON.stringify(checkedItems));
+
+                    // Navigate to the confirm page
+                    const confirmPageUrl = "{{ route('franchise.orderpops.confirm.page', ['franchise' => $franchise]) }}";
+                    window.location.href = confirmPageUrl;
                 }
-
-                console.log("Sending request to server with checked items...");
-
-                const url = "{{ route('franchise.orderpops.confirm', ['franchisee' => request()->route('franchisee')]) }}";
-
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({ ordered_items: checkedItems })
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! Status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log("Parsed Response Data:", data);
-
-                        if (data.redirect) {
-                            console.log("Redirecting to:", data.redirect);
-                            window.location.href = data.redirect;
-                        } else {
-                            console.error('Invalid response format:', data);
-                        }
-                    })
-                    .catch(error => console.error('Error occurred:', error));
             });
         });
+    });
     </script>
 @endsection
+<style scoped>
+    button {
+        background-color: none !important;
+    }
+</style>

@@ -89,21 +89,23 @@
                 </li>
             @endcanany
 
-            @canany(['orders.view', 'orders.create', 'orders.edit', 'orders.delete'])
-                <li class="{{ Request::routeIs('orders.*', 'orderpops', 'additionalcharges.*') ? 'mm-active' : '' }}">
-                    <a class="has-arrow ai-icon {{ Request::routeIs('orders.*', 'orderpops', 'additionalcharges.*') ? 'active' : '' }}"
+            @canany(['orders.view', 'orders.create', 'orders.edit', 'orders.delete','additional_charges.view','additional_charges.create','additional_charges.edit'])
+                <li class="{{ Request::routeIs('orders.*', 'orderpops', 'additional-charges.*') ? 'mm-active' : '' }}">
+                    <a class="has-arrow ai-icon {{ Request::routeIs('orders.*', 'orderpops', 'additional-charges.*') ? 'active' : '' }}"
                         href="javascript:void()"
-                        aria-expanded="{{ Request::routeIs('orders.*', 'orderpops', 'additionalcharges.*') ? 'true' : 'false' }}">
+                        aria-expanded="{{ Request::routeIs('orders.*', 'orderpops', 'additional-charges.*') ? 'true' : 'false' }}">
                         <i class="bi bi-cart-plus-fill"></i>
                         <span class="nav-text">Franchise Orders</span>
                     </a>
-                    <ul aria-expanded="{{ Request::routeIs('orders.*', 'orderpops', 'additionalcharges.*') ? 'true' : 'false' }}"
-                        class="{{ Request::routeIs('orders.*', 'orderpops', 'additionalcharges.*') ? 'mm-collapse mm-show' : '' }}">
+                    <ul aria-expanded="{{ Request::routeIs('orders.*', 'orderpops', 'additional-charges.*') ? 'true' : 'false' }}"
+                        class="{{ Request::routeIs('orders.*', 'orderpops', 'additional-charges.*') ? 'mm-collapse mm-show' : '' }}">
                         <li><a href="{{ route('franchise.orders', ['franchise' => $franchiseeId]) }}"> Orders</a>
                         </li>
-                        <!-- <li><a href="{{ route('orderpops', ['franchise' => $franchiseeId]) }}">Edit/Delete Orders</a></li> -->
-                        <!-- <li><a href="{{ route('additionalcharges.index', ['franchise' => $franchiseeId]) }}">Edit
-                                Charges</a></li> -->
+                       
+                        <li><a href="{{ route('franchise.orderpops.index', ['franchise' => $franchiseeId]) }}">
+                        Order Pops</a></li>
+                        <li><a href="{{ route('additional-charges.index') }}">
+                        Additional Charges</a></li>
                     </ul>
                 </li>
             @endcanany
@@ -221,7 +223,7 @@
                             class="{{ Request::routeIs('franchise.orderpops.*') ? 'mm-collapse mm-show' : '' }}">
                             <li><a href="{{ route('orderpops', ['franchise' => $franchiseeId]) }}">Order
                                     Pops</a></li>
-                            <li><a href="{{ route('franchise.orderpops.view', ['franchise' => $franchiseeId]) }}">View
+                            <li><a href="{{ route('franchise.orders.view', ['franchise' => $franchiseeId]) }}">View
                                     Orders</a></li>
                             <li><a href="{{ route('franchise.orders', ['franchise' => $franchiseeId]) }}">View Orders</a>
                             </li>
@@ -351,7 +353,7 @@
             @endcanany --}}
         </ul>
         <div class="copyright">
-            <p><strong>Frios Management System</strong> © <span class="current-year">2023</span> All Rights Reserved
+            <p><strong>Frios Management System</strong> © <span class="current-year">2025</span> All Rights Reserved
             </p>
             <!-- <p class="fs-12">Made with <span class="heart"></span> by DexignZone</p> -->
         </div>

@@ -34,7 +34,8 @@ Route::get('/test-logout', function () {
     return redirect('/')->with('message', 'Logged out successfully from test route!');
 })->middleware('auth')->name('test.logout');
 
-Route::middleware(['auth', StripeMiddleware::class])->group(function () {
+// Route::middleware(['auth', StripeMiddleware::class])->group(function () {
+    Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
     Route::get('/load-more-events', [DashboardController::class, 'loadMoreEvents'])->name('loadMoreEvents');
     Route::post('/dashboard/filter', [DashboardController::class, 'filterDashboard'])->name('dashboard.filter');
@@ -59,7 +60,8 @@ Route::middleware('auth')->group(
             ->name('pops.viewCalendar');
     });
 
-Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name('franchise.')->group(function () {
+// Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name('franchise.')->group(function () {
+Route::middleware(['auth'])->prefix('franchise')->name('franchise.')->group(function () {
     Route::get('/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard')->middleware('permission:dashboard.view');
 
     Route::prefix('{franchise}')->group(function () {
@@ -89,11 +91,10 @@ Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name(
 
 
 
-    // Order pops routes
+    // Order pops routes for franchise admin
     Route::middleware('permission:orders.view')->group(function () {
         Route::get('{franchise}/orderpops', [OrderPopsController::class, 'index'])->name('orderpops.index');
         Route::get('{franchise}/orderpops/view', [OrderPopsController::class, 'viewOrders'])->name('orders.view');
-
         Route::get('{franchise}/orderpops/confirm/page', [OrderPopsController::class, 'showConfirmPage'])->name('orderpops.confirm.page');
     });
 

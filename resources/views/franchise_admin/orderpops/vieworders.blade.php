@@ -57,8 +57,8 @@
         <div class="row mb-4 align-items-center">
             <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
                 @can('orders.create')
-                    <a href="{{ route('franchise.orderpops.create', ['franchisee' => request()->route('franchisee')]) }}"
-                        class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Order</a>
+                                    <a href="{{ route('franchise.orderpops.create') }}"
+                    class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Order</a>
                 @endcan
             </div>
             <div class="col-xl-9 col-lg-8">
@@ -114,7 +114,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('franchise.orderpops.view', request()->route('franchisee')) }}"
+                    url: "{{ route('franchise.orders.view', request()->route('franchise')) }}"
                 },
                 columns: [
                     { data: 'order_number', name: 'order_number' },
