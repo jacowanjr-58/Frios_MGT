@@ -101,6 +101,8 @@
                         class="{{ Request::routeIs('orders.*', 'orderpops', 'additionalcharges.*') ? 'mm-collapse mm-show' : '' }}">
                         <li><a href="{{ route('franchise.orders', ['franchise' => $franchiseeId]) }}"> Orders</a>
                         </li>
+                         <li><a href="{{ route('franchise.orderpops.index', ['franchise' => $franchiseeId]) }}"> John UI Orders</a>
+                        </li>
                         <!-- <li><a href="{{ route('orderpops', ['franchise' => $franchiseeId]) }}">Edit/Delete Orders</a></li> -->
                         <!-- <li><a href="{{ route('additionalcharges.index', ['franchise' => $franchiseeId]) }}">Edit
                                 Charges</a></li> -->
