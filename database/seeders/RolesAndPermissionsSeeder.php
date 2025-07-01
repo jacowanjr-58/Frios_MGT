@@ -321,7 +321,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
             // Role Management (for corporate_admin to assign permissions)
             'roles.view',
-            'permissions.assign',
+            // 'permissions.assign',
             'permissions.view',
 
             // User Management (for corporate_admin to assign permissions)
@@ -428,6 +428,10 @@ class RolesAndPermissionsSeeder extends Seeder
         // Assign permissions to franchise_admin
         $franchiseAdminPermissions = [
 
+            'roles.view',
+            
+            'permissions.view',
+
             'staff.view',
             'staff.create',
             'staff.edit',
@@ -510,6 +514,9 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Assign permissions to franchise_manager
         $franchiseManagerPermissions = [
+            'roles.view',
+            'permissions.view',
+
             'dashboard.view',
             'inventory.view',
             'inventory.edit',

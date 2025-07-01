@@ -11,7 +11,7 @@ class StaffController extends Controller
 {
     public function index($franchisee)
     {
-        $franchiseeId = request()->route('franchisee');
+        $franchiseeId = $franchisee;
 
         $users = User::
             whereIn('role', ['franchise_manager', 'franchise_staff'])

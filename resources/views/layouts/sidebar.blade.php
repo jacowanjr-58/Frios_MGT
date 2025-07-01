@@ -34,17 +34,33 @@
                 @endif
             @endcanany
 
+            @canany(['staff.view', 'staff.create', 'staff.edit', 'staff.delete'])
+                <li class="{{ Request::routeIs('franchise.staff.*') ? 'mm-active' : '' }}">
+                    <a class="has-arrow ai-icon {{ Request::routeIs('franchise.staff.*') ? 'active' : '' }}"
+                        href="javascript:void(0)"
+                        aria-expanded="{{ Request::routeIs('franchise.staff.*') ? 'true' : 'false' }}">
+                        <i class="bi bi-person-gear"></i>
+                        <span class="nav-text">Users</span>
+                    </a>
+                    <ul aria-expanded="{{ Request::routeIs('franchise.staff.*') ? 'true' : 'false' }}"
+                        class="{{ Request::routeIs('franchise.staff.*') ? 'mm-collapse mm-show' : '' }}">
+                        <li><a href="{{ route('franchise.staff.index', ['franchise' => $franchiseeId]) }}">Staff list</a></li>
+                        <li><a href="{{ route('roles.index') }}">Roles & Permissions</a></li>
+                    </ul>
+                </li>
+            @endcanany
+
             @canany(['franchises.view', 'franchises.create', 'franchises.edit', 'franchises.delete', 'owners.view',
                 'owners.create', 'owners.edit', 'owners.delete'])
-                <li class="{{ Request::routeIs('franchise.*', 'owner.*') ? 'mm-active' : '' }}">
-                    <a class="has-arrow ai-icon {{ Request::routeIs('franchise.*', 'owner.*') ? 'active' : '' }}"
+                <li class="{{ Request::routeIs('franchise.index', 'owner.index') ? 'mm-active' : '' }}">
+                    <a class="has-arrow ai-icon {{ Request::routeIs('franchise.index', 'owner.index') ? 'active' : '' }}"
                         href="javascript:void(0)"
-                        aria-expanded="{{ Request::routeIs('franchise.*', 'owner.*') ? 'true' : 'false' }}">
+                        aria-expanded="{{ Request::routeIs('franchise.index', 'owner.index') ? 'true' : 'false' }}">
                         <i class="bi bi-buildings-fill"></i>
                         <span class="nav-text">Franchises</span>
                     </a>
-                    <ul aria-expanded="{{ Request::routeIs('franchise.*', 'owner.*') ? 'true' : 'false' }}"
-                        class="{{ Request::routeIs('franchise.*', 'owner.*') ? 'mm-collapse mm-show' : '' }}">
+                    <ul aria-expanded="{{ Request::routeIs('franchise.index', 'owner.index') ? 'true' : 'false' }}"
+                        class="{{ Request::routeIs('franchise.index', 'owner.index') ? 'mm-collapse mm-show' : '' }}">
                         <li><a href="{{ route('franchise.index') }}">Franchise List </a></li>
                         <li><a href="{{ route('owner.index', ['franchise' => $franchiseeId]) }}">Franchise (Owners)</a>
                         </li>
