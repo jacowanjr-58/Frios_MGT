@@ -96,4 +96,16 @@ class Invoice extends Model
     {
         return $this->hasMany(InvoiceItem::class);
     }
+    public function getDateJoinedAttribute($value)
+    {
+        return $value ? date('m-d-Y', strtotime($value)) : null;
+    }
+
+    /**
+     * Get the created_at formatted as mm-dd-yyyy
+     */
+    public function getCreatedAtAttribute($value)
+    {
+        return $value ? date('m-d-Y', strtotime($value)) : null;
+    }
 }

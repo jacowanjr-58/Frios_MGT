@@ -352,11 +352,9 @@ class OrderPopsController extends Controller
                 'franchise_id' => $franchise->id, // Keep for backward compatibility
                 'fgp_order_id' => $order->id,
                 'name' => Auth::user()->name,
-                // 'order_num' => $orderNum,
                 'total_price' => $validated['grandTotal'],
                 'payment_status' => 'unpaid',
                 'direction' => 'payable',
-                'date' => now(),
                 'tax_price' => 0,
                 'due_date'  =>  Carbon::now()->addDays(7),
                 'notes_internal' => mb_strimwidth($invoiceNotes, 0, 255, '...')
@@ -460,7 +458,7 @@ class OrderPopsController extends Controller
                     return 'FGP-' . $order->id;
                 })
                 ->addColumn('date', function($order) {
-                    return Carbon::parse($order->date_transaction)->format('M d, Y');
+                    return Carbon::parse($order->created_at)->format('M d, Y');
                 })
                 ->addColumn('shipping', function($order) {
                     return $order->ship_to_name . '<br>' .

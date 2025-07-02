@@ -54,40 +54,49 @@
             <div class="col-lg-4 mb-4">
                 <div class="category-card h-100">
                     <div class="category-header text-center py-3 mb-4">
-                        <h4 class="mb-0 fw-bold text-white">{{ $parentCategory->name }}</h4>
+                        <h4 class="mb-0 fw-bold text-black">{{ $parentCategory->name }}</h4>
                     </div>
-                    
                     @foreach($parentCategory->children as $subcategory)
                     <div class="subcategory-section mb-4">
-                        <div class="subcategory-header text-center py-2 mb-3">
-                            <h6 class="mb-0 fw-semibold">{{ $subcategory->name }}</h6>
+                        <div class="subcategory-header text-center py-2 mb-3" 
+                             data-bs-toggle="collapse" 
+                             data-bs-target="#subcategory-{{ $parentCategory->id }}-{{ $subcategory->id }}" 
+                             aria-expanded="true" 
+                             aria-controls="subcategory-{{ $parentCategory->id }}-{{ $subcategory->id }}"
+                             style="cursor: pointer; user-select: none;">
+                            <h6 class="mb-0 fw-semibold d-flex align-items-center justify-content-between px-3">
+                                <span>{{ $subcategory->name }}</span>
+                                <i class="fas fa-chevron-down collapse-icon"></i>
+                            </h6>
                         </div>
                         
-                        <div class="products-grid">
-                            @foreach($subcategory->items as $item)
-                            <div class="product-card" 
-                                 data-id="{{ $item->fgp_item_id ?? $item->id }}" 
-                                 data-name="{{ $item->name }}"
-                                 data-unit-cost="{{ $item->case_cost }}" 
-                                 data-image="{{ asset('storage/' . $item->image1) }}"
-                                 data-debug-fgp-id="{{ $item->fgp_item_id }}"
-                                 data-debug-regular-id="{{ $item->id }}">
-                                <div class="product-image-wrapper">
-                                    <img src="{{ asset('storage/' . $item->image1) }}" 
-                                         alt="{{ $item->name }}" 
-                                         class="product-image">
-                                    <div class="product-overlay">
-                                        <i class="fas fa-plus-circle fa-2x"></i>
+                        <div class="collapse show" id="subcategory-{{ $parentCategory->id }}-{{ $subcategory->id }}">
+                            <div class="products-grid">
+                                @foreach($subcategory->items as $item)
+                                <div class="product-card" 
+                                     data-id="{{ $item->fgp_item_id ?? $item->id }}" 
+                                     data-name="{{ $item->name }}"
+                                     data-unit-cost="{{ $item->case_cost }}" 
+                                     data-image="{{ asset('storage/' . $item->image1) }}"
+                                     data-debug-fgp-id="{{ $item->fgp_item_id }}"
+                                     data-debug-regular-id="{{ $item->id }}">
+                                    <div class="product-image-wrapper">
+                                        <img src="{{ asset('storage/' . $item->image1) }}" 
+                                             alt="{{ $item->name }}" 
+                                             class="product-image">
+                                        <div class="product-overlay">
+                                            <i class="fas fa-plus-circle fa-2x"></i>
+                                        </div>
+                                    </div>
+                                    <div class="product-info text-center p-3">
+                                        <h6 class="product-name mb-2">{{ $item->name }}</h6>
+                                        <div class="product-price fw-bold text-primary">
+                                            ${{ number_format($item->case_cost, 2) }}
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="product-info text-center p-3">
-                                    <h6 class="product-name mb-2">{{ $item->name }}</h6>
-                                    <div class="product-price fw-bold text-primary">
-                                        ${{ number_format($item->case_cost, 2) }}
-                                    </div>
-                                </div>
+                                @endforeach
                             </div>
-                            @endforeach
                         </div>
                     </div>
                     @endforeach
@@ -364,6 +373,43 @@
     color: white;
     border-radius: 10px;
     margin: 0 15px;
+    transition: all 0.3s ease;
+}
+
+.subcategory-header:hover {
+    background: linear-gradient(135deg, #5b6270, #3b4553);
+    transform: translateY(-1px);
+}
+
+/* Collapsible icon styling and animation */
+.collapse-icon {
+    transition: transform 0.3s ease;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.subcategory-header:hover .collapse-icon {
+    color: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+}
+
+.subcategory-header[aria-expanded="false"] .collapse-icon {
+    transform: rotate(-90deg);
+}
+
+.subcategory-header[aria-expanded="true"] .collapse-icon {
+    transform: rotate(0deg);
+}
+
+/* Enhanced header layout */
+.subcategory-header h6 {
+    width: 100%;
+    position: relative;
+}
+
+.subcategory-header h6 span {
+    flex: 1;
+    text-align: center;
 }
 
 .products-grid {
@@ -718,6 +764,29 @@ document.addEventListener('DOMContentLoaded', () => {
   sessionStorage.removeItem('orderItems');
   updateCart();
   console.log('Cart system initialized');
+
+  // Collapsible subcategory functionality - simplified to work with Bootstrap
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle collapse state changes for proper aria-expanded attribute and CSS
+    document.querySelectorAll('.collapse').forEach(collapseElement => {
+      const header = document.querySelector(`[data-bs-target="#${collapseElement.id}"]`);
+      
+      if (header) {
+        // Set initial state
+        const isInitiallyShown = collapseElement.classList.contains('show');
+        header.setAttribute('aria-expanded', isInitiallyShown);
+        
+        // Listen for Bootstrap collapse events
+        collapseElement.addEventListener('show.bs.collapse', function() {
+          header.setAttribute('aria-expanded', 'true');
+        });
+        
+        collapseElement.addEventListener('hide.bs.collapse', function() {
+          header.setAttribute('aria-expanded', 'false');
+        });
+      }
+    });
+  });
 });
 </script>
 @endpush

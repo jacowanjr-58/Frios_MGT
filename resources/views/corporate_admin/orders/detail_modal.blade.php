@@ -15,7 +15,7 @@
                         </tr>
                         <tr>
                             <td class="fw-bold text-muted">Order Date:</td>
-                            <td>{{ \Carbon\Carbon::parse($order->date_transaction)->format('M d, Y h:i A') }}</td>
+                            <td>{{ $order->created_at }}</td>
                         </tr>
                         <tr>
                             <td class="fw-bold text-muted">Payment Status:</td>
@@ -47,19 +47,19 @@
                     <table class="table table-borderless mb-0">
                         <tr>
                             <td class="fw-bold text-muted">Business Name:</td>
-                            <td class="fw-bold">{{ $order->franchise->business_name ?? 'N/A' }}</td>
+                            <td class="fw-bold">{{ $order->user->name ?? 'N/A' }}</td>
                         </tr>
                         <tr>
                             <td class="fw-bold text-muted">Territory:</td>
-                            <td>{{ $order->franchise->frios_territory_name ?? 'N/A' }}</td>
+                            <td>{{ $order->franchise->business_name ?? 'N/A' }}</td>
                         </tr>
                         <tr>
                             <td class="fw-bold text-muted">Contact Email:</td>
-                            <td>{{ $order->franchise->owner_email ?? 'N/A' }}</td>
+                            <td>{{ $order->user->email ?? 'N/A' }}</td>
                         </tr>
                         <tr>
                             <td class="fw-bold text-muted">Phone:</td>
-                            <td>{{ $order->franchise->phone ?? 'N/A' }}</td>
+                            <td>{{ $order->user->phone ?? 'N/A' }}</td>
                         </tr>
                     </table>
                 </div>
@@ -176,7 +176,7 @@
                                             </td>
                                             <td class="text-center">
                                                 <small class="text-muted">
-                                                    {{ $detail->formatted_date ?? \Carbon\Carbon::parse($detail->created_at)->format('M d, Y') }}
+                                                    {{ $detail->created_at }}
                                                 </small>
                                             </td>
                                         </tr>

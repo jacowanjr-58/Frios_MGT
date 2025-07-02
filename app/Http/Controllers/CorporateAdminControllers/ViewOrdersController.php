@@ -24,8 +24,8 @@ class ViewOrdersController extends Controller
         $franchiseId = intval($franchiseId);
         if (request()->ajax()) {
             $orders = FgpOrder::query()
-                ->with(['user', 'franchise', 'orderItems.item'])    
-                ->select('fgp_orders.*')
+                ->with(['user', 'franchise', 'orderItems.item'])     
+                ->select('fgp_orders.*') //select all columns from fgp_orders table 
                 ->where('franchise_id', $franchiseId)
                 ->whereNull('deleted_at'); // Exclude soft deleted orders
 
@@ -49,11 +49,11 @@ class ViewOrdersController extends Controller
             }
 
             if (request()->filled('date_from')) {
-                $orders->whereDate('date_transaction', '>=', request('date_from'));
+                $orders->whereDate('created_at', '>=', request('date_from'));
             }
 
             if (request()->filled('date_to')) {
-                $orders->whereDate('date_transaction', '<=', request('date_to'));
+                $orders->whereDate('created_at', '<=', request('date_to'));
             }
 
             return DataTables::of($orders)
@@ -62,7 +62,7 @@ class ViewOrdersController extends Controller
                            $order->getOrderNum() . '</a>';
                 })
                 ->addColumn('date_time', function ($order) {
-                    return Carbon::parse($order->date_transaction)->format('M d, Y h:i A');
+                    return $order->created_at; 
                 })
                 ->addColumn('total_amount', function ($order) {
                     $totalAmount = DB::table('fgp_order_items')
@@ -74,14 +74,13 @@ class ViewOrdersController extends Controller
 
                  ->addColumn('ordered_by', function ($order) use ($franchiseId) {
                     if ($order->franchise) {
-                        return '<span class="text-primary">' . $order->franchise->business_name . '</span>';
+                        return '<span class="text-primary">' . $order->user->name . '</span>';
                     }
                     return 'Unknown';
                 })
                 ->addColumn('franchise', function ($order) {
                     if ($order->franchise) {
-                        return '<strong>' . $order->franchise->business_name . '</strong><br>' .
-                               '<small>' . $order->franchise->frios_territory_name . '</small>';
+                        return '<strong>' . $order->franchise->business_name . '</strong><br>';
                     }
                     return '<span class="text-muted">No Franchise</span>';
                 })

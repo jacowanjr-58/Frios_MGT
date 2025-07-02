@@ -117,8 +117,10 @@
                         class="{{ Request::routeIs('orders.*', 'orderpops', 'additional-charges.*') ? 'mm-collapse mm-show' : '' }}">
                         <li><a href="{{ route('franchise.orders', ['franchise' => $franchiseeId]) }}">
                         Order Pops</a></li>
+                        @canany(['additional_charges.view', 'additional_charges.create', 'additional_charges.edit','additional_charges.delete'])
                         <li><a href="{{ route('additional-charges.index') }}">
                         Additional Charges</a></li>
+                        @endcanany
                     </ul>
                 </li>
             @endcanany

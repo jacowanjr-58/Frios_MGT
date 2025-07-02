@@ -424,7 +424,7 @@
                 <div class="modal-body">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary rounded text-secondary custom-hover"
+                    <button type="button" class="btn btn-secondary rounded text-white custom-hover "
                         data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -470,7 +470,7 @@
                         { data: 'issues', name: 'issues' },
                         { data: 'status', name: 'is_paid' },
                         { data: 'ups_label', name: 'ups_label' },
-                        { data: 'date_time', name: 'fgp_orders.date_transaction' },
+                        { data: 'date_time', name: 'fgp_orders.created_at' },
                         { data: 'action', name: 'action', orderable: false, searchable: false }
                     ],
                     order: [[0, 'desc']],
