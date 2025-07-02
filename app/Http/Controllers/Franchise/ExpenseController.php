@@ -23,7 +23,9 @@ class ExpenseController extends Controller
     public function index($franchise)
 {
     if (request()->ajax()) {
-        $expenses = Expense::where('franchise_id', $franchise)
+        $expenses = Expense::when($franchise !== 'all', function ($query) use ($franchise) {
+            $query->where('franchise_id', $franchise);
+        })
             ->with(['category', 'sub_category']);
 
         return DataTables::of($expenses)
