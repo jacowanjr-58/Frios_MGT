@@ -18,15 +18,18 @@ use App\Models\Customer;
 
 class ViewOrdersController extends Controller
 {
-    public function index($franchiseId = null)
+    public function index($franchise = null)
     {
-
-        $franchiseId = intval($franchiseId);
         if (request()->ajax()) {
             $orders = FgpOrder::query()
                 ->with(['user', 'franchise', 'orderItems.item'])    
                 ->select('fgp_orders.*')
-                ->where('franchise_id', $franchiseId)
+                ->when($franchise !== 'all', function ($query) use ($franchise) {
+                    $query->whereHas('franchise', function ($query) use ($franchise) {
+
+                        $query->where('franchise_id', $franchise);
+                    });
+                })
                 ->whereNull('deleted_at'); // Exclude soft deleted orders
 
             // Apply filters
@@ -57,8 +60,8 @@ class ViewOrdersController extends Controller
             }
 
             return DataTables::of($orders)
-                ->addColumn('order_number', function ($order) use ($franchiseId) {
-                    return '<a href="' . route('franchise.orders.edit', ['franchise' => $franchiseId, 'orderId' => $order->id]) . '" class="text-primary fs-12">' .
+                ->addColumn('order_number', function ($order) use ($franchise) {
+                    return '<a href="' . route('franchise.orders.edit', ['franchise' => $franchise, 'orderId' => $order->id]) . '" class="text-primary fs-12">' .
                            $order->getOrderNum() . '</a>';
                 })
                 ->addColumn('date_time', function ($order) {
@@ -72,7 +75,7 @@ class ViewOrdersController extends Controller
                     return '$' . number_format($totalAmount, 2);
                 })
 
-                 ->addColumn('ordered_by', function ($order) use ($franchiseId) {
+                 ->addColumn('ordered_by', function ($order) use ($franchise) {
                     if ($order->franchise) {
                         return '<span class="text-primary">' . $order->franchise->business_name . '</span>';
                     }
@@ -120,7 +123,7 @@ class ViewOrdersController extends Controller
                         return '<span class="text-muted">No Access</span>';
                     }
                 })
-                ->addColumn('action', function ($order) use ($franchiseId) {
+                ->addColumn('action', function ($order) use ($franchise) {
                     $actions = '<div class="dropdown">';
                     $actions .= '<button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">';
                     $actions .= '<i class="fa fa-cog"></i>';
@@ -134,7 +137,7 @@ class ViewOrdersController extends Controller
 
                     // Edit - check permission
                     if (Auth::check() && Auth::user()->can('orders.edit')) {
-                        $actions .= '<li><a class="dropdown-item" href="' . route('franchise.orders.edit', ['franchise' => $franchiseId, 'orderId' => $order->id]) . '"><i class="fa fa-edit me-2"></i>Edit</a></li>';
+                        $actions .= '<li><a class="dropdown-item" href="' . route('franchise.orders.edit', ['franchise' => $franchise, 'orderId' => $order->id]) . '"><i class="fa fa-edit me-2"></i>Edit</a></li>';
                     }
 
                     // Divider - only show if there are actions above and below
@@ -164,6 +167,7 @@ class ViewOrdersController extends Controller
         }
 
         $totalOrders = FgpOrder::whereNull('deleted_at')->count(); // Exclude soft deleted orders from count
+        $franchiseId = $franchise;
         return view('corporate_admin.orders.index', compact('totalOrders', 'franchiseId'));
     }
 
