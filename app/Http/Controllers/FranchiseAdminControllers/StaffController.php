@@ -36,7 +36,8 @@ class StaffController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
+            'password' => 'required|min:6|confirmed',
+            'password_confirmation' => 'required',
             'role' => 'required',
             'phone_number' => 'nullable|string|regex:/^\(\d{3}\) \d{3}-\d{4}$/',
             'date_joined' => 'nullable|date',
@@ -80,7 +81,8 @@ class StaffController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $staff->id . ',id',
-            'password' => 'nullable|min:6',
+            'password' => 'nullable|min:6|confirmed',
+            'password_confirmation' => 'nullable|required_with:password',
             'role' => 'required',
             'phone_number' => 'nullable|string|regex:/^\(\d{3}\) \d{3}-\d{4}$/',
             'date_joined' => 'nullable|date',

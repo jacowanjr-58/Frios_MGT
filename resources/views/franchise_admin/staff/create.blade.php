@@ -83,6 +83,15 @@
                                                     </div>
 
                                                     <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                                                        <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror"
+                                                            name="password_confirmation" placeholder="Confirm Password">
+                                                        @error('password_confirmation')
+                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+
+                                                    <div class="mb-3 col-md-6">
                                                         <label class="form-label">Assign Role <span class="text-danger">*</span></label>
                                                         <select class="select2 form-control @error('role') is-invalid @enderror" name="role">
                                                             <option value="">Select Role</option>
