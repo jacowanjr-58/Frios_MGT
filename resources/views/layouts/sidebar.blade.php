@@ -72,23 +72,23 @@
                 'flavor_category.view', 'flavor_category.create', 'flavor_category.edit', 'flavor_category.delete',
                 'frios_availability.view', 'frios_availability.create', 'frios_availability.edit',
                 'frios_availability.delete'])
-                <li class="{{ Request::routeIs('franchise.fgpitem.*', 'franchise.fgpcategory.*') ? 'mm-active' : '' }}">
-                    <a class="has-arrow ai-icon {{ Request::routeIs('franchise.fgpitem.*', 'franchise.fgpcategory.*') ? 'active' : '' }}"
+                <li class="{{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'mm-active' : '' }}">
+                    <a class="has-arrow ai-icon {{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'active' : '' }}"
                         href="javascript:void()"
-                        aria-expanded="{{ Request::routeIs('franchise.fgpitem.*', 'franchise.fgpcategory.*') ? 'true' : 'false' }}">
+                        aria-expanded="{{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'true' : 'false' }}">
                         <i class="bi bi-basket3-fill"></i>
                         <span class="nav-text">Frios Flavors</span>
                     </a>
-                   <ul aria-expanded="{{ Request::routeIs('franchise.fgpitem.*', 'franchise.fgpcategory.*') ? 'true' : 'false' }}"
-                        class="{{ Request::routeIs('franchise.fgpitem.*', 'franchise.fgpcategory.*') ? 'mm-collapse mm-show' : '' }}">
+                   <ul aria-expanded="{{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'true' : 'false' }}"
+                        class="{{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'mm-collapse mm-show' : '' }}">
                         @canany(['frios_flavors.view', 'frios_flavors.create', 'frios_flavors.edit',
                         'frios_flavors.delete'])
-                        <li><a href="{{ route('franchise.fgpitem.index', ['franchise' => $franchiseeId]) }}">
+                        <li><a href="{{ route('fgpitem.index') }}">
                                 Flavors List</a></li>
                         @endcanany
                         @canany(['frios_availability.create', 'frios_availability.edit',
                         'frios_availability.delete'])
-                        <li><a href="{{ route('franchise.fgpitem.availability', ['franchise' => $franchiseeId]) }}">Edit Availability</a>
+                        <li><a href="{{ route('fgpitem.availability') }}">Edit Availability</a>
                         </li>
                         @endcanany
                         @can('flavor_category.view')
@@ -97,7 +97,7 @@
                         @endcan
                         @canany(['flavor_category.view', 'flavor_category.create', 'flavor_category.edit',
                         'flavor_category.delete'])
-                        <li><a href="{{ route('franchise.fgpcategory.index') }}">
+                        <li><a href="{{ route('fgpcategory.index') }}">
                                 Flavor Categories</a></li>
                         @endcanany
 

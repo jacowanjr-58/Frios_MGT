@@ -12,16 +12,11 @@ class FgpItem extends Model
 {
     use HasFactory;
 
-    protected $table = 'fgp_items'; // Ensure table name is correct
-    public $timestamps = true; // Ensure timestamps are handled
-
-
     protected $casts = [
         'dates_available' => 'array',
     ];
     
     protected $fillable = [
-        //'fgp_category_id',
         'name',
         'description',
         'case_cost',
@@ -42,14 +37,12 @@ class FgpItem extends Model
             if (Auth::check()) {
                 $fgpItem->created_by = Auth::id();
                 $fgpItem->updated_by = Auth::id();
-                $fgpItem->franchise_id = session('franchise_id') ?? null;
             }
         });
 
         static::updating(function ($fgpItem) {
             if (Auth::check()) {
                 $fgpItem->updated_by = Auth::id();
-                $fgpItem->franchise_id = session('franchise_id') ?? null;
             }
         });
     }
@@ -67,11 +60,6 @@ class FgpItem extends Model
     public function categories()
     {
         return $this->belongsToMany(FgpCategory::class, 'fgp_category_fgp_item', 'fgp_item_id', 'fgp_category_id');
-    }
-
-    public function franchise()
-    {
-        return $this->belongsTo(Franchise::class, 'franchise_id');
     }
 
     public function orderItems()

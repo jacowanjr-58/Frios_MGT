@@ -41,7 +41,7 @@
                                             <!-- Display Success Message -->
 
 
-                                            <form action="{{ route('franchise.fgpitem.update', ['franchise' => $franchise, 'fgpitem' => $fgpitem->id]) }}" method="POST" enctype="multipart/form-data">
+                                            <form action="{{ route('fgpitem.update', ['fgpitem' => $fgpitem->id]) }}" method="POST" enctype="multipart/form-data">
                                                 @csrf
                                                 @method('PUT')
 
@@ -71,9 +71,10 @@
                                                             <div id="catCollapse{{ $parent->id }}" class="collapse">
                                                                 <div class="card-body">
                                                                     @foreach($parent->children as $child)
+                                                                    {{-- @dd($fgpItem->categories) --}}
                                                                     <div class="form-check">
                                                                         <input class="form-check-input" type="checkbox" name="category_ids[]" value="{{ $child->id }}"
-                                                                            id="cat{{ $child->id }}" {{ (isset($fgpItem) && $fgpItem->categories->contains($child->id)) ?
+                                                                            id="cat{{ $child->id }}" {{ (isset($fgpitem) && $fgpitem->categories->contains($child->id)) ?
                                                                         'checked' : '' }}>
                                                                         <label class="form-check-label" for="cat{{ $child->id }}">
                                                                             {{ $child->name }}

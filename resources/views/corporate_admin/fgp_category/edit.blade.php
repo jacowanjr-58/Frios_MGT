@@ -32,7 +32,7 @@
                             <h4 class="card-title">Edit Category</h4>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('franchise.fgpcategory.update', $fgpcategory->id) }}" method="POST">
+                            <form action="{{ route('fgpcategory.update', $fgpcategory->id) }}" method="POST">
                                 @csrf
                                 @method('PUT')
 

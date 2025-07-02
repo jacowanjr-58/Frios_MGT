@@ -32,7 +32,7 @@
                                 <h4 class="card-title">Add Category</h4>
                             </div>
                             <div class="card-body">
-                                <form action="{{ route('franchise.fgpcategory.store') }}" method="POST">
+                                <form action="{{ route('fgpcategory.store') }}" method="POST">
                                     @csrf
 
                                     <div class="mb-3">
