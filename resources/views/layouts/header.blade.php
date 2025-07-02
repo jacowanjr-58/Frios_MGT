@@ -341,24 +341,26 @@
         // Update URL without reloading
         window.history.pushState({}, '', newUrl);
 
-        // Send AJAX request to update session
-        fetch('/franchise/set-session-franchise', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify({
-                franchise_id: franchiseId
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                window.location.href = newUrl;
-            }
-        })
-        .catch(error => console.error('Error:', error));
+        window.location.href = newUrl;
+
+        // // Send AJAX request to update session
+        // fetch('/franchise/set-session-franchise', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        //     },
+        //     body: JSON.stringify({
+        //         franchise_id: franchiseId
+        //     })
+        // })
+        // .then(response => response.json())
+        // .then(data => {
+        //     if (data.status === 'success') {
+        //         window.location.href = newUrl;
+        //     }
+        // })
+        // .catch(error => console.error('Error:', error));
     }
 
 </script>
