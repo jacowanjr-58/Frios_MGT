@@ -76,28 +76,6 @@
                                                     </div>
 
                                                     <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Password <span
-                                                                class="text-danger">*</span></label>
-                                                        <input type="password"
-                                                            class="form-control @error('password') is-invalid @enderror"
-                                                            name="password" placeholder="Password">
-                                                        @error('password')
-                                                            <div class="text-danger">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Confirm Password <span
-                                                                class="text-danger">*</span></label>
-                                                        <input type="password"
-                                                            class="form-control @error('password_confirmation') is-invalid @enderror"
-                                                            name="password_confirmation" placeholder="Confirm Password">
-                                                        @error('password_confirmation')
-                                                            <div class="text-danger">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <div class="mb-3 col-md-6">
                                                         <label class="form-label">Assign Franchise 
                                                             <span class="text-danger">*</span>
                                                             @if ($franchises->count() == 0)
@@ -129,7 +107,7 @@
                                                         @enderror
                                                     </div>
 
-                                                    <div class="mb-3 col-md-6">
+                                                    <div class="mb-3 col-md-12">
                                                         <label class="form-label">Franchise Contract Document 
                                                             <small class="text-muted">(PDF, DOC, DOCX - Max 10MB)</small>
                                                         </label>
@@ -137,6 +115,28 @@
                                                             class="form-control @error('contract_document') is-invalid @enderror"
                                                             name="contract_document" accept=".pdf,.doc,.docx">
                                                         @error('contract_document')
+                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Password <span
+                                                                class="text-danger">*</span></label>
+                                                        <input type="password"
+                                                            class="form-control @error('password') is-invalid @enderror"
+                                                            name="password" placeholder="Password">
+                                                        @error('password')
+                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Confirm Password <span
+                                                                class="text-danger">*</span></label>
+                                                        <input type="password"
+                                                            class="form-control @error('password_confirmation') is-invalid @enderror"
+                                                            name="password_confirmation" placeholder="Confirm Password">
+                                                        @error('password_confirmation')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
