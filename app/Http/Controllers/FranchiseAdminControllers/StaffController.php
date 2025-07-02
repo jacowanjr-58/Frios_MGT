@@ -39,21 +39,21 @@ class StaffController extends Controller
             'password' => 'required|min:6',
             'role' => 'required',
             'phone_number' => 'nullable|string|regex:/^\(\d{3}\) \d{3}-\d{4}$/',
-            'security' => 'nullable|string',
+            'date_joined' => 'nullable|date',
         ]);
 
-        $franchiseeId = auth()->user()->franchise_id;
+        $franchiseeId = $request->franchise;
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'role' => $request->role, // Storing role in the database
-            'franchise_id' => $franchiseeId,
             'phone_number' => $request->phone_number,
-            'security' => $request->security,
-            'created_date' => Carbon::now()->toDateString(), // Storing the current date
+            'date_joined' => $request->date_joined, // Storing the current date
         ]);
+
+        $user->franchises()->attach($franchiseeId);
 
         // Assign the role using Spatie Role Permission
         $user->assignRole($request->role);
@@ -79,23 +79,26 @@ class StaffController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $staff->user_id . ',user_id',
+            'email' => 'required|email|unique:users,email,' . $staff->id . ',id',
             'password' => 'nullable|min:6',
             'role' => 'required',
             'phone_number' => 'nullable|string|regex:/^\(\d{3}\) \d{3}-\d{4}$/',
-            'security' => 'nullable|string',
+            'date_joined' => 'nullable|date',
         ]);
-        $franchiseeId = auth()->user()->franchise_id;
+
+        // dd($request->all());
+        $franchiseeId = $request->franchise;
 
         $staff->update([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'role' => $request->role, // Storing role in the database
-            'franchise_id' => $franchiseeId,
             'phone_number' => $request->phone_number,
-            'security' => $request->security,
+            'date_joined' => $request->date_joined,
         ]);
+
+        $staff->franchises()->sync([$franchiseeId]);
 
         if ($request->filled('password')) {
             $staff->update(['password' => bcrypt($request->password)]);
@@ -115,25 +118,14 @@ class StaffController extends Controller
     public function destroy($franchisee, $id)
     {
         try {
-            $user = User::where('user_id', $id)->firstOrFail(); // Find user by user_id
-            $user->delete();
-
-            if (auth()->user()->hasRole('franchise_admin')) {
-                return redirect()->route('franchise.staff.index')->with('success', 'Staff updated successfully.');
-            } elseif (auth()->user()->hasRole('franchise_manager')) {
-                return redirect()->route('franchise.staff.index')->with('success', 'Staff updated successfully.');
+            $user = User::find($id); // Find user by user_id
+            if ($user) {
+                $user->franchises()->detach($franchisee);
+                $user->delete();
             }
 
-            // Default redirection if no role matches
             return redirect()->back()->with('success', 'User deleted successfully.');
         } catch (\Exception $e) {
-            if (auth()->user()->hasRole('franchise_admin')) {
-                return redirect()->route('franchise.staff.index')->with('success', 'Staff updated successfully.');
-            } elseif (auth()->user()->hasRole('franchise_manager')) {
-                return redirect()->route('franchise.staff.index')->with('success', 'Staff updated successfully.');
-            }
-
-            // Default redirection if no role matches
             return redirect()->back()->with('error', 'Failed to delete user.');
         }
     }

@@ -51,12 +51,7 @@
 
                                             <!-- Display Success Message -->
 
-                                            @role('franchise_admin')
                                             <form action="{{ route('franchise.staff.store', ['franchise' => request()->route('franchise')]) }}" method="POST">
-                                            @endrole
-                                            @role('franchise_manager')
-                                            <form action="{{ route('franchise.staff.store', ['franchise' => request()->route('franchise')]) }}" method="POST">
-                                            @endrole
                                                 @csrf
 
                                                 <div class="row">
@@ -99,7 +94,7 @@
                                                         @enderror
                                                     </div>
 
-                                                    <div class="mb-3 col-md-12">
+                                                    <div class="mb-3 col-md-6">
                                                         <label class="form-label">Phone number</label>
                                                         <input type="text" class="form-control" id="phone_number"
                                                             name="phone_number" value="{{ old('phone_number') }}"
@@ -108,7 +103,15 @@
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Date Joined</label>
+                                                        <input type="date" class="form-control" id="date_joined"
+                                                            name="date_joined" value="{{ old('date_joined') }}"
+                                                            placeholder="Date Joined"  class="form-control @error('date_joined') is-invalid @enderror">
+                                                        @error('date_joined')
+                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
 
 
                                                 </div>

@@ -23,7 +23,6 @@ class User extends Authenticatable
         'role',
         'phone_number',
         'franchise_id',
-        'created_date',
         'clearance',
         'security',
         'stripe_account_id',
@@ -53,9 +52,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
-        'created_date' => 'date',
         'date_joined' => 'date',
     ];
+
+    
 
     /**
      * Define relationship with Franchise
@@ -101,5 +101,20 @@ class User extends Authenticatable
         return decrypt($this->ein_ssn_hash) === $einSsn;
     }
 
+    /**
+     * Get the date_joined formatted as mm-dd-yyyy
+     */
+    public function getDateJoinedAttribute($value)
+    {
+        return $value ? date('m-d-Y', strtotime($value)) : null;
+    }
+
+    /**
+     * Get the created_at formatted as mm-dd-yyyy
+     */
+    public function getCreatedAtAttribute($value)
+    {
+        return $value ? date('m-d-Y', strtotime($value)) : null;
+    }
 
 }

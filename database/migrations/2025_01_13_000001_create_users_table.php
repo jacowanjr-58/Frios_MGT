@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('password');
             $table->string('role');
             $table->string('phone_number')->nullable();
-            $table->date('created_date')->nullable();
             $table->string('ein_ssn_hash')->nullable();
             $table->string('contract_document_path')->nullable();
             $table->date('date_joined')->nullable();

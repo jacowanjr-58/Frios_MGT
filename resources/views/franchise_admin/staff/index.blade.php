@@ -65,7 +65,7 @@
                                     <th>Email</th>
                                     <th>Role</th>
                                     <th>Phone no</th>
-                                    <th>Created Date</th>
+                                    <th>Joined Date</th>
                                     @canany(['roles.view', 'staff.edit', 'staff.delete'])
                                         <th>Actions</th>
                                     @endcanany
@@ -84,7 +84,7 @@
                                             @endif
                                         </td>
                                         <td>{{ $user->email }}</td>
-                                        <td><span class="badge bg-primary">{{ ucwords(str_replace('_', ' ', $user->roles->first()->name)) }}</span></td>
+                                        <td><span class="badge bg-primary">{{ ucwords(str_replace('_', ' ', $user->roles->first()?->name)) }}</span></td>
                                         <td>
                                             @if ($user->phone_number)
                                                 {{ $user->phone_number }}
@@ -92,15 +92,15 @@
                                                 No Phone number
                                             @endif
                                         </td>
-                                        <td>{{ $user->created_date ? \Carbon\Carbon::parse($user->created_date)->format('d/m/Y') : 'N/A' }}
+                                        <td>{{ $user->date_joined ?? 'N/A' }}
                                         </td>
                                         @canany(['staff.edit', 'staff.delete'])
                                             <td>
                                                 <div class="d-flex justify-content-center align-items-center">
                                                     @can('permissions.view')
-                                                        <a href="{{ route('roles.show', $user->roles->first()->id) }}" class="btn btn-link btn-sm p-0 me-4" title="View role and permissions">
+                                                        {{-- <a href="{{ route('roles.show', $user->roles->first()?->id) }}" class="btn btn-link btn-sm p-0 me-4" title="View role and permissions">
                                                             <i class="fas fa-user-shield fs-20" style="color: #00ABC7;"></i>
-                                                        </a>
+                                                        </a> --}}
                                                     @endcan
                                                     @can('staff.edit')
 
@@ -112,10 +112,10 @@
                                                     @can('staff.delete')
                                                         <form action="{{ route('franchise.staff.destroy', ['franchise' => $franchiseeId, 'staff' => $user->id]) }}"
                                                             method="POST"
-                                                            onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                                            class="delete-staff-form">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="ms-4 delete-user">
+                                                            <button type="button" class="ms-4 delete-staff">
                                                                 <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
                                                             </button>
                                                         </form>
@@ -150,4 +150,24 @@
         });
 
     </script>
+
+    @push('scripts')
+    <script>
+        $(document).ready(function() {
+            window.initSwalConfirm({
+                triggerSelector: '.delete-staff',
+                title: 'Delete Staff',
+                text: 'Are you sure you want to delete this staff member? This action cannot be undone.',
+                confirmButtonText: 'Yes, delete staff'
+            });
+
+            // Handle form submission after SweetAlert confirmation
+            document.addEventListener('swalConfirmed', function(e) {
+                if (e.target.classList.contains('delete-staff')) {
+                    e.target.closest('form').submit();
+                }
+            });
+        });
+    </script>
+    @endpush
 @endsection
