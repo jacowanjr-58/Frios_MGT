@@ -229,7 +229,12 @@ class OwnerController extends Controller
                 unlink(public_path($owner->contract_document_path));
             }
 
-            $owner->franchises()->detach($franchise);
+            if ($franchise === 'all') {
+                $owner->franchises()->detach();
+            } else {
+                $owner->franchises()->detach($franchise);
+            }
+            
             $owner->delete();
 
             return redirect()->route('owner.index', ['franchise' => $franchise])->with('success', 'User deleted successfully.');

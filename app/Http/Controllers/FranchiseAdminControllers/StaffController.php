@@ -134,7 +134,11 @@ class StaffController extends Controller
         try {
             $user = User::find($id); // Find user by user_id
             if ($user) {
-                $user->franchises()->detach($franchisee);
+                if ($franchisee === 'all') {
+                    $user->franchises()->detach();
+                } else {
+                    $user->franchises()->detach($franchisee);
+                }
                 $user->delete();
             }
 
