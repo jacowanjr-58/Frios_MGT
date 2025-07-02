@@ -16,33 +16,15 @@ class OwnerController extends Controller
 {
     public function index($franchise)
     {
-
-       
         $franchiseId = intval($franchise);
-        
-        if (request()->ajax()) {
-            // Start with base query for franchise_admin users
-            $users = User::where('role', 'franchise_admin');
-            // Apply franchise filter based on priority:
-            // 1. Header dropdown filter (from frontend)
-            // 2. URL franchise parameter
-            if (request()->has('franchise_filter') && request()->franchise_filter != '') {
-                // Header dropdown filter takes priority
-                $users->whereHas('franchises', function($query) {
-                    $query->where('franchise_id', request()->franchise_filter);
-                });
-            } elseif ($franchise && $franchise != '0') {
-                // Use URL franchise parameter as fallback
-                $users->whereHas('franchises', function($query) use ($franchise) {
-                    $query->where('franchise_id', $franchise);
-                });
-            }
-            
-            // If only count is requested, return just the count
-            if (request()->has('count_only')) {
-                return response()->json(['count' => $users->count()]);
-            }
+        // Start with base query for franchise_admin users
+        $users = User::where('role', 'franchise_admin')->when($franchise !== 'all', function ($query) use ($franchise) {
+            $query->whereHas('franchises', function ($query) use ($franchise) {
+                $query->where('franchise_id', $franchise);
+            });
+        });
 
+        if (request()->ajax()) {
             return DataTables::of($users)
                 ->addColumn('franchise', function ($user) {
                     $franchises = $user->franchises;
