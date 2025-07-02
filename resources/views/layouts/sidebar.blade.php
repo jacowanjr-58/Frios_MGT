@@ -95,7 +95,7 @@
                         <li><a href="{{ route('pops.viewCalendar') }}">
                                 View Availablity</a></li>
                         @endcan
-                        @canany(['flavor_category.view', 'flavor_category.create', 'flavor_category.edit',
+                        @canany(['flavor_category.create', 'flavor_category.edit',
                         'flavor_category.delete'])
                         <li><a href="{{ route('fgpcategory.index') }}">
                                 Flavor Categories</a></li>
