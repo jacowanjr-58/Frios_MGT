@@ -94,12 +94,24 @@
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                                    <div class="mb-3 col-md-12">
+                                                    <div class="mb-3 col-md-6">
                                                         <label class="form-label">Date Joined</label>
                                                         <input type="date" class="form-control" id="date_joined"
                                                             name="date_joined" value="{{ old('date_joined') }}"
                                                             placeholder="Date Joined"  class="form-control @error('date_joined') is-invalid @enderror">
                                                         @error('date_joined')
+                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Franchise <span class="text-danger">*</span></label>
+                                                        <select class="select2 form-control @error('franchise_id') is-invalid @enderror" name="franchise_id" @if($franchisee != 'all') disabled @endif>
+                                                            <option value="">Select Franchise</option>
+                                                            @foreach($franchises as $franchise)
+                                                                <option value="{{ $franchise->id }}" @if($franchise->id == $franchisee) selected @endif>{{ $franchise->business_name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        @error('franchise_id')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>

@@ -77,8 +77,8 @@
                                         {{-- <td>#{{ str_pad($user->user_id, 7, '0', STR_PAD_LEFT) }}</td> --}}
                                         <td>{{ $user->name }}</td>
                                         <td>
-                                            @if ($user->franchisee)
-                                                {{ $user->franchisee->business_name }}
+                                            @if ($user->franchises->count() > 0)
+                                                {{ $user->franchises->first()->business_name }}
                                             @else
                                                 No Franchise Assigned
                                             @endif

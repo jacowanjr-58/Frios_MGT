@@ -14,7 +14,12 @@ class StaffController extends Controller
         $franchiseeId = $franchisee;
 
         $users = User::
-            whereIn('role', ['franchise_manager', 'franchise_staff'])
+            when($franchiseeId != 'all', function ($query) use ($franchiseeId) {
+                return $query->whereHas('franchises', function ($query) use ($franchiseeId) {
+                    $query->where('franchises.id', $franchiseeId);
+                });
+            })
+            ->whereIn('role', ['franchise_manager', 'franchise_staff'])
             ->get();
 
         $totalUsers = $users->count();
@@ -27,7 +32,8 @@ class StaffController extends Controller
 
     public function create($franchisee)
     {
-        return view('franchise_admin.staff.create', compact('franchisee'));
+        $franchises = Franchise::all();
+        return view('franchise_admin.staff.create', compact('franchisee', 'franchises'));
     }
 
 
@@ -41,9 +47,12 @@ class StaffController extends Controller
             'role' => 'required',
             'phone_number' => 'nullable|string|regex:/^\(\d{3}\) \d{3}-\d{4}$/',
             'date_joined' => 'nullable|date',
+            'franchise_id' => 'required|exists:franchises,id',
         ]);
 
-        $franchiseeId = $request->franchise;
+        // dd($request->all());
+
+        $franchiseeId = $request->franchise_id;
 
         $user = User::create([
             'name' => $request->name,
@@ -73,7 +82,9 @@ class StaffController extends Controller
 
     public function edit($franchisee, User $staff)
     {
-        return view('franchise_admin.staff.edit', compact('staff', 'franchisee'));
+        $franchises = Franchise::all();
+        $selectedFranchiseId = $staff->franchises->first()->id;
+        return view('franchise_admin.staff.edit', compact('staff', 'franchisee', 'franchises', 'selectedFranchiseId'));
     }
 
     public function update(Request $request, $franchisee, User $staff)
@@ -86,10 +97,11 @@ class StaffController extends Controller
             'role' => 'required',
             'phone_number' => 'nullable|string|regex:/^\(\d{3}\) \d{3}-\d{4}$/',
             'date_joined' => 'nullable|date',
+            'franchise_id' => 'required|exists:franchises,id',
         ]);
 
         // dd($request->all());
-        $franchiseeId = $request->franchise;
+        $franchiseeId = $request->franchise_id;
 
         $staff->update([
             'name' => $request->name,
