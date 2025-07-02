@@ -102,7 +102,7 @@
                                     <th>Franchise</th>
                                     <th>Email</th>
                                     <th>Role</th>
-                                    <th>Created Date</th>
+                                    <th>Joined Date</th>
                                     @canany(['owners.edit', 'owners.delete'])
                                         <th>Actions</th>
                                     @endcanany
@@ -142,7 +142,7 @@
                     { data: 'franchise', name: 'franchise' },
                     { data: 'email', name: 'email' },
                     { data: 'formatted_role', name: 'formatted_role' },
-                    { data: 'formatted_date', name: 'formatted_date' }
+                    { data: 'date_joined', name: 'date_joined' }
                 ];
 
                 @canany(['owners.edit', 'owners.delete'])

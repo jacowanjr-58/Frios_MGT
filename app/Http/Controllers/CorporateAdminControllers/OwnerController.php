@@ -23,7 +23,6 @@ class OwnerController extends Controller
         if (request()->ajax()) {
             // Start with base query for franchise_admin users
             $users = User::where('role', 'franchise_admin');
-            
             // Apply franchise filter based on priority:
             // 1. Header dropdown filter (from frontend)
             // 2. URL franchise parameter
@@ -60,8 +59,8 @@ class OwnerController extends Controller
                 ->addColumn('formatted_role', function ($user) {
                     return ucwords(str_replace('_', ' ', $user->role));
                 })
-                ->addColumn('formatted_date', function ($user) {
-                    return $user->created_at ? Carbon::parse($user->created_at)->format('d-m-Y') : 'N/A';
+                ->addColumn('date_joined', function ($user) {
+                    return $user->date_joined ?? 'N/A';
                 })
                 ->addColumn('action', function ($user) use ($franchise) {
                     $editUrl = route('owner.edit', ['franchise' => $franchise, 'owner' => $user->id]);

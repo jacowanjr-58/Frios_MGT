@@ -97,7 +97,7 @@
                                         <th>Email</th>
                                         <th>Phone Number</th>
                                         <th>Role</th>
-                                        <th>Created Date</th>
+                                        <th>Joined Date</th>
                                         @canany(['users.view', 'users.edit', 'users.delete'])
                                             <th>Actions</th>
                                         @endcanany
@@ -127,7 +127,7 @@
                     { data: 'email', name: 'email' },
                     { data: 'phone_display', name: 'phone_number' },
                     { data: 'role_display', name: 'role_display' },
-                    { data: 'formatted_date', name: 'created_at' },
+                    { data: 'date_joined', name: 'date_joined' },
                     { data: 'action', name: 'action', orderable: false, searchable: false }
                 ],
                 language: {
@@ -135,7 +135,7 @@
                         next: '<i class="fa fa-angle-double-right"></i>',
                         previous: '<i class="fa fa-angle-double-left"></i>'
                     }
-                },
+                },  
                 drawCallback: function (settings) {
                     // Initialize SweetAlert confirmation for delete buttons
                     window.initSwalConfirm({
