@@ -76,19 +76,12 @@
                                                     </div>
 
                                                     <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Password <span
-                                                                class="text-danger">*</span></label>
-                                                        <input type="password"
-                                                            class="form-control @error('password') is-invalid @enderror"
-                                                            name="password" placeholder="Password">
-                                                        @error('password')
-                                                            <div class="text-danger">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Assign Franchise <span
-                                                                class="text-danger">*</span></label>
+                                                        <label class="form-label">Assign Franchise 
+                                                            <span class="text-danger">*</span>
+                                                            @if ($franchises->count() == 0)
+                                                                <span class="text-primary ms-2 text-sm">No franchise available to assign it to owner</span>
+                                                            @endif
+                                                        </label>
                                                         <select
                                                             class="form-control select2"
                                                             name="franchise_id[]" multiple="multiple">
@@ -100,17 +93,6 @@
                                                             @endforeach
                                                         </select>
                                                         @error('franchise_id')
-                                                            <div class="text-danger">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <div class="mb-3 col-md-6">
-                                                        <label class="form-label">EIN/SSN</label>
-                                                        <input type="text"
-                                                            class="form-control @error('ein_ssn') is-invalid @enderror"
-                                                            name="ein_ssn" value="{{ old('ein_ssn') }}" 
-                                                            placeholder="Enter EIN or SSN">
-                                                        @error('ein_ssn')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
@@ -133,6 +115,28 @@
                                                             class="form-control @error('contract_document') is-invalid @enderror"
                                                             name="contract_document" accept=".pdf,.doc,.docx">
                                                         @error('contract_document')
+                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Password <span
+                                                                class="text-danger">*</span></label>
+                                                        <input type="password"
+                                                            class="form-control @error('password') is-invalid @enderror"
+                                                            name="password" placeholder="Password">
+                                                        @error('password')
+                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Confirm Password <span
+                                                                class="text-danger">*</span></label>
+                                                        <input type="password"
+                                                            class="form-control @error('password_confirmation') is-invalid @enderror"
+                                                            name="password_confirmation" placeholder="Confirm Password">
+                                                        @error('password_confirmation')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>

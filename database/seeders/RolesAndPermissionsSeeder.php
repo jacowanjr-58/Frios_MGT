@@ -451,9 +451,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'orders.view',
             'orders.create',
 
-            // Additional Charges Management (Corporate Admin)
-            'additional_charges.view',
-
             'inventory.view',
             'inventory.create',
             'inventory.edit',
@@ -521,9 +518,6 @@ class RolesAndPermissionsSeeder extends Seeder
             //orders
             'orders.view',
             'orders.create',
-
-            // Additional Charges Management (Corporate Admin)
-            'additional_charges.view',
 
             'inventory.view',
             'inventory.edit',

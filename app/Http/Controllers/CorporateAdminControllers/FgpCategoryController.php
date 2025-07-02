@@ -30,11 +30,11 @@ class FgpCategoryController extends Controller
                     return optional($category->parent)->name;
                 })
                 ->addColumn('action', function ($category) {
-                    $editUrl = route('franchise.fgpcategory.edit', [
+                    $editUrl = route('fgpcategory.edit', [
                         'franchise' => $category->id,
                         'fgpcategory' => $category->id
                     ]);
-                    $deleteUrl = route('franchise.fgpcategory.destroy', [
+                    $deleteUrl = route('fgpcategory.destroy', [
                         'franchise' => $category->id,
                         'fgpcategory' => $category->id
                     ]);

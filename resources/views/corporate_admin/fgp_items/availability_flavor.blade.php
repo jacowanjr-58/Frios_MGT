@@ -182,7 +182,7 @@ if (hasUpdatePermission) {
         let flavorId = $(this).data('id');
         let orderable = $(this).is(':checked') ? 1 : 0;
         $.ajax({
-            url: `/franchise/{{ $franchise }}/fgpitem/update-status/${flavorId}`,
+            url: `/fgpitem/update-status/${flavorId}`,
             type: "POST",
             data: {
                 _token: "{{ csrf_token() }}",
@@ -207,7 +207,7 @@ if (hasUpdatePermission) {
         let month = $(this).data('month');
         let available = $(this).is(':checked') ? 1 : 0;
         $.ajax({
-            url: `/franchise/{{ $franchise }}/fgpitem/update-month/${flavorId}`,
+            url: `/fgpitem/update-month/${flavorId}`,
             type: "POST",
             data: {
                 _token: "{{ csrf_token() }}",

@@ -53,7 +53,7 @@
         <div class="row mb-4 align-items-center">
             @can('flavor_category.create')
             <div class="col-xl-3 col-lg-4 mb-3 mb-lg-0">
-                <a href="{{ route('franchise.fgpcategory.create') }}"
+                <a href="{{ route('fgpcategory.create') }}"
                     class="btn btn-secondary btn-lg btn-block rounded text-white">
                     <i class="fa fa-plus me-2"></i> Add Category
                 </a>
@@ -126,7 +126,7 @@
         serverSide: true,
         responsive: true,
         ajax: {
-            url: "{{ route('franchise.fgpcategory.index') }}",
+            url: "{{ route('fgpcategory.index') }}",
             data: function (d) {
                 var selectedFranchise = $('#franchise-select').val();
                 if (selectedFranchise) {
@@ -173,7 +173,7 @@
             $('#category-count').text('Loading...');
             $('#franchise-label').text('Categories');
             $.ajax({
-                url: '{{ route("franchise.fgpcategory.index") }}',
+                url: '{{ route("fgpcategory.index") }}',
                 type: 'GET',
                 data: {
                     franchise_filter: franchiseId,

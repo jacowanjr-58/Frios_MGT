@@ -37,8 +37,8 @@ class UserManagementController extends Controller
                 ->addColumn('phone_display', function ($user) {
                     return $user->phone_number ?: '<span class="text-muted">No phone</span>';
                 })
-                ->addColumn('formatted_date', function ($user) {
-                    return $user->created_at ? $user->created_at->format('d/m/Y') : 'N/A';
+                ->addColumn('date_joined', function ($user) {
+                    return $user->date_joined ?? 'N/A';
                 })
                 ->addColumn('action', function ($user) {
                     $editUrl = route('users.edit', $user->id);

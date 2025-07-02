@@ -50,13 +50,7 @@
                                         <div class="basic-form">
 
                                             <!-- Display Success Message -->
-
-                                            @role('franchise_admin')
                                             <form action="{{ route('franchise.staff.update', ['franchise' => $franchisee, 'staff' => $staff->id]) }}" method="POST">
-                                            @endrole
-                                            @role('franchise_manager')
-                                            <form action="{{ route('franchise.staff.update', ['franchise' => $franchisee, 'staff' => $staff->id]) }}" method="POST">
-                                            @endrole
                                                 @csrf
                                                 @method('PUT')
 
@@ -74,12 +68,6 @@
                                                     </div>
 
                                                     <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Password (Leave empty to keep current)</label>
-                                                        <input type="password" class="form-control @error('password') is-invalid @enderror" name="password">
-                                                        @error('password') <div class="text-danger">{{ $message }}</div> @enderror
-                                                    </div>
-
-                                                    <div class="mb-3 col-md-6">
                                                         <label class="form-label">Assign Role <span class="text-danger">*</span></label>
                                                         <select class="form-control @error('role') is-invalid @enderror" name="role">
                                                             <option value="">Select Role</option>
@@ -92,7 +80,7 @@
                                                     </div>
 
 
-                                                    <div class="mb-3 col-md-12">
+                                                    <div class="mb-3 col-md-6">
                                                         <label class="form-label">Phone number</label>
                                                         <input type="text" class="form-control" id="phone_number"
                                                             name="phone_number" value="{{ old('phone_number', $staff->phone_number) }}"
@@ -101,7 +89,33 @@
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
+                                                    <div class="mb-3 col-md-12">
+                                                        <label class="form-label">Date Joined</label>
+                                                        <input 
+                                                            type="date" 
+                                                            class="form-control @error('date_joined') is-invalid @enderror" 
+                                                            id="date_joined"
+                                                            name="date_joined" 
+                                                            value="{{ old('date_joined', $staff->date_joined) }}"
+                                                            placeholder="Joined Date" 
+                                                            required
+                                                        >
+                                                        @error('date_joined')
+                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
 
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Password (Leave empty to keep current)</label>
+                                                        <input type="password" class="form-control @error('password') is-invalid @enderror" name="password">
+                                                        @error('password') <div class="text-danger">{{ $message }}</div> @enderror
+                                                    </div>
+
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Confirm Password</label>
+                                                        <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" name="password_confirmation">
+                                                        @error('password_confirmation') <div class="text-danger">{{ $message }}</div> @enderror
+                                                    </div>
                                                 </div>
 
                                                 <button type="submit" class="btn btn-primary bg-primary">Update staff</button>

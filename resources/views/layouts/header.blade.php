@@ -98,11 +98,19 @@
                         }
                     @endphp
                     @if($showDropdown && $currentRouteName != 'franchise.index')
-                        <div class="w-100 ml-32">
+                        <div class="w-100 ml-32" @if (request()->route()->getName() !== 'franchise.dashboard') title="To switch franchises, navigate to the dashboard." @endif>
                             <div class="d-flex align-items-center gap-3">
-                                <label for="franchise-select" class="form-label mb-0 text-nowrap fw-semibold">Select
-                                    Franchise:</label>
+                                @if (request()->route()->getName() !== 'franchise.dashboard')
+                                    <label for="franchise-select" class="form-label mb-0 text-nowrap fw-semibold">
+                                        Franchise Selected</label>
+                                        @else
+                                        <label for="franchise-select" class="form-label mb-0 text-nowrap fw-semibold">
+                                            Select Franchise</label>
+                                        @endif
                                 <select id="franchise-select" class="form-select select2 flex-grow-1"
+                                    @if (request()->route()->getName() !== 'franchise.dashboard')
+                                        disabled
+                                    @endif
                                     onchange="updateFranchiseInCurrentRoute(this.value)">
                                     @foreach($dropdownFranchises as $franchise)
                                         <option value="{{ $franchise->id }}" {{ $selectedFranchiseId == $franchise->id ? 'selected' : '' }}>
@@ -148,11 +156,7 @@
                             </a>
                             @endrole
                             @role('franchise_admin')
-<<<<<<< Updated upstream
-                            <a href="{{ route('franchise.dashboard', ['franchise' => $franchiseeId]) }}" class="dropdown-item ai-icon d-flex">
-=======
                             <a href="{{ route('franchise.dashboard', ['franchise' => request()->route('franchise') ?? session('franchise_id')]) }}" class="dropdown-item ai-icon d-flex">
->>>>>>> Stashed changes
                                 <svg id="icon-user1" xmlns="http://www.w3.org/2000/svg" class="text-primary" width="18"
                                     height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round">
@@ -163,25 +167,9 @@
                             </a>
                             @endrole
                             @role('franchise_admin')
-<<<<<<< Updated upstream
-                            <a href="{{ route('franchise.staff.index', ['franchise' => $franchiseeId]) }}"
-=======
-                            <a href="{{ route('franchise.staff.index', ['franchise' => request()->route('franchise') ?? session('franchise_id')]) }}"
->>>>>>> Stashed changes
-                                class="dropdown-item ai-icon d-flex">
-                                <i class="bi bi-people-fill text-primary"></i>
-                                <span class="ms-2">Manage Users</span>
-                            </a>
                             <a href="{{ route('franchise.stripe') }}" class="dropdown-item ai-icon d-flex">
                                 <i class="bi bi-stripe text-primary"></i>
                                 <span class="ms-2">Stripe</span>
-                            </a>
-                            @endrole
-                            @role('franchise_manager')
-                            <a href="{{ route('franchise.staff.index', ['franchise' => $franchiseeId]) }}"
-                                class="dropdown-item ai-icon d-flex">
-                                <i class="bi bi-people-fill text-primary"></i>
-                                <span class="ms-2">Manage Users</span>
                             </a>
                             @endrole
                             <a href="{{ route('logout') }}" class="dropdown-item ai-icon d-flex"

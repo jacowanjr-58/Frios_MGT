@@ -14,10 +14,8 @@ use Yajra\DataTables\DataTables;
 
 class FgpItemsController extends Controller
 {
-    public function index($franchise)
+    public function index()
     {
-        $franchise = Franchise::findOrFail(intval($franchise));
-
         if (request()->ajax()) {
             // Show ALL items, not filtered by franchise (FGP items are global cororate items)
             $items = FgpItem::with('categories');
@@ -29,9 +27,9 @@ class FgpItemsController extends Controller
                         ->map(fn($name) => "<span class='badge bg-primary me-2 mb-1'>{$name}</span>")
                         ->implode(' ');
                 })
-                ->addColumn('action', function ($item) use ($franchise) {
-                    $editUrl = route('franchise.fgpitem.edit', [$franchise->id, $item->id]);
-                    $deleteUrl = route('franchise.fgpitem.destroy', [$franchise->id, $item->id]);
+                ->addColumn('action', function ($item) {
+                    $editUrl = route('fgpitem.edit', [$item->id]);
+                    $deleteUrl = route('fgpitem.destroy', [$item->id]);
 
                     $actions = '<div class="d-flex">';
                     if (Auth::user()->can('frios_flavors.edit')) {
@@ -52,18 +50,17 @@ class FgpItemsController extends Controller
 
 
         $totalItems =  FgpItem::with('categories')->count();
-        return view('corporate_admin.fgp_items.index', compact('totalItems', 'franchise'));
+        return view('corporate_admin.fgp_items.index', compact('totalItems'));
     }
 
 
 
-    public function create($franchise)
+    public function create()
     {
-        $franchise = Franchise::findOrFail(intval($franchise));
         // Load top-level categories with their child subcategories
         $parents = FgpCategory::with('children')->whereNull('parent_id')->get();
 
-        return view('corporate_admin.fgp_items.create', compact('parents', 'franchise'));
+        return view('corporate_admin.fgp_items.create', compact('parents'));
     }
 
 
@@ -81,10 +78,8 @@ This approach keeps your many-to-many assignments clean and in sync with user se
  */
 
 
-    public function store(Request $request, $franchise)
+    public function store(Request $request)
     {
-        $franchise = Franchise::findOrFail(intval($franchise));
-
         // Validate input including array of category IDs
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:fgp_items,name',
@@ -116,27 +111,25 @@ This approach keeps your many-to-many assignments clean and in sync with user se
         // This will insert or update rows linking the item to each selected category ID.
         $item->categories()->sync($request->category_ids ?? []);
 
-        return redirect()->route('franchise.fgpitem.index', $franchise->id)
+            return redirect()->route('fgpitem.index')
             ->with('success', 'Item created successfully.');
     }
 
 
 
-    public function edit($franchise, FgpItem $fgpitem)
+    public function edit(FgpItem $fgpitem)
     {
-        $franchise = Franchise::findOrFail(intval($franchise));
         $parents = FgpCategory::with('children')->whereNull('parent_id')->get();
+        $fgpitem = FgpItem::findOrFail($fgpitem->id);
 
-        return view('corporate_admin.fgp_items.edit', compact('parents', 'franchise', 'fgpitem'));
+        return view('corporate_admin.fgp_items.edit', compact('parents', 'fgpitem'));
     }
 
 
 
 
-    public function update(Request $request, $franchise, FgpItem $fgpitem)
+    public function update(Request $request, FgpItem $fgpitem)
     {
-        $franchise = Franchise::findOrFail(intval($franchise));
-
         $validated = $request->validate([
             'name'               => 'required|string|max:255',
             'description'        => 'nullable|string',
@@ -164,12 +157,16 @@ This approach keeps your many-to-many assignments clean and in sync with user se
         // Sync pivot relations for edits as well
         $fgpitem->categories()->sync($request->category_ids ?? []);
 
-        return redirect()->route('franchise.fgpitem.index', $franchise->id)
+        return redirect()->route('fgpitem.index')
             ->with('success', 'Item updated successfully.');
     }
 
     public function destroy(FgpItem $fgpitem)
     {
+        if($fgpitem->orderItems->count() > 0) {
+            return redirect()->route('fgpitem.index')->with('error', 'Fgp Item cannot be deleted because it has associated orders.');
+        }
+
         try {
             // Delete associated images if they exist
             if ($fgpitem->image1) {
@@ -219,7 +216,7 @@ This approach keeps your many-to-many assignments clean and in sync with user se
         }
     }
 
-    public function availability($franchise)
+    public function availability()
     {
         // Check permission for viewing Frios Availability
         if (!Auth::check() || !Auth::user()->can('frios_availability.view')) {
@@ -230,13 +227,13 @@ This approach keeps your many-to-many assignments clean and in sync with user se
         $flavors = FgpItem::with('categories')->orderby('name')->get();
 
         $totalItems = $flavors->count();
-        return view('corporate_admin.fgp_items.availability_flavor', compact('flavors', 'totalItems', 'franchise'));
+        return view('corporate_admin.fgp_items.availability_flavor', compact('flavors', 'totalItems'));
     }
 
 
     //this is used in the availability_flavor.blade.php to update the orderable status of an item
     //it is called via an AJAX request when the user toggles the orderable switch
-    public function updateStatus(Request $request, $franchise, $id)
+    public function updateStatus(Request $request, $id)
     {
         // Check permission for updating Frios Availability
         if (!Auth::check() || !Auth::user()->can('frios_availability.edit')) {
@@ -252,7 +249,7 @@ This approach keeps your many-to-many assignments clean and in sync with user se
 
 
 
-    public function updateMonth(Request $request, $franchise, $id)
+    public function updateMonth(Request $request, $id)
     {
         // Check permission for updating Frios Availability
         if (!Auth::check() || !Auth::user()->can('frios_availability.edit')) {

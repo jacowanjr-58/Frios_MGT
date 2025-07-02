@@ -59,7 +59,7 @@
                 @can('frios_flavors.create')
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
 
-                        <a href="{{ route('franchise.fgpitem.create', ['franchise' => $franchise]) }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+
+                        <a href="{{ route('fgpitem.create') }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+
                             New Item</a>
                     </div>
                     <div class="col-xl-9 col-lg-8">
@@ -150,7 +150,7 @@
                         processing: true,
                         serverSide: true,
                         ajax: {
-                            url: "{{ route('franchise.fgpitem.index', ['franchise' => $franchise]) }}",
+                            url: "{{ route('fgpitem.index') }}",
                             error: function (xhr, error, thrown) {
                                 console.error('DataTables error:', error);
                                 if (xhr.responseJSON) {
@@ -213,7 +213,7 @@
                         let orderableValue = $(this).val();
 
                         $.ajax({
-                            url: "{{ route('franchise.fgpitem.updateOrderable', ['franchise' => $franchise]) }}",
+                            url: "{{ route('fgpitem.updateOrderable') }}",
                             type: "POST",
                             data: {
                                 _token: "{{ csrf_token() }}",

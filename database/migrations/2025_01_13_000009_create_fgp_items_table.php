@@ -13,8 +13,6 @@ return new class extends Migration {
         if (!Schema::hasTable('fgp_items')) {
             Schema::create('fgp_items', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('franchise_id')->constrained('franchises');
-                //$table->foreignId('fgp_category_id')->constrained('fgp_categories');
                 $table->string('name');
                 $table->text('description')->nullable();
                 $table->decimal('case_cost', 10, 2);

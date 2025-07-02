@@ -227,6 +227,16 @@
                 });
             @endif
 
+            @if (session('error'))
+                let errorMessage = "{{ session('error') }}".toLowerCase();
+                errorMessage = errorMessage.charAt(0).toUpperCase() + errorMessage.slice(1);
+
+                Toast.fire({
+                    icon: 'error',
+                    title: errorMessage
+                });
+            @endif
+
                 // Check for error message
                 @if ($errors->any())
                     let errorMessage = "There were some errors with your submission!".toLowerCase();
