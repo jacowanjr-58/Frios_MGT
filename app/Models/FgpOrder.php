@@ -21,10 +21,7 @@ class FgpOrder extends Model
     protected $casts = [
         'date_transaction' => 'datetime',
         'label_created_at' => 'datetime',
-        'delivered_at' => 'datetime',
         'deleted_at' => 'datetime',
-        'is_delivered' => 'boolean',
-        'is_paid' => 'boolean',
     ];
 
     protected static function booted()
@@ -47,7 +44,7 @@ class FgpOrder extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function franchise()

@@ -30,12 +30,11 @@ return new class extends Migration
             $table->string('shipstation_order_id')->nullable();
             $table->text('shipstation_label_url')->nullable();
             $table->longText('shipstation_raw_response')->nullable();
-            $table->decimal('amount', 10, 2);
+            $table->decimal('amount', 10, 2)->default(0);
             $table->decimal('additional_charges', 10, 2)->default(0);
-            $table->decimal('total_amount', 10, 2);
+            $table->decimal('total_amount', 10, 2)->default(0);
             $table->boolean('is_paid')->default(0);
             $table->string('shipstation_status')->default('awaiting_payment')->nullable();
-            $table->boolean('is_delivered')->default(0);
             $table->timestamp('delivered_at')->nullable();
             $table->string('shipstation_webhook_event')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users', 'id');

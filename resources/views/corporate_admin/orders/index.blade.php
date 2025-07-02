@@ -267,8 +267,14 @@
             </div>
             <!-- Stats Card -->
             <div class="row mb-4 align-items-center">
-              
-                <div class="col-xl-12 col-lg-8">
+
+                <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
+                    <div class="d-flex align-items-center">
+                        <a href="{{ route('franchise.orderpops.create', ['franchise' => $franchiseId]) }}"
+                            class="btn btn-secondary btn-lg btn-block rounded text-white">Create Order</a>
+                    </div>
+                </div>
+                <div class="col-xl-9 col-lg-9">
                     <div class="card m-0">
                         <div class="card-body py-3 py-md-2">
                             <div class="d-flex align-items-center">
@@ -283,6 +289,8 @@
                         </div>
                     </div>
                 </div>
+
+
             </div>
 
             <!-- Professional Filters Section -->
@@ -616,11 +624,11 @@
                         status: status,
                         _token: '{{ csrf_token() }}'
                     },
-                    beforeSend: function() {
+                    beforeSend: function () {
                         // Show loading state
                         console.log('Updating order status...');
                     },
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             // Show success message with SweetAlert
                             Swal.fire({
@@ -630,7 +638,7 @@
                                 timer: 3000,
                                 showConfirmButton: false
                             });
-                            
+
                             // Reload the table to reflect changes
                             $('#orders-table').DataTable().ajax.reload();
                         } else {
@@ -641,15 +649,15 @@
                             });
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.error('Error updating order status:', error);
                         console.error('Response:', xhr.responseText);
-                        
+
                         let errorMessage = 'Error updating order status. Please try again.';
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMessage = xhr.responseJSON.message;
                         }
-                        
+
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',

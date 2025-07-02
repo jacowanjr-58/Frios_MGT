@@ -110,8 +110,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/orders/create', [ViewOrdersController::class, 'create'])->name('orders.create')->middleware('permission:orders.create');
         Route::post('/orders', [ViewOrdersController::class, 'store'])->name('orders.store')->middleware('permission:orders.create');
         Route::post('/orders/update-status', [ViewOrdersController::class, 'updateStatus'])->name('orders.updateStatus')->middleware('permission:orders.edit');
-        Route::post('/orderpops/confirm', [ViewOrdersController::class, 'confirmOrder'])->name('orderpops.confirm')->middleware('permission:orders.create');
-        Route::post('/orderpops/store', [ViewOrdersController::class, 'store'])->name('orderpops.store')->middleware('permission:orders.create');
+        // Route::post('/orderpops/confirm', [ViewOrdersController::class, 'confirmOrder'])->name('orderpops.confirm')->middleware('permission:orders.create');
+        // Route::post('/orderpops/store', [ViewOrdersController::class, 'store'])->name('orderpops.store')->middleware('permission:orders.create');
         Route::get('/orders/{orderId}/edit', [ViewOrdersController::class, 'edit'])->name('orders.edit')->middleware('permission:orders.edit');
         Route::put('/orders/{orders}', [ViewOrdersController::class, 'update'])->name('orders.update')->middleware('permission:orders.edit');
         Route::delete('/orders/{orders}', [ViewOrdersController::class, 'destroy'])->name('orders.destroy')->middleware('permission:orders.delete');

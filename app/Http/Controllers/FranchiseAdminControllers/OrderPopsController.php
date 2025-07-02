@@ -92,10 +92,12 @@ class OrderPopsController extends Controller
 
     public function create($franchisee=null)
     {
+
+        $franchise = intval($franchisee);
         $currentMonth = (string) Carbon::now()->month;
 
         $categories = FgpCategory::with(['children.items' => function ($q) use ($currentMonth) {
-            $q->select('fgp_items.fgp_item_id', 'fgp_items.name', 'fgp_items.image1', 'fgp_items.case_cost')
+            $q->select('fgp_items.id', 'fgp_items.name', 'fgp_items.image1', 'fgp_items.case_cost')
                 ->where('orderable', 1)
                 ->where('internal_inventory', '>', 0)
                 ->whereJsonContains('dates_available', $currentMonth)
@@ -105,11 +107,12 @@ class OrderPopsController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('franchise_admin.orderpops.create', compact('categories'));
+        return view('franchise_admin.orderpops.create', compact('categories', 'franchise'));
     }
 
     public function confirmOrder(Request $request, $franchise)
     {
+        // dd($franchise);
         $franchise = intval($franchise);
         $items = json_decode($request->input('ordered_items'), true);
 
@@ -149,9 +152,10 @@ class OrderPopsController extends Controller
         return view('franchise_admin.orderpops.confirm', compact('items', 'requiredCharges', 'optionalCharges', 'customers', 'franchise', 'franchisee'));
     }
 
-    public function store(Request $request , $franchisee)
+    public function store(Request $request, Franchise $franchise)
     {
-        $franchiseeId = intval($franchisee);
+       
+        // $franchise = intval($franchise);
         $minCases = 12;
         $factorCase = 3;
 
@@ -175,27 +179,35 @@ class OrderPopsController extends Controller
             'optional_charges' => 'nullable|array',
             'optional_charges.*' => 'nullable|numeric',
             'customer_id' => 'nullable|exists:customers,id',
-            'payment_reference' => 'nullable|string|max:255'
+            'payment_reference' => 'nullable|string|max:255',
         ];
-
+       
         // Add payment validation rules if payment is being made
         if ($request->is_paid === '1') {
             $rules['stripeToken'] = 'required|string';
             $rules['cardholder_name'] = 'required|string|max:191';
         }
 
+        // Validate the request first
         $validated = $request->validate($rules);
+        
+        // Use the validated franchise_id from the form
+        // $franchiseeId = $validated['franchise_id'];
+        
+        Log::info('Using validated franchise_id: ' .  $franchise->id);
 
         // Get charges for order charge insertion
         $requiredCharges = AdditionalCharge::where('charge_optional', 'required')->where('status', 1)->get();
         $optionalCharges = AdditionalCharge::where('charge_optional', 'optional')->where('status', 1)->get();
 
+        
         $totalCaseQty = collect($validated['items'])->sum('unit_number');
 
         if ($totalCaseQty < $minCases) {
             return redirect()->back()->withErrors(['Order must have at least ' . $minCases . ' cases.']);
         }
 
+        // dd($totalCaseQty % $factorCase);
         if ($totalCaseQty % $factorCase !== 0) {
             return redirect()->back()->withErrors(['Order quantity must be a multiple of ' . $factorCase . '.']);
         }
@@ -211,7 +223,7 @@ class OrderPopsController extends Controller
                     'description' => 'Order Payment by: ' . $validated['cardholder_name'],
                     'source' => $validated['stripeToken'],
                     'metadata' => [
-                        'franchise_id' => $franchiseeId,
+                        'franchise_id' => $franchise->id,
                         'order_id' => $order->id ?? null,
                     ],
                 ]);
@@ -219,12 +231,11 @@ class OrderPopsController extends Controller
                 return redirect()->back()->withErrors(['Stripe Error: ' . $e->getMessage()]);
             }
         }
+    
 
         $order = FgpOrder::create([
-            'user_id' => Auth::user()->id,
-            'franchise_id' => $franchiseeId,
-            'date_transaction' => now(),
-            'status' => 'Pending',
+            'order_num' => 'FGP-' . time() . '-' . rand(1000, 9999),
+            'franchise_id' => $franchise->id,
             'is_paid' => $request->is_paid === '1',
             'ship_to_name' => $validated['ship_to_name'],
             'ship_to_address1' => $validated['ship_to_address1'],
@@ -243,15 +254,15 @@ class OrderPopsController extends Controller
         $orderItems = [];
         $noteLines[] = "Ordered Items:";
         $itemsSubtotal = 0;
-
         foreach ($validated['items'] as $index => $item) {
-            DB::table('fgp_order_details')->insert([
+            DB::table('fgp_order_items')->insert([
                 'fgp_order_id' => $order->id,
                 'fgp_item_id' => $item['fgp_item_id'],
-                'unit_cost' => $item['unit_cost'],
-                'unit_number' => $item['unit_number'],
-                'date_transaction' => now(),
-                'ACH_data' => null,
+                'unit_price' => $item['unit_cost'],
+                'quantity' => $item['unit_number'], 
+                'price' => $item['unit_cost'] * $item['unit_number'],
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
             $fgpItem = \App\Models\FgpItem::find($item['fgp_item_id']);
@@ -304,9 +315,9 @@ class OrderPopsController extends Controller
 
         if ($request->is_paid === '1') {
             OrderTransaction::create([
-                'franchise_id' => Auth::user()->franchise_id,
+                'franchise_id' => $franchise->id,
                 'fgp_order_id' => $order->id,
-                'order_num' => $orderNum,
+                // 'order_num' => $orderNum,   
                 'cardholder_name' => $validated['cardholder_name'],
                 'amount' => $validated['grandTotal'],
                 'stripe_payment_intent_id' => $charge->id,
@@ -316,16 +327,41 @@ class OrderPopsController extends Controller
                 'stripe_status' => $charge->status,
             ]);
         } else {
-            $invoice = Invoice::create([
-                'franchise_id' => Auth::user()->franchise_id,
+            // Determine which entity to associate the invoice with (prioritize customer over franchise)
+            $invoiceableType = null;
+            $invoiceableId = null;
+            
+            if (!empty($validated['customer_id'])) {
+                $customer = Customer::find($validated['customer_id']);
+                if ($customer) {
+                    $invoiceableType = Customer::class;
+                    $invoiceableId = $customer->id;
+                }
+            }
+            
+            // If no customer, associate with franchise
+            if (!$invoiceableType) {
+                $franchise = Franchise::find($franchise->id);
+                if ($franchise) {
+                    $invoiceableType = Franchise::class;
+                    $invoiceableId = $franchise->id;
+                }
+            }
+
+            $invoice =Auth::user()->invoices()->create([
+                'franchise_id' => $franchise->id, // Keep for backward compatibility
+                'fgp_order_id' => $order->id,
                 'name' => Auth::user()->name,
-                'order_num' => $orderNum,
+                // 'order_num' => $orderNum,
                 'total_price' => $validated['grandTotal'],
                 'payment_status' => 'unpaid',
                 'direction' => 'payable',
+                'date' => now(),
+                'tax_price' => 0,
                 'due_date'  =>  Carbon::now()->addDays(7),
-                'note' => mb_strimwidth($invoiceNotes, 0, 255, '...')
+                'notes_internal' => mb_strimwidth($invoiceNotes, 0, 255, '...')
             ]);
+          
         }
 
         $shipStationPayload = [
@@ -348,7 +384,7 @@ class OrderPopsController extends Controller
         $isPaid = $request->is_paid === '1';
         $invoiceId = $orderNum ?? null;
 
-                $shipstation = new ShipStationService();
+         $shipstation = new ShipStationService();
         $shipstation->sendOrder($shipStationPayload, $isPaid, $invoiceId);
 
         // Calculate totals for order and charges
@@ -370,21 +406,24 @@ class OrderPopsController extends Controller
             ]);
         }
         
-        // Insert Optional Charges into FgpOrderCharge table
+        // Insert Optional Charges into fgp_order_charges table (matching selected checkboxes)
         if (!empty($validated['optional_charges'])) {
-            foreach ($optionalCharges as $index => $charge) {
-                if (isset($validated['optional_charges'][$index]) && !empty($validated['optional_charges'][$index])) {
-                    $chargeAmount = $charge->charge_type === 'percentage' 
-                        ? ($itemsSubtotal * $charge->charge_price / 100)
-                        : $charge->charge_price;
+            foreach ($validated['optional_charges'] as $selectedChargePrice) {
+                // Find the matching charge by price
+                $matchingCharge = $optionalCharges->where('charge_price', $selectedChargePrice)->first();
+                
+                if ($matchingCharge !== null) {
+                    $chargeAmount = $matchingCharge->charge_type === 'percentage' 
+                        ? ($itemsSubtotal * $matchingCharge->charge_price / 100)
+                        : $matchingCharge->charge_price;
                         
                     $additionalChargesTotal += $chargeAmount;
                     
-                    \App\Models\AdditionalChargeOrder::create([
+                    FgpOrderCharge::create([
                         'order_id' => $order->id,
-                        'charges_name' => $charge->charge_name,
+                        'charges_name' => $matchingCharge->charge_name,
                         'charge_amount' => $chargeAmount,
-                        'charge_type' => $charge->charge_type,
+                        'charge_type' => $matchingCharge->charge_type,
                     ]);
                 }
             }
@@ -395,10 +434,11 @@ class OrderPopsController extends Controller
             'order_num' => $orderNum,
             'amount' => $itemsSubtotal,
             'additional_charges' => $additionalChargesTotal,
-            'total_amount' => $validated['grandTotal'],
+            'total_amount' => $itemsSubtotal + $additionalChargesTotal,
+            // 'grand_total' => $validated['grandTotal'],
         ]);
 
-        return redirect()->route('franchise.orderpops.view')
+        return redirect()->route('franchise.orders' , ['franchise' => $franchise->id])
             ->with('success', 'Order placed successfully ' . ($request->is_paid === '1' ? 'and paid!' : '. An invoice has been generated.'));
     }
 

@@ -38,4 +38,12 @@ class Customer extends Model
     {
         return $this->belongsTo(Franchise::class, 'franchise_id');
     }
+
+    /**
+     * Polymorphic relationship - Customer can have many invoices
+     */
+    public function invoices()
+    {
+        return $this->morphMany(Invoice::class, 'invoiceable');
+    }
 }
