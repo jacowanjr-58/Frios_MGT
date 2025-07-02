@@ -81,7 +81,6 @@ class FgpOrderSeeder extends Seeder
                 'total_amount' => $faker->randomFloat(2, 25.00, 500.00),
                 'is_paid' => $isPaid,
                 'shipstation_status' => $faker->randomElement($shipstationStatuses),
-                'is_delivered' => $isDelivered,
                 'delivered_at' => $deliveredAt,
                 'shipstation_webhook_event' => $status === 'Delivered' ? 'item_shipped' : null,
                

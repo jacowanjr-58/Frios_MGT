@@ -219,6 +219,36 @@
             vertical-align: top;
             padding-left: 15px;
         }
+
+        /* Button loading state */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .btn-loading .btn-content {
+            opacity: 0;
+        }
+
+        .btn-loading::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin-top: -10px;
+            margin-left: -10px;
+            border: 2px solid transparent;
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: btn-spin 1s linear infinite;
+        }
+
+        @keyframes btn-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
     <div class="content-body default-height">
         <!-- row -->
@@ -492,7 +522,9 @@
                                     <div class="mt-4 text-center">
                                         <button type="submit" id="submit-button"
                                             class="btn btn-primary btn-lg fw-bold shadow-lg px-5">
-                                            <i class="fa fa-check-circle me-2"></i>Confirm Order
+                                            <span class="btn-content">
+                                                <i class="fa fa-check-circle me-2"></i>Confirm Order
+                                            </span>
                                         </button>
                                         <p class="text-muted mt-2 small text-white">
                                             By confirming, you agree to place this order with the specified details.
@@ -532,16 +564,32 @@
             const tokenInput = document.getElementById('stripeToken');
             const isPaidInput = document.getElementById('is_paid');
 
+            // Function to show loading state
+            function showButtonLoading() {
+                submitButton.classList.add('btn-loading');
+                submitButton.disabled = true;
+            }
+
+            // Function to hide loading state
+            function hideButtonLoading() {
+                submitButton.classList.remove('btn-loading');
+                submitButton.disabled = false;
+            }
+
             form.addEventListener('submit', async function (e) {
                 e.preventDefault();
+                
+                // Show loading state immediately
+                showButtonLoading();
 
                 // If no card number entered, proceed without Stripe
                 if (cardholderName.value.trim() === "") {
-                    form.submit();  // Allow fallback to invoice logic
+                    // Small delay to show loading, then submit
+                    setTimeout(() => {
+                        form.submit();  // Allow fallback to invoice logic
+                    }, 300);
                     return;
                 }
-
-                submitButton.disabled = true;
 
                 // Try to create a Stripe token
                 const { token, error } = await stripe.createToken(cardNumber, {
@@ -550,11 +598,14 @@
 
                 if (error) {
                     errorElement.textContent = error.message;
-                    submitButton.disabled = false;
+                    hideButtonLoading(); // Hide loading on error
                 } else {
                     tokenInput.value = token.id;
                     isPaidInput.value = "1";
-                    form.submit();
+                    // Small delay to show loading, then submit
+                    setTimeout(() => {
+                        form.submit();
+                    }, 300);
                 }
             });
         });

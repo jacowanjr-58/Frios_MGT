@@ -11,19 +11,7 @@ use Illuminate\Support\Str;
 class FgpOrder extends Model
 {
     use HasFactory, SoftDeletes;
-
-    protected $table = 'fgp_orders';
-
-    public $timestamps = true; // if you have timestamps (created_at, updated_at)
-
-
     protected $guarded = [];
-    protected $casts = [
-        'date_transaction' => 'datetime',
-        'label_created_at' => 'datetime',
-        'deleted_at' => 'datetime',
-    ];
-
     protected static function booted()
     {
         static::creating(function ($fgpOrder) {
@@ -40,6 +28,18 @@ class FgpOrder extends Model
                 $fgpOrder->franchise_id = session('franchise_id') ?? null;
             }
         });
+    }
+    public function getDateJoinedAttribute($value)
+    {
+        return $value ? date('m-d-Y', strtotime($value)) : null;
+    }
+
+    /**
+     * Get the created_at formatted as mm-dd-yyyy
+     */
+    public function getCreatedAtAttribute($value)
+    {
+        return $value ? date('m-d-Y', strtotime($value)) : null;
     }
 
     public function user()
