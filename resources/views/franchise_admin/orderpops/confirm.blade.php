@@ -83,6 +83,7 @@
         .section-title {
             color: #333;
             font-weight: 600;
+            margin-top: 0;
             margin-bottom: 20px;
             font-size: 1.1rem;
             border-bottom: 2px solid #667eea;
@@ -202,45 +203,62 @@
             color: #856404 !important;
             font-weight: 600;
         }
+
+        /* Layout alignment classes */
+        .form-layout-table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        .order-content-cell {
+            vertical-align: top;
+            padding-right: 15px;
+        }
+
+        .shipping-content-cell {
+            vertical-align: top;
+            padding-left: 15px;
+        }
     </style>
     <div class="content-body default-height">
         <!-- row -->
         <div class="container-fluid">
             <div class="order-confirm-container">
 
-            <div class="form-head mb-4 d-flex flex-wrap align-items-center">
-                <div class="me-auto">
+                <div class="form-head mb-4 d-flex flex-wrap align-items-center">
+                    <div class="me-auto">
                         <h2 class="font-w600 mb-0 text-dark">Dashboard \</h2>
                         <p class="text-muted text-white">Confirm Order</p>
-                </div>
-                    <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                    </div>
+                    <a href="{{ route('franchise.orderpops.create' , ['franchise' => $franchise]) }}" class="btn btn-outline-secondary">
                         <i class="fa fa-arrow-left me-2"></i> Back to Items
-                </a>
-            </div>
+                    </a>
+                </div>
 
-            <div class="row">
-                <div class="col-xl-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4 class="card-title">Confirm Order</h4>
-                        </div>
-                        <div class="card-body">
-                            @if ($errors->any())
-                                <div class="alert alert-danger">
-                                    <ul>
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">Confirm Order</h4>
+                            </div>
+                            <div class="card-body">
+                                @if ($errors->any())
+                                    <div class="alert alert-danger">
+                                        <ul>
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
 
-                                <form id="stripe-payment-form" method="POST" action="{{ route('franchise.orderpops.store', ['franchise' => $franchise]) }}">
+                                <form id="stripe-payment-form" method="POST"
+                                    action="{{ route('franchise.orderpops.store', ['franchise' => $franchise]) }}">
                                     @csrf
-
-                                    <table class="form-head mb-4 d-flex flex-wrap align-items-center">
+                                    <input type="hidden" name="franchise_id" value="{{ $franchise }}" id="franchise_id">
+                                    <table class="form-head mb-4 form-layout-table">
                                         <tr>
-                                            <td width="60%">
+                                            <td width="60%" class="order-content-cell">
                                                 <!--   Order Contents        -->
                                                 <div class="table-responsive">
                                                     <table class="table mb-4 fs-14 card-table">
@@ -270,35 +288,41 @@
                                                                 </tr>
                                                             @endforeach
 
-                                                            @foreach ($optionalCharges as $charge)
-                                                                <tr class="optional-charge-row">
-                                                                                                            <td colspan="3">
-                                                                        <div class="d-flex align-items-center">
-                                                                            <i class="fa fa-plus-circle text-info me-2"></i>
-                                                                            <div>
-                                                                                                                        <strong>{{ $charge->charge_name }}</strong>
-                                                                                <small class="text-muted d-block">(Additional
-                                                                                    Service)</small>
-                                                                            </div>
-                                                                        </div>
-                                                                        <input type="hidden" class="optional-charge-applied"
-                                                                                                                        value="{{ $charge->charge_price }}"
-                                                                                                                        data-charge="{{ $charge->charge_price }}"
-                                                                            data-charge-type="{{ $charge->charge_type }}"
-                                                                            name="optional_charges[]">
-                                                                                                            </td>
-                                                                                                            <td>
-                                                                        <span class="badge bg-info text-white px-3 py-2">
-                                                                            {{ $charge->charge_type == 'percentage' ? $charge->charge_price . '%' : '$' . number_format($charge->charge_price, 2) }}
-                                                                        </span>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                            @endforeach
+                                                            
+
+                                                                                                        @foreach ($optionalCharges as $charge)
+                                                <tr class="optional-charge-row">
+                                                    <td colspan="3">
+                                                        <div class="form-check d-flex align-items-center">
+                                                            <input class="form-check-input optional-charge me-3" type="checkbox" 
+                                                                id="charge_{{ $charge->id }}"
+                                                                name="optional_charges[]" 
+                                                                value="{{ $charge->charge_price }}"
+                                                                data-charge="{{ $charge->charge_price }}" 
+                                                                data-charge-type="{{ $charge->charge_type }}" 
+                                                                {{ in_array($charge->charge_price, old('optional_charges', [])) ? 'checked' : '' }}
+                                                                onchange="updateChargeCalculations()">
+                                                            <label class="form-check-label d-flex align-items-center" for="charge_{{ $charge->id }}">
+                                                                <i class="fa fa-plus-circle text-info me-2"></i>
+                                                                <div>
+                                                                    <strong>{{ $charge->charge_name }}</strong>
+                                                                    <small class="text-muted d-block">(Optional)</small>
+                                                                </div>
+                                                            </label>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-info text-white px-3 py-2">
+                                                            {{ $charge->charge_type == 'percentage' ? $charge->charge_price . '%' : '$' . number_format($charge->charge_price, 2) }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
 
                                                             {{-- Professional Totals Section --}}
                                                             <!-- <tr class="totals-separator">
-                                                                <td colspan="4"><hr class="my-2"></td>
-                                                            </tr> -->
+                                                                    <td colspan="4"><hr class="my-2"></td>
+                                                                </tr> -->
                                                             <tr class="subtotal-row">
                                                                 <td colspan="3" class="text-end fw-bold text-muted">Items
                                                                     Subtotal:</td>
@@ -340,7 +364,7 @@
                                             </td>
 
                                             <!-- Shipping -->
-                                            <td class="shipping-section">
+                                            <td class="shipping-section shipping-content-cell">
                                                 <h5 class="section-title">
                                                     <i class="fa fa-shipping-fast me-2"></i>Shipping Information
                                                 </h5>
@@ -360,7 +384,7 @@
                                                     <label for="customer_id" class="form-label fw-bold">Choose Customer
                                                         (optional)</label>
                                                     <select name="customer_id" id="customer_id"
-                                                        class="form-select form-control"
+                                                        class="form-select form-control select2"
                                                         onchange="autofillFromCustomer(this.value)">
                                                         <option value="">-- Select Customer --</option>
                                                         @foreach($customers as $customer)
@@ -373,38 +397,38 @@
 
                                                 <div class="row">
                                                     <div class="col-12 mb-3">
-                                                    <label for="ship_to_name" class="form-label">Recipient Name</label>
-                                                    <input type="text" name="ship_to_name" id="ship_to_name"
+                                                        <label for="ship_to_name" class="form-label">Recipient Name</label>
+                                                        <input type="text" name="ship_to_name" id="ship_to_name"
                                                             class="form-control" value="{{ old('ship_to_name') }}"
                                                             placeholder="Enter recipient name">
-                                                </div>
+                                                    </div>
 
                                                     <div class="col-12 mb-3">
                                                         <label for="ship_to_address1" class="form-label">Address Line
                                                             1</label>
-                                                    <input type="text" name="ship_to_address1" id="ship_to_address1"
+                                                        <input type="text" name="ship_to_address1" id="ship_to_address1"
                                                             class="form-control" value="{{ old('ship_to_address1') }}"
                                                             placeholder="Street address">
-                                                </div>
+                                                    </div>
 
                                                     <div class="col-12 mb-3">
                                                         <label for="ship_to_address2" class="form-label">Address Line 2
                                                             (Optional)</label>
-                                                    <input type="text" name="ship_to_address2" id="ship_to_address2"
+                                                        <input type="text" name="ship_to_address2" id="ship_to_address2"
                                                             class="form-control" value="{{ old('ship_to_address2') }}"
                                                             placeholder="Apt, suite, unit, etc.">
-                                                </div>
+                                                    </div>
 
                                                     <div class="col-md-6 mb-3">
-                                                    <label for="ship_to_city" class="form-label">City</label>
-                                                    <input type="text" name="ship_to_city" id="ship_to_city"
+                                                        <label for="ship_to_city" class="form-label">City</label>
+                                                        <input type="text" name="ship_to_city" id="ship_to_city"
                                                             class="form-control" value="{{ old('ship_to_city') }}"
                                                             placeholder="City">
-                                                </div>
+                                                    </div>
 
                                                     <div class="col-md-3 mb-3">
-                                                    <label for="ship_to_state" class="form-label">State</label>
-                                                    <input type="text" name="ship_to_state" id="ship_to_state"
+                                                        <label for="ship_to_state" class="form-label">State</label>
+                                                        <input type="text" name="ship_to_state" id="ship_to_state"
                                                             class="form-control" value="{{ old('ship_to_state') }}"
                                                             placeholder="State">
                                                     </div>
@@ -414,14 +438,14 @@
                                                         <input type="text" name="ship_to_zip" id="ship_to_zip"
                                                             class="form-control" value="{{ old('ship_to_zip') }}"
                                                             placeholder="ZIP">
-                                                </div>
+                                                    </div>
 
                                                     <div class="col-12 mb-3">
                                                         <label for="ship_to_phone" class="form-label">Phone Number</label>
                                                         <input type="tel" name="ship_to_phone" id="ship_to_phone"
                                                             class="form-control" value="{{ old('ship_to_phone') }}"
                                                             placeholder="Phone number">
-                                                </div>
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>
@@ -435,34 +459,34 @@
                                             <p class="text-muted mb-3">Complete payment now or leave blank to generate an
                                                 invoice</p>
 
-                <div class="mb-3">
-                    <label for="cardholder-name" class="form-label">Cardholder Name</label>
+                                            <div class="mb-3">
+                                                <label for="cardholder-name" class="form-label">Cardholder Name</label>
                                                 <input type="text" id="cardholder-name" name="cardholder_name"
                                                     class="form-control" placeholder="Name on card">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Card Number</label>
-                    <div id="card-number-element" class="form-control"></div>
-                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Card Number</label>
+                                                <div id="card-number-element" class="form-control"></div>
+                                            </div>
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Expiration</label>
-                    <div id="card-expiry-element" class="form-control"></div>
-                </div>
-                                                <div class="col-md-6 mb-3">
-                    <label class="form-label">CVC</label>
-                    <div id="card-cvc-element" class="form-control"></div>
+                                                    <label class="form-label">Expiration</label>
+                                                    <div id="card-expiry-element" class="form-control"></div>
                                                 </div>
-                </div>
-                <div class="mb-3">
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">CVC</label>
+                                                    <div id="card-cvc-element" class="form-control"></div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
                                                 <label for="payment_reference" class="form-label">Payment Reference</label>
                                                 <input type="text" name="payment_reference" class="form-control"
                                                     placeholder="Optional reference number">
-                </div>
-                <div id="card-errors" class="text-danger mb-3"></div>
+                                            </div>
+                                            <div id="card-errors" class="text-danger mb-3"></div>
                                             <input type="hidden" name="stripeToken" id="stripeToken">
                                         </div>
-        </div>
+                                    </div>
 
                                     <input type="hidden" name="is_paid" id="is_paid" value="0">
                                     <div class="mt-4 text-center">
@@ -519,21 +543,21 @@
 
                 submitButton.disabled = true;
 
-            // Try to create a Stripe token
-            const { token, error } = await stripe.createToken(cardNumber, {
-                name: cardholderName.value
-            });
+                // Try to create a Stripe token
+                const { token, error } = await stripe.createToken(cardNumber, {
+                    name: cardholderName.value
+                });
 
-            if (error) {
-                errorElement.textContent = error.message;
-                submitButton.disabled = false;
-            } else {
-                tokenInput.value = token.id;
-                isPaidInput.value = "1";
-                form.submit();
-            }
+                if (error) {
+                    errorElement.textContent = error.message;
+                    submitButton.disabled = false;
+                } else {
+                    tokenInput.value = token.id;
+                    isPaidInput.value = "1";
+                    form.submit();
+                }
+            });
         });
-    });
     </script>
 
     <script>
@@ -561,9 +585,9 @@
                 }
             });
 
-            // Calculate optional charges (now always applied)
+            // Calculate optional charges (only checked ones)
             let optionalChargeTotal = 0;
-            document.querySelectorAll('.optional-charge-applied').forEach(el => {
+            document.querySelectorAll('.optional-charge:checked').forEach(el => {
                 let charge = parseFloat(el.dataset.charge) || 0;
                 let type = el.dataset.chargeType;
                 if (type === 'percentage') {
@@ -594,15 +618,20 @@
             }
             if (document.getElementById('grandTotal')) {
                 document.getElementById('grandTotal').value = grandTotal.toFixed(2);
+            }
         }
+
+        // Function to update calculations when charges change
+        function updateChargeCalculations() {
+            calculateTotals();
         }
 
         // Enhanced event binding
         function attachCalculationEvents() {
             document.querySelectorAll('.qty, .cost').forEach(el => {
-            el.addEventListener('input', calculateTotals);
-            el.addEventListener('change', calculateTotals);
-        });
+                el.addEventListener('input', calculateTotals);
+                el.addEventListener('change', calculateTotals);
+            });
             calculateTotals();
         }
     </script>
@@ -615,10 +644,10 @@
         function testSessionStorage() {
             console.log('=== SessionStorage Test ===');
             console.log('All sessionStorage keys:', Object.keys(sessionStorage));
-            
+
             const orderItems = sessionStorage.getItem('orderItems');
             console.log('Raw orderItems data:', orderItems);
-            
+
             if (orderItems) {
                 try {
                     const parsed = JSON.parse(orderItems);
@@ -629,17 +658,69 @@
                     console.error('Parse error:', e);
                 }
             }
-            
+
             return null;
         }
-        
+
+        // Debug function to monitor customer dropdown changes
+        function monitorCustomerDropdown() {
+            const customerDropdown = $('#customer_id');
+
+            if (customerDropdown.length > 0) {
+                // Monitor all change events
+                customerDropdown.on('change', function (e) {
+                    console.log('🔍 Customer dropdown changed:', {
+                        value: $(this).val(),
+                        trigger: e.originalEvent ? 'user' : 'programmatic',
+                        stackTrace: new Error().stack
+                    });
+                });
+
+                // Monitor Select2 events
+                customerDropdown.on('select2:select', function (e) {
+                    console.log('✅ Select2 selection:', e.params.data);
+                });
+
+                customerDropdown.on('select2:clear', function (e) {
+                    console.log('❌ Select2 cleared:', e);
+                });
+
+                console.log('👀 Customer dropdown monitoring enabled');
+            }
+        }
+
+        // Debug function to test Select2 functionality
+        function debugSelect2() {
+            const customerDropdown = $('#customer_id');
+            console.log('=== Select2 Debug ===');
+            console.log('Dropdown exists:', customerDropdown.length > 0);
+            console.log('Has select2 class:', customerDropdown.hasClass('select2'));
+            console.log('Current value:', customerDropdown.val());
+            console.log('Is Select2 initialized:', customerDropdown.hasClass('select2-hidden-accessible'));
+
+            // Try to set a test value
+            if (customerDropdown.length > 0) {
+                const testValue = customerDropdown.find('option:first').val();
+                console.log('Setting test value:', testValue);
+                customerDropdown.val(testValue).trigger('change');
+                console.log('Value after setting:', customerDropdown.val());
+            }
+        }
+
         // Load items from sessionStorage on page load
         document.addEventListener('DOMContentLoaded', function () {
             console.log('Page loaded, testing sessionStorage...');
-            
+
+            // Start monitoring customer dropdown changes
+            setTimeout(function () {
+                monitorCustomerDropdown();
+            }, 500);
+
+            // Add debug buttons for testing
+
             // Test sessionStorage first
             const testItems = testSessionStorage();
-            
+
             if (testItems && testItems.length > 0) {
                 console.log('SessionStorage test passed, loading items...');
                 loadItemsFromSessionStorage();
@@ -659,35 +740,35 @@
                 button.style.border = 'none';
                 button.style.cursor = 'pointer';
                 document.body.appendChild(button);
-                
+
                 alert('No items found. A test button has been added to check sessionStorage.');
             }
-            
+
             // Add form submission debugging
             const form = document.getElementById('stripe-payment-form');
             if (form) {
-                form.addEventListener('submit', function(e) {
+                form.addEventListener('submit', function (e) {
                     console.log('Form is being submitted. Checking form data...');
-                    
+
                     // Check for items inputs
                     const itemInputs = document.querySelectorAll('input[name*="[fgp_item_id]"]');
                     console.log('Found ' + itemInputs.length + ' fgp_item_id inputs');
-                    
+
                     let hasValidItems = false;
-                    itemInputs.forEach(function(input, index) {
+                    itemInputs.forEach(function (input, index) {
                         console.log('Input ' + index + ' name: ' + input.name + ', value: "' + input.value + '"');
                         if (input.value && input.value.trim() !== '') {
                             hasValidItems = true;
                         }
                     });
-                    
+
                     if (!hasValidItems) {
                         console.error('No valid item IDs found in form!');
                         e.preventDefault();
                         alert('Error: No items found in form. Please go back and select items again.');
                         return false;
                     }
-                    
+
                     console.log('Form validation passed, submitting...');
                 });
             }
@@ -695,10 +776,10 @@
 
         function loadItemsFromSessionStorage() {
             console.log('loadItemsFromSessionStorage called');
-            
+
             const orderItems = sessionStorage.getItem('orderItems');
             console.log('SessionStorage orderItems:', orderItems);
-            
+
             if (!orderItems) {
                 console.error('No items found in sessionStorage!');
                 alert('No items found in session. Redirecting back to item selection.');
@@ -716,15 +797,15 @@
                 alert('Error loading items. Please go back and try again.');
                 return;
             }
-            
+
             if (!items || items.length === 0) {
                 console.error('Items array is empty!');
                 alert('No items to display. Please go back and select items.');
                 return;
             }
-            
+
             // Debug each item to check if ID is present
-            items.forEach(function(item, index) {
+            items.forEach(function (item, index) {
                 console.log('Item ' + index + ':', {
                     id: item.id,
                     name: item.name,
@@ -732,11 +813,11 @@
                     idType: typeof item.id
                 });
             });
-            
+
             populateOrderTable(items);
 
             // Ensure totals are calculated after a delay to allow DOM updates
-            setTimeout(function() {
+            setTimeout(function () {
                 calculateTotals();
                 console.log('Initial totals calculated after page load');
             }, 200);
@@ -753,9 +834,9 @@
 
             // Clear existing item rows except charge rows and totals rows
             const existingRows = tbody.querySelectorAll('tr');
-            existingRows.forEach(function(row) {
+            existingRows.forEach(function (row) {
                 if (!row.querySelector('.required-charge') &&
-                    !row.querySelector('.optional-charge-applied') &&
+                    !row.querySelector('.optional-charge') &&
                     !row.classList.contains('totals-separator') &&
                     !row.classList.contains('subtotal-row') &&
                     !row.classList.contains('charges-total-row') &&
@@ -765,7 +846,7 @@
             });
 
             // Find insertion point (before required charges)
-            const firstChargeRow = tbody.querySelector('.required-charge, .optional-charge-applied');
+            const firstChargeRow = tbody.querySelector('.required-charge, .optional-charge');
             const insertionPoint = firstChargeRow ? firstChargeRow.closest('tr') : null;
 
             // Process each item
@@ -773,16 +854,16 @@
                 const item = items[index];
                 console.log('Processing item ' + index + ':', item);
                 console.log('Item ID: ' + item.id + ', Name: ' + item.name);
-                
+
                 // Validate item has required data
                 if (!item.id) {
                     console.error('Item ' + index + ' missing ID:', item);
                     alert('Error: Item ' + (item.name || 'Unknown') + ' is missing ID. Please go back and reselect items.');
                     return;
                 }
-                
+
                 const row = document.createElement('tr');
-                
+
                 // Create each cell separately for better control
                 const nameCell = document.createElement('td');
                 const hiddenInput = document.createElement('input');
@@ -790,11 +871,11 @@
                 hiddenInput.name = 'items[' + index + '][fgp_item_id]';
                 hiddenInput.value = item.id;
                 nameCell.appendChild(hiddenInput);
-                
+
                 const nameStrong = document.createElement('strong');
                 nameStrong.textContent = item.name || 'Unknown Item';
                 nameCell.appendChild(nameStrong);
-                
+
                 const qtyCell = document.createElement('td');
                 const qtyInput = document.createElement('input');
                 qtyInput.type = 'number';
@@ -804,7 +885,7 @@
                 qtyInput.value = item.quantity || 1;
                 qtyInput.setAttribute('data-index', index);
                 qtyCell.appendChild(qtyInput);
-                
+
                 const costCell = document.createElement('td');
                 const costInput = document.createElement('input');
                 costInput.type = 'number';
@@ -814,7 +895,7 @@
                 costInput.value = (item.priceValue || 0).toFixed(2);
                 costInput.setAttribute('data-index', index);
                 costCell.appendChild(costInput);
-                
+
                 const totalCell = document.createElement('td');
                 const totalInput = document.createElement('input');
                 totalInput.type = 'text';
@@ -823,7 +904,7 @@
                 totalInput.value = '0.00';
                 totalInput.setAttribute('data-index', index);
                 totalCell.appendChild(totalInput);
-                
+
                 row.appendChild(nameCell);
                 row.appendChild(qtyCell);
                 row.appendChild(costCell);
@@ -834,18 +915,18 @@
                 } else {
                     tbody.appendChild(row);
                 }
-                
+
                 console.log('Created form input for item ' + index + ' with ID: ' + item.id);
             }
 
             // Verify form inputs were created
-            setTimeout(function() {
+            setTimeout(function () {
                 const itemIdInputs = document.querySelectorAll('input[name*="[fgp_item_id]"]');
                 console.log('Created ' + itemIdInputs.length + ' fgp_item_id inputs:');
-                itemIdInputs.forEach(function(input) {
+                itemIdInputs.forEach(function (input) {
                     console.log(input.name + ': "' + input.value + '"');
                 });
-                
+
                 if (itemIdInputs.length === 0) {
                     console.error('No fgp_item_id inputs were created!');
                     alert('Error: Failed to create form inputs. Please refresh and try again.');
@@ -883,10 +964,22 @@
             if (!customer) {
                 console.log('Customer not found for ID:', customerId);
                 console.log('Available customers:', customers);
+                // If no customer found, use route franchise ID
+                document.getElementById('franchise_id').value = {{ $franchise }};
                 return;
             }
 
             console.log('Found customer:', customer);
+
+            // Update franchise_id to customer's franchise_id
+            if (customer.franchise_id) {
+                document.getElementById('franchise_id').value = customer.franchise_id;
+                console.log('✅ Updated franchise_id to customer franchise:', customer.franchise_id);
+            } else {
+                // Fallback to route franchise ID if customer has no franchise_id
+                document.getElementById('franchise_id').value = {{ $franchise }};
+                console.log('⚠️ Customer has no franchise_id, using route franchise:', {{ $franchise }});
+            }
 
             fillShippingFields({
                 name: customer.name || '',
@@ -902,6 +995,25 @@
         function autofillFranchisee() {
             if (!franchisee) return;
 
+            console.log('🏢 Using franchise address and clearing customer selection');
+
+            // Clear customer dropdown first
+            const customerDropdown = $('#customer_id');
+            customerDropdown.val('').trigger('change');
+            
+            // If Select2 is initialized, clear it properly
+            if (customerDropdown.hasClass('select2-hidden-accessible')) {
+                customerDropdown.select2('val', '');
+            }
+            
+            console.log('✅ Customer dropdown cleared');
+
+            // Reset franchise_id to route franchise ID (since no customer is selected)
+            const routeFranchiseId = {{ $franchise }};
+            document.getElementById('franchise_id').value = routeFranchiseId;
+            console.log('✅ Franchise ID reset to route franchise:', routeFranchiseId);
+
+            // Fill franchise address fields
             fillShippingFields({
                 name: franchisee.business_name ?? '',
                 address1: franchisee.address1 ?? '',
@@ -911,6 +1023,8 @@
                 zip: franchisee.zip_code ?? '',
                 phone: franchisee.phone ?? '',
             });
+            
+            console.log('✅ Franchise address filled');
         }
 
         function fillShippingFields({ name, address1, address2, city, state, zip, phone }) {
@@ -924,6 +1038,25 @@
         }
 
         function clearShippingFields() {
+            console.log('🧹 Clearing all shipping fields and customer selection');
+
+            // Clear customer dropdown
+            const customerDropdown = $('#customer_id');
+            customerDropdown.val('').trigger('change');
+            
+            // If Select2 is initialized, clear it properly
+            if (customerDropdown.hasClass('select2-hidden-accessible')) {
+                customerDropdown.select2('val', '');
+            }
+            
+            console.log('✅ Customer dropdown cleared');
+
+            // Reset franchise_id to route franchise ID (since no customer is selected)
+            const routeFranchiseId = {{ $franchise }};
+            document.getElementById('franchise_id').value = routeFranchiseId;
+            console.log('✅ Franchise ID reset to route franchise:', routeFranchiseId);
+
+            // Clear shipping fields
             document.getElementById('ship_to_name').value = '';
             document.getElementById('ship_to_address1').value = '';
             document.getElementById('ship_to_address2').value = '';
@@ -931,15 +1064,17 @@
             document.getElementById('ship_to_state').value = '';
             document.getElementById('ship_to_zip').value = '';
             document.getElementById('ship_to_phone').value = '';
+            
+            console.log('✅ Shipping fields cleared');
         }
     </script>
 @endpush
 
 <style scoped>
     .btn {
-    color: #fff;
-    background-color: #f84b6a !important;
-    border-color: #f84b6a !important;
+        color: #fff;
+        background-color: #f84b6a !important;
+        border-color: #f84b6a !important;
         transition: all 0.3s ease;
     }
 
@@ -963,5 +1098,5 @@
         padding: 12px 30px !important;
         font-size: 16px !important;
         letter-spacing: 0.5px !important;
-}
+    }
 </style>

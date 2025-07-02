@@ -15,10 +15,10 @@ return new class extends Migration
             Schema::create('invoices', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('franchise_id')->constrained('franchises','id');
-                $table->foreignId('customer_id')->constrained('customers','id');
+                $table->foreignId('fgp_order_id')->constrained('fgp_orders','id');
+                $table->morphs('invoiceable');
                 $table->string('direction')->default('receivable'); //'payable', 'receivable'
                 $table->string('name');
-                $table->date('date');
                 $table->decimal('total_price', 10, 2);
                 $table->decimal('tax_price', 10, 2);
                 $table->date('due_date')->nullable();

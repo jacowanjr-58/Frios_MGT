@@ -100,6 +100,10 @@ class User extends Authenticatable
         return decrypt($this->ein_ssn_hash) === $einSsn;
     }
 
+    public function invoices()
+    {
+        return $this->morphMany(Invoice::class, 'invoiceable');
+    }
     /**
      * Get the date_joined formatted as mm-dd-yyyy
      */

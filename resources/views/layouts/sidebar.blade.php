@@ -115,12 +115,10 @@
                     </a>
                     <ul aria-expanded="{{ Request::routeIs('orders.*', 'orderpops', 'additional-charges.*') ? 'true' : 'false' }}"
                         class="{{ Request::routeIs('orders.*', 'orderpops', 'additional-charges.*') ? 'mm-collapse mm-show' : '' }}">
-                        <li><a href="{{ route('franchise.orderpops.index', ['franchise' => $franchiseeId]) }}">
+                        <li><a href="{{ route('franchise.orders', ['franchise' => $franchiseeId]) }}">
                         Order Pops</a></li>
                         <li><a href="{{ route('additional-charges.index') }}">
                         Additional Charges</a></li>
-                        <li><a href="{{ route('franchise.orders', ['franchise' => $franchiseeId]) }}"> Orders List</a>
-                        </li>
                     </ul>
                 </li>
             @endcanany

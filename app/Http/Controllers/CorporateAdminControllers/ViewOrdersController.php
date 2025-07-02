@@ -513,9 +513,9 @@ public function createPackingList($orderId)
     public function confirmPage(){
         $items = session('ordered_items', []);
 
-        // if (empty($items)) {
-        //     return redirect()->route('franchise.orderpops.index')->withErrors('No items selected.');
-        // }
+        if (empty($items)) {
+            return redirect()->route('franchise.orderpops.index')->withErrors('No items selected.');
+        }
 
         $requiredCharges = AdditionalCharge::where('charge_optional', 'required')->where('status', 1)->get();
         $optionalCharges = AdditionalCharge::where('charge_optional', 'optional')->where('status', 1)->get();

@@ -96,13 +96,13 @@ Route::middleware(['auth'])->prefix('franchises')->name('franchise.')->group(fun
         Route::get('{franchise}/orderpops/confirm/page', [OrderPopsController::class, 'showConfirmPage'])->name('orderpops.confirm.page');
 
 
-        Route::get('/orderpops/create', [OrderPopsController::class, 'create'])->name('orderpops.create')->middleware('permission:orders.create');
-        Route::post('/orderpops/store', [OrderPopsController::class, 'store'])->name('orderpops.store')->middleware('permission:orders.create');
-        Route::get('/orderpops/{orderpops}/edit', [OrderPopsController::class, 'edit'])->name('orderpops.edit')->middleware('permission:orders.edit');
-        Route::put('/orderpops/{orderpops}', [OrderPopsController::class, 'update'])->name('orderpops.update')->middleware('permission:orders.edit');
-        Route::delete('/orderpops/{orderpops}', [OrderPopsController::class, 'destroy'])->name('orderpops.destroy')->middleware('permission:orders.delete');
+        Route::get('{franchise}/orderpops/create', [OrderPopsController::class, 'create'])->name('orderpops.create')->middleware('permission:orders.create');
+        Route::post('/{franchise}/orderpops/store', [OrderPopsController::class, 'store'])->name('orderpops.store')->middleware('permission:orders.create');
+        Route::get('/{franchise}/orderpops/{orderpops}/edit', [OrderPopsController::class, 'edit'])->name('orderpops.edit')->middleware('permission:orders.edit');
+        Route::put('/{franchise}/orderpops/{orderpops}', [OrderPopsController::class, 'update'])->name('orderpops.update')->middleware('permission:orders.edit');
+        Route::delete('/{franchise}/orderpops/{orderpops}', [OrderPopsController::class, 'destroy'])->name('orderpops.destroy')->middleware('permission:orders.delete');
 
-        Route::post('/orderpops/confirm', [OrderPopsController::class, 'confirmOrder'])->name('orderpops.confirm')->middleware('permission:orders.create');
+        Route::post('/{franchise}/orderpops/confirm', [OrderPopsController::class, 'confirmOrder'])->name('orderpops.confirm')->middleware('permission:orders.create');
         Route::post('/orderpops/{order}/mark-delivered', [OrderPopsController::class, 'markDelivered'])
             ->name('orderpops.markDelivered')->middleware('permission:orders.edit');
     });

@@ -90,4 +90,12 @@ class Franchise extends Model
     {
         return $this->hasMany(Sale::class, 'franchise_id');
     }
+
+    /**
+     * Polymorphic relationship - Franchise can have many invoices
+     */
+    public function invoices()
+    {
+        return $this->morphMany(Invoice::class, 'invoiceable');
+    }
 } 
