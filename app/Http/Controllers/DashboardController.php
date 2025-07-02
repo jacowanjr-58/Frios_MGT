@@ -22,9 +22,9 @@ class DashboardController extends Controller
         // If franchise is provided, authorize and use it
         $firstFranchiseId = $userFranchises->isNotEmpty()
             ? $userFranchises->first()->id
-            : Franchise::first()?->id;
+            : "all";
 
-        session(['franchise_id' => $firstFranchiseId]);
+        // session(['franchise_id' => $firstFranchiseId]);
 
         if ($franchise) {
             if (!$user->franchises->pluck('id')->contains($franchise)) {

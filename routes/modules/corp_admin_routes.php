@@ -40,7 +40,7 @@ Route::middleware(['auth'])->group(function () {
 
 
     // Owner routes
-    Route::prefix('franchise/{franchise}')->middleware('permission:owners.view')->group(function () {
+    Route::prefix('franchises/{franchise}')->middleware('permission:owners.view')->group(function () {
         Route::get('/owner', [OwnerController::class, 'index'])->name('owner.index');
         Route::get('/owner/create', [OwnerController::class, 'create'])->name('owner.create')->middleware('permission:owners.create');
         Route::post('/owner', [OwnerController::class, 'store'])->name('owner.store')->middleware('permission:owners.create');

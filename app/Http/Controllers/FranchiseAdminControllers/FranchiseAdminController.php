@@ -21,18 +21,18 @@ class FranchiseAdminController extends Controller
         $userFranchises = $user->franchises;
 
         // Get the first franchise ID for redirection
-        $firstFranchiseId = $userFranchises?->count() > 0
+        $franchiseId = $userFranchises?->count() > 0
             ? $userFranchises->first()->id
-            : Franchise::first()->id;
+            : "all";
 
         // Redirect /dashboard to /franchise/9/dashboard
         if (request()->is('dashboard') && !$franchise ) {
-            return redirect('/franchise/'.$firstFranchiseId.'/dashboard');
+            return redirect('/franchise/'.$franchiseId.'/dashboard');
         }
 
         // if ($user->hasRole('franchise_admin')) {
 
-        //     return redirect('/franchise/'.$firstFranchiseId.'/dashboard');
+        //     return redirect('/franchise/'.$franchiseId.'/dashboard');
 
         // }
 

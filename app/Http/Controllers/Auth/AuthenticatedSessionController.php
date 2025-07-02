@@ -35,11 +35,11 @@ class AuthenticatedSessionController extends Controller
         // Get user's franchises (corrected relationship name)
         $userFranchises = $user->franchises;
         // Get the first franchise ID for redirection
-        $firstFranchiseId = $userFranchises->isNotEmpty()
+        $franchiseId = $userFranchises->isNotEmpty()
         ? $userFranchises->first()->id
-        : Franchise::first()?->id;
+        : "all";
 
-        session(['franchise_id' => $firstFranchiseId]);
+        // session(['franchise_id' => $franchiseId]);
 
 
         if ($user->role == 'super_admin') {
@@ -49,7 +49,7 @@ class AuthenticatedSessionController extends Controller
 
         // Check the role and redirect accordingly, with a success message
         if ($user->role == 'corporate_admin') {
-            return redirect("/franchise/{$firstFranchiseId}/dashboard")
+            return redirect()->route('franchise.dashboard', ['franchise' => $franchiseId])
                 ->with('success', 'Welcome Back, ' . $user->name);
         } elseif ($user->role == 'franchise_admin') {
             if ($userFranchises->count() > 1) {
@@ -58,7 +58,7 @@ class AuthenticatedSessionController extends Controller
                 return redirect("/franchise/{$userFranchises->first()->id}/dashboard")->with('success', 'Welcome Back, ' . $user->name);
             }
         } else {
-            return redirect("/franchise/{$firstFranchiseId}/dashboard")
+            return redirect("/franchise/{$franchiseId}/dashboard")
                 ->with('success', 'Welcome Back, ' . $user->name);
         }
 

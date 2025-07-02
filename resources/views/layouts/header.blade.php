@@ -112,7 +112,10 @@
                                         disabled
                                     @endif
                                     onchange="updateFranchiseInCurrentRoute(this.value)">
-                                    @foreach($dropdownFranchises as $franchise)
+                                    @if ($user->hasRole('corporate_admin'))
+                                        <option value="all">All Franchises</option>
+                                    @endif
+                                    @foreach($dropdownFranchises as $franchise )
                                         <option value="{{ $franchise->id }}" {{ $selectedFranchiseId == $franchise->id ? 'selected' : '' }}>
                                             {{ $franchise->business_name }} - {{ $franchise->frios_territory_name }}
                                         </option>
@@ -274,26 +277,71 @@
 </style>
 
 <script>
+    // function updateFranchiseInCurrentRoute(franchiseId) {
+    //     // Get current URL
+    //     let currentUrl = window.location.href;
+
+    //     // Check if URL already contains a franchise parameter
+    //     let franchisePattern = /\/franchise\/\d+\//;
+    //     let newUrl;
+
+    //     if (franchisePattern.test(currentUrl)) {
+    //         // Replace existing franchise ID
+    //         newUrl = currentUrl.replace(/\/franchise\/\d+\//, `/franchise/${franchiseId}/`);
+    //     } else {
+    //         // Add franchise ID to URL
+    //         newUrl = currentUrl.replace('/franchise/', `/franchise/${franchiseId}/`);
+    //     }
+
+    //     Update URL without reloading page
+    //     window.history.pushState({}, '', newUrl);
+
+    //     Make AJAX call to update session
+    //     fetch('/franchise/set-session-franchise', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+    //         },
+    //         body: JSON.stringify({
+    //             franchise_id: franchiseId
+    //         })
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         if (data.status === 'success') {
+    //             // Reload the page to reflect the new franchise
+    //             window.location.href = newUrl;
+    //         }
+    //     })
+    //     .catch(error => console.error('Error:', error));
+    // }
     function updateFranchiseInCurrentRoute(franchiseId) {
-        // Get current URL
         let currentUrl = window.location.href;
 
-        // Check if URL already contains a franchise parameter
-        let franchisePattern = /\/franchise\/\d+\//;
+        // Matches /franchise/{anything}/
+        const franchisePattern = /\/franchise\/[^/]+\//;
         let newUrl;
 
         if (franchisePattern.test(currentUrl)) {
-            // Replace existing franchise ID
-            newUrl = currentUrl.replace(/\/franchise\/\d+\//, `/franchise/${franchiseId}/`);
+            // Replace existing franchise segment
+            newUrl = currentUrl.replace(franchisePattern, `/franchise/${franchiseId}/`);
         } else {
-            // Add franchise ID to URL
-            newUrl = currentUrl.replace('/franchise/', `/franchise/${franchiseId}/`);
+            // Try to insert the franchise segment after domain and before the path
+            const urlObj = new URL(currentUrl);
+            const pathParts = urlObj.pathname.split('/').filter(Boolean); // removes empty parts
+
+            // Insert `franchise/{franchiseId}` after domain or prefix
+            pathParts.splice(0, 0, 'franchise', franchiseId); // insert at the beginning
+
+            urlObj.pathname = '/' + pathParts.join('/');
+            newUrl = urlObj.toString();
         }
 
-        // Update URL without reloading page
+        // Update URL without reloading
         window.history.pushState({}, '', newUrl);
 
-        // Make AJAX call to update session
+        // Send AJAX request to update session
         fetch('/franchise/set-session-franchise', {
             method: 'POST',
             headers: {
@@ -307,10 +355,10 @@
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                // Reload the page to reflect the new franchise
                 window.location.href = newUrl;
             }
         })
         .catch(error => console.error('Error:', error));
     }
+
 </script>
