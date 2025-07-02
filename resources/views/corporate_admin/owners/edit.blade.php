@@ -75,45 +75,37 @@
                                                         @error('password') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
 
-                                                   
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Confirm Password</label>
+                                                        <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" name="password_confirmation">
+                                                        @error('password_confirmation') <div class="text-danger">{{ $message }}</div> @enderror
+                                                    </div>
+
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Assign Franchise <span class="text-danger">*</span></label>
                                                         <select
-    class="form-control select2"
-    name="franchise_id[]" multiple="multiple">
-    <option value="">Select Franchise</option>
-    @foreach ($franchises as $franchise)
-        <option value="{{ $franchise->id }}"
-            {{ in_array($franchise->id, $owner->franchises->pluck('id')->toArray()) ? 'selected' : '' }}>
-            {{ $franchise->business_name ?? 'N/A' }} - {{ $franchise->frios_territory_name ?? 'N/A' }}
-        </option>
-    @endforeach
-</select>
+                                                            class="form-control select2"
+                                                            name="franchise_id[]" multiple="multiple">
+                                                            <option value="">Select Franchise</option>
+                                                            @foreach ($franchises as $franchise)
+                                                                <option value="{{ $franchise->id }}"
+                                                                    {{ in_array($franchise->id, $owner->franchises->pluck('id')->toArray()) ? 'selected' : '' }}>
+                                                                    {{ $franchise->business_name ?? 'N/A' }} - {{ $franchise->frios_territory_name ?? 'N/A' }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
 
                                                         @error('franchise_id') <div class="text-danger">{{ $message }}</div> @enderror
-                                                    </div>
-
-
-                                                    <div class="mb-3 col-md-6">
-                                                        <label class="form-label">EIN/SSN</label>
-                                                       
-                                                        <input type="text" class="form-control @error('ein_ssn') is-invalid @enderror" 
-                                                               name="ein_ssn" value="{{  $owner->ein_ssn  }}" 
-                                                               placeholder="Enter EIN or SSN (leave empty to keep current)">
-                                                        @error('ein_ssn') <div class="text-danger">{{ $message }}</div> @enderror
-                                                        @if($owner->ein_ssn_hash)
-                                                            <small class="text-muted">EIN/SSN is currently set</small>
-                                                        @endif
                                                     </div>
 
                                                     <div class="mb-3 col-md-6">
                                                         <label class="form-label">Date Joined</label>
                                                         <input type="date" class="form-control @error('date_joined') is-invalid @enderror" 
-                                                               name="date_joined" value="{{ old('date_joined', $owner->date_joined ? $owner->date_joined->format('Y-m-d') : '') }}">
+                                                               name="date_joined" value="{{ old('date_joined', $owner->date_joined ?? 'N/A') }}">
                                                         @error('date_joined') <div class="text-danger">{{ $message }}</div> @enderror
                                                     </div>
 
-                                                    <div class="mb-3 col-md-12">
+                                                    <div class="mb-3 col-md-6">
                                                         <label class="form-label">Franchise Contract Document 
                                                             <small class="text-muted">(PDF, DOC, DOCX - Max 10MB)</small>
                                                         </label>

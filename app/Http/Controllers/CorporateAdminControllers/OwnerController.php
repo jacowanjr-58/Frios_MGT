@@ -127,18 +127,16 @@ class OwnerController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
-            'franchise_id' => 'required|exists:franchises,id',    
-            'ein_ssn' => 'nullable|string|max:255',
+            'password' => 'required|min:6|confirmed',
+            'password_confirmation' => 'required',
             'contract_document' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // 10MB max
             'date_joined' => 'nullable|date',
             // 'clearance' => 'nullable|string',
             // 'security' => 'nullable|string',
         ], [
-            'franchise_id.required' => 'Franchise is required.', // Custom error message    
-            'franchise_id.exists' => 'Selected franchise does not exist.', // Custom error message for invalid franchise
             'contract_document.mimes' => 'Contract document must be a PDF, DOC, or DOCX file.',
             'contract_document.max' => 'Contract document must not exceed 10MB.',
+            'password.confirmed' => 'The password confirmation does not match.',
         ]);
 
         // Handle file upload
@@ -159,20 +157,14 @@ class OwnerController extends Controller
             'role' => 'franchise_admin', // Storing role in the database
             'contract_document_path' => $contractDocumentPath,
             'date_joined' => $request->date_joined,
-            'created_date' => Carbon::now()->toDateString(), // Storing the current date
         ];
-
-        // Handle EIN/SSN hashing if provided
-        if ($request->filled('ein_ssn')) {
-            $userData['ein_ssn_hash'] = encrypt($request->ein_ssn);
-        }
 
         $user = User::create($userData);
 
         // Assign the role using Spatie Role Permission
         $user->assignRole('franchise_admin');
         // Attach franchise
-        $user->franchises()->attach($request->franchise_id); 
+        $user->franchises()->attach($request->franchise); 
 
         return redirect()->route('owner.index', ['franchise' => $franchise])->with('success', 'Owner created successfully.');
     }
@@ -203,17 +195,15 @@ class OwnerController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $owner->id . ',id', // Corrected validation   
-            'password' => 'nullable|min:6',
-            'franchise_id' => 'nullable|exists:franchises,id',
-            'ein_ssn' => 'nullable|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $owner->id . ',id',
+            'password' => 'nullable|min:6|confirmed',
+            'password_confirmation' => 'nullable|required_with:password',
             'contract_document' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // 10MB max
             'date_joined' => 'nullable|date',
-            // 'clearance' => 'nullable|string',
-            // 'security' => 'nullable|string',
         ], [
             'contract_document.mimes' => 'Contract document must be a PDF, DOC, or DOCX file.',
             'contract_document.max' => 'Contract document must not exceed 10MB.',
+            'password.confirmed' => 'The password confirmation does not match.',
         ]);
 
         // Handle file upload
@@ -239,31 +229,26 @@ class OwnerController extends Controller
             'date_joined' => $request->date_joined,
         ];
 
-        // Handle EIN/SSN hashing if provided
-        if ($request->filled('ein_ssn')) {
-            $updateData['ein_ssn_hash'] = encrypt($request->ein_ssn);
-        }
-
         $owner->update($updateData);
 
         if ($request->filled('password')) {
             $owner->update(['password' => bcrypt($request->password)]);
         }
 
-        $owner->franchises()->sync($request->franchise_id);
+        $owner->franchises()->sync($request->franchise);
         return redirect()->route('owner.index', ['franchise' => $franchise])->with('success', 'Owner updated successfully.');
     }
-    public function destroy($franchise, $owner)
+    public function destroy($franchise, User $owner)
     {
         try {
-            $user = User::findOrFail($owner); // Find user by id
             
             // Delete contract document if exists
-            if ($user->contract_document_path && file_exists(public_path($user->contract_document_path))) {
-                unlink(public_path($user->contract_document_path));
+            if ($owner->contract_document_path && file_exists(public_path($owner->contract_document_path))) {
+                unlink(public_path($owner->contract_document_path));
             }
-            
-            $user->delete();
+
+            $owner->franchises()->detach($franchise);
+            $owner->delete();
 
             return redirect()->route('owner.index', ['franchise' => $franchise])->with('success', 'User deleted successfully.');
         } catch (\Exception $e) {

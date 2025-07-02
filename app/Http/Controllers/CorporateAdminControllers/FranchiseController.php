@@ -14,7 +14,7 @@ class FranchiseController extends Controller
     // Show all franchises
     public function index()
     {
-        $franchiseeId = session('franchise_id');
+        // $franchiseeId = session('franchise_id');
         $totalFranchises = Franchise::count();
 
         $franchisees = Franchise::withCount('customers');
@@ -74,7 +74,7 @@ class FranchiseController extends Controller
                 ->make(true);
         }
 
-        return view('corporate_admin.franchise.index', compact('totalFranchises', 'franchiseeId'));
+        return view('corporate_admin.franchise.index', compact('totalFranchises'));
     }
 
     // Show create form

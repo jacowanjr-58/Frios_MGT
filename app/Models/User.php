@@ -26,7 +26,6 @@ class User extends Authenticatable
         'clearance',
         'security',
         'stripe_account_id',
-        'ein_ssn_hash',
         'contract_document_path',
         'date_joined',
         'stripe_account_id',

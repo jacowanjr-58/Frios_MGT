@@ -87,8 +87,23 @@
                                                     </div>
 
                                                     <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Assign Franchise <span
+                                                        <label class="form-label">Confirm Password <span
                                                                 class="text-danger">*</span></label>
+                                                        <input type="password"
+                                                            class="form-control @error('password_confirmation') is-invalid @enderror"
+                                                            name="password_confirmation" placeholder="Confirm Password">
+                                                        @error('password_confirmation')
+                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Assign Franchise 
+                                                            <span class="text-danger">*</span>
+                                                            @if ($franchises->count() == 0)
+                                                                <span class="text-primary ms-2 text-sm">No franchise available to assign it to owner</span>
+                                                            @endif
+                                                        </label>
                                                         <select
                                                             class="form-control select2"
                                                             name="franchise_id[]" multiple="multiple">
@@ -105,17 +120,6 @@
                                                     </div>
 
                                                     <div class="mb-3 col-md-6">
-                                                        <label class="form-label">EIN/SSN</label>
-                                                        <input type="text"
-                                                            class="form-control @error('ein_ssn') is-invalid @enderror"
-                                                            name="ein_ssn" value="{{ old('ein_ssn') }}" 
-                                                            placeholder="Enter EIN or SSN">
-                                                        @error('ein_ssn')
-                                                            <div class="text-danger">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <div class="mb-3 col-md-6">
                                                         <label class="form-label">Date Joined</label>
                                                         <input type="date"
                                                             class="form-control @error('date_joined') is-invalid @enderror"
@@ -125,7 +129,7 @@
                                                         @enderror
                                                     </div>
 
-                                                    <div class="mb-3 col-md-12">
+                                                    <div class="mb-3 col-md-6">
                                                         <label class="form-label">Franchise Contract Document 
                                                             <small class="text-muted">(PDF, DOC, DOCX - Max 10MB)</small>
                                                         </label>

@@ -98,7 +98,7 @@
             <div class="row mb-4 align-items-center">
                 @can('franchises.create')
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
-                        <a href="{{ route('franchise.create') }} {{ $franchiseeId ? '?franchisee=' . $franchiseeId : '' }}"
+                        <a href="{{ route('franchise.create') }}"
                             class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Franchise</a>
                     </div>
                     <div class="col-xl-9 col-lg-8">
