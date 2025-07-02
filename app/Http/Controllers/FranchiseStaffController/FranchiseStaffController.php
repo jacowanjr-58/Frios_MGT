@@ -133,9 +133,12 @@ class FranchiseStaffController extends Controller
 
 
     public function index($franchise) {
-       
-        $data['customers'] = Customer::where('franchise_id' , intval($franchise))->get();
-        $data['customerCount'] = Customer::where('franchise_id' , intval($franchise))->count();
+        $data['customers'] = Customer::when($franchise !== 'all', function ($query) use ($franchise) {
+            $query->where('franchise_id', $franchise);
+        })->get();
+        $data['customerCount'] = Customer::when($franchise !== 'all', function ($query) use ($franchise) {
+            $query->where('franchise_id', $franchise);
+        })->count();
         $franchiseId = $franchise;
         return view('franchise_staff.customer.index' ,$data , compact('franchiseId'));
     }
