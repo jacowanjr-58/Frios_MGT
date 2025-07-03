@@ -90,10 +90,9 @@ class OrderPopsController extends Controller
         return view('franchise_admin.orderpops.index', compact('pops', 'franchise', 'totalPops'));
     }
 
-    public function create($franchisee=null)
+    public function create($franchise)
     {
 
-        $franchise = intval($franchisee);
         $currentMonth = (string) Carbon::now()->month;
 
         $categories = FgpCategory::with(['children.items' => function ($q) use ($currentMonth) {
@@ -112,10 +111,7 @@ class OrderPopsController extends Controller
 
     public function confirmOrder(Request $request, $franchise)
     {
-        // dd($franchise);
-        $franchise = intval($franchise);
         $items = json_decode($request->input('ordered_items'), true);
-
         if (empty($items)) {
             return response()->json(['error' => 'No items selected for order.'], 400);
         }
@@ -138,29 +134,34 @@ class OrderPopsController extends Controller
 
     public function showConfirmPage($franchise)
     {
-        $franchise = intval($franchise);
-       
-        // Since items are stored in sessionStorage (browser), we'll handle them via JavaScript
-        // For now, return empty array and populate via JavaScript on page load
         $items = [];
+        // Handle 'all' franchise case
+        if ($franchise === 'all') {
+            $customers = collect(); // Empty collection for 'all' case
+            $franchisee = null; // No specific franchise
+            $allFranchises = Franchise::orderBy('business_name')->get();
+        } else {
+            $customers = Customer::where('franchise_id', $franchise)->get();
+            $franchisee = Franchise::where('id', $franchise)->first(); // Use first() instead of get()
+            $allFranchises = collect(); // Empty collection for specific franchise
+        }
 
-        $customers = Customer::where('franchise_id', $franchise)->get();
-        $franchisee = Franchise::where('id', $franchise)->first(); // Use first() instead of get()
         $requiredCharges = AdditionalCharge::where('charge_optional', 'required')->where('status', 1)->get();
         $optionalCharges = AdditionalCharge::where('charge_optional', 'optional')->where('status', 1)->get();
 
-        return view('franchise_admin.orderpops.confirm', compact('items', 'requiredCharges', 'optionalCharges', 'customers', 'franchise', 'franchisee'));
+        return view('franchise_admin.orderpops.confirm', compact('items', 'requiredCharges', 'optionalCharges', 'customers', 'franchise', 'franchisee', 'allFranchises'));
     }
 
-    public function store(Request $request, Franchise $franchise)
+    public function store(Request $request, $franchise)
     {
-       
+ 
+       $franchiseId = $request->franchise_id;
         // $franchise = intval($franchise);
         $minCases = 12;
         $factorCase = 3;
-
         // Define base validation rules
         $rules = [
+           'franchise_id' => 'required|exists:franchises,id',
             'grandTotal' => 'required|numeric|min:1',
             'subtotal' => 'nullable|numeric|min:0',
             'items' => 'required|array',
@@ -181,37 +182,27 @@ class OrderPopsController extends Controller
             'customer_id' => 'nullable|exists:customers,id',
             'payment_reference' => 'nullable|string|max:255',
         ];
-       
         // Add payment validation rules if payment is being made
         if ($request->is_paid === '1') {
             $rules['stripeToken'] = 'required|string';
             $rules['cardholder_name'] = 'required|string|max:191';
         }
-
         // Validate the request first
         $validated = $request->validate($rules);
-        
         // Use the validated franchise_id from the form
         // $franchiseeId = $validated['franchise_id'];
-        
-        Log::info('Using validated franchise_id: ' .  $franchise->id);
-
+        Log::info('Using validated franchise_id: ' .  $franchiseId);
         // Get charges for order charge insertion
         $requiredCharges = AdditionalCharge::where('charge_optional', 'required')->where('status', 1)->get();
         $optionalCharges = AdditionalCharge::where('charge_optional', 'optional')->where('status', 1)->get();
-
-        
         $totalCaseQty = collect($validated['items'])->sum('unit_number');
-
         if ($totalCaseQty < $minCases) {
             return redirect()->back()->withErrors(['Order must have at least ' . $minCases . ' cases.']);
         }
-
         // dd($totalCaseQty % $factorCase);
         if ($totalCaseQty % $factorCase !== 0) {
             return redirect()->back()->withErrors(['Order quantity must be a multiple of ' . $factorCase . '.']);
         }
-
         $charge = null;
         if ($request->is_paid === '1') {
             \Stripe\Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
@@ -223,7 +214,7 @@ class OrderPopsController extends Controller
                     'description' => 'Order Payment by: ' . $validated['cardholder_name'],
                     'source' => $validated['stripeToken'],
                     'metadata' => [
-                        'franchise_id' => $franchise->id,
+                        'franchise_id' => $franchiseId,
                         'order_id' => $order->id ?? null,
                     ],
                 ]);
@@ -231,11 +222,10 @@ class OrderPopsController extends Controller
                 return redirect()->back()->withErrors(['Stripe Error: ' . $e->getMessage()]);
             }
         }
-    
-
+       
         $order = FgpOrder::create([
             'order_num' => 'FGP-' . time() . '-' . rand(1000, 9999),
-            'franchise_id' => $franchise->id,
+            'franchise_id' => intval($franchiseId),
             'is_paid' => $request->is_paid === '1',
             'ship_to_name' => $validated['ship_to_name'],
             'ship_to_address1' => $validated['ship_to_address1'],
@@ -248,7 +238,7 @@ class OrderPopsController extends Controller
             'ship_method' => $validated['ship_method'] ?? 'Standard',
             'shipstation_status' => 'awaiting_shipment',
         ]);
-
+        // dd($franchiseId);
         $orderNum = 'FGP-' . $order->id;
 
         $orderItems = [];
@@ -315,7 +305,7 @@ class OrderPopsController extends Controller
 
         if ($request->is_paid === '1') {
             OrderTransaction::create([
-                'franchise_id' => $franchise->id,
+                'franchise_id' => $franchiseId,
                 'fgp_order_id' => $order->id,
                 // 'order_num' => $orderNum,   
                 'cardholder_name' => $validated['cardholder_name'],
@@ -341,15 +331,15 @@ class OrderPopsController extends Controller
             
             // If no customer, associate with franchise
             if (!$invoiceableType) {
-                $franchise = Franchise::find($franchise->id);
+                $franchise = Franchise::find($franchiseId);
                 if ($franchise) {
                     $invoiceableType = Franchise::class;
-                    $invoiceableId = $franchise->id;
+                    $invoiceableId = $franchiseId;
                 }
             }
 
             $invoice =Auth::user()->invoices()->create([
-                'franchise_id' => $franchise->id, // Keep for backward compatibility
+                'franchise_id' => $franchiseId, // Keep for backward compatibility
                 'fgp_order_id' => $order->id,
                 'name' => Auth::user()->name,
                 'total_price' => $validated['grandTotal'],
@@ -436,15 +426,13 @@ class OrderPopsController extends Controller
             // 'grand_total' => $validated['grandTotal'],
         ]);
 
-        return redirect()->route('franchise.orders' , ['franchise' => $franchise->id])
+        return redirect()->route('franchise.orders' , ['franchise' => $franchiseId])
             ->with('success', 'Order placed successfully ' . ($request->is_paid === '1' ? 'and paid!' : '. An invoice has been generated.'));
     }
 
     public function viewOrders($franchisee)
     {
         $franchiseeId = intval($franchisee);
-
-
         if (request()->ajax()) {
             $orders = FgpOrder::with([
                 'orderDetails.flavor',
@@ -452,7 +440,6 @@ class OrderPopsController extends Controller
                 'customer',
             ])
             ->where('franchise_id', $franchiseeId);
-
             return DataTables::of($orders)
                 ->addColumn('order_number', function($order) {
                     return 'FGP-' . $order->id;
@@ -486,8 +473,8 @@ class OrderPopsController extends Controller
                         '<span class="badge bg-danger">Unpaid</span>';
                 })
                 ->addColumn('delivery_status', function($order) {
-                    if ($order->is_delivered == 0) {
-                        return '<form method="GET" action="' . route('franchise.inventory.confirm_delivery', ['franchisee' => request()->route('franchisee'), 'order' => $order->id]) . '">
+                    if ($order->delivered_at ) { 
+                        return '<form method="GET" action="' . route('franchise.inventory.confirm_delivery', ['franchise' => request()->route('franchise'), 'order' => $order->id]) . '">
                             ' . csrf_field() . '
                             <button type="submit" class="btn btn-sm btn-outline-success">Confirm</button>
                         </form>';

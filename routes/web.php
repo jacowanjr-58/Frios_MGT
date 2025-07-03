@@ -62,7 +62,7 @@ Route::middleware('auth')->group(
 );
 
 // Route::middleware(['auth', StripeMiddleware::class])->prefix('franchise')->name('franchise.')->group(function () {
-Route::middleware(['auth'])->prefix('franchises')->name('franchise.')->group(function () {
+Route::middleware(['auth'])->prefix('franchise')->name('franchise.')->group(function () {
     Route::get('/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard')->middleware('permission:dashboard.view');
 
     Route::prefix('{franchise}')->group(function () {
@@ -79,7 +79,10 @@ Route::middleware(['auth'])->prefix('franchises')->name('franchise.')->group(fun
         Route::delete('/profile/{profile}', [AdminProfileController::class, 'destroy'])->name('profile.destroy')->middleware('permission:profiles.delete');
 
         // Staff routes
-        Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
+        Route::middleware('permission:staff.view')->group(function () {
+            Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
+        });
+
         Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create')->middleware('permission:staff.create');
         Route::post('/staff', [StaffController::class, 'store'])->name('staff.store')->middleware('permission:staff.create');
         Route::get('/staff/{staff}/edit', [StaffController::class, 'edit'])->name('staff.edit')->middleware('permission:staff.edit');
@@ -94,6 +97,7 @@ Route::middleware(['auth'])->prefix('franchises')->name('franchise.')->group(fun
         Route::get('{franchise}/orderpops', [OrderPopsController::class, 'index'])->name('orderpops.index');
         Route::get('{franchise}/orderpops/view', [OrderPopsController::class, 'viewOrders'])->name('orders.view');
         Route::get('{franchise}/orderpops/confirm/page', [OrderPopsController::class, 'showConfirmPage'])->name('orderpops.confirm.page');
+        Route::get('franchise/{franchise}/customers', [OrderPopsController::class, 'customer'])->name('orderpops.customers');
 
 
         Route::get('{franchise}/orderpops/create', [OrderPopsController::class, 'create'])->name('orderpops.create')->middleware('permission:orders.create');
@@ -312,6 +316,8 @@ Route::get('/payment/success/{invoice}', [PaymentController::class, 'success'])-
 Route::get('/payment/cancel/{invoice}', [PaymentController::class, 'cancel'])->name('payment.cancel');
 
 Route::prefix('franchise')->name('franchise.')->middleware(['auth'])->group(function () {
+    Route::get('{franchise}/dashboard', [FranchiseAdminController::class, 'dashboard'])->name('dashboard')->middleware('permission:dashboard.view');
+
     // Events routes
     Route::prefix('{franchise}/events')->name('events.')->group(function () {
         // Events view routes

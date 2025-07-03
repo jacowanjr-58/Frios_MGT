@@ -212,7 +212,7 @@
                 </div>
                 <div class="btn-group" role="group">
                     @if(Auth::check() && Auth::user()->can('orders.edit'))
-                        <a href="{{ route('franchise.orders.edit', ['franchise' => $franchiseId, 'orderId' => $order->id]) }}" 
+                        <a href="{{ route('franchise.orders.edit', ['franchise' => $franchiseId, 'orders' => $order->id]) }}" 
                            class="btn btn-outline-primary btn-sm">
                             <i class="fa fa-edit me-1"></i>Edit Order
                         </a>

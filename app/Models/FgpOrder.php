@@ -18,14 +18,12 @@ class FgpOrder extends Model
             if (Auth::check()) {
                 $fgpOrder->created_by = Auth::id();
                 $fgpOrder->updated_by = Auth::id();
-                $fgpOrder->franchise_id = session('franchise_id') ?? null;
             }
         });
 
         static::updating(function ($fgpOrder) {
             if (Auth::check()) {
-                $fgpOrder->updated_by = Auth::id();
-                $fgpOrder->franchise_id = session('franchise_id') ?? null;
+                $fgpOrder->updated_by = Auth::id();  
             }
         });
     }

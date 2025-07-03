@@ -60,7 +60,7 @@ class ViewOrdersController extends Controller
 
             return DataTables::of($orders)
                 ->addColumn('order_number', function ($order) use ($franchise) {
-                    return '<a href="' . route('franchise.orders.edit', ['franchise' => $franchise, 'orders' => $order->id]) . '" class="text-primary fs-12">' .
+                    return '<a href="javascript:void(0)" onclick="viewOrderDetails(' . $order->id . ')" class="text-primary fs-12">' . 
                            $order->getOrderNum() . '</a>';
                 })
                 ->addColumn('date_time', function ($order) {
@@ -90,7 +90,7 @@ class ViewOrdersController extends Controller
                     if ($order->orderItems->count() > 0) {
                         $flavorList = $order->orderItems->map(function ($item) {
                             $flavorName = $item->item->name ?? 'Unknown Flavor';
-                            return "({$item->unit_number}) {$flavorName}";
+                            return "({$item->quantity}) {$flavorName}";
                         })->implode('<br>');
                         return '<div class="small">' . $flavorList . '</div>';
                     }
@@ -98,10 +98,6 @@ class ViewOrdersController extends Controller
                 })
                 ->addColumn('shipping_address', function ($order) {
                     return $order->fullShippingAddress();
-                })
-                ->addColumn('items_count', function ($order) {
-                    return '<span class="cursor-pointer text-primary order-detail-trigger" data-id="' . $order->id . '">' .
-                            DB::table('fgp_order_items')->where('fgp_order_id', $order->id)->count() . ' items</span>';
                 })
                 ->addColumn('issues', function ($order) {
                     return $order->orderItems->count() > 0
@@ -225,7 +221,7 @@ class ViewOrdersController extends Controller
     public function ordersDetail(Request $request, $franchiseId)
     {
         $orderId = $request->input('id');
-        $franchiseId = intval($franchiseId);
+        $franchiseId = ($franchiseId);
         $orderDetails = DB::table('fgp_order_items as od')
                     ->join('fgp_items as fi', 'od.fgp_item_id', '=', 'fi.id')
         ->where('od.fgp_order_id', $orderId)

@@ -363,16 +363,10 @@
                                 </div>
                                 <div class="col-lg-4 col-md-6">
                                     <div class="filter-actions">
-                                        <button type="button" class="btn btn-filter-primary" id="applyFilters">
-                                            <i class="fa fa-search me-2"></i>Apply Filters
-                                        </button>
                                         <button type="button" class="btn btn-filter-secondary" id="clearFilters">
                                             <i class="fa fa-refresh me-2"></i>Clear All
                                         </button>
-                                        <div class="filter-tip">
-                                            <i class="fa fa-lightbulb"></i>
-                                            Select2 dropdowns with search functionality
-                                        </div>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -396,7 +390,6 @@
                                             <th>Flavors</th>
                                             <th>Shipping Address</th>
                                             <th>Total Amount</th>
-                                            <th>Items</th>
                                             <th>Issues</th>
                                             <th>Status</th>
                                             <th>UPS Label</th>
@@ -466,7 +459,6 @@
                         { data: 'flavors', name: 'flavors' },
                         { data: 'shipping_address', name: 'shipping_address' },
                         { data: 'total_amount', name: 'total_amount' },
-                        { data: 'items_count', name: 'items_count' },
                         { data: 'issues', name: 'issues' },
                         { data: 'status', name: 'is_paid' },
                         { data: 'ups_label', name: 'ups_label' },
@@ -546,7 +538,7 @@
 
             function loadShippingAddresses() {
                 $.ajax({
-                    url: '/franchise/{{ $franchiseId }}/orders/shipping-addresses',
+                    url: '{{ route('franchise.orders.shippingAddresses', ['franchise' => $franchiseId]) }}',
                     method: 'GET',
                     success: function (response) {
                         var addressSelect = $('#shippingAddressFilter');

@@ -31,7 +31,6 @@
                             <h4 class="mb-0 text-primary">Total Amount:</h4>
                             <h3 class="mb-0 fw-bold text-success">$<span id="cart-total">0.00</span></h3>
                         </div>
-                        
                         <form id="order-form" action="{{ route('franchise.orderpops.confirm', ['franchise' => $franchise]) }}" method="POST">
                             @csrf
                             <input type="hidden" name="ordered_items" id="ordered_items_input" value="">
@@ -70,7 +69,7 @@
                             </h6>
                         </div>
                         
-                        <div class="collapse show" id="subcategory-{{ $parentCategory->id }}-{{ $subcategory->id }}">
+                        <div class="collapse" id="subcategory-{{ $parentCategory->id }}-{{ $subcategory->id }}">
                             <div class="products-grid">
                                 @foreach($subcategory->items as $item)
                                 <div class="product-card" 

@@ -249,6 +249,19 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .franchise-selection-section {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .franchise-selection-section select:disabled {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+            opacity: 0.8;
+            border-color: #dee2e6;
+        }
     </style>
     <div class="content-body default-height">
         <!-- row -->
@@ -286,6 +299,50 @@
                                     action="{{ route('franchise.orderpops.store', ['franchise' => $franchise]) }}">
                                     @csrf
                                     <input type="hidden" name="franchise_id" value="{{ $franchise }}" id="franchise_id">
+
+                                    <!-- Franchise Selection Section -->
+                                    <div class="franchise-selection-section mb-4">
+                                        <h5 class="section-title">
+                                            <i class="fa fa-building me-2"></i>Franchise Selection
+                                        </h5>
+                                        <div class="mb-3">
+                                            <label for="selected_franchise_id" class="form-label fw-bold">Select Franchise
+                                                <span class="text-danger">*</span></label>
+
+                                            @if($franchise === 'all')
+                                            <select name="selected_franchise_id" id="selected_franchise_id"
+                                                class="form-select form-control select2"
+                                                onchange="handleFranchiseSelection(this.value)"
+                                                {{ $franchise !== 'all' ? 'disabled' : '' }}>
+                                                <option value="">-- Select Franchise --</option>
+                                                @foreach($allFranchises as $franchiseOption)
+                                                    <option value="{{ $franchiseOption->id }}" 
+                                                        data-business-name="{{ $franchiseOption->business_name }}"
+                                                        data-address1="{{ $franchiseOption->address1 ?? '' }}"
+                                                        data-address2="{{ $franchiseOption->address2 ?? '' }}"
+                                                        data-city="{{ $franchiseOption->city ?? '' }}"
+                                                        data-state="{{ $franchiseOption->state ?? '' }}"
+                                                        data-zip="{{ $franchiseOption->zip_code ?? '' }}"
+                                                        data-phone="{{ $franchiseOption->contact_number ?? '' }}"
+                                                        {{ $franchise !== 'all' && $franchise == $franchiseOption->id ? 'selected' : '' }}>
+                                                        {{ $franchiseOption->business_name }}
+                                                        @if($franchiseOption->frios_territory_name)
+                                                            - {{ $franchiseOption->frios_territory_name }}
+                                                        @endif
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @else
+                                            <select name="selected_franchise_id" id="selected_franchise_id"
+                                                class="form-select form-control select2"
+                                                disabled>
+                                             
+                                                <option value="{{ $franchise }}" selected>{{ $franchisee->business_name }}</option>
+                                            </select>
+                                            @endif
+                                        </div>
+                                    </div>
+                                
                                     <table class="form-head mb-4 form-layout-table">
                                         <tr>
                                             <td width="60%" class="order-content-cell">
@@ -320,34 +377,34 @@
 
                                                             
 
-                                                                                                        @foreach ($optionalCharges as $charge)
-                                                <tr class="optional-charge-row">
-                                                    <td colspan="3">
-                                                        <div class="form-check d-flex align-items-center">
-                                                            <input class="form-check-input optional-charge me-3" type="checkbox" 
-                                                                id="charge_{{ $charge->id }}"
-                                                                name="optional_charges[]" 
-                                                                value="{{ $charge->charge_price }}"
-                                                                data-charge="{{ $charge->charge_price }}" 
-                                                                data-charge-type="{{ $charge->charge_type }}" 
-                                                                {{ in_array($charge->charge_price, old('optional_charges', [])) ? 'checked' : '' }}
-                                                                onchange="updateChargeCalculations()">
-                                                            <label class="form-check-label d-flex align-items-center" for="charge_{{ $charge->id }}">
-                                                                <i class="fa fa-plus-circle text-info me-2"></i>
-                                                                <div>
-                                                                    <strong>{{ $charge->charge_name }}</strong>
-                                                                    <small class="text-muted d-block">(Optional)</small>
-                                                                </div>
-                                                            </label>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <span class="badge bg-info text-white px-3 py-2">
-                                                            {{ $charge->charge_type == 'percentage' ? $charge->charge_price . '%' : '$' . number_format($charge->charge_price, 2) }}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
+                                                            @foreach ($optionalCharges as $charge)
+                                                                <tr class="optional-charge-row">
+                                                                    <td colspan="3">
+                                                                        <div class="form-check d-flex align-items-center">
+                                                                            <input class="form-check-input optional-charge me-3" type="checkbox" 
+                                                                                id="charge_{{ $charge->id }}"
+                                                                                name="optional_charges[]" 
+                                                                                value="{{ $charge->charge_price }}"
+                                                                                data-charge="{{ $charge->charge_price }}" 
+                                                                                data-charge-type="{{ $charge->charge_type }}" 
+                                                                                {{ in_array($charge->charge_price, old('optional_charges', [])) ? 'checked' : '' }}
+                                                                                onchange="updateChargeCalculations()">
+                                                                            <label class="form-check-label d-flex align-items-center" for="charge_{{ $charge->id }}">
+                                                                                <i class="fa fa-plus-circle text-info me-2"></i>
+                                                                                <div>
+                                                                                    <strong>{{ $charge->charge_name }}</strong>
+                                                                                    <small class="text-muted d-block">(Optional)</small>
+                                                                                </div>
+                                                                            </label>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <span class="badge bg-info text-white px-3 py-2">
+                                                                            {{ $charge->charge_type == 'percentage' ? $charge->charge_price . '%' : '$' . number_format($charge->charge_price, 2) }}
+                                                                        </span>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
 
                                                             {{-- Professional Totals Section --}}
                                                             <!-- <tr class="totals-separator">
@@ -401,7 +458,9 @@
 
                                                 <div class="address-buttons">
                                                     <button type="button" class="btn btn-outline-secondary btn-sm"
-                                                        onclick="autofillFranchisee()">
+                                                        id="use-franchise-address-btn"
+                                                        onclick="autofillFranchisee()"
+                                                        @if($franchise === 'all')  @endif>
                                                         <i class="fa fa-building me-1"></i>Use Franchise Address
                                                     </button>
                                                     <button type="button" class="btn btn-outline-secondary btn-sm"
@@ -424,57 +483,62 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
+                                                <!-- Shipping Information Section -->
+                                                <div class="">
+                                                    <!-- <h5 class="section-title">
+                                                        <i class="fa fa-shipping-fast me-2"></i>Shipping Information
+                                                    </h5> -->
+                                                    <div class="row">
+                                                        <div class="col-12 mb-3">
+                                                            <label for="ship_to_name" class="form-label">Recipient Name</label>
+                                                            <input type="text" name="ship_to_name" id="ship_to_name"
+                                                                class="form-control" value="{{ old('ship_to_name') }}"
+                                                                placeholder="Enter recipient name">
+                                                        </div>
 
-                                                <div class="row">
-                                                    <div class="col-12 mb-3">
-                                                        <label for="ship_to_name" class="form-label">Recipient Name</label>
-                                                        <input type="text" name="ship_to_name" id="ship_to_name"
-                                                            class="form-control" value="{{ old('ship_to_name') }}"
-                                                            placeholder="Enter recipient name">
-                                                    </div>
+                                                        <div class="col-12 mb-3">
+                                                            <label for="ship_to_address1" class="form-label">Address Line
+                                                                1</label>
+                                                            <input type="text" name="ship_to_address1" id="ship_to_address1"
+                                                                class="form-control" value="{{ old('ship_to_address1') }}"
+                                                                placeholder="Street address">
+                                                        </div>
 
-                                                    <div class="col-12 mb-3">
-                                                        <label for="ship_to_address1" class="form-label">Address Line
-                                                            1</label>
-                                                        <input type="text" name="ship_to_address1" id="ship_to_address1"
-                                                            class="form-control" value="{{ old('ship_to_address1') }}"
-                                                            placeholder="Street address">
-                                                    </div>
+                                                        <div class="col-12 mb-3">
+                                                            <label for="ship_to_address2" class="form-label">Address Line 2
+                                                                (Optional)</label>
+                                                            <input type="text" name="ship_to_address2" id="ship_to_address2"
+                                                                class="form-control" value="{{ old('ship_to_address2') }}"
+                                                                placeholder="Apt, suite, unit, etc.">
+                                                        </div>
 
-                                                    <div class="col-12 mb-3">
-                                                        <label for="ship_to_address2" class="form-label">Address Line 2
-                                                            (Optional)</label>
-                                                        <input type="text" name="ship_to_address2" id="ship_to_address2"
-                                                            class="form-control" value="{{ old('ship_to_address2') }}"
-                                                            placeholder="Apt, suite, unit, etc.">
-                                                    </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="ship_to_city" class="form-label">City</label>
+                                                            <input type="text" name="ship_to_city" id="ship_to_city"
+                                                                class="form-control" value="{{ old('ship_to_city') }}"
+                                                                placeholder="City">
+                                                        </div>
 
-                                                    <div class="col-md-6 mb-3">
-                                                        <label for="ship_to_city" class="form-label">City</label>
-                                                        <input type="text" name="ship_to_city" id="ship_to_city"
-                                                            class="form-control" value="{{ old('ship_to_city') }}"
-                                                            placeholder="City">
-                                                    </div>
+                                                        <div class="col-md-3 mb-3">
+                                                            <label for="ship_to_state" class="form-label">State</label>
+                                                            <input type="text" name="ship_to_state" id="ship_to_state"
+                                                                class="form-control" value="{{ old('ship_to_state') }}"
+                                                                placeholder="State">
+                                                        </div>
 
-                                                    <div class="col-md-3 mb-3">
-                                                        <label for="ship_to_state" class="form-label">State</label>
-                                                        <input type="text" name="ship_to_state" id="ship_to_state"
-                                                            class="form-control" value="{{ old('ship_to_state') }}"
-                                                            placeholder="State">
-                                                    </div>
+                                                        <div class="col-md-3 mb-3">
+                                                            <label for="ship_to_zip" class="form-label">ZIP Code</label>
+                                                            <input type="text" name="ship_to_zip" id="ship_to_zip"
+                                                                class="form-control" value="{{ old('ship_to_zip') }}"
+                                                                placeholder="ZIP">
+                                                        </div>
 
-                                                    <div class="col-md-3 mb-3">
-                                                        <label for="ship_to_zip" class="form-label">ZIP Code</label>
-                                                        <input type="text" name="ship_to_zip" id="ship_to_zip"
-                                                            class="form-control" value="{{ old('ship_to_zip') }}"
-                                                            placeholder="ZIP">
-                                                    </div>
-
-                                                    <div class="col-12 mb-3">
-                                                        <label for="ship_to_phone" class="form-label">Phone Number</label>
-                                                        <input type="tel" name="ship_to_phone" id="ship_to_phone"
-                                                            class="form-control" value="{{ old('ship_to_phone') }}"
-                                                            placeholder="Phone number">
+                                                        <div class="col-12 mb-3">
+                                                            <label for="ship_to_phone" class="form-label">Phone Number</label>
+                                                            <input type="tel" name="ship_to_phone" id="ship_to_phone"
+                                                                class="form-control" value="{{ old('ship_to_phone') }}"
+                                                                placeholder="Phone number">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -690,6 +754,9 @@
     <script>
         const customers = @json($customers);
         const franchisee = @json($franchisee);
+        const allFranchises = @json($allFranchises);
+        const currentFranchise = "{{ $franchise }}";
+        let selectedFranchiseData = franchisee; // Will be updated when franchise is selected
 
         // Simple test function to check sessionStorage
         function testSessionStorage() {
@@ -761,6 +828,9 @@
         // Load items from sessionStorage on page load
         document.addEventListener('DOMContentLoaded', function () {
             console.log('Page loaded, testing sessionStorage...');
+
+            // Check URL parameters for franchise pre-selection
+            checkUrlParameters();
 
             // Start monitoring customer dropdown changes
             setTimeout(function () {
@@ -896,9 +966,14 @@
                 }
             });
 
-            // Find insertion point (before required charges)
-            const firstChargeRow = tbody.querySelector('.required-charge, .optional-charge');
-            const insertionPoint = firstChargeRow ? firstChargeRow.closest('tr') : null;
+            // Find insertion point - always insert before totals section
+            // Look for charge rows first, then totals as fallback
+            let insertionPoint = tbody.querySelector('.required-charge, .optional-charge');
+            if (!insertionPoint) {
+                // If no charges, insert before the subtotal row
+                insertionPoint = tbody.querySelector('.subtotal-row');
+            }
+            insertionPoint = insertionPoint ? insertionPoint.closest('tr') : null;
 
             // Process each item
             for (let index = 0; index < items.length; index++) {
@@ -964,7 +1039,8 @@
                 if (insertionPoint) {
                     tbody.insertBefore(row, insertionPoint);
                 } else {
-                    tbody.appendChild(row);
+                    // This should not happen if totals rows exist, but fallback to prepend
+                    tbody.insertBefore(row, tbody.firstChild);
                 }
 
                 console.log('Created form input for item ' + index + ' with ID: ' + item.id);
@@ -1016,7 +1092,7 @@
                 console.log('Customer not found for ID:', customerId);
                 console.log('Available customers:', customers);
                 // If no customer found, use route franchise ID
-                document.getElementById('franchise_id').value = {{ $franchise }};
+                document.getElementById('franchise_id').value = "{{ $franchise }}";
                 return;
             }
 
@@ -1028,8 +1104,8 @@
                 console.log('✅ Updated franchise_id to customer franchise:', customer.franchise_id);
             } else {
                 // Fallback to route franchise ID if customer has no franchise_id
-                document.getElementById('franchise_id').value = {{ $franchise }};
-                console.log('⚠️ Customer has no franchise_id, using route franchise:', {{ $franchise }});
+                document.getElementById('franchise_id').value = "{{ $franchise }}";
+                console.log('⚠️ Customer has no franchise_id, using route franchise:', "{{ $franchise }}");
             }
 
             fillShippingFields({
@@ -1044,7 +1120,13 @@
         }
 
         function autofillFranchisee() {
-            if (!franchisee) return;
+            // Use selectedFranchiseData if available, otherwise fall back to franchisee
+            const franchiseToUse = selectedFranchiseData || franchisee;
+            
+            if (!franchiseToUse) {
+                console.log('❌ No franchise data available');
+                return;
+            }
 
             console.log('🏢 Using franchise address and clearing customer selection');
 
@@ -1059,20 +1141,25 @@
             
             console.log('✅ Customer dropdown cleared');
 
-            // Reset franchise_id to route franchise ID (since no customer is selected)
-            const routeFranchiseId = {{ $franchise }};
-            document.getElementById('franchise_id').value = routeFranchiseId;
-            console.log('✅ Franchise ID reset to route franchise:', routeFranchiseId);
+            // Update franchise_id to the selected franchise
+            if (selectedFranchiseData) {
+                document.getElementById('franchise_id').value = selectedFranchiseData.id;
+                console.log('✅ Franchise ID set to selected franchise:', selectedFranchiseData.id);
+            } else {
+                const routeFranchiseId = "{{ $franchise }}";
+                document.getElementById('franchise_id').value = routeFranchiseId;
+                console.log('✅ Franchise ID reset to route franchise:', routeFranchiseId);
+            }
 
             // Fill franchise address fields
             fillShippingFields({
-                name: franchisee.business_name ?? '',
-                address1: franchisee.address1 ?? '',
-                address2: franchisee.address2 ?? '',
-                city: franchisee.city ?? '',
-                state: franchisee.state ?? '',
-                zip: franchisee.zip_code ?? '',
-                phone: franchisee.phone ?? '',
+                name: franchiseToUse.business_name ?? '',
+                address1: franchiseToUse.address1 ?? '',
+                address2: franchiseToUse.address2 ?? '',
+                city: franchiseToUse.city ?? '',
+                state: franchiseToUse.state ?? '',
+                zip: franchiseToUse.zip_code ?? '',
+                phone: franchiseToUse.contact_number ?? franchiseToUse.phone ?? '',
             });
             
             console.log('✅ Franchise address filled');
@@ -1103,7 +1190,7 @@
             console.log('✅ Customer dropdown cleared');
 
             // Reset franchise_id to route franchise ID (since no customer is selected)
-            const routeFranchiseId = {{ $franchise }};
+            const routeFranchiseId = "{{ $franchise }}";
             document.getElementById('franchise_id').value = routeFranchiseId;
             console.log('✅ Franchise ID reset to route franchise:', routeFranchiseId);
 
@@ -1117,6 +1204,99 @@
             document.getElementById('ship_to_phone').value = '';
             
             console.log('✅ Shipping fields cleared');
+        }
+
+        // Handle franchise selection from dropdown
+        function handleFranchiseSelection(franchiseId) {
+            console.log('🏢 Franchise selected:', franchiseId);
+               if (!franchiseId) {
+                selectedFranchiseData = null;
+                document.getElementById('franchise_id').value = "{{ $franchise }}";
+                
+                // Clear customer dropdown
+                clearCustomerDropdown();
+                console.log('❌ No franchise selected, button disabled');
+                return;
+            }
+            
+            // Find selected franchise data
+            const selectedOption = document.querySelector(`#selected_franchise_id option[value="${franchiseId}"]`);
+            if (selectedOption) {
+                selectedFranchiseData = {
+                    id: franchiseId,
+                    business_name: selectedOption.getAttribute('data-business-name'),
+                    address1: selectedOption.getAttribute('data-address1'),
+                    address2: selectedOption.getAttribute('data-address2'),
+                    city: selectedOption.getAttribute('data-city'),
+                    state: selectedOption.getAttribute('data-state'),
+                    zip_code: selectedOption.getAttribute('data-zip'),
+                    contact_number: selectedOption.getAttribute('data-phone')
+                };
+                
+                // Update form franchise_id
+                document.getElementById('franchise_id').value = franchiseId;
+            
+                loadCustomersForFranchise(franchiseId);
+                
+                console.log('✅ Franchise selected and button enabled:', selectedFranchiseData.business_name);
+            }
+        }
+        
+        // Load customers for selected franchise
+        function loadCustomersForFranchise(franchiseId) {
+            const customerDropdown = $('#customer_id');
+            
+            // Clear existing options
+            customerDropdown.empty().append('<option value="">-- Select Customer --</option>');
+            
+            // In a real implementation, you would make an AJAX call here
+            // For now, we'll filter from the initial customers data if available
+            // Or make an AJAX call to get customers for the franchise
+            
+            $.ajax({
+                url: `/franchise/${franchiseId}/customers`,
+                method: 'GET',
+                success: function(response) {
+                    if (response.data && response.data.length > 0) {
+                        response.data.forEach(function(customer) {
+                            customerDropdown.append(`<option value="${customer.id}">${customer.name} - ${customer.address1}</option>`);
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading customers:', error);
+                    // Fallback: use empty customer list
+                }
+            });
+            
+            console.log('🔄 Loading customers for franchise:', franchiseId);
+        }
+        
+        // Clear customer dropdown
+        function clearCustomerDropdown() {
+            const customerDropdown = $('#customer_id');
+            customerDropdown.empty().append('<option value="">-- Select Customer --</option>');
+            if (customerDropdown.hasClass('select2-hidden-accessible')) {
+                customerDropdown.val('').trigger('change');
+            }
+        }
+        
+        // Check URL parameters on page load
+        function checkUrlParameters() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlFranchiseId = urlParams.get('franchise_id');
+            
+            // If URL contains a specific franchise_id and we have the franchise dropdown
+            if (urlFranchiseId && urlFranchiseId !== 'all' && document.getElementById('selected_franchise_id')) {
+                const franchiseDropdown = document.getElementById('selected_franchise_id');
+                const option = franchiseDropdown.querySelector(`option[value="${urlFranchiseId}"]`);
+                
+                if (option) {
+                    franchiseDropdown.value = urlFranchiseId;
+                    handleFranchiseSelection(urlFranchiseId);
+                    console.log('🎯 Pre-selected franchise from URL:', urlFranchiseId);
+                }
+            }
         }
     </script>
 @endpush
