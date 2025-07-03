@@ -30,6 +30,9 @@
     .logo {
         height: 5rem;
     }
+    .select2-container {
+        min-width: 350px;
+    }
 
     /* Hide logo on mobile and tablet, then show after hamburger */
     @media (max-width: 768px) {
