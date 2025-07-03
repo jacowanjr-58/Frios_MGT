@@ -7,35 +7,78 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Franchise;
 use Carbon\Carbon;
+use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Auth;
+
 class StaffController extends Controller
 {
     public function index($franchisee)
     {
         $franchiseeId = $franchisee;
-
-        $users = User::
-            when($franchiseeId != 'all', function ($query) use ($franchiseeId) {
+        $totalUsers = User::when($franchiseeId != 'all', function ($query) use ($franchiseeId) {
                 return $query->whereHas('franchises', function ($query) use ($franchiseeId) {
                     $query->where('franchises.id', $franchiseeId);
                 });
             })
             ->whereIn('role', ['franchise_manager', 'franchise_staff'])
-            ->get();
+            ->count();
 
-        $totalUsers = $users->count();
+        $users = User::with('franchises')
+            ->when($franchiseeId != 'all', function ($query) use ($franchiseeId) {
+                return $query->whereHas('franchises', function ($query) use ($franchiseeId) {
+                    $query->where('franchises.id', $franchiseeId);
+                });
+            })
+            ->whereIn('role', ['franchise_manager', 'franchise_staff']);
 
-        return view('franchise_admin.staff.index', compact('users', 'totalUsers', 'franchiseeId'));
+        if (request()->ajax()) {
+            return DataTables::of($users)
+                ->addColumn('franchise_name', function ($user) {
+                    return $user->franchises->first() ? $user->franchises->first()->business_name : 'N/A';
+                })
+                ->addColumn('date_joined', function ($user) {
+                    return $user->date_joined ?? 'N/A';
+                })
+                ->addColumn('role', function ($user) {
+                    return ucwords(str_replace('_', ' ', $user->role));
+                })
+                ->addColumn('action', function ($user) use ($franchiseeId) {
+                    $editUrl = route('franchise.staff.edit', ['franchise' => $franchiseeId, 'staff' => $user->id]);
+                    $deleteUrl = route('franchise.staff.destroy', ['franchise' => $franchiseeId, 'staff' => $user->id]);
+
+                    $actions = '<div class="d-flex">';
+                    
+                    // Edit button
+                    $actions .= '<a href="'.$editUrl.'" class="edit-staff">
+                        <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
+                    </a>';
+                    
+                    // Delete button
+                    $actions .= '<form action="'.$deleteUrl.'" method="POST">
+                        '.csrf_field().'
+                        '.method_field('DELETE').'
+                        <button type="submit" class="ms-4 delete-staff">
+                            <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
+                        </button>
+                    </form>';
+                    
+                    $actions .= '</div>';
+                    
+                    return $actions;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('franchise_admin.staff.index', compact('totalUsers', 'franchiseeId'));
     }
 
-
     // Show create form
-
     public function create($franchisee)
     {
         $franchises = Franchise::all();
         return view('franchise_admin.staff.create', compact('franchisee', 'franchises'));
     }
-
 
     public function store(Request $request)
     {
@@ -50,35 +93,29 @@ class StaffController extends Controller
             'franchise_id' => 'required|exists:franchises,id',
         ]);
 
-        // dd($request->all());
-
         $franchiseeId = $request->franchise_id;
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
-            'role' => $request->role, // Storing role in the database
+            'role' => $request->role,
             'phone_number' => $request->phone_number,
-            'date_joined' => $request->date_joined, // Storing the current date
+            'date_joined' => $request->date_joined,
         ]);
 
         $user->franchises()->attach($franchiseeId);
-
-        // Assign the role using Spatie Role Permission
         $user->assignRole($request->role);
 
         // Role-based redirection
-        if (auth()->user()->hasRole('franchise_admin')) {
-            return redirect()->route('franchise.staff.index')->with('success', 'Staff created successfully.');
-        } elseif (auth()->user()->hasRole('franchise_manager')) {
-            return redirect()->route('franchise.staff.index')->with('success', 'Staff created successfully.');
+        if (Auth::user()->hasRole('franchise_admin')) {
+            return redirect()->route('franchise.staff.index', ['franchisee' => $franchiseeId])->with('success', 'Staff created successfully.');
+        } elseif (Auth::user()->hasRole('franchise_manager')) {
+            return redirect()->route('franchise.staff.index', ['franchisee' => $franchiseeId])->with('success', 'Staff created successfully.');
         }
 
-        // Default redirection if no role matches
         return redirect()->back()->with('success', 'Staff created successfully.');
     }
-
 
     public function edit($franchisee, User $staff)
     {
@@ -100,39 +137,37 @@ class StaffController extends Controller
             'franchise_id' => 'required|exists:franchises,id',
         ]);
 
-        // dd($request->all());
         $franchiseeId = $request->franchise_id;
 
-        $staff->update([
+        $updateData = [
             'name' => $request->name,
             'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'role' => $request->role, // Storing role in the database
+            'role' => $request->role,
             'phone_number' => $request->phone_number,
             'date_joined' => $request->date_joined,
-        ]);
-
-        $staff->franchises()->sync([$franchiseeId]);
+        ];
 
         if ($request->filled('password')) {
-            $staff->update(['password' => bcrypt($request->password)]);
+            $updateData['password'] = bcrypt($request->password);
         }
 
-        // dd($request);
+        $staff->update($updateData);
+        $staff->franchises()->sync([$franchiseeId]);
+
         // Role-based redirection
-        if (auth()->user()->hasRole('franchise_admin')) {
-            return redirect()->route('franchise.staff.index')->with('success', 'Staff updated successfully.');
-        } elseif (auth()->user()->hasRole('franchise_manager')) {
-            return redirect()->route('franchise.staff.index')->with('success', 'Staff updated successfully.');
+        if (Auth::user()->hasRole('franchise_admin')) {
+            return redirect()->route('franchise.staff.index', ['franchise' => $franchiseeId])->with('success', 'Staff updated successfully.');
+        } elseif (Auth::user()->hasRole('franchise_manager')) {
+            return redirect()->route('franchise.staff.index', ['franchise' => $franchiseeId])->with('success', 'Staff updated successfully.');
         }
 
-        // Default redirection if no role matches
         return redirect()->back()->with('success', 'Staff updated successfully.');
     }
+
     public function destroy($franchisee, $id)
     {
         try {
-            $user = User::find($id); // Find user by user_id
+            $user = User::find($id);
             if ($user) {
                 if ($franchisee === 'all') {
                     $user->franchises()->detach();
@@ -147,6 +182,4 @@ class StaffController extends Controller
             return redirect()->back()->with('error', 'Failed to delete user.');
         }
     }
-
-
 }
