@@ -7,36 +7,27 @@ use App\Models\InventoryMaster;
 use App\Models\FgpItem;
 use App\Models\InventoryLocation;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use App\Models\User;
 use App\Models\Franchise;
 use Yajra\DataTables\Facades\DataTables;
 
 class InventoryController extends Controller
 {
     /**
-     * Display a listing of the franchisee's inventory master records.
+     * Display a listing of the franchise's inventory master records.
      */
-    public function index(Request $request, $franchisee)
+    public function index(Request $request, Franchise $franchise)
     {
-        $user = Auth::user();
-
-        // Verify that the user has access to this franchisee
-        $hasAccess = DB::table('user_franchises')
-            ->where('user_id', $user->user_id)
-            ->where('franchise_id', (int) $franchisee)
-            ->exists();
-
+        // Verify that the user has access to this franchise
+        $hasAccess = auth()->user()->franchises()->where('franchise_id', $franchise->id)->exists();
         if (!$hasAccess) {
-            abort(403, 'Unauthorized access to this franchisee');
+            abort(403, 'Unauthorized access to this franchise');
         }
 
         if ($request->ajax()) {
             $query = InventoryMaster::with('flavor')
-                ->where('franchise_id', (int) $franchisee)
+                ->where('franchise_id', $franchise->id)
                 ->where('total_quantity', '>', 0);
 
             return DataTables::of($query)
@@ -63,14 +54,14 @@ class InventoryController extends Controller
                     }
                     return '$' . number_format($inventory->cogs_case, 2);
                 })
-                ->addColumn('action', function ($inventory) use ($franchisee) {
-                    return '<a href="' . route('franchise.inventory.edit', ['franchisee' => $franchisee, 'inventoryMaster' => $inventory->inventory_id]) . '" class="text-blue-600 hover:underline">Edit</a>';
+                ->addColumn('action', function ($inventory) use ($franchise) {
+                    return '<a href="' . route('franchise.inventory.edit', ['franchise' => $franchise->id, 'inventoryMaster' => $inventory->inventory_id]) . '" class="text-blue-600 hover:underline">Edit</a>';
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
 
-        $totalInventories = InventoryMaster::where('franchise_id', (int) $franchisee)
+        $totalInventories = InventoryMaster::where('franchise_id', $franchise->id)
             ->where('total_quantity', '>', 0)
             ->count();
 
@@ -82,25 +73,19 @@ class InventoryController extends Controller
      * Show the form for creating a new inventory master record.
      * Create either an item from Corporate FGP items or a custom item.
      */
-    public function create(Request $request, $franchisee)
+    public function create(Request $request, $franchise)
     {
-
-        $user = Auth::user();
-
-        // Verify that the user has access to this franchisee
-        $hasAccess = DB::table('user_franchises')
-            ->where('user_id', $user->user_id)
-            ->where('franchise_id', (int) $franchisee)
-            ->exists();
-
+        // Verify that the user has access to this franchise
+        $hasAccess = auth()->user()->franchises()->where('franchise_id', $franchise->id)->exists();
         if (!$hasAccess) {
-            abort(403, 'Unauthorized access to this franchisee');
+            abort(403, 'Unauthorized access to this franchise');
         }
 
         $fgpItems = FgpItem::orderBy('name')->get();
-        $locations = InventoryLocation::where('franchise_id', $franchisee)
+        $locations = InventoryLocation::where('franchise_id', $franchise->id)
             ->orderBy('name')
             ->get();
+
         $today = now()->format('Y-m-d');
 
         return view('franchise_admin.inventory.create', compact(
@@ -115,18 +100,12 @@ class InventoryController extends Controller
      *
      * This method handles both corporate items (by fpg_items_id) and custom items (by name).
      */
-    public function store(Request $request, $franchisee)
+    public function store(Request $request, Franchise $franchise)
     {
-        $user = Auth::user();
-
-        // Verify that the user has access to this franchisee
-        $hasAccess = DB::table('user_franchises')
-            ->where('user_id', $user->user_id)
-            ->where('franchise_id', (int) $franchisee)
-            ->exists();
-
+        // Verify that the user has access to this franchise
+        $hasAccess = auth()->user()->franchises()->where('franchise_id', $franchise->id)->exists();
         if (!$hasAccess) {
-            abort(403, 'Unauthorized access to this franchisee');
+            abort(403, 'Unauthorized access to this franchise');
         }
 
         // 1️⃣ Validation
@@ -160,7 +139,7 @@ class InventoryController extends Controller
 
         // 3️⃣ Handle duplicates: if corporate selected with no custom name and record exists
         if (!empty($data['fgp_item_id']) && empty($data['custom_item_name'])) {
-            $exists = InventoryMaster::where('franchise_id', $franchisee)
+            $exists = InventoryMaster::where('franchise_id', $franchise->id)
                 ->where('fgp_item_id', $data['fgp_item_id'])
                 ->exists();
             if ($exists) {
@@ -183,9 +162,9 @@ class InventoryController extends Controller
         }
 
         // 5️⃣ Persist master and allocations
-        DB::transaction(function () use ($data, $franchisee, $request, $totalQty) {
+        DB::transaction(function () use ($data, $franchise, $request, $totalQty) {
             $master = InventoryMaster::create([
-                'franchise_id' => (int)$franchisee,
+                'franchise_id' => $franchise->id,
                 'fgp_item_id' => $data['fgp_item_id'],
                 'custom_item_name' => $data['custom_item_name'],
                 'stock_count_date' => $data['stock_count_date'],
@@ -216,7 +195,7 @@ class InventoryController extends Controller
                 $qty = $alloc['cases'] * $master->split_factor + $alloc['units'];
                 if ($qty > 0) {
                     $master->allocations()->create([
-                        'franchise_id' => (int)$franchisee,
+                        'franchise_id' => $franchise->id,
                         'inventory_id' => $master->inventory_id,
                         'location_id' => $locId,
                         'location' => $locId,
@@ -229,29 +208,23 @@ class InventoryController extends Controller
             }
         });
 
-        return redirect()->route('franchise.inventory.index', ['franchisee' => $franchisee])
+        return redirect()->route('franchise.inventory.index', ['franchise' => $franchise->id])
             ->with('success', 'Inventory created successfully.');
     }
     /**
      * Show the form for editing the specified inventory master record.
      *
      */
-    public function edit($franchisee, $inventoryMaster)
+    public function edit(Franchise $franchise, $inventoryMaster)
     {
-        $user = Auth::user();
-        
-        // Verify that the user has access to this franchisee
-        $hasAccess = DB::table('user_franchises')
-            ->where('user_id', $user->user_id)
-            ->where('franchise_id', (int) $franchisee)
-            ->exists();
-           
+        // Verify that the user has access to this franchise
+        $hasAccess = auth()->user()->franchises()->where('franchise_id', $franchise->id)->exists();
         if (!$hasAccess) {
-            abort(403, 'Unauthorized access to this franchisee');
+            abort(403, 'Unauthorized access to this franchise');
         }
 
         // Get the specific inventory master record
-        $inventoryMaster = InventoryMaster::where('franchise_id', (int) $franchisee)
+        $inventoryMaster = InventoryMaster::where('franchise_id', $franchise->id)
             ->where('inventory_id', $inventoryMaster)
             ->firstOrFail();
 
@@ -259,7 +232,7 @@ class InventoryController extends Controller
         $inventoryMaster->load('flavor', 'allocations');
 
         // fetch locations for the allocation grid
-        $locations = InventoryLocation::where('franchise_id', (int) $franchisee)
+        $locations = InventoryLocation::where('franchise_id', $franchise->id)
             ->orderBy('name')
             ->get();
 
@@ -286,22 +259,16 @@ class InventoryController extends Controller
     /**
      * Update the specified inventory master record in storage.
      */
-    public function update(Request $request, $franchisee, $inventoryMaster)
+    public function update(Request $request, Franchise $franchise, $inventoryMaster)
     {
-        $user = Auth::user();
-        
-        // Verify that the user has access to this franchisee
-        $hasAccess = DB::table('user_franchises')
-            ->where('user_id', $user->user_id)
-            ->where('franchise_id', (int) $franchisee)
-            ->exists();
-           
+        // Verify that the user has access to this franchise
+        $hasAccess = auth()->user()->franchises()->where('franchise_id', $franchise->id)->exists();
         if (!$hasAccess) {
-            abort(403, 'Unauthorized access to this franchisee');
+            abort(403, 'Unauthorized access to this franchise');
         }
 
         // Get the specific inventory master record
-        $inventoryMaster = InventoryMaster::where('franchise_id', (int) $franchisee)
+        $inventoryMaster = InventoryMaster::where('franchise_id', $franchise->id)
             ->where('inventory_id', $inventoryMaster)
             ->firstOrFail();
 
@@ -375,7 +342,7 @@ class InventoryController extends Controller
                     $qty = $alloc['cases'] * $inventoryMaster->split_factor + $alloc['units'];
                     if ($qty > 0) {
                         $inventoryMaster->allocations()->create([
-                            'franchise_id' => (int)$franchisee,
+                            'franchise_id' => $franchise->id,
                             'location_id' => $locId,
                             'location' => $locId,
                             'allocated_cases' => $alloc['cases'],
@@ -388,7 +355,7 @@ class InventoryController extends Controller
             });
 
             return redirect()
-                ->route('franchise.inventory.index', ['franchisee' => $franchisee])
+                ->route('franchise.inventory.index', ['franchise' => $franchise->id])
                 ->with('success', 'Inventory updated successfully.');
 
         } catch (\Exception $e) {
@@ -401,13 +368,12 @@ class InventoryController extends Controller
     /**
      * Remove the specified inventory master record from storage.
      */
-    public function destroy(InventoryMaster $inventoryMaster)
+    public function destroy(Franchise $franchise, InventoryMaster $inventoryMaster)
     {
-        //  $this->authorize('delete', $inventoryMaster);
-
-        $franchiseId = Auth::user()->franchise_id;
-        if ($inventoryMaster->franchise_id !== $franchiseId) {
-            abort(403);
+        // Verify that the user has access to this franchise
+        $hasAccess = auth()->user()->franchises()->where('franchise_id', $franchise->id)->exists();
+        if (!$hasAccess) {
+            abort(403, 'Unauthorized access to this franchise');
         }
 
         // Deleting the master row will cascade to allocations & transactions via FKs

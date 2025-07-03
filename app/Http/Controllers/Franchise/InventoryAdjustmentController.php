@@ -2,30 +2,28 @@
 
 namespace App\Http\Controllers\Franchise;
 
-use App\Http\Controllers\Controller;
-use App\Models\InventoryMaster;
-use App\Models\InventoryTransaction;
+use App\Models\Franchise;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\InventoryMaster;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Models\InventoryTransaction;
+use Illuminate\Support\Facades\Auth;
 
 class InventoryAdjustmentController extends Controller
 {
-    public function adjustForm($franchisee)
+    public function adjustForm(Franchise $franchise)
     {
-        $franchiseId = (int)$franchisee; //Auth::user()->franchise_id;
-        
-        $inventoryMasters = InventoryMaster::where('franchise_id', $franchiseId)->get();
+        $inventoryMasters = InventoryMaster::where('franchise_id', $franchise->id)->get();
         return view('franchise_admin.inventory.adjust', [
             'inventoryMasters' => $inventoryMasters
         ]);
     }
 
    // ... existing code ...
-   public function adjustUpdate(Request $request, $franchisee)
+   public function adjustUpdate(Request $request, Franchise $franchise)
    {
-       $franchiseId = (int)$franchisee;
-       $inventoryMasters = InventoryMaster::where('franchise_id', $franchiseId)->get();
+       $inventoryMasters = InventoryMaster::where('franchise_id', $franchise->id)->get();
 
        DB::beginTransaction();
        try {

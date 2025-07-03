@@ -4,7 +4,7 @@
 @section('content')
 <div class="content-body default-height">
   
-        <form method="POST" action="{{ route('franchise.inventory.bulk_price.update', ['franchisee' => request()->route('franchisee')]) }}">
+        <form method="POST" action="{{ route('franchise.inventory.bulk_price.update', ['franchise' => request()->route('franchise')]) }}">
             @csrf
             <div class="container-fluid">
                 <div class="form-head mb-4 d-flex flex-wrap align-items-center">

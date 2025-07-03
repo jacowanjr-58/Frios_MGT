@@ -9,7 +9,7 @@
         <div class="container-fluid">
             <div class="row page-titles">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('franchise.locations.index', ['franchisee' => request()->route('franchisee')]) }}">Location</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('franchise.locations.index', ['franchise' => request()->route('franchise')]) }}">Location</a></li>
                     <li class="breadcrumb-item active"><a href="javascript:void(0)">Create Location</a></li>
                 </ol>
             </div>
@@ -40,7 +40,7 @@
 
 
 
-                                            <form action="{{ route('franchise.locations.store', ['franchisee' => request()->route('franchisee')]) }}" method="POST">
+                                            <form action="{{ route('franchise.locations.store', ['franchise' => request()->route('franchise')]) }}" method="POST">
                                                 @csrf
                                                 <div class="row">
 

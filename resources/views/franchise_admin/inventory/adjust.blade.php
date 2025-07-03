@@ -5,7 +5,7 @@
         <!-- row -->
         <div class="container-fluid">
             <form method="POST"
-                action="{{ route('franchise.inventory.adjust.update', ['franchisee' => request()->route('franchisee')]) }}">
+                action="{{ route('franchise.inventory.adjust.update', ['franchise' => request()->route('franchise')]) }}">
                 @csrf
                 <div class="container-fluid">
                     <div class="form-head mb-4 d-flex flex-wrap align-items-center">

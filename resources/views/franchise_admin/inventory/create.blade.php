@@ -3,7 +3,7 @@
 @php use Illuminate\Support\Facades\Storage; @endphp
 
 @section('content')
-<form id="inventoryForm" action="{{ route('franchise.inventory.store', ['franchisee' => request()->route('franchisee')]) }}" method="POST" enctype="multipart/form-data">
+<form id="inventoryForm" action="{{ route('franchise.inventory.store', ['franchise' => request()->route('franchise')]) }}" method="POST" enctype="multipart/form-data">
     @csrf
 
     <div class="content-body default-height">
@@ -13,7 +13,7 @@
         <div class="row mb-4">
           <div class="col"><h3>Create Inventory Record</h3></div>
           <div class="col text-end">
-            <a href="{{ route('franchise.inventory.index', ['franchisee' => request()->route('franchisee')]) }}" class="btn btn-secondary">← Back to List</a>
+            <a href="{{ route('franchise.inventory.index', ['franchise' => request()->route('franchise')]) }}" class="btn btn-secondary">← Back to List</a>
           </div>
         </div>
 

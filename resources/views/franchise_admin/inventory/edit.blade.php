@@ -3,7 +3,7 @@
 @php use Illuminate\Support\Facades\Storage; @endphp
 
 @section('content')
-<form id="editForm" action="{{ route('franchise.inventory.update', ['franchisee' => request()->route('franchisee'), 'inventoryMaster' => $inventoryMaster->inventory_id]) }}" method="POST" enctype="multipart/form-data">
+<form id="editForm" action="{{ route('franchise.inventory.update', ['franchise' => request()->route('franchise'), 'inventoryMaster' => $inventoryMaster->inventory_id]) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
 
@@ -14,7 +14,7 @@
         <div class="row mb-4">
           <div class="col"><h3>Edit Inventory Record</h3></div>
           <div class="col text-end">
-            <a href="{{ route('franchise.inventory.index', ['franchisee' => request()->route('franchisee')]) }}" class="btn btn-secondary">← Back to List</a>
+            <a href="{{ route('franchise.inventory.index', ['franchise' => request()->route('franchise')]) }}" class="btn btn-secondary">← Back to List</a>
           </div>
         </div>
 

@@ -42,10 +42,8 @@ Route::middleware(['auth'])
          */
 
         // View inventory routes
-        Route::middleware('permission:inventory.view')->group(function () {
-            Route::get('/', [InventoryController::class, 'index'])
-                ->name('index')->middleware('permission:inventory.view');
-        });
+        Route::get('/', [InventoryController::class, 'index'])
+            ->name('index')->middleware('permission:inventory.view');
 
         Route::middleware('permission:inventory.create')->group(function () {
             Route::get('create', [InventoryController::class, 'create'])
@@ -91,7 +89,7 @@ Route::middleware(['auth'])
         /* Route::get('receive', [InventoryReceiveController::class, 'receiveForm'])
          ->name('receive.form');
 
-    Route::post('receive', [InventoryReceiveController::class, 'receiveStore'])
+        Route::post('receive', [InventoryReceiveController::class, 'receiveStore'])
          ->name('receive.store'); */
 
 
@@ -103,10 +101,10 @@ Route::middleware(['auth'])
          *   POST /franchise/inventory/adjust      → adjustUpdate
          */
         Route::get('adjust', [InventoryAdjustmentController::class, 'adjustForm'])
-            ->name('adjust.form')->middleware('permission:inventory.adjust');
+            ->name('adjust.form')->middleware('permission:inventory.bulk_adjust');
 
         Route::post('adjust', [InventoryAdjustmentController::class, 'adjustUpdate'])
-            ->name('adjust.update')->middleware('permission:inventory.adjust');
+            ->name('adjust.update')->middleware('permission:inventory.bulk_adjust');
 
 
         /**
@@ -131,7 +129,7 @@ Route::middleware(['auth'])
          *   POST   /franchise/inventory/remove/{id}/confirm   → confirm
          *   DELETE /franchise/inventory/remove/{id}/cancel    → cancel
          */
-        Route::middleware('permission:inventory.remove')->group(function () {
+        Route::middleware('permission:inventory.delete')->group(function () {
             Route::get('remove', [InventoryRemovalController::class, 'showRemovalQueue'])
                 ->name('remove');
 
@@ -150,7 +148,7 @@ Route::middleware(['auth'])
          *
          *
          */
-        Route::middleware('permission:inventory.bulk_price')->group(function () {
+        Route::middleware('permission:inventory.bulk_price_adjust')->group(function () {
             Route::get('bulk-price', [InventoryAdjustmentController::class, 'showBulkPriceForm'])
                 ->name('bulk_price.form');
 

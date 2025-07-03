@@ -1,6 +1,3 @@
-<!--**********************************
-            Sidebar start
-    ***********************************-->
 @php
     use Illuminate\Support\Facades\Auth;
     $franchiseeId = request()->route('franchise') ?? session('franchise_id');
@@ -44,7 +41,8 @@
                     </a>
                     <ul aria-expanded="{{ Request::routeIs('franchise.staff.*') ? 'true' : 'false' }}"
                         class="{{ Request::routeIs('franchise.staff.*') ? 'mm-collapse mm-show' : '' }}">
-                        <li><a href="{{ route('franchise.staff.index', ['franchise' => $franchiseeId]) }}">Staff list</a></li>
+                        <li><a href="{{ route('franchise.staff.index', ['franchise' => $franchiseeId]) }}">Staff list</a>
+                        </li>
                         <li><a href="{{ route('roles.index') }}">Roles & Permissions</a></li>
                     </ul>
                 </li>
@@ -79,33 +77,32 @@
                         <i class="bi bi-basket3-fill"></i>
                         <span class="nav-text">Frios Flavors</span>
                     </a>
-                   <ul aria-expanded="{{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'true' : 'false' }}"
+                    <ul aria-expanded="{{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'true' : 'false' }}"
                         class="{{ Request::routeIs('fgpitem.*', 'fgpcategory.*') ? 'mm-collapse mm-show' : '' }}">
                         @canany(['frios_flavors.view', 'frios_flavors.create', 'frios_flavors.edit',
-                        'frios_flavors.delete'])
-                        <li><a href="{{ route('fgpitem.index') }}">
-                                Flavors List</a></li>
+                            'frios_flavors.delete'])
+                            <li><a href="{{ route('fgpitem.index') }}">
+                                    Flavors List</a></li>
                         @endcanany
-                        @canany(['frios_availability.create', 'frios_availability.edit',
-                        'frios_availability.delete'])
-                        <li><a href="{{ route('fgpitem.availability') }}">Edit Availability</a>
-                        </li>
+                        @canany(['frios_availability.create', 'frios_availability.edit', 'frios_availability.delete'])
+                            <li><a href="{{ route('fgpitem.availability') }}">Edit Availability</a>
+                            </li>
                         @endcanany
                         @can('flavor_category.view')
-                        <li><a href="{{ route('pops.viewCalendar') }}">
-                                View Availablity</a></li>
+                            <li><a href="{{ route('pops.viewCalendar') }}">
+                                    View Availablity</a></li>
                         @endcan
-                        @canany(['flavor_category.create', 'flavor_category.edit',
-                        'flavor_category.delete'])
-                        <li><a href="{{ route('fgpcategory.index') }}">
-                                Flavor Categories</a></li>
+                        @canany(['flavor_category.create', 'flavor_category.edit', 'flavor_category.delete'])
+                            <li><a href="{{ route('fgpcategory.index') }}">
+                                    Flavor Categories</a></li>
                         @endcanany
 
                     </ul>
                 </li>
             @endcanany
 
-            @canany(['orders.view', 'orders.create', 'orders.edit', 'orders.delete','additional_charges.view','additional_charges.create','additional_charges.edit'])
+            @canany(['orders.view', 'orders.create', 'orders.edit', 'orders.delete', 'additional_charges.view',
+                'additional_charges.create', 'additional_charges.edit'])
                 <li class="{{ Request::routeIs('orders.*', 'orderpops', 'additional-charges.*') ? 'mm-active' : '' }}">
                     <a class="has-arrow ai-icon {{ Request::routeIs('orders.*', 'orderpops', 'additional-charges.*') ? 'active' : '' }}"
                         href="javascript:void()"
@@ -116,10 +113,11 @@
                     <ul aria-expanded="{{ Request::routeIs('orders.*', 'orderpops', 'additional-charges.*') ? 'true' : 'false' }}"
                         class="{{ Request::routeIs('orders.*', 'orderpops', 'additional-charges.*') ? 'mm-collapse mm-show' : '' }}">
                         <li><a href="{{ route('franchise.orders', ['franchise' => $franchiseeId]) }}">
-                        Order Pops</a></li>
-                        @canany(['additional_charges.view', 'additional_charges.create', 'additional_charges.edit','additional_charges.delete'])
-                        <li><a href="{{ route('additional-charges.index') }}">
-                        Additional Charges</a></li>
+                                Order Pops</a></li>
+                        @canany(['additional_charges.view', 'additional_charges.create', 'additional_charges.edit',
+                            'additional_charges.delete'])
+                            <li><a href="{{ route('additional-charges.index') }}">
+                                    Additional Charges</a></li>
                         @endcanany
                     </ul>
                 </li>
@@ -197,8 +195,9 @@
                 </li>
             @endcanany
 
-            @canany(['inventory.view', 'inventory.create', 'inventory.edit', 'inventory.delete'])
-                @if (auth()->user()->role !== 'corporate_admin' && $franchiseeId)
+            @if (!auth()->user()->hasRole('corporate_admin') && $franchiseeId)
+                @canany(['inventory.view', 'inventory.create', 'inventory.edit', 'inventory.delete',
+                    'inventory.bulk_adjust', 'inventory.bulk_price_adjust', 'inventory.allocate', 'inventory.locations'])
                     <li
                         class="{{ Request::routeIs('franchise.inventory.*', 'franchise.locations.*') ? 'mm-active' : '' }}">
                         <a class="has-arrow ai-icon {{ Request::routeIs('franchise.inventory.*', 'franchise.locations.*') ? 'active' : '' }}"
@@ -209,21 +208,32 @@
                         </a>
                         <ul aria-expanded="{{ Request::routeIs('franchise.inventory.*', 'franchise.locations.*') ? 'true' : 'false' }}"
                             class="{{ Request::routeIs('franchise.inventory.*', 'franchise.locations.*') ? 'mm-collapse mm-show' : '' }}">
-                            <li><a href="{{ route('franchise.inventory.index', ['franchise' => $franchiseeId]) }}">Inventory
-                                    List</a></li>
-                            <li><a href="{{ route('franchise.inventory.adjust.form', ['franchise' => $franchiseeId]) }}">Bulk
-                                    Stock Adjust</a></li>
-                            <li><a
-                                    href="{{ route('franchise.inventory.bulk_price.form', ['franchise' => $franchiseeId]) }}">Bulk
-                                    Prices Adjust</a></li>
-                            <li><a href="{{ route('franchise.inventory.locations', ['franchise' => $franchiseeId]) }}">Allocate
-                                    Inventory</a></li>
-                            <li><a href="{{ route('franchise.locations.index', ['franchise' => $franchiseeId]) }}">Allocation
-                                    Locations</a></li>
+                            @canany(['inventory.view', 'inventory.create', 'inventory.edit', 'inventory.delete'])
+                                <li><a href="{{ route('franchise.inventory.index', ['franchise' => $franchiseeId]) }}">Inventory
+                                        List</a></li>
+                            @endcanany
+                            @can('inventory.bulk_adjust')
+                                <li><a
+                                        href="{{ route('franchise.inventory.adjust.form', ['franchise' => $franchiseeId]) }}">Bulk
+                                        Stock Adjust</a></li>
+                            @endcan
+                            @can('inventory.bulk_price_adjust')
+                                <li><a
+                                        href="{{ route('franchise.inventory.bulk_price.form', ['franchise' => $franchiseeId]) }}">Bulk
+                                        Prices Adjust</a></li>
+                            @endcan
+                            @can('inventory.allocate')
+                                <li><a href="{{ route('franchise.inventory.locations', ['franchise' => $franchiseeId]) }}">Allocate
+                                        Inventory</a></li>
+                            @endcan
+                            @can('inventory.locations')
+                                <li><a href="{{ route('franchise.locations.index', ['franchise' => $franchiseeId]) }}">Allocation
+                                        Locations</a></li>
+                            @endcan
                         </ul>
                     </li>
-                @endif
-            @endcanany
+                @endcanany
+            @endif
 
             {{-- @canany(['orders.view', 'orders.create', 'orders.edit', 'orders.delete'])
                 @if (auth()->user()->role !== 'corporate_admin' && $franchiseeId)
@@ -374,6 +384,3 @@
         </div>
     </div>
 </div>
-<!--**********************************
-            Sidebar end
-    ***********************************-->
