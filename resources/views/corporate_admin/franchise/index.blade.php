@@ -419,6 +419,7 @@
             var franchiseTable = $('#franchise-table').DataTable({
                 processing: true,
                 serverSide: true,
+                searching: true,
                 ajax: {
                     url: "{{ route('franchise.index') }}",
                     data: function(d) {
@@ -434,7 +435,9 @@
                     paginate: {
                         next: '<i class="fa fa-angle-double-right"></i>',
                         previous: '<i class="fa fa-angle-double-left"></i>'
-                    }
+                    },
+                    search: "Search Franchises:",
+                    searchPlaceholder: "Type to search..."
                 },
                 drawCallback: function(settings) {
                     // Initialize SweetAlert confirmation for delete buttons

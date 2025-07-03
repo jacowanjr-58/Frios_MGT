@@ -16,6 +16,7 @@ return new class extends Migration
             Schema::create('franchises', function (Blueprint $table) {
                 $table->id();
                 $table->string('business_name');
+                $table->string('ein_ssn_hashed')->nullable();
                 $table->string('contact_number')->nullable();
                 $table->string('address1');
                 $table->string('address2')->nullable();

@@ -33,6 +33,18 @@
                                                     <div class="form-control-plaintext">{{ $franchise->business_name  ?? 'N/A'}}</div>
                                                 </div>
                                                 <div class="mb-3">
+                                                    <label class="form-label">EIN/SSN</label>
+                                                    <div class="form-control-plaintext">{{ $franchise->decrypted_ein_ssn ?? 'N/A' }}</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Contact Number</label>
+                                                    <div class="form-control-plaintext">{{ $franchise->contact_number ?? 'N/A' }}</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Frios Territory Name</label>
+                                                    <div class="form-control-plaintext">{{ $franchise->frios_territory_name ?? 'N/A' }}</div>
+                                                </div>
+                                                <div class="mb-3">
                                                     <label class="form-label">Address 1</label>
                                                     <div class="form-control-plaintext">{{ $franchise->address1 }}</div>
                                                 </div>

@@ -768,6 +768,10 @@ label {
 
 button {
   border-radius: 0;
+  background:transparent;  
+}
+.ti-edit{
+  color: #FF7B31;
 }
 
 button:focus:not(:focus-visible) {

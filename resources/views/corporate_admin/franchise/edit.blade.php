@@ -68,6 +68,23 @@
                                                                 <div class="text-danger">{{ $message }}</div>
                                                             @enderror
                                                         </div>
+                                                        
+                                                        <div class="mb-3">
+                                                            <label class="form-label">EIN/SSN</label>
+                                                            <input type="text"
+                                                                class="form-control @error('ein_ssn') is-invalid @enderror"
+                                                                name="ein_ssn" value="{{ old('ein_ssn', $franchise->decrypted_ein_ssn) }}"
+                                                                placeholder="XX-XXXXXXX (EIN) or XXX-XX-XXXX (SSN)"
+                                                                maxlength="11"
+                                                                id="ein-ssn-input">
+                                                            <small class="form-text text-muted">
+                                                                Enter 9-digit EIN (XX-XXXXXXX) or SSN (XXX-XX-XXXX) to update.
+                                                            </small>
+                                                            @error('ein_ssn')
+                                                                <div class="text-danger">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                        
                                                         <div class="mb-3">
                                                             <label class="form-label">Contact Number <span
                                                                     class="text-danger">*</span></label>
@@ -223,6 +240,43 @@
         $(document).ready(function () {
             let zipSet = new Set(@json($selectedZips)); // Load selected ZIPs
             let zipDropdown = $('#location_zip');
+
+            // EIN/SSN input formatting
+            $('#ein-ssn-input').on('input', function() {
+                let value = this.value.replace(/[^\d]/g, ''); // Remove non-digits
+                let formatted = '';
+                
+                if (value.length > 0) {
+                    if (value.length <= 2) {
+                        formatted = value;
+                    } else if (value.length <= 9) {
+                        // Format as EIN: XX-XXXXXXX
+                        formatted = value.substring(0, 2) + '-' + value.substring(2);
+                    } else {
+                        // Limit to 9 digits
+                        value = value.substring(0, 9);
+                        formatted = value.substring(0, 2) + '-' + value.substring(2);
+                    }
+                }
+                
+                this.value = formatted;
+            });
+
+            // Handle paste events for EIN/SSN
+            $('#ein-ssn-input').on('paste', function(e) {
+                setTimeout(() => {
+                    let value = this.value.replace(/[^\d]/g, '');
+                    if (value.length > 9) {
+                        value = value.substring(0, 9);
+                    }
+                    
+                    if (value.length >= 2) {
+                        this.value = value.substring(0, 2) + '-' + value.substring(2);
+                    } else {
+                        this.value = value;
+                    }
+                }, 0);
+            });
 
             function initializeZipDropdown() {
                 zipDropdown.empty();

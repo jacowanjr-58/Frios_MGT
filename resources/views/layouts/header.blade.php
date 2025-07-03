@@ -19,6 +19,7 @@
             $dropdownFranchises = \App\Models\Franchise::where('created_by', auth()->id())->select('id', 'business_name', 'frios_territory_name')->get();
         }
     }
+   
 @endphp
 
 <style>
@@ -184,12 +185,19 @@
                                     @if ($user->hasRole('corporate_admin'))
                                         <option value="all">All Franchises</option>
                                     @endif
+                                    @php
+                                        $selectedId = $selectedFranchiseId instanceof \App\Models\Franchise
+                                            ? $selectedFranchiseId->id
+                                            : $selectedFranchiseId;
+                                    @endphp
+
                                     @foreach ($dropdownFranchises as $franchise)
                                         <option value="{{ $franchise->id }}"
-                                            {{ $selectedFranchiseId == $franchise->id ? 'selected' : '' }}>
+                                            {{ (string)$selectedId === (string)$franchise->id ? 'selected' : '' }}>
                                             {{ $franchise->business_name }} - {{ $franchise->frios_territory_name }}
                                         </option>
                                     @endforeach
+
                                 </select>
                             </div>
                         </div>

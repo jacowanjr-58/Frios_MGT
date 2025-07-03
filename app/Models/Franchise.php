@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 
 class Franchise extends Model
 {
@@ -19,10 +20,37 @@ class Franchise extends Model
         'zip_code',
         'state',
         'location_zip',
+        'ein_ssn_hashed',
         'ACH_data_API',
         'pos_service_API'
     ];
-    
+
+    /**
+     * Encrypt the EIN/SSN when storing
+     */
+    public function setEinSsnHashedAttribute($value)
+    {
+        if (!empty($value)) {
+            $this->attributes['ein_ssn_hashed'] = Crypt::encryptString($value);
+        }
+    }
+
+    /**
+     * Get decrypted EIN/SSN value for display
+     */
+    public function getDecryptedEinSsnAttribute()
+    {
+        if (!empty($this->attributes['ein_ssn_hashed'])) {
+            try {
+                return Crypt::decryptString($this->attributes['ein_ssn_hashed']);
+            } catch (\Exception $e) {
+                // If decryption fails (maybe it's an old hashed value), return null
+                return null;
+            }
+        }
+        return null;
+    }
+
     /**
      * Define many-to-many relationship with User through user_franchises
      */
