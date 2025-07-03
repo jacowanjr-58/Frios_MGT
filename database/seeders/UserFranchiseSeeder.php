@@ -41,7 +41,7 @@ class UserFranchiseSeeder extends Seeder
             // Corporate Admin - Access to all franchises for corporate oversight
             [
                 'user_email' => 'corporateadmin@friospops.com',
-                'franchise_count' => 5,
+                'franchise_count' => 0,
                 'description' => 'Corporate Admin with broad access'
             ],
             // Franchise Admin - Typically manages 1-2 specific franchises
