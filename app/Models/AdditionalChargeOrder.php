@@ -3,7 +3,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 
 class AdditionalChargeOrder extends Model
 {
@@ -13,7 +12,7 @@ class AdditionalChargeOrder extends Model
    
     protected $fillable = [
         'order_id',
-        'charges_name',
+        'charge_name',
         'charge_amount',
         'charge_type',
     ];

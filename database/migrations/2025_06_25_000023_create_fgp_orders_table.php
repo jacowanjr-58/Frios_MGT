@@ -27,16 +27,11 @@ return new class extends Migration
             $table->string('ship_to_phone', 50)->nullable();
             $table->string('ship_method', 100)->nullable();
             $table->string('tracking_number', 100)->nullable();
-            $table->string('shipstation_order_id')->nullable();
-            $table->text('shipstation_label_url')->nullable();
-            $table->longText('shipstation_raw_response')->nullable();
             $table->decimal('amount', 10, 2)->default(0);
             $table->decimal('additional_charges', 10, 2)->default(0);
             $table->decimal('total_amount', 10, 2)->default(0);
             $table->boolean('is_paid')->default(0);
-            $table->string('shipstation_status')->default('awaiting_payment')->nullable();
             $table->timestamp('delivered_at')->nullable();
-            $table->string('shipstation_webhook_event')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users', 'id');
             $table->foreignId('updated_by')->nullable()->constrained('users', 'id');
             $table->softDeletes();

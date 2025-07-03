@@ -5,8 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class FgpOrderCharge extends Model
 {
@@ -19,7 +17,7 @@ class FgpOrderCharge extends Model
 
     protected $fillable = [
         'order_id',
-        'charges_name',
+        'charge_name',
         'charge_amount',
         'charge_type',
     ];

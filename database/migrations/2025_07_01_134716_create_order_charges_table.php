@@ -13,14 +13,11 @@ return new class extends Migration
     {
         Schema::create('fgp_order_charges', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('order_id');
-            $table->string('charges_name');
+            $table->foreignId('fgp_order_id')->constrained('fgp_orders', 'id');
+            $table->string('charge_name');
             $table->decimal('charge_amount', 10, 2);
-            $table->enum('charge_type', ['fixed', 'percentage']); // or use string() if it's more flexible
+            $table->string('charge_type'); // used string() for more flexible
             $table->timestamps();
-
-            // Optional: Add foreign key if `orders` table exists
-            // $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
         });
     }
 

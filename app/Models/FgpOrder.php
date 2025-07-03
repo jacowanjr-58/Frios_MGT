@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class FgpOrder extends Model
 {
     use HasFactory, SoftDeletes;
+
     protected $guarded = [];
+
     protected static function booted()
     {
         static::creating(function ($fgpOrder) {
@@ -85,8 +86,6 @@ class FgpOrder extends Model
         );
     }
 
-
-
     public function flavorSummary()
     {
         return $this->items->map(function ($item) {
@@ -94,7 +93,7 @@ class FgpOrder extends Model
         })->implode('; ');
     }
 
- /**
+    /**
      * NEW: Summarize what *actually arrived*, by grouping `quantity_received` per flavor.
      */
     public function arrivedFlavorSummary(): string
@@ -111,7 +110,6 @@ class FgpOrder extends Model
             )
             ->implode(', ');
     }
-
 
     public function flavorDetails()
     {
