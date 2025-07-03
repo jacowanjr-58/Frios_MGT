@@ -20,9 +20,9 @@ class CustomerController extends Controller
                     return Carbon::parse($customer->created_at)->format('M d, Y');
                 })
                 ->addColumn('action', function ($customer) {
-                    $viewUrl = route('franchise.customer.view', ['franchisee' => request()->route('franchisee'), 'id' => $customer->id]);
-                    $editUrl = route('franchise.customer.edit', ['franchisee' => request()->route('franchisee'), 'id' => $customer->id]);
-                    $deleteUrl = route('franchise.customer.delete', ['franchisee' => request()->route('franchisee'), 'id' => $customer->id]);
+                    $viewUrl = route('franchise.customer.view', ['franchise' => request()->route('franchise'), 'id' => $customer->id]);
+                    $editUrl = route('franchise.customer.edit', ['franchise' => request()->route('franchise'), 'id' => $customer->id]);
+                    $deleteUrl = route('franchise.customer.delete', ['franchise' => request()->route('franchise'), 'id' => $customer->id]);
                     
                     return '
                     <div class="d-flex">

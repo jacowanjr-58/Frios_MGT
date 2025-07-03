@@ -14,7 +14,7 @@
                 </h1>
             </div>
 
-            <form action="{{ route('franchise.events.report', ['franchisee' => request()->route('franchisee')]) }}" method="GET">
+            <form action="{{ route('franchise.events.report', ['franchise' => request()->route('franchise')]) }}" method="GET">
                 <div class="mt-5 mb-3 flex">
                     <!-- Month Input -->
                     <input type="month" name="month_year" class="w-25 form-control" value="{{ request('month_year', \Carbon\Carbon::now()->format('Y-m')) }}">

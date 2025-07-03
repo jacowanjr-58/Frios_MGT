@@ -125,7 +125,7 @@
                         processing: true,
                         serverSide: true,
                         ajax: {
-                            url: "{{ route('franchise.expense-category', ['franchisee' => request()->route('franchisee')]) }}"
+                            url: "{{ route('franchise.expense-category', ['franchise' => request()->route('franchise')]) }}"
                         },
                         columns: [
                             { data: 'main_category', name: 'main_category' },

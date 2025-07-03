@@ -884,7 +884,7 @@
             }
 
             const filterUrl = @if(request()->route('franchisee'))
-                "{{ route('franchise.dashboard.filter', ['franchisee' => request()->route('franchisee')]) }}"
+                "{{ route('franchise.dashboard.filter', ['franchise' => request()->route('franchise')]) }}"
             @else
                 "{{ route('dashboard.filter') }}"
             @endif;

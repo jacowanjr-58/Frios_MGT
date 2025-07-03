@@ -75,7 +75,7 @@
 
 
                             <td>
-                                <a href="{{ route('franchise.events.view', ['franchisee' => request()->route('franchisee'), 'id' => $event->id]) }}" style="color: inherit; text-decoration: none;" onmouseover="this.style.color='blue'" onmouseout="this.style.color='inherit'">
+                                <a href="{{ route('franchise.events.view', ['franchise' => request()->route('franchise'), 'id' => $event->id]) }}" style="color: inherit; text-decoration: none;" onmouseover="this.style.color='blue'" onmouseout="this.style.color='inherit'">
                                     {{ $event->event_name }}
                                 </a>
 
@@ -154,7 +154,7 @@
                                             {{ date('d M Y', strtotime($event->end_date)) }}
                                         </td>
                                         <td class="d-flex justify-content-around">
-                                            <a href="{{ route('franchise.events.compare', ['event' => $event, 'franchisee' => request()->route('franchisee')]) }}" class="text-success">
+                                            <a href="{{ route('franchise.events.compare', ['event' => $event, 'franchise' => request()->route('franchise')]) }}" class="text-success">
                                                 <i class="fas fa-exchange-alt"></i>
                                             </a>
                                             <button class="text-info">
@@ -199,7 +199,7 @@ function updateStatusColor(select) {
         parentDiv.classList.add('status-staffed');
     }
 
-    fetch("{{ route('franchise.updateStatus', ['franchisee' => request()->route('franchisee')]) }}", {
+    fetch("{{ route('franchise.updateStatus', ['franchise' => request()->route('franchise')]) }}", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

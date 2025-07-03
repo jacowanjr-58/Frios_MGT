@@ -4,7 +4,6 @@ namespace App\Http\Controllers\CorporateAdminControllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Franchise;
-use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
@@ -14,72 +13,60 @@ class FranchiseController extends Controller
     // Show all franchises
     public function index()
     {
-        // $franchiseeId = session('franchise_id');
         $totalFranchises = Franchise::count();
 
-        $franchisees = Franchise::withCount('customers');
+        $franchises = Franchise::query();
 
         if (request()->ajax()) {
-            // Apply filters
-            if (request()->filled('business_name')) {
-                $franchisees->where('business_name', 'like', '%' . request('business_name') . '%');
-            }
-
-            if (request()->filled('territory_name')) {
-                $franchisees->where('frios_territory_name', 'like', '%' . request('territory_name') . '%');
-            }
-
-            return DataTables::of($franchisees)
-                ->addColumn('location_zip', function ($franchisee) {
-                    $zipCodes = explode(',', $franchisee->location_zip);
+            return DataTables::eloquent($franchises)
+                ->filter(function ($query) {
+                    if (request()->has('state') && request('state') != '') {
+                        $query->where('state', request('state'));
+                    }
+                    if (request()->has('location_zip') && request('location_zip') != '') {
+                        $query->where('location_zip', 'like', '%' . request('location_zip') . '%');
+                    }
+                })
+                ->addColumn('location_zipp', function ($franchise) {
+                    $zipCodes = explode(',', $franchise->location_zip);
                     $formattedZips = '';
 
-                    foreach($zipCodes as $zip) {
+                    foreach ($zipCodes as $zip) {
                         if (trim($zip)) {
-                            $formattedZips .= '<span class="badge bg-primary me-2 mb-1">'.trim($zip).'</span>';
+                            $formattedZips .= '<span class="badge bg-primary me-2 mb-1">' . trim($zip) . '</span>';
                         }
                     }
-                    return '<div class="d-flex flex-wrap">'.$formattedZips.'</div>';
+                    return '<div class="d-flex flex-wrap">' . $formattedZips . '</div>';
                 })
-                ->filterColumn('location_zip', function ($query, $keyword) {
-                    $query->where('location_zip', 'like', "%$keyword%");
-                })
-                ->addColumn('customer_count', function ($franchisee) {
-                    $franchiseCustomerUrl = route('franchise.franchise_customer', ['franchise' => $franchisee->id]);
-                    
-                    return '<a href="'.$franchiseCustomerUrl.'" class="text-primary">
-                                '.$franchisee->customers_count.'
-                            </a>';
-                })
-                ->addColumn('action', function ($franchisee) {
-                    $editUrl = route('franchise.edit', $franchisee->id);
-                    $deleteUrl = route('franchise.destroy', $franchisee->id);
+                ->addColumn('action', function ($franchise) {
+                    $editUrl = route('franchise.edit', $franchise->id);
+                    $deleteUrl = route('franchise.destroy', $franchise->id);
 
                     $actions = '<div class="d-flex">';
-                    
+
                     // Edit button
                     if (Auth::check()) {
-                        $actions .= '<a href="'.$editUrl.'" class="edit-franchisee">
+                        $actions .= '<a href="' . $editUrl . '" class="edit-franchisee">
                             <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
                         </a>';
                     }
-                    
+
                     // Delete button
                     if (Auth::check()) {
-                        $actions .= '<form action="'.$deleteUrl.'" method="POST">
-                            '.csrf_field().'
-                            '.method_field('DELETE').'
-                            <button type="submit" class="ms-4 delete-franchisee">
-                                <i class="ti ti-trash fs-20" style="color: #FF3131;"></i>
+                        $actions .= '<form action="' . $deleteUrl . '" method="POST">
+                            ' . csrf_field() . '
+                            ' . method_field('DELETE') . '
+                            <button type="submit" class="ms-4 text-danger">
+                                <i class="ti ti-trash fs-20"></i>
                             </button>
                         </form>';
                     }
-                    
+
                     $actions .= '</div>';
-                    
+
                     return $actions;
                 })
-                ->rawColumns(['action', 'location_zip', 'customer_count'])
+                ->rawColumns(['action', 'location_zipp'])
                 ->make(true);
         }
 
@@ -93,34 +80,34 @@ class FranchiseController extends Controller
     }
 
     // Store franchise
-public function store(Request $request)
-{
-    // Validate Input Fields
-    $request->validate([
-        'business_name' => 'required|string|max:255',
-        'contact_number' => 'required|string|max:20',
-        'frios_territory_name' => 'nullable|string|max:255',
-        'address1' => 'required|string|max:255',
-        'city' => 'required|string|max:255',
-        'zip_code' => 'required|string|regex:/^\d{5}$/',
-        'state' => 'required|string|max:2',
-        'location_zip' => 'required|array', // Ensure it's an array of zip codes
-        'location_zip.*' => 'string|max:10', // Validate each zip code
-    ]);
+    public function store(Request $request)
+    {
+        // Validate Input Fields
+        $request->validate([
+            'business_name' => 'required|string|max:255',
+            'contact_number' => 'required|string|max:20',
+            'frios_territory_name' => 'nullable|string|max:255',
+            'address1' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'zip_code' => 'required|string|regex:/^\d{5}$/',
+            'state' => 'required|string|max:2',
+            'location_zip' => 'required|array', // Ensure it's an array of zip codes
+            'location_zip.*' => 'string|max:10', // Validate each zip code
+        ]);
 
-    // Convert array of zip codes into a comma-separated string before storing
-    $requestData = $request->all();
-    $requestData['location_zip'] = implode(',', $request->location_zip);
+        // Convert array of zip codes into a comma-separated string before storing
+        $requestData = $request->all();
+        $requestData['location_zip'] = implode(',', $request->location_zip);
 
-    // Insert Data into Database
-    Franchise::create($requestData);
+        // Insert Data into Database
+        Franchise::create($requestData);
 
-    // Notify success message
-    notify()->success('Franchise created successfully.');
+        // Notify success message
+        notify()->success('Franchise created successfully.');
 
-    // Redirect to Index Page
+        // Redirect to Index Page
         return redirect()->route('franchise.index');
-}
+    }
 
     // Show edit form
     public function edit(Franchise $franchise)
@@ -169,26 +156,26 @@ public function store(Request $request)
     }
 
     public function show(Franchise $franchise)
-{
-    // If you want ZIP codes as an array for the view:
-    $franchise->location_zip = explode(',', $franchise->location_zip ?? '');
+    {
+        // If you want ZIP codes as an array for the view:
+        $franchise->location_zip = explode(',', $franchise->location_zip ?? '');
 
-    return view('corporate_admin.franchise.view', compact('franchise'));
-}
+        return view('corporate_admin.franchise.view', compact('franchise'));
+    }
 
     public function getFilterOptions()
     {
         try {
-            $businessNames = Franchise::pluck('business_name')->unique()->values();
-            $territoryNames = Franchise::whereNotNull('frios_territory_name')
-                ->pluck('frios_territory_name')
+            $states = Franchise::pluck('state')->unique()->values();
+            $locationZips = Franchise::whereNotNull('location_zip')
+                ->pluck('location_zip')
                 ->unique()
                 ->values();
 
             return response()->json([
                 'success' => true,
-                'businessNames' => $businessNames,
-                'territoryNames' => $territoryNames
+                'states' => $states,
+                'locationZips' => $locationZips
             ]);
         } catch (\Exception $e) {
             return response()->json([
