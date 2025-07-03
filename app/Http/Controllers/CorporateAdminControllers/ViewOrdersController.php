@@ -18,7 +18,7 @@ use App\Models\Customer;
 
 class ViewOrdersController extends Controller
 {
-    public function index($franchise = null)
+    public function index($franchise)
     {
         if (request()->ajax()) {
             $orders = FgpOrder::query()
@@ -26,7 +26,6 @@ class ViewOrdersController extends Controller
                 ->select('fgp_orders.*')
                 ->when($franchise !== 'all', function ($query) use ($franchise) {
                     $query->whereHas('franchise', function ($query) use ($franchise) {
-
                         $query->where('franchise_id', $franchise);
                     });
                 })
@@ -61,7 +60,7 @@ class ViewOrdersController extends Controller
 
             return DataTables::of($orders)
                 ->addColumn('order_number', function ($order) use ($franchise) {
-                    return '<a href="' . route('franchise.orders.edit', ['franchise' => $franchise, 'orderId' => $order->id]) . '" class="text-primary fs-12">' .
+                    return '<a href="' . route('franchise.orders.edit', ['franchise' => $franchise, 'orders' => $order->id]) . '" class="text-primary fs-12">' .
                            $order->getOrderNum() . '</a>';
                 })
                 ->addColumn('date_time', function ($order) {
@@ -136,7 +135,7 @@ class ViewOrdersController extends Controller
 
                     // Edit - check permission
                     if (Auth::check() && Auth::user()->can('orders.edit')) {
-                        $actions .= '<li><a class="dropdown-item" href="' . route('franchise.orders.edit', ['franchise' => $franchise, 'orderId' => $order->id]) . '"><i class="fa fa-edit me-2"></i>Edit</a></li>';
+                        $actions .= '<li><a class="dropdown-item" href="' . route('franchise.orders.edit', ['franchise' => $franchise, 'orders' => $order->id]) . '"><i class="fa fa-edit me-2"></i>Edit</a></li>';
                     }
 
                     // Divider - only show if there are actions above and below
@@ -285,13 +284,13 @@ class ViewOrdersController extends Controller
 
     public function edit($franchiseId, $orderId)
     {
-        $franchiseId = intval($franchiseId);
         $order = FgpOrder::with('orderItems.item','user')->find($orderId);
         $currentMonth = strval(Carbon::now()->format('n'));
-
         // Get the franchise
-        $franchise = Franchise::findOrFail($franchiseId);
-        
+        $franchise = null;
+        $franchise = Franchise::when($franchiseId != "all", function ($query) use ($franchiseId) {
+            return $query->where('id', $franchiseId);
+        })->first();
         // Get all franchises if user is corporate_admin
         $allFranchises = collect();
         if (Auth::check() && Auth::user()->role == 'corporate_admin') {
@@ -310,7 +309,6 @@ class ViewOrdersController extends Controller
             return in_array($currentMonth, $availableMonths ?? []);
         });
     
-
         return view('corporate_admin.orders.edit', compact('order', 'allItems', 'franchiseId', 'franchise', 'allFranchises'));
     }
 

@@ -93,7 +93,7 @@ Route::middleware(['auth'])->group(function () {
 
     // View Orders routes
     Route::middleware('permission:orders.view')->group(function () {
-        Route::get('/franchise/{franchise}/orders', [ViewOrdersController::class, 'index'])->name('franchise.orders');
+        Route::get('/franchises/{franchise}/orders', [ViewOrdersController::class, 'index'])->name('franchise.orders');
         Route::get('/franchise/{franchise}/orderpops/edit', [OrderPopsController::class, 'edit'])->name('orderpops.edit');
         Route::get('/franchise/{franchise}/orders/detail', [ViewOrdersController::class, 'ordersDetail'])->name('franchise.orders.detail');
 
@@ -104,13 +104,13 @@ Route::middleware(['auth'])->group(function () {
         // Route::get('orderpops/confirm/page', [ViewOrdersController::class, 'confirmPage'])->name('confirm.page');
         // Route::get('get-customer/{customer_id}', [OrderPopsController::class, 'customer'])->name('orderpops.customer');
     });
-    Route::prefix('franchise/{franchise}')->name('franchise.')->group(function () {
+    Route::prefix('franchises/{franchise}')->name('franchise.')->group(function () {
         Route::get('/orders/create', [ViewOrdersController::class, 'create'])->name('orders.create')->middleware('permission:orders.create');
         Route::post('/orders', [ViewOrdersController::class, 'store'])->name('orders.store')->middleware('permission:orders.create');
         Route::post('/orders/update-status', [ViewOrdersController::class, 'updateStatus'])->name('orders.updateStatus')->middleware('permission:orders.edit');
         // Route::post('/orderpops/confirm', [ViewOrdersController::class, 'confirmOrder'])->name('orderpops.confirm')->middleware('permission:orders.create');
         // Route::post('/orderpops/store', [ViewOrdersController::class, 'store'])->name('orderpops.store')->middleware('permission:orders.create');
-        Route::get('/orders/{orderId}/edit', [ViewOrdersController::class, 'edit'])->name('orders.edit')->middleware('permission:orders.edit');
+        Route::get('/orders/{orders}/edit', [ViewOrdersController::class, 'edit'])->name('orders.edit')->middleware('permission:orders.edit');
         Route::put('/orders/{orders}', [ViewOrdersController::class, 'update'])->name('orders.update')->middleware('permission:orders.edit');
         Route::delete('/orders/{orders}', [ViewOrdersController::class, 'destroy'])->name('orders.destroy')->middleware('permission:orders.delete');
         Route::get('/orders/flavors', [ViewOrdersController::class, 'getFlavors'])->name('orders.flavors')->middleware('permission:orders.view');
