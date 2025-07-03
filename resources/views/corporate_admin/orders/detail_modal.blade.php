@@ -208,7 +208,7 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="text-muted">
-                    <small><i class="fa fa-info-circle me-1"></i>Order created {{ \Carbon\Carbon::parse($order->created_at)->diffForHumans() }}</small>
+                    <small><i class="fa fa-info-circle me-1"></i>Order created {{ $order->created_at }}</small>
                 </div>
                 <div class="btn-group" role="group">
                     @if(Auth::check() && Auth::user()->can('orders.edit'))
