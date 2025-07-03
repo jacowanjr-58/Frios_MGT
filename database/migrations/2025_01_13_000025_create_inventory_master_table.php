@@ -13,6 +13,7 @@ return new class extends Migration
             Schema::create('inventory_master', function (Blueprint $table) {
                 $table->id(); 
                 $table->foreignId('franchise_id')->constrained();
+                $table->foreignId('inventory_id')->constrained();
                 $table->foreignId('fgp_item_id')->nullable()->constrained();
                 $table->string('custom_item_name')->nullable();
                 $table->decimal('default_cost', 10, 2)->nullable();

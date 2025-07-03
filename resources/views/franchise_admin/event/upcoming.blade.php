@@ -9,7 +9,7 @@
         <div class="media-body px-0">
             <h6 class="mt-0 mb-2 fs-14 font-w600">
                @if (auth()->user()->role == 'franchise_admin' || auth()->user()->role == 'franchise_manager')
-                   <a href="{{ route('franchise.events.view', ['franchisee' => request()->route('franchisee'), 'id' => $event->id]) }}" class="text-black text-decoration-none">
+                   <a href="{{ route('franchise.events.view', ['franchise' => request()->route('franchise'), 'id' => $event->id]) }}" class="text-black text-decoration-none">
                        {{ $event->event_name }}
                    </a>
                @elseif(auth()->user()->role == 'franchise_staff')
@@ -18,7 +18,7 @@
                    </a>
                @elseif(auth()->user()->role == 'corporate_admin')
                    @if(request()->route('franchisee'))
-                       <a href="{{ route('franchise.events.view', ['franchisee' => request()->route('franchisee'), 'id' => $event->id]) }}" class="text-black text-decoration-none">
+                       <a href="{{ route('franchise.events.view', ['franchise' => request()->route('franchise'), 'id' => $event->id]) }}" class="text-black text-decoration-none">
                            {{ $event->event_name }}
                        </a>
                    @else

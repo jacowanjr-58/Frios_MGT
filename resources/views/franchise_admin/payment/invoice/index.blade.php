@@ -60,7 +60,7 @@
                 </div> --}}
                 <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
                     @can('invoices.create')
-                        <a href="{{ route('franchise.invoice.create', ['franchisee' => request()->route('franchisee')]) }}"
+                        <a href="{{ route('franchise.invoice.create', ['franchise' => request()->route('franchise')]) }}"
                             class="btn btn-secondary btn-lg btn-block rounded text-white">Create
                             Invoice</a>
                     @endcan

@@ -12,19 +12,32 @@ class InventoryMaster extends Model
 
     protected $table = 'inventory_master';
 
-    protected $appends = ['item_name', 'cases', 'units',];
-    public $timestamps = true;
-    protected $casts = [
-    'stock_count_date' => 'date',
+    protected $fillable = [
+        'franchise_id',
+        'inventory_id',
+        'fgp_item_id',
+        'custom_item_name',
+        'total_quantity',
+        'split_total_quantity',
+        'default_cost',
+        'split_factor',
+        'cogs_case',
+        'cogs_unit',
+        'wholesale_case',
+        'wholesale_unit',
+        'retail_case',
+        'retail_unit',
+        'image1',
+        'image2',
+        'image3',
     ];
 
-     protected $fillable = [
-            'franchise_id','fgp_item_id','custom_item_name',
-    'total_quantity','split_total_quantity','default_cost',
-    'split_factor','cogs_case','cogs_unit',
-    'wholesale_case','wholesale_unit','retail_case','retail_unit',
-    'image1','image2','image3',
-];
+    protected $appends = ['item_name', 'cases', 'units',];
+
+    protected $casts = [
+        'stock_count_date' => 'date',
+    ];
+
 
     /**
      * If this row has an fgp_item_id, return the related FgpItem's name;
@@ -86,5 +99,13 @@ class InventoryMaster extends Model
     public function franchise()
     {
         return $this->belongsTo(Franchise::class, 'franchise_id');
+    }
+
+    /**
+     * Relationship: owning inventory.
+     */
+    public function inventory()
+    {
+        return $this->belongsTo(Inventory::class, 'inventory_id');
     }
 }

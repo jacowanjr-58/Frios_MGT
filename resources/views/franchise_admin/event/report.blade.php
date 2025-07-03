@@ -109,7 +109,7 @@
                     processing: true,
                     serverSide: true,
                     ajax: {
-                        url: "{{ route('franchise.events.report', ['franchisee' => request()->route('franchisee')]) }}",
+                        url: "{{ route('franchise.events.report', ['franchise' => request()->route('franchise')]) }}",
                         data: function (d) {
                             d.month_year = $('#month_year').val();
                         }

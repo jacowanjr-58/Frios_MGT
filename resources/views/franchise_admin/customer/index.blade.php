@@ -54,7 +54,7 @@
                 <div class="row mb-4 align-items-center">
                     <div class="col-xl-3 col-lg-4 mb-4 mb-lg-0">
                         @can('customers.create')
-                            <a href="{{ route('franchise.customer.create', ['franchisee' => request()->route('franchisee')]) }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Customer</a>
+                            <a href="{{ route('franchise.customer.create', ['franchise' => request()->route('franchise')]) }}" class="btn btn-secondary btn-lg btn-block rounded text-white">+ New Customer</a>
                         @endcan
                     </div>
                     <div class="col-xl-9 col-lg-8">
@@ -123,7 +123,7 @@
             $('#customers-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('franchise.customer', ['franchisee' => request()->route('franchisee')]) }}",
+                ajax: "{{ route('franchise.customer', ['franchise' => request()->route('franchise')]) }}",
                 columns: [
                     { data: 'name', name: 'name' },
                     { data: 'email', name: 'email' },

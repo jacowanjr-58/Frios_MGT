@@ -224,7 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 8) Submit all allocations via AJAX
     submitBtn.addEventListener("click", () => {
-        fetch("{{ route('franchise.inventory.allocate-inventory' , ['franchisee' => request()->route('franchisee')]) }}", {
+        fetch("{{ route('franchise.inventory.allocate-inventory' , ['franchise' => request()->route('franchise')]) }}", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

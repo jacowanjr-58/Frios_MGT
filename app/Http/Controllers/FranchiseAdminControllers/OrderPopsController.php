@@ -42,7 +42,7 @@ class OrderPopsController extends Controller
                 $availableMonths = $pop->dates_available;
                 return in_array($currentMonth, $availableMonths ?? []);
             });
-       
+
         $totalPops = $pops->count();
         // dd($totalPops);
         if (request()->ajax()) {
@@ -122,12 +122,12 @@ class OrderPopsController extends Controller
                 $item['case_cost'] = $item['price'];
                 unset($item['price']);
             }
-            
+
             $item['case_cost'] = floatval(str_replace(['$', ','], '', $item['case_cost'] ?? 0));
             $item['quantity'] = $item['quantity'] ?? 1;
         }
-       
-      
+
+
         session(['ordered_items' => $items]);
         return redirect()->route('franchise.orderpops.confirm.page', ['franchise' => $franchise]);
     }
@@ -249,7 +249,7 @@ class OrderPopsController extends Controller
                 'fgp_order_id' => $order->id,
                 'fgp_item_id' => $item['fgp_item_id'],
                 'unit_price' => $item['unit_cost'],
-                'quantity' => $item['unit_number'], 
+                'quantity' => $item['unit_number'],
                 'price' => $item['unit_cost'] * $item['unit_number'],
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -275,12 +275,12 @@ class OrderPopsController extends Controller
 
         // Add subtotal and charges information to notes
         $noteLines[] = "\nItems Subtotal: \$" . number_format($itemsSubtotal, 2);
-        
+
         // Handle optional charges if present
         if (!empty($validated['optional_charges'])) {
             $noteLines[] = "\nAdditional Charges:";
             $totalCharges = 0;
-            
+
             foreach ($validated['optional_charges'] as $charge) {
                 if (!empty($charge)) {
                     $chargeAmount = (float) $charge;
@@ -288,14 +288,14 @@ class OrderPopsController extends Controller
                     $noteLines[] = "- Additional Charge: \$" . number_format($chargeAmount, 2);
                 }
             }
-            
+
             if ($totalCharges > 0) {
                 $noteLines[] = "Total Additional Charges: \$" . number_format($totalCharges, 2);
             }
         }
-        
+
         $noteLines[] = "\nGrand Total: \$" . number_format($validated['grandTotal'], 2);
-        
+
         // Add payment reference if provided
         if (!empty($validated['payment_reference'])) {
             $noteLines[] = "Payment Reference: " . $validated['payment_reference'];
@@ -307,7 +307,7 @@ class OrderPopsController extends Controller
             OrderTransaction::create([
                 'franchise_id' => $franchiseId,
                 'fgp_order_id' => $order->id,
-                // 'order_num' => $orderNum,   
+                // 'order_num' => $orderNum,
                 'cardholder_name' => $validated['cardholder_name'],
                 'amount' => $validated['grandTotal'],
                 'stripe_payment_intent_id' => $charge->id,
@@ -320,7 +320,7 @@ class OrderPopsController extends Controller
             // Determine which entity to associate the invoice with (prioritize customer over franchise)
             $invoiceableType = null;
             $invoiceableId = null;
-            
+
             if (!empty($validated['customer_id'])) {
                 $customer = Customer::find($validated['customer_id']);
                 if ($customer) {
@@ -328,7 +328,7 @@ class OrderPopsController extends Controller
                     $invoiceableId = $customer->id;
                 }
             }
-            
+
             // If no customer, associate with franchise
             if (!$invoiceableType) {
                 $franchise = Franchise::find($franchiseId);
@@ -349,7 +349,7 @@ class OrderPopsController extends Controller
                 'due_date'  =>  Carbon::now()->addDays(7),
                 'notes_internal' => mb_strimwidth($invoiceNotes, 0, 255, '...')
             ]);
-          
+
         }
 
         $shipStationPayload = [
@@ -372,20 +372,20 @@ class OrderPopsController extends Controller
         $isPaid = $request->is_paid === '1';
         $invoiceId = $orderNum ?? null;
 
-         $shipstation = new ShipStationService();
-        $shipstation->sendOrder($shipStationPayload, $isPaid, $invoiceId);
+      //   $shipstation = new ShipStationService();
+        //$shipstation->sendOrder($shipStationPayload, $isPaid, $invoiceId);
 
         // Calculate totals for order and charges
         $additionalChargesTotal = 0;
-        
+
         // Insert Required Charges into FgpOrderCharge table
         foreach ($requiredCharges as $charge) {
-            $chargeAmount = $charge->charge_type === 'percentage' 
+            $chargeAmount = $charge->charge_type === 'percentage'
                 ? ($itemsSubtotal * $charge->charge_price / 100)
                 : $charge->charge_price;
-                
+
             $additionalChargesTotal += $chargeAmount;
-            
+
             FgpOrderCharge::create([
                 'order_id' => $order->id,
                 'charges_name' => $charge->charge_name,
@@ -393,20 +393,20 @@ class OrderPopsController extends Controller
                 'charge_type' => $charge->charge_type,
             ]);
         }
-        
+
         // Insert Optional Charges into fgp_order_charges table (matching selected checkboxes)
         if (!empty($validated['optional_charges'])) {
             foreach ($validated['optional_charges'] as $selectedChargePrice) {
                 // Find the matching charge by price
                 $matchingCharge = $optionalCharges->where('charge_price', $selectedChargePrice)->first();
-                
+
                 if ($matchingCharge !== null) {
-                    $chargeAmount = $matchingCharge->charge_type === 'percentage' 
+                    $chargeAmount = $matchingCharge->charge_type === 'percentage'
                         ? ($itemsSubtotal * $matchingCharge->charge_price / 100)
                         : $matchingCharge->charge_price;
-                        
+
                     $additionalChargesTotal += $chargeAmount;
-                    
+
                     FgpOrderCharge::create([
                         'order_id' => $order->id,
                         'charges_name' => $matchingCharge->charge_name,
@@ -416,7 +416,7 @@ class OrderPopsController extends Controller
                 }
             }
         }
-        
+
         // Update the order with correct amounts
         $order->update([
             'order_num' => $orderNum,

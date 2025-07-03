@@ -93,7 +93,7 @@ eventClick: function(info) {
         <div class="row">
             <div class="col-md-12">
                 <div style="float: right;">
-                    <a href="{{ route('franchise.events.report', ['franchisee' => request()->route('franchisee')]) }}" class="mb-3 btn btn-secondary btn-sm">Report</a>
+                    <a href="{{ route('franchise.events.report', ['franchise' => request()->route('franchise')]) }}" class="mb-3 btn btn-secondary btn-sm">Report</a>
                 </div>
             </div>
             <div style="display: none;" class="col-xl-3 col-xxl-4">
@@ -105,7 +105,7 @@ eventClick: function(info) {
                             <div id="external-events" class="my-3">
                                 <p>Click in the calendar to create events.</p>
                                 @foreach ($uniqueEvents as $index=>$badgeEvent)
-                                <div onclick="window.location.href='{{ route('franchise.events.report', ['month_year' => \Carbon\Carbon::parse($badgeEvent->created_at)->format('Y-m'), 'franchisee' => request()->route('franchisee')]) }}'" class="cursor-pointer p-3 mt-3
+                                <div onclick="window.location.href='{{ route('franchise.events.report', ['month_year' => \Carbon\Carbon::parse($badgeEvent->created_at)->format('Y-m'), 'franchise' => request()->route('franchise')]) }}'" class="cursor-pointer p-3 mt-3
                                         {{ $badgeEvent->event_status == 'scheduled' ? 'btn-outline-yellow' :
                                         ($badgeEvent->event_status == 'tentative' ? 'bg-success' :
                                         ($badgeEvent->event_status == 'staffed' ? 'btn-danger' : '')) }} light">
