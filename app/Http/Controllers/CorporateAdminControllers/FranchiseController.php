@@ -20,6 +20,15 @@ class FranchiseController extends Controller
         $franchisees = Franchise::withCount('customers');
 
         if (request()->ajax()) {
+            // Apply filters
+            if (request()->filled('business_name')) {
+                $franchisees->where('business_name', 'like', '%' . request('business_name') . '%');
+            }
+
+            if (request()->filled('territory_name')) {
+                $franchisees->where('frios_territory_name', 'like', '%' . request('territory_name') . '%');
+            }
+
             return DataTables::of($franchisees)
                 ->addColumn('location_zip', function ($franchisee) {
                     $zipCodes = explode(',', $franchisee->location_zip);
@@ -48,15 +57,15 @@ class FranchiseController extends Controller
 
                     $actions = '<div class="d-flex">';
                     
-                    // Edit button - check permission
-                    if (Auth::check() && Auth::user()->can('franchises.edit')) {
+                    // Edit button
+                    if (Auth::check()) {
                         $actions .= '<a href="'.$editUrl.'" class="edit-franchisee">
                             <i class="ti ti-edit fs-20" style="color: #FF7B31;"></i>
                         </a>';
                     }
                     
-                    // Delete button - check permission
-                    if (Auth::check() && Auth::user()->can('franchises.delete')) {
+                    // Delete button
+                    if (Auth::check()) {
                         $actions .= '<form action="'.$deleteUrl.'" method="POST">
                             '.csrf_field().'
                             '.method_field('DELETE').'
@@ -166,4 +175,26 @@ public function store(Request $request)
 
     return view('corporate_admin.franchise.view', compact('franchise'));
 }
+
+    public function getFilterOptions()
+    {
+        try {
+            $businessNames = Franchise::pluck('business_name')->unique()->values();
+            $territoryNames = Franchise::whereNotNull('frios_territory_name')
+                ->pluck('frios_territory_name')
+                ->unique()
+                ->values();
+
+            return response()->json([
+                'success' => true,
+                'businessNames' => $businessNames,
+                'territoryNames' => $territoryNames
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading filter options: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

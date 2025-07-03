@@ -28,6 +28,7 @@ Route::middleware(['auth'])->group(function () {
     // Franchise routes
     Route::middleware('permission:franchises.view|franchises.create|franchises.edit|franchises.delete')->group(function () {
         Route::get('/franchise', [FranchiseController::class, 'index'])->name('franchise.index');
+        Route::get('/franchise/filter-options', [FranchiseController::class, 'getFilterOptions'])->name('franchise.filter-options');
 
         Route::get('/franchise/create', [FranchiseController::class, 'create'])->name('franchise.create')->middleware('permission:franchises.create');
         Route::post('/franchise', [FranchiseController::class, 'store'])->name('franchise.store')->middleware('permission:franchises.create');
