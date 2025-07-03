@@ -62,4 +62,10 @@ return [
         'base_url' => env('UPS_API_BASE_URL', 'https://wwwcie.ups.com'),
     ],
 
+    'plaid' => [
+        'client_id' => env('PLAID_CLIENT_ID'),
+        'secret' => env('PLAID_SECRET'),
+        'env' => env('PLAID_ENV', 'sandbox'),
+    ],
+
 ];

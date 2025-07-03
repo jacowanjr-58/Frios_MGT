@@ -138,6 +138,10 @@
 
                         <li><a href="{{ route('franchise.expenses_by_franchise', ['franchise' => $franchiseeId]) }}">Expenses
                                 by franchise</a></li>
+
+                            <a href="{{ route('transactions.index', ['franchise' => $franchiseeId]) }}">
+                                    Bank Transactions
+                                </a>
                     </ul>
                 </li>
             @endcanany
@@ -172,11 +176,11 @@
                         <i class="bi bi-credit-card-2-back-fill"></i>
                         <span class="nav-text">Payments</span>
                     </a>
-                    <ul aria-expanded="{{ Request::routeIs('transaction', 'franchise.transaction') ? 'true' : 'false' }}"
+                   {{--  <ul aria-expanded="{{ Request::routeIs('transaction', 'franchise.transaction') ? 'true' : 'false' }}"
                         class="{{ Request::routeIs('transaction', 'franchise.transaction') ? 'mm-collapse mm-show' : '' }}">
                         <li><a href="{{ route('transaction', ['franchise' => $franchiseeId]) }}">Payments by franchise</a>
                         </li>
-                    </ul>
+                    </ul> --}}
                 </li>
             @endcanany
 
@@ -274,8 +278,8 @@
                                     href="{{ route('franchise.invoice.index', ['franchise' => $franchiseeId]) }}">Invoices</a>
                             </li>
                             {{-- <li><a href="sales.html">Sales</a></li> --}}
-                            <li><a href="{{ route('transaction', ['franchise' => $franchiseeId]) }}">Transactions</a>
-                            </li>
+                           {{--  <li><a href="{{ route('transaction', ['franchise' => $franchiseeId]) }}">Transactions</a>
+                            </li> --}}
                         </ul>
                     </li>
                 @endif
