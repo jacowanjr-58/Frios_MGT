@@ -106,19 +106,19 @@ class SystemModulePermissionsSeeder extends Seeder
         $rolePermissions = [
             'corporate_admin' => [
                 // Full access to all modules
-                'dashboard', 'franchises', 'owners', 'frios_flavors', 'franchise_orders', 
-                'payments', 'expenses', 'customers', 'events', 'inventory', 'orders', 
-                'invoices', 'transactions', 'pos', 'sales', 'flavors', 'staff', 
+                'dashboard', 'franchises', 'owners', 'frios_flavors', 'franchise_orders',
+                'payments', 'expenses', 'customers', 'events', 'inventory', 'orders',
+                'invoices', 'transactions', 'pos', 'sales', 'flavors', 'staff',
                 'locations', 'roles', 'permissions'
             ],
             'franchise_admin' => [
                 // Limited access based on sidebar
-                'dashboard', 'inventory', 'orders', 'invoices', 'transactions', 
+                'dashboard', 'inventory', 'orders', 'invoices', 'transactions',
                 'expenses', 'customers', 'events', 'staff', 'locations'
             ],
             'franchise_manager' => [
                 // More limited access
-                'dashboard', 'inventory', 'orders', 'expenses', 'customers', 
+                'dashboard', 'inventory', 'orders', 'expenses', 'customers',
                 'events', 'staff', 'locations'
             ],
             'franchise_staff' => [
@@ -130,13 +130,13 @@ class SystemModulePermissionsSeeder extends Seeder
         // Assign permissions to roles
         foreach ($rolePermissions as $roleName => $allowedModules) {
             $role = Role::where('name', $roleName)->first();
-            
+
             foreach ($allowedModules as $module) {
                 if (isset($modules[$module])) {
                     foreach ($modules[$module] as $action) {
                         $permissionName = "{$module}.{$action}";
                         $permission = Permission::where('name', $permissionName)->first();
-                        
+
                         if ($permission && !$role->hasPermissionTo($permission)) {
                             // For corporate_admin, give all permissions
                             if ($roleName === 'corporate_admin') {
@@ -157,7 +157,7 @@ class SystemModulePermissionsSeeder extends Seeder
                             }
                             elseif ($roleName === 'franchise_staff') {
                                 // Franchise staff gets mostly view permissions plus specific create/edit for their modules
-                                if ($action === 'view' || $action == || $action === 'access' || $action === 'calendar' || $action === 'report') {
+                                if ($action === 'view' || $action === 'access' || $action === 'calendar' || $action === 'report') {
                                     $role->givePermissionTo($permission);
                                 } elseif (in_array($module, ['pos', 'sales', 'customers']) && in_array($action, ['create', 'edit'])) {
                                     $role->givePermissionTo($permission);
@@ -171,4 +171,4 @@ class SystemModulePermissionsSeeder extends Seeder
 
         $this->command->info('System module permissions assigned successfully!');
     }
-} 
+}

@@ -79,12 +79,12 @@ Route::middleware(['auth'])
          */
 
         // Show the "Confirm Delivery" form
-        Route::get('{order}/confirm_delivery', [InventoryAllocationController::class, 'showConfirmDelivery'])
-            ->name('confirm_delivery')->middleware('permission:inventory.receive');
+        Route::get('{orders}/confirm_delivery', [InventoryAllocationController::class, 'showConfirmDelivery'])
+            ->name('confirm_delivery')->middleware('permission:orders.add_discrepancy');
 
         // Handle the form submission
-        Route::post('{order}/confirm_delivery', [InventoryAllocationController::class, 'postConfirmDelivery'])
-            ->name('confirm_delivery.store')->middleware('permission:inventory.receive');
+        Route::post('{orders}/confirm_delivery', [InventoryAllocationController::class, 'postConfirmDelivery'])
+            ->name('confirm_delivery.store')->middleware('permission:orders.add_discrepancy');
 
         /* Route::get('receive', [InventoryReceiveController::class, 'receiveForm'])
          ->name('receive.form');

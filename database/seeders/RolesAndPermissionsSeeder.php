@@ -16,7 +16,7 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         // Clear cache
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-        
+
         // Truncate roles and permissions tables
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('role_has_permissions')->truncate();
@@ -88,6 +88,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'orders.create',
             'orders.edit',
             'orders.delete',
+            'orders.ups_generate_label',
 
 
             // Payments Management (Corporate Admin)
@@ -142,6 +143,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'orders.create',
             'orders.edit',
             'orders.delete',
+            'orders.add_discrepancy',
+            'orders.view_discrepancy',
+            'orders.ups_view_label',
+
 
 
             // Get Paid/Invoices (Franchise Admin)
@@ -298,6 +303,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'orders.create',
             'orders.edit',
             'orders.delete',
+            'orders.view_discrepancy',
+            'orders.add_discrepancy',
+            'orders.ups_view_label',
+            'orders.ups_generate_label',
 
             // Additional Charges Management (Corporate Admin)
             'additional_charges.view',
@@ -371,6 +380,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'orders.create',
             'orders.edit',
             'orders.delete',
+            'orders.view_discrepancy',
+            'orders.ups_generate_label',
+            'orders.ups_view_label',
 
             // Additional Charges Management (Corporate Admin)
             'additional_charges.view',
@@ -450,6 +462,9 @@ class RolesAndPermissionsSeeder extends Seeder
             //orders
             'orders.view',
             'orders.create',
+            'orders.ups_view_label',
+            'orders.view_discrepancy',
+            'orders.add_discrepancy',
 
             'inventory.view',
             'inventory.create',
@@ -518,6 +533,9 @@ class RolesAndPermissionsSeeder extends Seeder
             //orders
             'orders.view',
             'orders.create',
+            'orders.ups_view_label',
+            'orders.view_discrepancy',
+            'orders.add_discrepancy',
 
             'inventory.view',
             'inventory.edit',
@@ -526,7 +544,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'locations.create',
             'locations.edit',
             'locations.delete',
-         
+
             'expenses.view',
             'expenses.create',
             'expenses.edit',
@@ -568,7 +586,7 @@ class RolesAndPermissionsSeeder extends Seeder
             //orders
             'orders.view',
             'orders.create',
-            
+
             'pos.view',
             'pos.create',
             'pos.edit',

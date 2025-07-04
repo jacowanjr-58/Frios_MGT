@@ -104,18 +104,18 @@ class InventoryAllocationController extends Controller
      * @param  int  $order  (this is fgp_ordersID)
      */
 
-    public function showConfirmDelivery(Franchise $franchise, FgpOrder $order)
+    public function showConfirmDelivery(Franchise $franchise, FgpOrder $orders)
     {
         // 1)  make sure this franchise “owns” the order
-        if ($order->franchise_id !== $franchise->id) {
+        if ($orders->franchise_id !== $franchise->id) {
             abort(403, 'Unauthorized');
         }
 
         // 2) Load the order and eager-load its details
-        $order->load('orderDetails', 'orderDetails.item');
+        $orders->load('orderItems', 'orderItems.item');
 
 
-        return view('franchise_admin.inventory.confirm_delivery',  compact('order'));
+        return view('franchise_admin.inventory.confirm_delivery',  compact('orders', 'franchise'));
     }
 
     /**

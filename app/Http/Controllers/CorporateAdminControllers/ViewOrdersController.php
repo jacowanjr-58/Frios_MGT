@@ -20,9 +20,10 @@ class ViewOrdersController extends Controller
 {
     public function index($franchise)
     {
+
         if (request()->ajax()) {
             $orders = FgpOrder::query()
-                ->with(['user', 'franchise', 'orderItems.item'])    
+                ->with(['user', 'franchise', 'orderItems.item'])
                 ->select('fgp_orders.*')
                 ->when($franchise !== 'all', function ($query) use ($franchise) {
                     $query->whereHas('franchise', function ($query) use ($franchise) {
@@ -60,15 +61,15 @@ class ViewOrdersController extends Controller
 
             return DataTables::of($orders)
                 ->addColumn('order_number', function ($order) use ($franchise) {
-                    return '<a href="javascript:void(0)" onclick="viewOrderDetails(' . $order->id . ')" class="text-primary fs-12">' . 
+                    return '<a href="javascript:void(0)" onclick="viewOrderDetails(' . $order->id . ')" class="text-primary fs-12">' .
                            $order->getOrderNum() . '</a>';
                 })
                 ->addColumn('date_time', function ($order) {
-                    return $order->created_at; 
+                    return $order->created_at;
                 })
                 ->addColumn('total_amount', function ($order) {
                     $totalAmount = DB::table('fgp_order_items')
-                        ->where('fgp_order_id', $order->id) 
+                        ->where('fgp_order_id', $order->id)
                         ->selectRaw('SUM(quantity * unit_price) as total') //sum of unit_number * unit_cost
                         ->value('total');
                     return '$' . number_format($totalAmount, 2);
@@ -105,7 +106,7 @@ class ViewOrdersController extends Controller
                         : '<span class="badge bg-success text-white">OK</span>';
                 })
                 ->addColumn('status', function ($order) {
-                    return $order->is_paid 
+                    return $order->is_paid
                         ? '<span class="badge bg-success text-white">Paid</span>'
                         : '<span class="badge bg-warning text-white">Pending</span>';
                 })
@@ -132,6 +133,11 @@ class ViewOrdersController extends Controller
                     // Edit - check permission
                     if (Auth::check() && Auth::user()->can('orders.edit')) {
                         $actions .= '<li><a class="dropdown-item" href="' . route('franchise.orders.edit', ['franchise' => $franchise, 'orders' => $order->id]) . '"><i class="fa fa-edit me-2"></i>Edit</a></li>';
+                    }
+
+                    // Confirm Delivered - check permission
+                    if (Auth::check() && Auth::user()->can('orders.add_discrepancy')) {
+                        $actions .= '<li><a class="dropdown-item" href="' . route('franchise.inventory.confirm_delivery', ['franchise' => $franchise, 'orders' => $order->id]) . '"><i class="fa fa-edit me-2"></i>Receive & Check</a></li>';
                     }
 
                     // Divider - only show if there are actions above and below
@@ -165,7 +171,7 @@ class ViewOrdersController extends Controller
         return view('corporate_admin.orders.index', compact('totalOrders', 'franchiseId'));
     }
 
-    
+
     public function getFlavors($franchiseId)
     {
         try {
@@ -255,13 +261,13 @@ class ViewOrdersController extends Controller
 
         // Get the franchise
         $franchise = Franchise::findOrFail($franchiseId);
-        
+
         // Get all franchises if user is corporate_admin
         $allFranchises = collect();
         if (Auth::check() && Auth::user()->role == 'corporate_admin') {
             $allFranchises = Franchise::orderBy('business_name')->get();
         }
-        
+
         // Fetch only orderable, in-stock, and currently available items
         $allItems = FgpItem::where('orderable', 1)
             ->where('internal_inventory', '>', 0)
@@ -270,10 +276,10 @@ class ViewOrdersController extends Controller
                 $availableMonths = is_array($item->dates_available)
                     ? $item->dates_available
                     : json_decode($item->dates_available, true);
-        
+
                 return in_array($currentMonth, $availableMonths ?? []);
             });
-        
+
         return view('corporate_admin.orders.create', compact('franchiseId', 'franchise', 'allItems', 'allFranchises'));
     }
 
@@ -301,10 +307,10 @@ class ViewOrdersController extends Controller
             $availableMonths = is_array($pop->dates_available)
                 ? $pop->dates_available
                 : json_decode($pop->dates_available, true);
-    
+
             return in_array($currentMonth, $availableMonths ?? []);
         });
-    
+
         return view('corporate_admin.orders.edit', compact('order', 'allItems', 'franchiseId', 'franchise', 'allFranchises'));
     }
 
@@ -317,7 +323,7 @@ public function update(Request $request, $franchiseId, $orderId)
     } else {
         $franchiseId = intval($franchiseId);
     }
-    
+
     $order = FgpOrder::with('orderItems')->findOrFail($orderId);
 
     $minCases = 12; // Can be made configurable via settings
@@ -551,7 +557,7 @@ public function createPackingList($orderId)
 
     public function store(Request $request, $franchiseId)
     {
-     
+
         // If corporate_admin selected a franchise from dropdown, use that instead of route parameter
         if ($request->filled('franchise_id') && Auth::check() && Auth::user()->role == 'corporate_admin') {
             $franchiseId = intval($request->input('franchise_id'));
@@ -559,11 +565,11 @@ public function createPackingList($orderId)
             $franchiseId = intval($franchiseId);
         }
         // dd( $franchiseId);
-        
+
         // dd($franchiseId,$request->all());
         $minCases = 12; // Can be made configurable via settings
         $factorCase = 3; // Can be made configurable via settings
-        
+
         // Validate request
         $validated = $request->validate([
             'franchise_id' => Auth::check() && Auth::user()->role == 'corporate_admin' ? 'required|exists:franchises,id' : 'nullable|exists:franchises,id', // Require for corporate_admin
@@ -644,7 +650,7 @@ public function createPackingList($orderId)
             if ($status === 'cancelled') {
                 // Perform soft delete
                 $order->delete();
-                
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Order #' . $order->getOrderNum() . ' has been cancelled successfully.'

@@ -27,10 +27,10 @@
 @endif
 
             <div class="container mx-auto px-4">
-                <h1 class="text-2xl font-bold mb-4">Confirm Delivery for Order #FGP-{{ $order->id }}</h1>
+                <h1 class="text-2xl font-bold mb-4">Confirm Delivery for Order #FGP-{{ $orders->id }}</h1>
 
                 <form
-                    action="{{ route('franchise.inventory.confirm_delivery.store', ['order' => $order->id]) }}"
+                    action="{{ route('franchise.inventory.confirm_delivery.store', ['orders' => $orders->id, 'franchise' => $franchise]) }}"
                     method="POST"
                     x-data="{}"
                     class="bg-white p-6 rounded shadow"
@@ -39,8 +39,9 @@
 
                     {{-- Order header info --}}
                     <div class="mb-6 p-4 bg-gray-100 rounded">
-                        <p><strong>Order Date:</strong> {{ $order->created_at->format('M d, Y') }}</p>
-                        <p><strong>franchise:</strong> {{ $order->franchise->name ?? 'N/A' }}</p>
+                       <p><strong>Order Date:</strong>
+                            {{ $orders->created_at ? \Carbon\Carbon::parse($orders->created_at)->format('M d, Y') : 'N/A' }}                    </p>
+                        <p><strong>franchise:</strong> {{ $orders->franchise->name ?? 'N/A' }}</p>
                         {{-- any other summary fields --}}
                     </div>
 
@@ -58,7 +59,7 @@
                             </thead>
                             <tbody>
 
-                                @foreach($order->orderDetails as $detail)
+                                @foreach($orders->orderItems as $detail)
 
                                     <tr class="@if($loop->even) bg-white @else bg-gray-50 @endif">
                                         {{-- 1) Display the item name --}}
@@ -68,11 +69,11 @@
 
                                         {{-- 2) Show how many were ordered --}}
                                         <td class="px-4 py-2 border text-center">
-                                            {{ $detail->unit_number }}
+                                            {{ $detail->quantity }}
                                             <input
                                                 type="hidden"
                                                 name="ordered_qty[{{ $detail->id }}]"
-                                                value="{{ $detail->unit_number }}"
+                                                value="{{ $detail->quantity }}"
                                                 id="ordered_qty_{{ $detail->id }}">
                                              <input
                                                 type="hidden"
@@ -80,7 +81,7 @@
                                                 value="{{ $detail->item->split_factor }}"
                                                 id="splitfactor_{{ $detail->id }}">
                                                 @php
-                                                    $totalUnits = $detail->unit_number * $detail->item->split_factor;
+                                                    $totalUnits = $detail->quantity * $detail->item->split_factor;
                                                 @endphp
 
                                               <br> (Total Pops = {{ $totalUnits }} )
@@ -92,7 +93,7 @@
                                                 type="number"
                                                 name="received_qty[{{ $detail->id }}]"
                                                 id="received_qty_{{ $detail->id }}"
-                                                value="{{ old("received_qty.{$detail->id}", $detail->unit_number) }}"
+                                                value="{{ old("received_qty.{$detail->id}", $detail->quantity) }}"
                                                 min="0"
                                                 class="w-20 px-2 py-1 border rounded text-center"
                                                 required
@@ -109,7 +110,7 @@
                                                 min="0" class="w-20 px-2 py-1 border rounded text-center"
                                                 required>
                                             {{-- Note: This field is required, but can be 0 --}}
-                                           
+
                                             @error("damaged_units.{$detail->id}")
                                             <p class="js-error-message text-red-600 text-sm mt-1">{{ $message }}</p>
                                             @enderror
@@ -147,7 +148,7 @@
 
                     {{-- Submit button --}}
                     <div class="mt-6 flex items-center justify-end">
-                        <a href="{{ route('franchise.orderpops.view') }}"
+                        <a href="{{ route('franchise.orders', ['franchise' => $franchise]) }}"
                            class="px-4 py-2 mr-4 text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200">
                             Cancel
                         </a>
@@ -174,7 +175,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
         el.classList.remove('input-error');
     });
 
-    @foreach($order->orderDetails as $detail)
+    @foreach($orders->orderItems as $detail)
         let receivedInput = document.getElementById('received_qty_{{ $detail->id }}');
         let damagedInput = document.getElementById('damaged_units_{{ $detail->id }}');
         let ordered = parseInt(document.getElementById('ordered_qty_{{ $detail->id }}').value) || 0;

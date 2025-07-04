@@ -257,6 +257,7 @@
             }
         </style>
     @endpush
+
     <div class="content-body default-height">
         <div class="container-fluid">
             <div class="form-head mb-4 d-flex flex-wrap align-items-center">
@@ -366,7 +367,7 @@
                                         <button type="button" class="btn btn-filter-secondary" id="clearFilters">
                                             <i class="fa fa-refresh me-2"></i>Clear All
                                         </button>
-                                        
+
                                     </div>
                                 </div>
                             </div>
@@ -395,6 +396,7 @@
                                             <th>UPS Label</th>
                                             <th>Order Date</th>
                                             <th>Actions</th>
+                                           
                                         </tr>
                                     </thead>
                                 </table>
@@ -443,7 +445,7 @@
                     processing: true,
                     serverSide: true,
                     ajax: {
-                        url: "{{ route('franchise.orders', ['franchise' => $franchiseId]) }}", // Changed from franchiseeId to franchiseId  
+                        url: "{{ route('franchise.orders', ['franchise' => $franchiseId]) }}", // Changed from franchiseeId to franchiseId
                         data: function (d) {
                             d.status = $('#statusFilter').val();
                             d.shipping_address = $('#shippingAddressFilter').val();
