@@ -32,6 +32,8 @@ class ViewOrdersController extends Controller
                 })
                 ->whereNull('deleted_at'); // Exclude soft deleted orders
 
+
+
             // Apply filters
 
             if (request()->filled('status')) {
@@ -164,11 +166,23 @@ class ViewOrdersController extends Controller
                 })
                 ->rawColumns(['order_number', 'ordered_by', 'franchise', 'flavors', 'items_count', 'issues', 'status', 'ups_label', 'action'])
                 ->make(true);
+
         }
 
-        $totalOrders = FgpOrder::whereNull('deleted_at')->count(); // Exclude soft deleted orders from count
+        $totalOrders = FgpOrder::query()
+            ->with(['user', 'franchise', 'orderItems.item'])
+            ->select('fgp_orders.*')
+            ->when($franchise !== 'all', function ($query) use ($franchise) {
+                $query->whereHas('franchise', function ($query) use ($franchise) {
+                    $query->where('franchise_id', $franchise);
+                });
+            })
+            ->whereNull('deleted_at')
+            ->count(); // Exclude soft deleted orders
+
+
         $franchiseId = $franchise;
-        return view('corporate_admin.orders.index', compact('totalOrders', 'franchiseId'));
+        return view('corporate_admin.orders.index', compact('totalOrders','franchiseId'));
     }
 
 
