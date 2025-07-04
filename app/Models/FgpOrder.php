@@ -114,8 +114,8 @@ class FgpOrder extends Model
     public function flavorDetails()
     {
         return $this->items->map(function ($item) {
-            $subtotal = number_format($item->unit_number * $item->unit_cost, 2);
-            return "Flavor: {$item->flavor->name}, Qty: {$item->unit_number}, Subtotal: \${$subtotal}";
+            $subtotal = number_format($item->quantity * $item->unit_cost, 2);
+            return "Flavor: {$item->flavor->name}, Qty: {$item->quantity}, Subtotal: \${$subtotal}";
         })->implode("\n");
     }
     // 🚚 Optional: derived full shipping address (for display)
