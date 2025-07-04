@@ -24,7 +24,7 @@ class FgpOrder extends Model
 
         static::updating(function ($fgpOrder) {
             if (Auth::check()) {
-                $fgpOrder->updated_by = Auth::id();  
+                $fgpOrder->updated_by = Auth::id();
             }
         });
     }
@@ -89,7 +89,7 @@ class FgpOrder extends Model
     public function flavorSummary()
     {
         return $this->items->map(function ($item) {
-            return "({$item->unit_number}) {$item->flavor->name}";
+            return "({$item->quantity}) {$item->flavor->name}";
         })->implode('; ');
     }
 
