@@ -41,14 +41,14 @@ class ViewOrdersController extends Controller
             }
 
             if (request()->filled('shipping_address')) {
-                $orders->where(function($q) {
+                $orders->where(function ($q) {
                     $address = request('shipping_address');
                     $q->whereRaw("TRIM(CONCAT(COALESCE(ship_to_address1, ''), ' ', COALESCE(ship_to_address2, ''), ', ', COALESCE(ship_to_city, ''), ', ', COALESCE(ship_to_state, ''), ' ', COALESCE(ship_to_zip, ''))) LIKE ?", ['%' . $address . '%']);
                 });
             }
 
             if (request()->filled('flavor')) {
-                $orders->whereHas('orderItems', function($query) {
+                $orders->whereHas('orderItems', function ($query) {
                     $query->where('fgp_item_id', request('flavor'));
                 });
             }
@@ -64,7 +64,7 @@ class ViewOrdersController extends Controller
             return DataTables::of($orders)
                 ->addColumn('order_number', function ($order) use ($franchise) {
                     return '<a href="javascript:void(0)" onclick="viewOrderDetails(' . $order->id . ')" class="text-primary fs-12">' .
-                           $order->getOrderNum() . '</a>';
+                        $order->getOrderNum() . '</a>';
                 })
                 ->addColumn('date_time', function ($order) {
                     return $order->created_at;
@@ -77,7 +77,7 @@ class ViewOrdersController extends Controller
                     return '$' . number_format($totalAmount, 2);
                 })
 
-                 ->addColumn('ordered_by', function ($order) use ($franchise) {
+                ->addColumn('ordered_by', function ($order) use ($franchise) {
                     if ($order->franchise) {
                         return '<span class="text-primary">' . $order->user->name . '</span>';
                     }
@@ -162,7 +162,6 @@ class ViewOrdersController extends Controller
                 })
                 ->rawColumns(['order_number', 'ordered_by', 'franchise', 'total_cases', 'items_count', 'issues', 'status', 'ups_label', 'action'])
                 ->make(true);
-
         }
 
         $totalOrders = FgpOrder::query()
@@ -178,7 +177,7 @@ class ViewOrdersController extends Controller
 
 
         $franchiseId = $franchise;
-        return view('corporate_admin.orders.index', compact('totalOrders','franchiseId'));
+        return view('corporate_admin.orders.index', compact('totalOrders', 'franchiseId'));
     }
 
 
@@ -239,10 +238,10 @@ class ViewOrdersController extends Controller
         $orderId = $request->input('id');
         $franchiseId = ($franchiseId);
         $orderDetails = DB::table('fgp_order_items as od')
-                    ->join('fgp_items as fi', 'od.fgp_item_id', '=', 'fi.id')
-        ->where('od.fgp_order_id', $orderId)
-        ->select('od.*', 'fi.name')
-        ->get();
+            ->join('fgp_items as fi', 'od.fgp_item_id', '=', 'fi.id')
+            ->where('od.fgp_order_id', $orderId)
+            ->select('od.*', 'fi.name')
+            ->get();
 
         // Get the main order information
         $order = FgpOrder::find($orderId);
@@ -296,7 +295,7 @@ class ViewOrdersController extends Controller
 
     public function edit($franchiseId, $orderId)
     {
-        $order = FgpOrder::with('orderItems.item','user')->find($orderId);
+        $order = FgpOrder::with('orderItems.item', 'user')->find($orderId);
         $currentMonth = strval(Carbon::now()->format('n'));
         // Get the franchise
         $franchise = null;
@@ -311,137 +310,137 @@ class ViewOrdersController extends Controller
 
         // Fetch only orderable, in-stock, and currently available items
         $allItems = FgpItem::where('orderable', 1)
-        ->where('internal_inventory', '>', 0)
-        ->get()
-        ->filter(function ($pop) use ($currentMonth) {
-            $availableMonths = is_array($pop->dates_available)
-                ? $pop->dates_available
-                : json_decode($pop->dates_available, true);
+            ->where('internal_inventory', '>', 0)
+            ->get()
+            ->filter(function ($pop) use ($currentMonth) {
+                $availableMonths = is_array($pop->dates_available)
+                    ? $pop->dates_available
+                    : json_decode($pop->dates_available, true);
 
-            return in_array($currentMonth, $availableMonths ?? []);
-        });
+                return in_array($currentMonth, $availableMonths ?? []);
+            });
 
         return view('corporate_admin.orders.edit', compact('order', 'allItems', 'franchiseId', 'franchise', 'allFranchises'));
     }
 
 
-public function update(Request $request, $franchiseId, $orderId)
-{
-    // If corporate_admin selected a franchise from dropdown, use that instead of route parameter
-    if ($request->filled('franchise_id') && Auth::check() && Auth::user()->role == 'corporate_admin') {
-        $franchiseId = intval($request->input('franchise_id'));
-    } else {
-        $franchiseId = intval($franchiseId);
-    }
+    public function update(Request $request, $franchiseId, $orderId)
+    {
+        // If corporate_admin selected a franchise from dropdown, use that instead of route parameter
+        if ($request->filled('franchise_id') && Auth::check() && Auth::user()->role == 'corporate_admin') {
+            $franchiseId = intval($request->input('franchise_id'));
+        } else {
+            $franchiseId = intval($franchiseId);
+        }
 
-    $order = FgpOrder::with('orderItems')->findOrFail($orderId);
+        $order = FgpOrder::with('orderItems')->findOrFail($orderId);
 
-    $minCases = 12; // Can be made configurable via settings
-    $factorCase = 3; // Can be made configurable via settings
+        $minCases = 12; // Can be made configurable via settings
+        $factorCase = 3; // Can be made configurable via settings
 
-    // Validate shipping and items
-    $validated = $request->validate([
-        'franchise_id' => Auth::check() && Auth::user()->role == 'corporate_admin' ? 'required|exists:franchises,id' : 'nullable|exists:franchises,id',
-        'ship_to_name' => 'nullable|string|max:255',
-        'ship_to_address1' => 'nullable|string|max:255',
-        'ship_to_address2' => 'nullable|string|max:255',
-        'ship_to_city' => 'nullable|string|max:255',
-        'ship_to_state' => 'nullable|string|max:255',
-        'ship_to_zip' => 'nullable|string|max:20',
-        'ship_to_phone' => 'nullable|string|max:50',
-        'items' => 'required|array',
-        'items.*.id' => 'nullable|integer|exists:fgp_order_items,id',
-        'items.*.fgp_item_id' => 'required|exists:fgp_items,id',
-        'items.*.unit_cost' => 'required|numeric|min:0',
-        'items.*.unit_number' => 'required|integer|min:1',
-    ]);
+        // Validate shipping and items
+        $validated = $request->validate([
+            'franchise_id' => Auth::check() && Auth::user()->role == 'corporate_admin' ? 'required|exists:franchises,id' : 'nullable|exists:franchises,id',
+            'ship_to_name' => 'nullable|string|max:255',
+            'ship_to_address1' => 'nullable|string|max:255',
+            'ship_to_address2' => 'nullable|string|max:255',
+            'ship_to_city' => 'nullable|string|max:255',
+            'ship_to_state' => 'nullable|string|max:255',
+            'ship_to_zip' => 'nullable|string|max:20',
+            'ship_to_phone' => 'nullable|string|max:50',
+            'items' => 'required|array',
+            'items.*.id' => 'nullable|integer|exists:fgp_order_items,id',
+            'items.*.fgp_item_id' => 'required|exists:fgp_items,id',
+            'items.*.unit_cost' => 'required|numeric|min:0',
+            'items.*.unit_number' => 'required|integer|min:1',
+        ]);
 
-    // Calculate total case quantity
-    $totalCaseQty = collect($validated['items'])->sum('unit_number');
+        // Calculate total case quantity
+        $totalCaseQty = collect($validated['items'])->sum('unit_number');
 
-    // Check if the total order quantity is a valid multiple of the factor case
-    // if ($totalCaseQty % $factorCase !== 0) {
-    //     return redirect()->back()->withErrors(['Order quantity must be a multiple of ' . $factorCase . '.']);
-    // }
+        // Check if the total order quantity is a valid multiple of the factor case
+        // if ($totalCaseQty % $factorCase !== 0) {
+        //     return redirect()->back()->withErrors(['Order quantity must be a multiple of ' . $factorCase . '.']);
+        // }
 
-    // Calculate total amount
-    $totalAmount = collect($validated['items'])->sum(function ($item) {
-        return $item['unit_cost'] * $item['unit_number'];
-    });
+        // Calculate total amount
+        $totalAmount = collect($validated['items'])->sum(function ($item) {
+            return $item['unit_cost'] * $item['unit_number'];
+        });
 
-    // Update order info
-    $order->update([
-        'franchise_id' => $franchiseId,
-        'amount' => $totalAmount,
-        'ship_to_name' => $validated['ship_to_name'] ?? null,
-        'ship_to_address1' => $validated['ship_to_address1'] ?? null,
-        'ship_to_address2' => $validated['ship_to_address2'] ?? null,
-        'ship_to_city' => $validated['ship_to_city'] ?? null,
-        'ship_to_state' => $validated['ship_to_state'] ?? null,
-        'ship_to_zip' => $validated['ship_to_zip'] ?? null,
-        'ship_to_phone' => $validated['ship_to_phone'] ?? null,
-    ]);
+        // Update order info
+        $order->update([
+            'franchise_id' => $franchiseId,
+            'amount' => $totalAmount,
+            'ship_to_name' => $validated['ship_to_name'] ?? null,
+            'ship_to_address1' => $validated['ship_to_address1'] ?? null,
+            'ship_to_address2' => $validated['ship_to_address2'] ?? null,
+            'ship_to_city' => $validated['ship_to_city'] ?? null,
+            'ship_to_state' => $validated['ship_to_state'] ?? null,
+            'ship_to_zip' => $validated['ship_to_zip'] ?? null,
+            'ship_to_phone' => $validated['ship_to_phone'] ?? null,
+        ]);
 
-    // Gather submitted item IDs
-    $submittedItemIds = collect($validated['items'])
-        ->pluck('id')
-        ->filter()
-        ->map(fn($id) => (int)$id)
-        ->toArray();
+        // Gather submitted item IDs
+        $submittedItemIds = collect($validated['items'])
+            ->pluck('id')
+            ->filter()
+            ->map(fn($id) => (int)$id)
+            ->toArray();
 
-    // Remove deleted items
-    DB::table('fgp_order_items')
-        ->where('fgp_order_id', $order->id)
-        ->whereNotIn('id', $submittedItemIds)
-        ->delete();
+        // Remove deleted items
+        DB::table('fgp_order_items')
+            ->where('fgp_order_id', $order->id)
+            ->whereNotIn('id', $submittedItemIds)
+            ->delete();
 
-    // Update or create items
-    foreach ($validated['items'] as $item) {
-        if (!empty($item['id'])) {
-            // Update existing
-            DB::table('fgp_order_items')
-                ->where('id', $item['id'])
-                ->update([
+        // Update or create items
+        foreach ($validated['items'] as $item) {
+            if (!empty($item['id'])) {
+                // Update existing
+                DB::table('fgp_order_items')
+                    ->where('id', $item['id'])
+                    ->update([
+                        'fgp_item_id' => $item['fgp_item_id'],
+                        'quantity' => $item['unit_number'],
+                        'unit_price' => $item['unit_cost'],
+                        'price' => $item['unit_cost'] * $item['unit_number'],
+                        'updated_at' => now(),
+                    ]);
+            } else {
+                // Add new
+                DB::table('fgp_order_items')->insert([
+                    'fgp_order_id' => $order->id,
                     'fgp_item_id' => $item['fgp_item_id'],
                     'quantity' => $item['unit_number'],
                     'unit_price' => $item['unit_cost'],
                     'price' => $item['unit_cost'] * $item['unit_number'],
+                    'created_at' => now(),
                     'updated_at' => now(),
                 ]);
-        } else {
-            // Add new
-            DB::table('fgp_order_items')->insert([
-                'fgp_order_id' => $order->id,
-                'fgp_item_id' => $item['fgp_item_id'],
-                'quantity' => $item['unit_number'],
-                'unit_price' => $item['unit_cost'],
-                'price' => $item['unit_cost'] * $item['unit_number'],
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            }
         }
+
+        return redirect()
+            ->route('franchise.orders', ['franchise' => $franchiseId])
+            ->with('success', 'Order #' . $order->getOrderNum() . ' updated successfully!');
     }
 
-    return redirect()
-    ->route('franchise.orders', ['franchise' => $franchiseId])
-    ->with('success', 'Order #' . $order->getOrderNum() . ' updated successfully!');
-}
+    public function createPackingList($orderId)
+    {
+        // Fetch the order and its shipments
+        $order = FgpOrder::findOrFail($orderId);
+        $shipments = UpsShipment::where('fgp_ordersID', $orderId)->get();
 
-public function createPackingList($orderId)
-{
-    // Fetch the order and its shipments
-    $order = FgpOrder::findOrFail($orderId);
-    $shipments = UpsShipment::where('fgp_ordersID', $orderId)->get();
+        // Decode box_contents for each shipment
+        foreach ($shipments as $shipment) {
+            $shipment->box_contents = is_string($shipment->box_contents)
+                ? json_decode($shipment->box_contents, true)
+                : $shipment->box_contents;
+        }
 
-    // Decode box_contents for each shipment
-    foreach ($shipments as $shipment) {
-        $shipment->box_contents = is_string($shipment->box_contents)
-            ? json_decode($shipment->box_contents, true)
-            : $shipment->box_contents;
+        return view('corporate_admin.view_orders.packinglist', compact('order', 'shipments'));
     }
-
-    return view('corporate_admin.view_orders.packinglist', compact('order', 'shipments'));
-}
 
 
     public function orderposps($franchise)
@@ -487,13 +486,13 @@ public function createPackingList($orderId)
                 })
                 ->addColumn('categories', function ($pop) {
                     $formattedCategories = '';
-                    if($pop->categories->isNotEmpty()) {
-                            foreach($pop->categories as $category) {
-                                $formattedCategories .= '<span class="badge bg-primary me-2 mb-1">'.$category->name.'</span>';
-                            }
-                        } else {
-                            $formattedCategories = 'No Category';
+                    if ($pop->categories->isNotEmpty()) {
+                        foreach ($pop->categories as $category) {
+                            $formattedCategories .= '<span class="badge bg-primary me-2 mb-1">' . $category->name . '</span>';
                         }
+                    } else {
+                        $formattedCategories = 'No Category';
+                    }
                     return $formattedCategories;
                 })
                 ->filterColumn('categories', function ($query, $keyword) {
@@ -523,7 +522,8 @@ public function createPackingList($orderId)
     }
 
 
-    public function confirmPage(){
+    public function confirmPage()
+    {
         $items = session('ordered_items', []);
 
         if (empty($items)) {
@@ -533,7 +533,7 @@ public function createPackingList($orderId)
         $requiredCharges = AdditionalCharge::where('charge_optional', 'required')->where('status', 1)->get();
         $optionalCharges = AdditionalCharge::where('charge_optional', 'optional')->where('status', 1)->get();
         $users = Franchise::get();
-        return view('corporate_admin.orderpops.confirm', compact('items', 'requiredCharges', 'optionalCharges','users'));
+        return view('corporate_admin.orderpops.confirm', compact('items', 'requiredCharges', 'optionalCharges', 'users'));
     }
 
     public function confirmOrder(Request $request)
@@ -636,7 +636,7 @@ public function createPackingList($orderId)
                 'unit_price' => $item['unit_cost'],
                 'quantity' => $item['unit_number'],
                 'price' => $item['unit_cost'] * $item['unit_number'],
-               // 'unit_number' => $item['unit_number'], // Keep for compatibility
+                // 'unit_number' => $item['unit_number'], // Keep for compatibility
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -671,7 +671,6 @@ public function createPackingList($orderId)
                 'success' => false,
                 'message' => 'Invalid status provided.'
             ], 400);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

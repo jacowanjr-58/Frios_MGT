@@ -53,7 +53,7 @@
                                     <th class="px-4 py-2 border text-left">Item</th>
                                     <th class="px-4 py-2 border text-center">Cases Ordered</th>
                                     <th class="px-4 py-2 border text-center">Cases Received</th>
-                                    <th class="px-4 py-2 border text-center">Damaged Units</th> {{-- New column --}}
+                                    <th class="px-4 py-2 border text-center">Damaged Pops</th> {{-- New column --}}
                                     <th class="px-4 py-2 border text-left">Discrepancy Notes (Did not arrive, melted pop, broken stick, etc.)</th>
                                 </tr>
                             </thead>
@@ -62,9 +62,22 @@
                                 @foreach($orders->orderItems as $detail)
 
                                     <tr class="@if($loop->even) bg-white @else bg-gray-50 @endif">
-                                        {{-- 1) Display the item name --}}
+                                        {{-- 1) Display the item name with image --}}
                                         <td class="px-4 py-2 border">
-                                            {{ $detail->item->name ?? "Item #{$detail->fgp_item_id}" }}
+                                            <div class="flex items-center space-x-3">
+                                                @if($detail->item && $detail->item->image1)
+                                                    <img src="{{ asset('storage/' . $detail->item->image1) }}"
+                                                         alt="{{ $detail->item->name ?? 'Item Image' }}"
+                                                         class="w-12 h-12 object-cover rounded-md border border-gray-300">
+                                                @else
+                                                    <div class="w-12 h-12 bg-gray-200 rounded-md border border-gray-300 flex items-center justify-center">
+                                                        <i class="fa fa-image text-gray-400"></i>
+                                                    </div>
+                                                @endif
+                                                <span class="font-medium">
+                                                    {{ $detail->item->name ?? "Item #{$detail->fgp_item_id}" }}
+                                                </span>
+                                            </div>
                                         </td>
 
                                         {{-- 2) Show how many were ordered --}}
@@ -346,6 +359,51 @@ document.querySelector('form').addEventListener('submit', function(e) {
         font-size: 2rem;
         font-weight: 700;
         line-height: 1;
+    }
+
+    /* Item image styles */
+    .flex {
+        display: flex;
+    }
+
+    .items-center {
+        align-items: center;
+    }
+
+    .space-x-3 > * + * {
+        margin-left: 0.75rem;
+    }
+
+    .w-12 {
+        width: 3rem;
+    }
+
+    .h-12 {
+        height: 3rem;
+    }
+
+    .object-cover {
+        object-fit: cover;
+    }
+
+    .rounded-md {
+        border-radius: 0.375rem;
+    }
+
+    .border-gray-300 {
+        border-color: #d1d5db;
+    }
+
+    .bg-gray-200 {
+        background-color: #e5e7eb;
+    }
+
+    .text-gray-400 {
+        color: #9ca3af;
+    }
+
+    .font-medium {
+        font-weight: 500;
     }
 </style>
 @endpush

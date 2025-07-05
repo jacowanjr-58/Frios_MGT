@@ -133,11 +133,11 @@ class InventoryAllocationController extends Controller
         }
 
         // 2) Load the order and eager-load its details
-        $order->load('orderDetails', 'orderDetails.item');
+        $order->load('orderItems', 'orderItems.item');
 
         // 3) Build & run validation
         $rules = [];
-        foreach ($order->orderDetails as $detail) {
+        foreach ($order->orderItems as $detail) {
             $rules["received_qty.{$detail->id}"] = 'required|integer|min:0';
             $rules["damaged_units.{$detail->id}"] = 'nullable|integer|min:0';
         }
@@ -146,7 +146,7 @@ class InventoryAllocationController extends Controller
         // 4) Process each detail inside a transaction
         DB::beginTransaction();
         try {
-            foreach ($order->orderDetails as $detail) {
+            foreach ($order->orderItems as $detail) {
 
 
                 // a) Sync InventoryMaster
@@ -226,7 +226,7 @@ class InventoryAllocationController extends Controller
         }
 
         return redirect()
-            ->route('franchise.orderpops.view')
+            ->route('franchise.orders', ['franchise' => $franchiseId])
             ->with('success', 'Delivery confirmed and inventory updated.');
     }
 }
