@@ -21,10 +21,10 @@
             {{-- @dd($order); --}}
 
             @if ($errors->has('error'))
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-        {{ $errors->first('error') }}
-    </div>
-@endif
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                {{ $errors->first('error') }}
+            </div>
+            @endif
 
             <div class="container mx-auto px-4">
                 <h1 class="text-2xl font-bold mb-4">Confirm Delivery for Order #FGP-{{ $orders->id }}</h1>
@@ -41,7 +41,7 @@
                     <div class="mb-6 p-4 bg-gray-100 rounded">
                        <p><strong>Order Date:</strong>
                             {{ $orders->created_at ? \Carbon\Carbon::parse($orders->created_at)->format('M d, Y') : 'N/A' }}                    </p>
-                        <p><strong>franchise:</strong> {{ $orders->franchise->name ?? 'N/A' }}</p>
+                        <p><strong>Franchise:</strong> {{ $orders->franchise->frios_territory_name ?? 'N/A' }}</p>
                         {{-- any other summary fields --}}
                     </div>
 
@@ -199,11 +199,154 @@ document.querySelector('form').addEventListener('submit', function(e) {
     }
 });
 </script>
+@endpush
+@push('styles')
 <style>
-.input-error {
-    border: 2px solid #e3342f !important;
-    background: #fdecea !important;
-}
+    /* Match card/table style from corporate_admin/orders/index.blade.php */
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: #00ABC7;
+        color: white;
+        font-weight: 600;
+        border-radius: 0.5rem 0.5rem 0 0 !important;
+    }
+
+    .card-title {
+        margin-bottom: 0;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #fff;
+    }
+
+    .table {
+        background: white;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.75rem 1rem;
+        vertical-align: middle;
+        border: 1px solid #e9ecef;
+    }
+
+    .table thead th {
+        background: #f8f9fa;
+        color: #495057;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .table tbody tr:nth-child(even) {
+        background: #f8f9fa;
+    }
+
+    .table tbody tr:nth-child(odd) {
+        background: #fff;
+    }
+
+    .form-control,
+    input[type="number"],
+    textarea {
+        border: 2px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        background: white;
+        transition: border-color 0.2s;
+    }
+
+    .form-control:focus,
+    input[type="number"]:focus,
+    textarea:focus {
+        border-color: #00ABC7;
+        box-shadow: 0 0 0 0.2rem rgba(0, 171, 199, 0.15);
+        outline: 0;
+    }
+
+    .input-error {
+        border: 2px solid #e3342f !important;
+        background: #fdecea !important;
+    }
+
+    .btn-primary,
+    button[type="submit"] {
+        background: #00ABC7;
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: background 0.2s;
+    }
+
+    .btn-primary:hover,
+    button[type="submit"]:hover {
+        background: #007bff;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: background 0.2s;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        color: white;
+    }
+
+    .bg-gray-100 {
+        background: #f8f9fa !important;
+    }
+
+    .bg-gray-200 {
+        background: #e9ecef !important;
+    }
+
+    .rounded {
+        border-radius: 0.5rem !important;
+    }
+
+    .text-primary {
+        color: #00ABC7 !important;
+    }
+
+    .text-danger {
+        color: #dc3545 !important;
+    }
+
+    .text-success {
+        color: #198754 !important;
+    }
+
+    .stats-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-bottom: 0.5rem;
+    }
+
+    .stats-number {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1;
+    }
 </style>
 @endpush
 @endsection
