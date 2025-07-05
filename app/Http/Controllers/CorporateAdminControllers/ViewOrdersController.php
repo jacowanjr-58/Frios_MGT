@@ -89,15 +89,11 @@ class ViewOrdersController extends Controller
                     }
                     return '<span class="text-muted">No Franchise</span>';
                 })
-                ->addColumn('flavors', function ($order) {
-                    if ($order->orderItems->count() > 0) {
-                        $flavorList = $order->orderItems->map(function ($item) {
-                            $flavorName = $item->item->name ?? 'Unknown Flavor';
-                            return "({$item->quantity}) {$flavorName}";
-                        })->implode('<br>');
-                        return '<div class="small">' . $flavorList . '</div>';
-                    }
-                    return '<span class="text-muted">No Items</span>';
+                ->addColumn('total_cases', function ($order) {
+                    $totalCases = DB::table('fgp_order_items')
+                        ->where('fgp_order_id', $order->id)
+                        ->sum('quantity');
+                    return '<strong>' . number_format($totalCases) . '</strong>';
                 })
                 ->addColumn('shipping_address', function ($order) {
                     return $order->fullShippingAddress();
@@ -164,7 +160,7 @@ class ViewOrdersController extends Controller
 
                     return $actions;
                 })
-                ->rawColumns(['order_number', 'ordered_by', 'franchise', 'flavors', 'items_count', 'issues', 'status', 'ups_label', 'action'])
+                ->rawColumns(['order_number', 'ordered_by', 'franchise', 'total_cases', 'items_count', 'issues', 'status', 'ups_label', 'action'])
                 ->make(true);
 
         }

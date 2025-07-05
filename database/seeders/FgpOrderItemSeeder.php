@@ -19,40 +19,40 @@ class FgpOrderItemSeeder extends Seeder
     public function run(): void
     {
         $faker = Faker::create();
-        
+
         // Get existing orders and items for foreign key relationships
         $orders = FgpOrder::pluck('id')->toArray();
         $items = FgpItem::pluck('id')->toArray();
-        
+
         // If no orders or items exist, create some basic ones or exit
         if (empty($orders)) {
             $this->command->error('No FgpOrders found. Please run FgpOrderSeeder first.');
             return;
         }
-        
+
         if (empty($items)) {
             $this->command->warn('No FgpItems found. Creating dummy items for testing.');
-            
+
             // Get required foreign key values
             $firstUserId = User::first()?->id;
             $firstFranchiseId = Franchise::first()?->id;
             $firstCategoryId = FgpCategory::first()?->id;
-            
+
             if (!$firstUserId) {
                 $this->command->error('No users found. Please ensure users are created first.');
                 return;
             }
-            
+
             if (!$firstFranchiseId) {
                 $this->command->error('No franchises found. Please run FranchiseSeeder first.');
                 return;
             }
-            
+
             if (!$firstCategoryId) {
                 $this->command->error('No FGP categories found. Please run FgpCategorySeeder first.');
                 return;
             }
-            
+
             // Create some dummy FgpItems if none exist
             for ($i = 1; $i <= 5; $i++) {
                 DB::table('fgp_items')->insert([
@@ -73,25 +73,32 @@ class FgpOrderItemSeeder extends Seeder
             $items = FgpItem::pluck('id')->toArray();
         }
 
-        // Create 10 order items
-        for ($i = 1; $i <= 10; $i++) {
-            $orderId = $faker->randomElement($orders);
-            $itemId = $faker->randomElement($items);
-            $quantity = $faker->numberBetween(1, 20);
-            $unitPrice = $faker->randomFloat(2, 5.00, 25.00);
-            $totalPrice = $quantity * $unitPrice;
-            
-            DB::table('fgp_order_items')->insert([
-                'fgp_order_id' => $orderId,
-                'fgp_item_id' => $itemId,
-                'quantity' => $quantity,
-                'unit_price' => $unitPrice,
-                'price' => $totalPrice,
-                'created_at' => $faker->dateTimeBetween('-60 days', 'now'),
-                'updated_at' => $faker->dateTimeBetween('-30 days', 'now')
-            ]);
+        // Create 3-12 order items for each FgpOrder
+        $totalItemsCreated = 0;
+
+        foreach ($orders as $orderId) {
+            $itemCount = $faker->numberBetween(3, 12);
+
+            for ($i = 1; $i <= $itemCount; $i++) {
+                $itemId = $faker->randomElement($items);
+                $quantity = $faker->numberBetween(1, 9);
+                $unitPrice = $faker->randomFloat(2, 5.00, 25.00);
+                $totalPrice = $quantity * $unitPrice;
+
+                DB::table('fgp_order_items')->insert([
+                    'fgp_order_id' => $orderId,
+                    'fgp_item_id' => $itemId,
+                    'quantity' => $quantity,
+                    'unit_price' => $unitPrice,
+                    'price' => $totalPrice,
+                    'created_at' => $faker->dateTimeBetween('-60 days', 'now'),
+                    'updated_at' => $faker->dateTimeBetween('-30 days', 'now')
+                ]);
+
+                $totalItemsCreated++;
+            }
         }
-        
-        $this->command->info('Created 10 dummy FGP order items successfully!');
+
+        $this->command->info("Created {$totalItemsCreated} FGP order items for " . count($orders) . " orders (3-12 items per order)!");
     }
-} 
+}

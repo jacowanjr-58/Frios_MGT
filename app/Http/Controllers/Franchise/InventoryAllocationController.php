@@ -7,7 +7,7 @@ use App\Models\FgpOrder;
 use App\Models\Franchise;
 use Illuminate\Http\Request;
 use App\Models\InventoryMaster;
-use App\Models\OrderDiscrepancy;
+use App\Models\FgpOrderDiscrepancy;
 use App\Models\InventoryLocation;
 use Illuminate\Support\Facades\DB;
 use App\Models\InventoryAllocation;
@@ -198,7 +198,7 @@ class InventoryAllocationController extends Controller
 
                 // c) Discrepancy if cases received ≠ cases ordered
                 if ($receivedQty !== $orderedQty) {
-                    OrderDiscrepancy::create([
+                    FgpOrderDiscrepancy::create([
                         'order_id'           => $order->id,
                         'order_detail_id'    => $detail->id,
                         'quantity_ordered'   => $orderedQty,
@@ -215,7 +215,7 @@ class InventoryAllocationController extends Controller
             // (Optional) Notify Corporate if there were any discrepancies
             // if ($order->orderDiscrepancies()->count() > 0) {
             //     \Notification::route('mail', 'corporate@friospops.com')
-            //         ->notify(new \App\Notifications\OrderDiscrepancyNotification($order));
+            //         ->notify(new \App\Notifications\FgpOrderDiscrepancyNotification($order));
             // }
             DB::commit();
         } catch (\Throwable $e) {

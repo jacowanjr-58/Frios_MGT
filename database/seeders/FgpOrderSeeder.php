@@ -21,14 +21,14 @@ class FgpOrderSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         FgpOrder::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-    
+
         $faker = Faker::create();
-    
+
         // Get existing customers, franchises, and users for foreign key relationships
         $customers = Customer::pluck('id')->toArray();
         $franchises = Franchise::pluck('id')->toArray();
         $users = User::pluck('id')->toArray();
-    
+
         // If no customers, franchises, or users exist, we'll create some basic ones
         if (empty($customers)) {
             $customers = [1, 2, 3];
@@ -39,16 +39,16 @@ class FgpOrderSeeder extends Seeder
         if (empty($users)) {
             $users = [1, 2, 3];
         }
-    
+
         $statuses = ['Pending', 'Paid', 'Shipped', 'Delivered'];
         $shipMethods = ['UPS Ground', 'UPS 2-Day Air', 'FedEx Ground', 'FedEx Express', 'USPS Priority Mail'];
-    
-        for ($i = 1; $i <= 10; $i++) {
+
+        for ($i = 1; $i <= 50; $i++) {
             $status = $faker->randomElement($statuses);
             $isPaid = in_array($status, ['Paid', 'Shipped', 'Delivered']) ? 1 : 0;
             $isDelivered = $status === 'Delivered' ? 1 : 0;
             $deliveredAt = $isDelivered ? $faker->dateTimeBetween('-30 days', 'now') : null;
-    
+
             FgpOrder::create([
                 'franchise_id' => $faker->randomElement($franchises),
                 'order_num' => 'ORD-' . str_pad($i, 6, '0', STR_PAD_LEFT),
@@ -79,5 +79,5 @@ class FgpOrderSeeder extends Seeder
             ]);
         }
     }
-    
+
 }

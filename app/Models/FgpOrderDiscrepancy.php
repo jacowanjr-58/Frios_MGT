@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class FgpOrderDiscrepancy extends Model
 {
+
+    protected $table = 'fgp_order_discrepancies';
+    
     protected $fillable = [
         'fgp_order_id',
         'fgp_order_item_id',
-        'user_id', // Add this
+        'user_id',
         'quantity_ordered',
         'quantity_received',
         'notes',

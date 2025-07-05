@@ -388,7 +388,7 @@
                                             <th>Order Number</th>
                                             <th>Ordered By</th>
                                             <th>Franchise</th>
-                                            <th>Flavors</th>
+                                            <th>Total Cases</th>
                                             <th>Shipping Address</th>
                                             <th>Total Amount</th>
                                             <th>Issues</th>
@@ -458,7 +458,7 @@
                         { data: 'order_number', name: 'fgp_orders.id' },
                         { data: 'ordered_by', name: 'ordered_by' },
                         { data: 'franchise', name: 'franchise' },
-                        { data: 'flavors', name: 'flavors' },
+                        { data: 'total_cases', name: 'total_cases' },
                         { data: 'shipping_address', name: 'shipping_address' },
                         { data: 'total_amount', name: 'total_amount' },
                         { data: 'issues', name: 'issues' },

@@ -56,8 +56,9 @@ class FgpOrder extends Model
         return $this->belongsTo(FgpItem::class, 'fgp_item_id', 'name');
     }
 
-    public function getOrderNum() : string{
-            return $this->order_num ?? "FGP-" . $this->id;
+    public function getOrderNum(): string
+    {
+        return $this->order_num ?? "FGP-" . $this->id;
     }
 
     //Note the Plural for adding to OrderDetails
@@ -76,12 +77,12 @@ class FgpOrder extends Model
         return $this->hasMany(FgpOrderDetail::class, 'fgp_order_id');
     }
 
-     public function orderDiscrepancies()
+    public function orderDiscrepancies()
     {
-        // If your OrderDiscrepancy table's FK is "order_id"
+        // If your FgpOrderDiscrepancy table's FK is "order_id"
         // and your local PK is "id", do:
         return $this->hasMany(
-            OrderDiscrepancy::class,
+            FgpOrderDiscrepancy::class,
             'order_id'        // FK column on order_discrepancies
         );
     }
@@ -105,7 +106,8 @@ class FgpOrder extends Model
 
         return $this->orderDetails
             ->groupBy(fn($detail) => $detail->flavor->name)
-            ->map(fn($grouped, $flavorName) =>
+            ->map(
+                fn($grouped, $flavorName) =>
                 $grouped->sum('quantity_received') . " {$flavorName}"
             )
             ->implode(', ');
@@ -124,4 +126,3 @@ class FgpOrder extends Model
         return trim("{$this->ship_to_address1} {$this->ship_to_address2}, {$this->ship_to_city}, {$this->ship_to_state} {$this->ship_to_zip}");
     }
 }
-
